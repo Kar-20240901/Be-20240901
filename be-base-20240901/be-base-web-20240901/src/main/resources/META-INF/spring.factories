@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.kar20240901.be.base.web.configuration.base.BaseConfiguration
