@@ -312,15 +312,6 @@ public class SignUtil {
         // 密码解密
         password = MyRsaUtil.rsaDecrypt(password);
 
-        // 如果是 admin账户
-        if (TempConstant.ADMIN_ACCOUNT.equals(account)) {
-
-            if (signInPasswordForAdmin(password)) {
-                return BaseJwtUtil.generateJwt(TempConstant.ADMIN_ID, null, true, baseRequestCategoryEnum, null);
-            }
-
-        }
-
         // 登录时，获取账号信息
         BaseUserDO baseUserDO = signInGetTempUserDO(lambdaQueryChainWrapper, true);
 
@@ -337,39 +328,6 @@ public class SignUtil {
 
         // 登录时，获取：jwt
         return signInGetJwt(baseUserDO, true, baseRequestCategoryEnum);
-
-    }
-
-    /**
-     * admin登录，登录成功返回 true
-     */
-    private static boolean signInPasswordForAdmin(String password) {
-
-        if (MyUserUtil.getDisable(TempConstant.ADMIN_ID)) { // admin是否被冻结
-
-            R.error(TempBizCodeEnum.ACCOUNT_IS_DISABLED);
-
-            return false;
-
-        } else {
-
-            // 判断：密码错误次数过多
-            checkTooManyPasswordWillError(TempConstant.ADMIN_ID);
-
-            if (BooleanUtil.isFalse(baseSecurityProperties.getAdminPassword().equals(password))) {
-
-                // 密码输入错误处理
-                passwordErrorHandlerWillError(TempConstant.ADMIN_ID);
-
-                return false;
-
-            } else {
-
-                return true;
-
-            }
-
-        }
 
     }
 
