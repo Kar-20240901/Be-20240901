@@ -114,7 +114,7 @@ public class MyUserUtil {
      */
     public static boolean getCurrentUserAdminFlag() {
 
-        return TempConstant.ADMIN_ID.equals(getCurrentUserIdDefault());
+        return getCurrentUserAdminFlag(getCurrentUserIdDefault());
 
     }
 

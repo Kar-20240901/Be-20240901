@@ -4,17 +4,16 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.DesensitizedUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
+import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.BaseUserMapper;
 import com.kar20240901.be.base.web.model.domain.BaseUserDO;
+import com.kar20240901.be.base.web.model.domain.BaseUserInfoDO;
+import com.kar20240901.be.base.web.model.domain.TempEntity;
 import com.kar20240901.be.base.web.model.dto.BaseUserSelfUpdateInfoDTO;
 import com.kar20240901.be.base.web.model.vo.BaseUserSelfInfoVO;
-import com.kar20240901.be.base.web.service.BaseUserSelfService;
-import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
-import com.kar20240901.be.base.web.model.constant.TempConstant;
-import com.kar20240901.be.base.web.model.domain.TempEntity;
-import com.kar20240901.be.base.web.model.domain.BaseUserInfoDO;
 import com.kar20240901.be.base.web.properties.BaseSecurityProperties;
+import com.kar20240901.be.base.web.service.BaseUserSelfService;
 import com.kar20240901.be.base.web.util.MyEntityUtil;
 import com.kar20240901.be.base.web.util.MyThreadUtil;
 import com.kar20240901.be.base.web.util.MyUserUtil;
@@ -48,18 +47,6 @@ public class BaseUserSelfServiceImpl implements BaseUserSelfService {
         BaseUserSelfInfoVO baseUserSelfInfoVO = new BaseUserSelfInfoVO();
 
         baseUserSelfInfoVO.setId(currentUserId);
-
-        if (MyUserUtil.getCurrentUserAdminFlag(currentUserId)) {
-
-            baseUserSelfInfoVO.setAvatarFileId(TempConstant.SYS_ID);
-            baseUserSelfInfoVO.setNickname(baseSecurityProperties.getAdminNickname());
-            baseUserSelfInfoVO.setBio("");
-            baseUserSelfInfoVO.setEmail("");
-            baseUserSelfInfoVO.setPasswordFlag(true);
-
-            return baseUserSelfInfoVO;
-
-        }
 
         CountDownLatch countDownLatch = ThreadUtil.newCountDownLatch(2);
 

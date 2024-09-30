@@ -190,15 +190,8 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUserDO>
         List<BaseUserInfoDO> baseUserInfoDOList = ChainWrappers.lambdaQueryChain(baseUserInfoMapper)
             .select(BaseUserInfoDO::getId, BaseUserInfoDO::getNickname).orderByDesc(BaseUserInfoDO::getId).list();
 
-        List<DictVO> dictVOList = baseUserInfoDOList.stream().map(it -> {
-
-            if (it.getId().equals(TempConstant.ADMIN_ID)) {
-                return new DictVO(it.getId(), baseSecurityProperties.getAdminNickname());
-            }
-
-            return new DictVO(it.getId(), it.getNickname());
-
-        }).collect(Collectors.toList());
+        List<DictVO> dictVOList = baseUserInfoDOList.stream().map(it -> new DictVO(it.getId(), it.getNickname()))
+            .collect(Collectors.toList());
 
         return new Page<DictVO>().setTotal(dictVOList.size()).setRecords(dictVOList);
 
