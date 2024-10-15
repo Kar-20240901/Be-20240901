@@ -34,11 +34,11 @@ public class GenerateApiUtil {
 
     // 读取：接口的地址
     // public String SPRING_DOC_ENDPOINT = "http://43.154.37.130:10001/v3/api-docs/be";
-    private String springDocEndpoint = "http://127.0.0.1:8001/v3/api-docs/be-base-web-20240703";
+    private String springDocEndpoint = "http://127.0.0.1:8001/v3/api-docs/be-base-web-20240901";
 
     private String systemUserDir = System.getProperty("user.dir"); // 例如：D:\GitHub\Be-20240901
 
-    private String apiPath = getSystemUserDir() + "../Fe-20240901/src/api/http/base/";
+    private String apiPath = getSystemUserDir() + "/Fe-20240901/src/api/http/base/";
 
     private String ts = ".ts";
 
@@ -68,8 +68,8 @@ public class GenerateApiUtil {
 
     public String getSystemUserDir() {
 
-        if (!systemUserDir.contains("Be-20240901")) {
-            return systemUserDir + "/Be-20240901";
+        if (systemUserDir.contains("\\Be-20240901")) {
+            return systemUserDir.replace("\\Be-20240901", "");
         }
 
         return systemUserDir;
@@ -79,6 +79,10 @@ public class GenerateApiUtil {
     public static void main(String[] args) {
 
         GenerateApiUtil generateApiUtil = new GenerateApiUtil();
+
+        //        System.out.println(generateApiUtil.getSystemUserDir());
+        //
+        //        System.out.println(generateApiUtil.apiPath);
 
         // 执行
         generateApiUtil.exec();

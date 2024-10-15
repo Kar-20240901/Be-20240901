@@ -28,7 +28,7 @@ public class SpringDocUtil {
 
     // 读取：接口的地址
     //    private static final String SPRING_DOC_ENDPOINT = "http://43.154.37.130:10001/v3/api-docs/be";
-    private static String SPRING_DOC_ENDPOINT = "http://127.0.0.1:8001/v3/api-docs/be-base-web-20240703";
+    private static String SPRING_DOC_ENDPOINT = "http://127.0.0.1:8001/v3/api-docs/be-base-web-20240901";
 
     private static final String BE_API_SCHEMA_MAP_KEY = "beApiSchemaMapKey";
 
