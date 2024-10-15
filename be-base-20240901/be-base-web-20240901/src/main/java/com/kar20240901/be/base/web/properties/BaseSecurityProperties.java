@@ -2,6 +2,7 @@ package com.kar20240901.be.base.web.properties;
 
 import cn.hutool.crypto.digest.DigestUtil;
 import com.kar20240901.be.base.web.model.constant.PropertiesPrefixConstant;
+import com.kar20240901.be.base.web.util.PasswordConvertUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -36,6 +37,11 @@ public class BaseSecurityProperties {
         password = DigestUtil.sha256Hex((DigestUtil.sha512Hex(password)));
 
         System.out.println(password); // 19b5818d7fe851f4510715cbf2193204df3f5b82808a84faaa02634752886ff2
+
+        String convert = PasswordConvertUtil.convert(password, true);
+
+        System.out.println(
+            convert); // 51791182cd33494e8c8172469639b6d1/2ec129bd2d5914753d2dcee2fb2fc781bb65ef907e831435d2fec9f0afd7481971be9840167bb839b834c0d8ba536420515d39fcaf4144ba9a86c70c783f7c69
 
     }
 

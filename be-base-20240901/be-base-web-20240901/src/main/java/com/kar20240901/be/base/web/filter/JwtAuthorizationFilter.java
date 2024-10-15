@@ -27,7 +27,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.redisson.api.RedissonClient;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -47,9 +46,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     @Resource
     List<IJwtFilterHandler> iJwtFilterHandlerList;
-
-    @Resource
-    RedissonClient redissonClient;
 
     @SneakyThrows
     @Override

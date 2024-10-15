@@ -9,7 +9,7 @@ import cn.hutool.json.JSONUtil;
 import cn.hutool.jwt.JWT;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.model.constant.TempConstant;
-import com.kar20240901.be.base.web.model.domain.BaseUserDO;
+import com.kar20240901.be.base.web.model.domain.TempUserDO;
 import com.kar20240901.be.base.web.model.enums.TempRedisKeyEnum;
 import com.kar20240901.be.base.web.model.vo.R;
 import com.kar20240901.be.base.web.properties.BaseSecurityProperties;
@@ -268,12 +268,12 @@ public class MyUserUtil {
     /**
      * 给 security设置用户信息，并执行方法
      */
-    public static void securityContextHolderSetAuthenticationAndExecFun(VoidFunc0 voidFunc0, BaseUserDO baseUserDO,
+    public static void securityContextHolderSetAuthenticationAndExecFun(VoidFunc0 voidFunc0, TempUserDO tempUserDO,
         boolean setAuthoritySetFlag, String jwt) {
 
         // 执行
-        securityContextHolderSetAuthenticationAndExecFun(voidFunc0, baseUserDO.getId(), baseUserDO.getWxAppId(),
-            baseUserDO.getWxOpenId(), setAuthoritySetFlag, jwt);
+        securityContextHolderSetAuthenticationAndExecFun(voidFunc0, tempUserDO.getId(), tempUserDO.getWxAppId(),
+            tempUserDO.getWxOpenId(), setAuthoritySetFlag, jwt);
 
     }
 

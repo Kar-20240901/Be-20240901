@@ -15,9 +15,10 @@ import com.kar20240901.be.base.web.mapper.BaseUserMapper;
 import com.kar20240901.be.base.web.model.constant.TempConstant;
 import com.kar20240901.be.base.web.model.constant.TempRegexConstant;
 import com.kar20240901.be.base.web.model.domain.BaseRoleRefUserDO;
-import com.kar20240901.be.base.web.model.domain.BaseUserDO;
-import com.kar20240901.be.base.web.model.domain.BaseUserInfoDO;
 import com.kar20240901.be.base.web.model.domain.TempEntity;
+import com.kar20240901.be.base.web.model.domain.TempUserDO;
+import com.kar20240901.be.base.web.model.domain.TempUserInfoDO;
+import com.kar20240901.be.base.web.model.domain.kafka.TempKafkaUserInfoDO;
 import com.kar20240901.be.base.web.model.enums.BaseRedisKeyEnum;
 import com.kar20240901.be.base.web.model.enums.BaseRequestCategoryEnum;
 import com.kar20240901.be.base.web.model.enums.TempRedisKeyEnum;
@@ -155,55 +156,63 @@ public class SignUtil {
      * 新增：用户
      */
     @NotNull
-    public static BaseUserDO insertUser(String password, Map<Enum<? extends IRedisKey>, String> accountMap,
-        boolean checkPasswordBlank, @Nullable BaseUserInfoDO tempBaseUserInfoDO, Boolean enableFlag) {
+    public static TempUserDO insertUser(String password, Map<Enum<? extends IRedisKey>, String> accountMap,
+        boolean checkPasswordBlank, @Nullable TempUserInfoDO tempTempUserInfoDO, Boolean enableFlag) {
 
         // 获取：TempUserDO对象
-        BaseUserDO baseUserDO = insertUserGetTempUserDO(password, accountMap, checkPasswordBlank, enableFlag);
+        TempUserDO tempUserDO = insertUserGetTempUserDO(password, accountMap, checkPasswordBlank, enableFlag);
 
         return TransactionUtil.exec(() -> {
 
-            baseUserMapper.insert(baseUserDO); // 保存：用户
+            baseUserMapper.insert(tempUserDO); // 保存：用户
 
-            BaseUserInfoDO baseUserInfoDO = new BaseUserInfoDO();
+            TempUserInfoDO tempUserInfoDO = new TempUserInfoDO();
 
-            baseUserInfoDO.setId(baseUserDO.getId());
+            tempUserInfoDO.setId(tempUserDO.getId());
 
-            baseUserInfoDO.setLastActiveTime(baseUserDO.getCreateTime());
+            tempUserInfoDO.setLastActiveTime(tempUserDO.getCreateTime());
 
-            if (tempBaseUserInfoDO == null) {
+            if (tempTempUserInfoDO == null) {
 
-                baseUserInfoDO.setNickname(NicknameUtil.getRandomNickname());
-                baseUserInfoDO.setBio("");
+                tempUserInfoDO.setNickname(NicknameUtil.getRandomNickname());
+                tempUserInfoDO.setBio("");
 
-                baseUserInfoDO.setAvatarFileId(-1L);
+                tempUserInfoDO.setAvatarFileId(-1L);
 
-                baseUserInfoDO.setSignUpType(RequestUtil.getRequestCategoryEnum());
+                tempUserInfoDO.setSignUpType(RequestUtil.getRequestCategoryEnum());
 
-                baseUserInfoDO.setLastIp(RequestUtil.getIp());
+                tempUserInfoDO.setLastIp(RequestUtil.getIp());
 
             } else {
 
-                baseUserInfoDO.setNickname(
-                    MyEntityUtil.getNotNullStr(tempBaseUserInfoDO.getNickname(), NicknameUtil.getRandomNickname()));
+                tempUserInfoDO.setNickname(
+                    MyEntityUtil.getNotNullStr(tempTempUserInfoDO.getNickname(), NicknameUtil.getRandomNickname()));
 
-                baseUserInfoDO.setBio(MyEntityUtil.getNotNullStr(tempBaseUserInfoDO.getBio()));
+                tempUserInfoDO.setBio(MyEntityUtil.getNotNullStr(tempTempUserInfoDO.getBio()));
 
-                baseUserInfoDO.setAvatarFileId(MyEntityUtil.getNotNullLong(tempBaseUserInfoDO.getAvatarFileId()));
+                tempUserInfoDO.setAvatarFileId(MyEntityUtil.getNotNullLong(tempTempUserInfoDO.getAvatarFileId()));
 
-                baseUserInfoDO.setSignUpType(MyEntityUtil.getNotNullObject(tempBaseUserInfoDO.getSignUpType(),
+                tempUserInfoDO.setSignUpType(MyEntityUtil.getNotNullObject(tempTempUserInfoDO.getSignUpType(),
                     RequestUtil.getRequestCategoryEnum()));
 
-                baseUserInfoDO.setLastIp(
-                    MyEntityUtil.getNotNullStr(tempBaseUserInfoDO.getLastIp(), RequestUtil.getIp()));
+                tempUserInfoDO.setLastIp(
+                    MyEntityUtil.getNotNullStr(tempTempUserInfoDO.getLastIp(), RequestUtil.getIp()));
 
             }
 
-            baseUserInfoDO.setLastRegion("");
+            tempUserInfoDO.setLastRegion("");
 
-            baseUserInfoMapper.insert(baseUserInfoDO); // 保存：用户基本信息
+            baseUserInfoMapper.insert(tempUserInfoDO); // 保存：用户基本信息
 
-            return baseUserDO;
+            TempKafkaUserInfoDO tempKafkaUserInfoDO = new TempKafkaUserInfoDO();
+
+            tempKafkaUserInfoDO.setId(tempUserDO.getId());
+            tempKafkaUserInfoDO.setLastActiveTime(tempUserInfoDO.getLastActiveTime());
+            tempKafkaUserInfoDO.setLastIp(tempUserInfoDO.getLastIp());
+
+            TempKafkaUtil.sendTempUpdateUserInfoTopic(tempKafkaUserInfoDO); // 更新：用户信息
+
+            return tempUserDO;
 
         });
 
@@ -213,58 +222,58 @@ public class SignUtil {
      * 获取：TempUserDO对象
      */
     @NotNull
-    private static BaseUserDO insertUserGetTempUserDO(String password,
+    private static TempUserDO insertUserGetTempUserDO(String password,
         Map<Enum<? extends IRedisKey>, String> accountMap, boolean checkPasswordBlank, Boolean enableFlag) {
 
-        BaseUserDO baseUserDO = new BaseUserDO();
+        TempUserDO tempUserDO = new TempUserDO();
 
         if (enableFlag == null) {
-            baseUserDO.setEnableFlag(true);
+            tempUserDO.setEnableFlag(true);
         } else {
-            baseUserDO.setEnableFlag(enableFlag);
+            tempUserDO.setEnableFlag(enableFlag);
         }
 
-        baseUserDO.setEmail("");
-        baseUserDO.setUsername("");
-        baseUserDO.setPhone("");
-        baseUserDO.setWxOpenId("");
-        baseUserDO.setWxAppId("");
-        baseUserDO.setWxUnionId("");
-        baseUserDO.setRemark("");
+        tempUserDO.setEmail("");
+        tempUserDO.setUsername("");
+        tempUserDO.setPhone("");
+        tempUserDO.setWxOpenId("");
+        tempUserDO.setWxAppId("");
+        tempUserDO.setWxUnionId("");
+        tempUserDO.setRemark("");
 
         for (Map.Entry<Enum<? extends IRedisKey>, String> item : accountMap.entrySet()) {
 
             if (BaseRedisKeyEnum.PRE_EMAIL.equals(item.getKey())) {
 
-                baseUserDO.setEmail(item.getValue());
+                tempUserDO.setEmail(item.getValue());
 
             } else if (BaseRedisKeyEnum.PRE_USER_NAME.equals(item.getKey())) {
 
-                baseUserDO.setUsername(item.getValue());
+                tempUserDO.setUsername(item.getValue());
 
             } else if (BaseRedisKeyEnum.PRE_PHONE.equals(item.getKey())) {
 
-                baseUserDO.setPhone(item.getValue());
+                tempUserDO.setPhone(item.getValue());
 
             } else if (BaseRedisKeyEnum.PRE_WX_APP_ID.equals(item.getKey())) {
 
-                baseUserDO.setWxAppId(item.getValue());
+                tempUserDO.setWxAppId(item.getValue());
 
             } else if (BaseRedisKeyEnum.PRE_WX_OPEN_ID.equals(item.getKey())) {
 
-                baseUserDO.setWxOpenId(item.getValue());
+                tempUserDO.setWxOpenId(item.getValue());
 
             } else if (BaseRedisKeyEnum.PRE_WX_UNION_ID.equals(item.getKey())) {
 
-                baseUserDO.setWxUnionId(item.getValue());
+                tempUserDO.setWxUnionId(item.getValue());
 
             }
 
         }
 
-        baseUserDO.setPassword(PasswordConvertUtil.convert(password, checkPasswordBlank));
+        tempUserDO.setPassword(PasswordConvertUtil.convert(password, checkPasswordBlank));
 
-        return baseUserDO;
+        return tempUserDO;
 
     }
 
@@ -274,24 +283,24 @@ public class SignUtil {
     public static boolean accountIsExists(Enum<? extends IRedisKey> redisKeyEnum, String newAccount, @Nullable Long id,
         String appId) {
 
-        LambdaQueryChainWrapper<BaseUserDO> lambdaQueryChainWrapper =
+        LambdaQueryChainWrapper<TempUserDO> lambdaQueryChainWrapper =
             ChainWrappers.lambdaQueryChain(baseUserMapper).ne(id != null, TempEntity::getId, id);
 
         if (BaseRedisKeyEnum.PRE_EMAIL.equals(redisKeyEnum)) {
 
-            lambdaQueryChainWrapper.eq(BaseUserDO::getEmail, newAccount);
+            lambdaQueryChainWrapper.eq(TempUserDO::getEmail, newAccount);
 
         } else if (BaseRedisKeyEnum.PRE_USER_NAME.equals(redisKeyEnum)) {
 
-            lambdaQueryChainWrapper.eq(BaseUserDO::getUsername, newAccount);
+            lambdaQueryChainWrapper.eq(TempUserDO::getUsername, newAccount);
 
         } else if (BaseRedisKeyEnum.PRE_PHONE.equals(redisKeyEnum)) {
 
-            lambdaQueryChainWrapper.eq(BaseUserDO::getPhone, newAccount);
+            lambdaQueryChainWrapper.eq(TempUserDO::getPhone, newAccount);
 
         } else if (BaseRedisKeyEnum.PRE_WX_OPEN_ID.equals(redisKeyEnum)) {
 
-            lambdaQueryChainWrapper.eq(BaseUserDO::getWxAppId, appId).eq(BaseUserDO::getWxOpenId, newAccount);
+            lambdaQueryChainWrapper.eq(TempUserDO::getWxAppId, appId).eq(TempUserDO::getWxOpenId, newAccount);
 
         } else {
 
@@ -306,28 +315,28 @@ public class SignUtil {
     /**
      * 账号密码登录
      */
-    public static SignInVO signInPassword(LambdaQueryChainWrapper<BaseUserDO> lambdaQueryChainWrapper, String password,
+    public static SignInVO signInPassword(LambdaQueryChainWrapper<TempUserDO> lambdaQueryChainWrapper, String password,
         String account, BaseRequestCategoryEnum baseRequestCategoryEnum) {
 
         // 密码解密
         password = MyRsaUtil.rsaDecrypt(password);
 
         // 登录时，获取账号信息
-        BaseUserDO baseUserDO = signInGetTempUserDO(lambdaQueryChainWrapper, true);
+        TempUserDO tempUserDO = signInGetTempUserDO(lambdaQueryChainWrapper, true);
 
-        if (baseUserDO == null || StrUtil.isBlank(baseUserDO.getPassword())) {
+        if (tempUserDO == null || StrUtil.isBlank(tempUserDO.getPassword())) {
             R.error(BaseBizCodeEnum.NO_PASSWORD_SET); // 未设置密码，请点击【忘记密码】，进行密码设置
         }
 
-        if (BooleanUtil.isFalse(PasswordConvertUtil.match(baseUserDO.getPassword(), password))) {
+        if (BooleanUtil.isFalse(PasswordConvertUtil.match(tempUserDO.getPassword(), password))) {
 
             // 密码输入错误处理
-            passwordErrorHandlerWillError(baseUserDO.getId());
+            passwordErrorHandlerWillError(tempUserDO.getId());
 
         }
 
         // 登录时，获取：jwt
-        return signInGetJwt(baseUserDO, true, baseRequestCategoryEnum);
+        return signInGetJwt(tempUserDO, true, baseRequestCategoryEnum);
 
     }
 
@@ -335,22 +344,22 @@ public class SignUtil {
      * 登录时，获取：jwt
      */
     @Nullable
-    public static SignInVO signInGetJwt(BaseUserDO baseUserDO, boolean generateRefreshTokenFlag,
+    public static SignInVO signInGetJwt(TempUserDO tempUserDO, boolean generateRefreshTokenFlag,
         BaseRequestCategoryEnum baseRequestCategoryEnum) {
 
         // 校验密码，成功之后，再判断是否被冻结，免得透露用户被封号的信息
-        if (BooleanUtil.isFalse(baseUserDO.getEnableFlag())) {
+        if (BooleanUtil.isFalse(tempUserDO.getEnableFlag())) {
 
             R.error(TempBizCodeEnum.ACCOUNT_IS_DISABLED);
 
         }
 
         // 颁发，并返回 jwt
-        return BaseJwtUtil.generateJwt(baseUserDO.getId(), payloadMap -> {
+        return BaseJwtUtil.generateJwt(tempUserDO.getId(), payloadMap -> {
 
-            payloadMap.set(MyJwtUtil.PAYLOAD_MAP_WX_APP_ID_KEY, baseUserDO.getWxAppId());
+            payloadMap.set(MyJwtUtil.PAYLOAD_MAP_WX_APP_ID_KEY, tempUserDO.getWxAppId());
 
-            payloadMap.set(MyJwtUtil.PAYLOAD_MAP_WX_OPEN_ID_KEY, baseUserDO.getWxOpenId());
+            payloadMap.set(MyJwtUtil.PAYLOAD_MAP_WX_OPEN_ID_KEY, tempUserDO.getWxOpenId());
 
         }, generateRefreshTokenFlag, baseRequestCategoryEnum, null);
 
@@ -394,13 +403,13 @@ public class SignUtil {
      * 登录时，获取：账号信息
      */
     @Nullable
-    private static BaseUserDO signInGetTempUserDO(LambdaQueryChainWrapper<BaseUserDO> lambdaQueryChainWrapper,
+    private static TempUserDO signInGetTempUserDO(LambdaQueryChainWrapper<TempUserDO> lambdaQueryChainWrapper,
         boolean errorFlag) {
 
-        BaseUserDO baseUserDO = lambdaQueryChainWrapper.one();
+        TempUserDO tempUserDO = lambdaQueryChainWrapper.one();
 
         // 账户是否存在
-        if (baseUserDO == null) {
+        if (tempUserDO == null) {
 
             if (errorFlag) {
 
@@ -415,9 +424,9 @@ public class SignUtil {
         }
 
         // 判断：密码错误次数过多
-        checkTooManyPasswordWillError(baseUserDO.getId());
+        checkTooManyPasswordWillError(tempUserDO.getId());
 
-        return baseUserDO;
+        return tempUserDO;
 
     }
 
@@ -456,21 +465,21 @@ public class SignUtil {
         // 1 设置或者修改：密码，用户名，邮箱，手机，微信
         // 2 忘记密码
         // 3 账户注销
-        LambdaQueryChainWrapper<BaseUserDO> lambdaQueryChainWrapper =
+        LambdaQueryChainWrapper<TempUserDO> lambdaQueryChainWrapper =
             ChainWrappers.lambdaQueryChain(baseUserMapper).eq(accountBlankFlag, TempEntity::getId, userId);
 
         // 处理：lambdaQueryChainWrapper对象
         checkWillErrorHandleLambdaQueryChainWrapper(baseRedisKeyEnum, account, appId, lambdaQueryChainWrapper,
             accountBlankFlag);
 
-        BaseUserDO baseUserDO = lambdaQueryChainWrapper.one();
+        TempUserDO tempUserDO = lambdaQueryChainWrapper.one();
 
-        if (baseUserDO == null) {
+        if (tempUserDO == null) {
             return;
         }
 
         // 执行：检查
-        checkWillErrorDoCheck(baseRedisKeyEnum, baseUserDO);
+        checkWillErrorDoCheck(baseRedisKeyEnum, tempUserDO);
 
     }
 
@@ -478,7 +487,7 @@ public class SignUtil {
      * 处理：lambdaQueryChainWrapper对象
      */
     private static void checkWillErrorHandleLambdaQueryChainWrapper(BaseRedisKeyEnum baseRedisKeyEnum, String account,
-        String appId, LambdaQueryChainWrapper<BaseUserDO> lambdaQueryChainWrapper, boolean accountBlankFlag) {
+        String appId, LambdaQueryChainWrapper<TempUserDO> lambdaQueryChainWrapper, boolean accountBlankFlag) {
 
         if (accountBlankFlag) {
             return;
@@ -486,11 +495,11 @@ public class SignUtil {
 
         if (baseRedisKeyEnum.equals(BaseRedisKeyEnum.PRE_USER_NAME)) { // 用户名
 
-            lambdaQueryChainWrapper.eq(BaseUserDO::getUsername, account);
+            lambdaQueryChainWrapper.eq(TempUserDO::getUsername, account);
 
         } else if (baseRedisKeyEnum.equals(BaseRedisKeyEnum.PRE_EMAIL)) { // 邮箱
 
-            lambdaQueryChainWrapper.eq(BaseUserDO::getEmail, account);
+            lambdaQueryChainWrapper.eq(TempUserDO::getEmail, account);
 
         } else if (baseRedisKeyEnum.equals(BaseRedisKeyEnum.PRE_WX_OPEN_ID)) { // 微信
 
@@ -498,11 +507,11 @@ public class SignUtil {
                 R.errorMsg(TempBizCodeEnum.ILLEGAL_REQUEST.getMsg() + "：wxAppId" + "，请联系管理员");
             }
 
-            lambdaQueryChainWrapper.eq(BaseUserDO::getWxAppId, appId).eq(BaseUserDO::getWxOpenId, account);
+            lambdaQueryChainWrapper.eq(TempUserDO::getWxAppId, appId).eq(TempUserDO::getWxOpenId, account);
 
         } else if (baseRedisKeyEnum.equals(BaseRedisKeyEnum.PRE_PHONE)) { // 手机
 
-            lambdaQueryChainWrapper.eq(BaseUserDO::getPhone, account);
+            lambdaQueryChainWrapper.eq(TempUserDO::getPhone, account);
 
         } else {
 
@@ -515,46 +524,46 @@ public class SignUtil {
     /**
      * 执行：检查
      */
-    private static void checkWillErrorDoCheck(BaseRedisKeyEnum baseRedisKeyEnum, BaseUserDO baseUserDO) {
+    private static void checkWillErrorDoCheck(BaseRedisKeyEnum baseRedisKeyEnum, TempUserDO tempUserDO) {
 
         if (baseRedisKeyEnum.equals(BaseRedisKeyEnum.PRE_USER_NAME)) { // 用户名
 
             // 必须有密码，并且，邮箱为空，手机为空，微信为空
-            if (StrUtil.isBlank(baseUserDO.getPassword())) {
+            if (StrUtil.isBlank(tempUserDO.getPassword())) {
                 R.errorMsg("操作失败：请设置密码之后再试");
             }
 
-            if (StrUtil.isNotBlank(baseUserDO.getEmail())) {
+            if (StrUtil.isNotBlank(tempUserDO.getEmail())) {
                 R.errorMsg("操作失败：请用邮箱验证码进行操作");
             }
 
-            if (StrUtil.isNotBlank(baseUserDO.getWxAppId())) {
+            if (StrUtil.isNotBlank(tempUserDO.getWxAppId())) {
                 R.errorMsg("操作失败：请用微信扫码进行操作");
             }
 
-            if (StrUtil.isNotBlank(baseUserDO.getPhone())) {
+            if (StrUtil.isNotBlank(tempUserDO.getPhone())) {
                 R.errorMsg("操作失败：请用手机验证码进行操作");
             }
 
         } else if (baseRedisKeyEnum.equals(BaseRedisKeyEnum.PRE_EMAIL)) { // 邮箱
 
             // 必须有密码，并且，手机为空，微信为空
-            if (StrUtil.isBlank(baseUserDO.getPassword())) {
+            if (StrUtil.isBlank(tempUserDO.getPassword())) {
                 R.errorMsg("操作失败：请设置密码之后再试");
             }
 
-            if (StrUtil.isNotBlank(baseUserDO.getWxAppId())) {
+            if (StrUtil.isNotBlank(tempUserDO.getWxAppId())) {
                 R.errorMsg("操作失败：请用微信扫码进行操作");
             }
 
-            if (StrUtil.isNotBlank(baseUserDO.getPhone())) {
+            if (StrUtil.isNotBlank(tempUserDO.getPhone())) {
                 R.errorMsg("操作失败：请用手机验证码进行操作");
             }
 
         } else if (baseRedisKeyEnum.equals(BaseRedisKeyEnum.PRE_WX_OPEN_ID)) { // 微信
 
             // 必须手机为空
-            if (StrUtil.isNotBlank(baseUserDO.getPhone())) {
+            if (StrUtil.isNotBlank(tempUserDO.getPhone())) {
                 R.errorMsg("操作失败：请用手机验证码进行操作");
             }
 
@@ -604,15 +613,15 @@ public class SignUtil {
                 CodeUtil.checkCode(code, bucket.get()); // 检查 code是否正确
             }
 
-            BaseUserDO baseUserDO = new BaseUserDO();
+            TempUserDO tempUserDO = new TempUserDO();
 
-            baseUserDO.setId(currentUserIdNotAdmin);
+            tempUserDO.setId(currentUserIdNotAdmin);
 
-            baseUserDO.setPassword(PasswordConvertUtil.convert(newPassword, true));
+            tempUserDO.setPassword(PasswordConvertUtil.convert(newPassword, true));
 
             return TransactionUtil.exec(() -> {
 
-                baseUserMapper.updateById(baseUserDO); // 保存：用户
+                baseUserMapper.updateById(tempUserDO); // 保存：用户
 
                 RedissonUtil.batch((batch) -> {
 
@@ -665,15 +674,15 @@ public class SignUtil {
 
         if (StrUtil.isBlank(userPassword)) {
 
-            BaseUserDO baseUserDO =
+            TempUserDO tempUserDO =
                 ChainWrappers.lambdaQueryChain(baseUserMapper).eq(TempEntity::getId, currentUserIdNotAdmin)
-                    .select(BaseUserDO::getPassword).one();
+                    .select(TempUserDO::getPassword).one();
 
-            if (baseUserDO == null) {
+            if (tempUserDO == null) {
                 R.error(BaseBizCodeEnum.USER_DOES_NOT_EXIST);
             }
 
-            userPassword = baseUserDO.getPassword();
+            userPassword = tempUserDO.getPassword();
 
         }
 
@@ -696,23 +705,23 @@ public class SignUtil {
         Long currentUserIdNotAdmin) {
 
         // 获取：用户信息
-        BaseUserDO baseUserDO = getTempUserDoByIdAndRedisKeyEnum(redisKeyEnum, currentUserIdNotAdmin);
+        TempUserDO tempUserDO = getTempUserDoByIdAndRedisKeyEnum(redisKeyEnum, currentUserIdNotAdmin);
 
         if (BaseRedisKeyEnum.PRE_EMAIL.equals(redisKeyEnum)) {
 
-            return baseUserDO.getEmail();
+            return tempUserDO.getEmail();
 
         } else if (BaseRedisKeyEnum.PRE_USER_NAME.equals(redisKeyEnum)) {
 
-            return baseUserDO.getUsername();
+            return tempUserDO.getUsername();
 
         } else if (BaseRedisKeyEnum.PRE_PHONE.equals(redisKeyEnum)) {
 
-            return baseUserDO.getPhone();
+            return tempUserDO.getPhone();
 
         } else if (BaseRedisKeyEnum.PRE_WX_OPEN_ID.equals(redisKeyEnum)) {
 
-            return baseUserDO.getWxOpenId();
+            return tempUserDO.getWxOpenId();
 
         } else {
 
@@ -725,30 +734,30 @@ public class SignUtil {
     }
 
     /**
-     * 获取：BaseUserDO，通过：userId和 redisKeyEnum
+     * 获取：TempUserDO，通过：userId和 redisKeyEnum
      */
     @NotNull
-    private static BaseUserDO getTempUserDoByIdAndRedisKeyEnum(Enum<? extends IRedisKey> redisKeyEnum,
+    private static TempUserDO getTempUserDoByIdAndRedisKeyEnum(Enum<? extends IRedisKey> redisKeyEnum,
         Long currentUserIdNotAdmin) {
 
-        LambdaQueryChainWrapper<BaseUserDO> lambdaQueryChainWrapper =
+        LambdaQueryChainWrapper<TempUserDO> lambdaQueryChainWrapper =
             ChainWrappers.lambdaQueryChain(baseUserMapper).eq(TempEntity::getId, currentUserIdNotAdmin);
 
         if (BaseRedisKeyEnum.PRE_EMAIL.equals(redisKeyEnum)) {
 
-            lambdaQueryChainWrapper.select(BaseUserDO::getEmail);
+            lambdaQueryChainWrapper.select(TempUserDO::getEmail);
 
         } else if (BaseRedisKeyEnum.PRE_USER_NAME.equals(redisKeyEnum)) {
 
-            lambdaQueryChainWrapper.select(BaseUserDO::getUsername);
+            lambdaQueryChainWrapper.select(TempUserDO::getUsername);
 
         } else if (BaseRedisKeyEnum.PRE_PHONE.equals(redisKeyEnum)) {
 
-            lambdaQueryChainWrapper.select(BaseUserDO::getPhone);
+            lambdaQueryChainWrapper.select(TempUserDO::getPhone);
 
         } else if (BaseRedisKeyEnum.PRE_WX_OPEN_ID.equals(redisKeyEnum)) {
 
-            lambdaQueryChainWrapper.select(BaseUserDO::getWxOpenId, BaseUserDO::getWxAppId);
+            lambdaQueryChainWrapper.select(TempUserDO::getWxOpenId, TempUserDO::getWxAppId);
 
         } else {
 
@@ -756,13 +765,13 @@ public class SignUtil {
 
         }
 
-        BaseUserDO baseUserDO = lambdaQueryChainWrapper.one();
+        TempUserDO tempUserDO = lambdaQueryChainWrapper.one();
 
-        if (baseUserDO == null) {
+        if (tempUserDO == null) {
             R.error(BaseBizCodeEnum.USER_DOES_NOT_EXIST);
         }
 
-        return baseUserDO;
+        return tempUserDO;
 
     }
 
@@ -851,16 +860,16 @@ public class SignUtil {
 
             }
 
-            BaseUserDO baseUserDO = new BaseUserDO();
+            TempUserDO tempUserDO = new TempUserDO();
 
-            baseUserDO.setId(currentUserIdNotAdmin);
+            tempUserDO.setId(currentUserIdNotAdmin);
 
             // 通过：BaseRedisKeyEnum，设置：账号
-            setTempUserDoAccountByRedisKeyEnum(newRedisKeyEnum, newAccount, baseUserDO, appId);
+            setTempUserDoAccountByRedisKeyEnum(newRedisKeyEnum, newAccount, tempUserDO, appId);
 
             return TransactionUtil.exec(() -> {
 
-                baseUserMapper.updateById(baseUserDO); // 更新：用户
+                baseUserMapper.updateById(tempUserDO); // 更新：用户
 
                 if (oldDeleteRedisFlag) {
 
@@ -888,24 +897,24 @@ public class SignUtil {
      * 通过：BaseRedisKeyEnum，设置：账号
      */
     private static void setTempUserDoAccountByRedisKeyEnum(Enum<? extends IRedisKey> redisKeyEnum, String newAccount,
-        BaseUserDO baseUserDO, String appId) {
+        TempUserDO tempUserDO, String appId) {
 
         if (BaseRedisKeyEnum.PRE_EMAIL.equals(redisKeyEnum)) {
 
-            baseUserDO.setEmail(newAccount);
+            tempUserDO.setEmail(newAccount);
 
         } else if (BaseRedisKeyEnum.PRE_USER_NAME.equals(redisKeyEnum)) {
 
-            baseUserDO.setUsername(newAccount);
+            tempUserDO.setUsername(newAccount);
 
         } else if (BaseRedisKeyEnum.PRE_PHONE.equals(redisKeyEnum)) {
 
-            baseUserDO.setPhone(newAccount);
+            tempUserDO.setPhone(newAccount);
 
         } else if (BaseRedisKeyEnum.PRE_WX_OPEN_ID.equals(redisKeyEnum)) {
 
-            baseUserDO.setWxAppId(appId);
-            baseUserDO.setWxOpenId(newAccount);
+            tempUserDO.setWxAppId(appId);
+            tempUserDO.setWxOpenId(newAccount);
 
         } else {
 
@@ -1043,7 +1052,7 @@ public class SignUtil {
             if (deleteFlag) {
 
                 // 直接：删除用户基本信息
-                ChainWrappers.lambdaUpdateChain(baseUserInfoMapper).in(BaseUserInfoDO::getId, userIdSet).remove();
+                ChainWrappers.lambdaUpdateChain(baseUserInfoMapper).in(TempUserInfoDO::getId, userIdSet).remove();
 
             }
 

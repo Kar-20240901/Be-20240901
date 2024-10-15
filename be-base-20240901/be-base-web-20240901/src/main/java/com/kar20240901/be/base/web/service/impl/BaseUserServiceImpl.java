@@ -21,9 +21,9 @@ import com.kar20240901.be.base.web.model.constant.ParamConstant;
 import com.kar20240901.be.base.web.model.constant.TempConstant;
 import com.kar20240901.be.base.web.model.constant.TempRegexConstant;
 import com.kar20240901.be.base.web.model.domain.BaseRoleRefUserDO;
-import com.kar20240901.be.base.web.model.domain.BaseUserDO;
-import com.kar20240901.be.base.web.model.domain.BaseUserInfoDO;
 import com.kar20240901.be.base.web.model.domain.TempEntity;
+import com.kar20240901.be.base.web.model.domain.TempUserDO;
+import com.kar20240901.be.base.web.model.domain.TempUserInfoDO;
 import com.kar20240901.be.base.web.model.dto.BaseUserInsertOrUpdateDTO;
 import com.kar20240901.be.base.web.model.dto.BaseUserPageDTO;
 import com.kar20240901.be.base.web.model.dto.BaseUserUpdatePasswordDTO;
@@ -32,10 +32,10 @@ import com.kar20240901.be.base.web.model.dto.NotNullId;
 import com.kar20240901.be.base.web.model.enums.BaseRedisKeyEnum;
 import com.kar20240901.be.base.web.model.enums.TempRedisKeyEnum;
 import com.kar20240901.be.base.web.model.interfaces.IRedisKey;
-import com.kar20240901.be.base.web.model.vo.BaseUserInfoByIdVO;
 import com.kar20240901.be.base.web.model.vo.BaseUserPageVO;
 import com.kar20240901.be.base.web.model.vo.DictVO;
 import com.kar20240901.be.base.web.model.vo.R;
+import com.kar20240901.be.base.web.model.vo.TempUserInfoByIdVO;
 import com.kar20240901.be.base.web.properties.BaseSecurityProperties;
 import com.kar20240901.be.base.web.service.BaseRoleRefUserService;
 import com.kar20240901.be.base.web.service.BaseUserService;
@@ -63,7 +63,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
 @Service
-public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUserDO> implements BaseUserService {
+public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO> implements BaseUserService {
 
     @Resource
     BaseRoleRefUserService baseRoleRefUserService;
@@ -187,10 +187,10 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUserDO>
     public Page<DictVO> dictList() {
 
         // 获取所有：用户信息
-        List<BaseUserInfoDO> baseUserInfoDOList = ChainWrappers.lambdaQueryChain(baseUserInfoMapper)
-            .select(BaseUserInfoDO::getId, BaseUserInfoDO::getNickname).orderByDesc(BaseUserInfoDO::getId).list();
+        List<TempUserInfoDO> tempUserInfoDOList = ChainWrappers.lambdaQueryChain(baseUserInfoMapper)
+            .select(TempUserInfoDO::getId, TempUserInfoDO::getNickname).orderByDesc(TempUserInfoDO::getId).list();
 
-        List<DictVO> dictVOList = baseUserInfoDOList.stream().map(it -> new DictVO(it.getId(), it.getNickname()))
+        List<DictVO> dictVOList = tempUserInfoDOList.stream().map(it -> new DictVO(it.getId(), it.getNickname()))
             .collect(Collectors.toList());
 
         return new Page<DictVO>().setTotal(dictVOList.size()).setRecords(dictVOList);
@@ -274,51 +274,51 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUserDO>
 
             }
 
-            BaseUserDO baseUserDO;
+            TempUserDO tempUserDO;
 
             if (dto.getId() == null) { // 新增：用户
 
-                BaseUserInfoDO baseUserInfoDO = new BaseUserInfoDO();
+                TempUserInfoDO tempUserInfoDO = new TempUserInfoDO();
 
-                baseUserInfoDO.setNickname(dto.getNickname());
-                baseUserInfoDO.setBio(dto.getBio());
+                tempUserInfoDO.setNickname(dto.getNickname());
+                tempUserInfoDO.setBio(dto.getBio());
 
-                baseUserDO =
-                    SignUtil.insertUser(dto.getPassword(), accountMap, false, baseUserInfoDO, dto.getEnableFlag());
+                tempUserDO =
+                    SignUtil.insertUser(dto.getPassword(), accountMap, false, tempUserInfoDO, dto.getEnableFlag());
 
-                insertOrUpdateSub(baseUserDO, dto); // 新增数据到子表
+                insertOrUpdateSub(tempUserDO, dto); // 新增数据到子表
 
             } else { // 修改：用户
 
                 // 删除子表数据
                 SignUtil.doSignDeleteSub(CollUtil.newHashSet(dto.getId()), false);
 
-                baseUserDO = new BaseUserDO();
+                tempUserDO = new TempUserDO();
 
-                baseUserDO.setId(dto.getId());
-                baseUserDO.setEnableFlag(BooleanUtil.isTrue(dto.getEnableFlag()));
-                baseUserDO.setEmail(MyEntityUtil.getNotNullStr(dto.getEmail()));
-                baseUserDO.setPhone(MyEntityUtil.getNotNullStr(dto.getPhone()));
-                baseUserDO.setUsername(MyEntityUtil.getNotNullStr(dto.getUsername()));
-                baseUserDO.setWxAppId(MyEntityUtil.getNotNullStr(dto.getWxAppId()));
-                baseUserDO.setWxOpenId(MyEntityUtil.getNotNullStr(dto.getWxOpenId()));
-                baseUserDO.setWxUnionId(MyEntityUtil.getNotNullStr(dto.getWxUnionId()));
+                tempUserDO.setId(dto.getId());
+                tempUserDO.setEnableFlag(BooleanUtil.isTrue(dto.getEnableFlag()));
+                tempUserDO.setEmail(MyEntityUtil.getNotNullStr(dto.getEmail()));
+                tempUserDO.setPhone(MyEntityUtil.getNotNullStr(dto.getPhone()));
+                tempUserDO.setUsername(MyEntityUtil.getNotNullStr(dto.getUsername()));
+                tempUserDO.setWxAppId(MyEntityUtil.getNotNullStr(dto.getWxAppId()));
+                tempUserDO.setWxOpenId(MyEntityUtil.getNotNullStr(dto.getWxOpenId()));
+                tempUserDO.setWxUnionId(MyEntityUtil.getNotNullStr(dto.getWxUnionId()));
 
-                baseMapper.updateById(baseUserDO);
+                baseMapper.updateById(tempUserDO);
 
                 // 新增数据到子表
-                insertOrUpdateSub(baseUserDO, dto);
+                insertOrUpdateSub(tempUserDO, dto);
 
-                BaseUserInfoDO baseUserInfoDO = new BaseUserInfoDO();
+                TempUserInfoDO tempUserInfoDO = new TempUserInfoDO();
 
-                baseUserInfoDO.setId(dto.getId());
+                tempUserInfoDO.setId(dto.getId());
 
-                baseUserInfoDO.setNickname(
+                tempUserInfoDO.setNickname(
                     MyEntityUtil.getNotNullStr(dto.getNickname(), NicknameUtil.getRandomNickname()));
 
-                baseUserInfoDO.setBio(MyEntityUtil.getNotNullStr(dto.getBio()));
+                tempUserInfoDO.setBio(MyEntityUtil.getNotNullStr(dto.getBio()));
 
-                baseUserInfoMapper.updateById(baseUserInfoDO);
+                baseUserInfoMapper.updateById(tempUserInfoDO);
 
             }
 
@@ -326,7 +326,7 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUserDO>
 
                 // 设置
                 redissonClient.<Boolean>getBucket(
-                        BaseRedisKeyEnum.PRE_USER_MANAGE_SIGN_IN_FLAG.name() + ":" + baseUserDO.getId())
+                        BaseRedisKeyEnum.PRE_USER_MANAGE_SIGN_IN_FLAG.name() + ":" + tempUserDO.getId())
                     .set(dto.getManageSignInFlag());
 
             }
@@ -340,21 +340,21 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUserDO>
     /**
      * 新增/修改：新增数据到子表
      */
-    private void insertOrUpdateSub(BaseUserDO baseUserDO, BaseUserInsertOrUpdateDTO dto) {
+    private void insertOrUpdateSub(TempUserDO tempUserDO, BaseUserInsertOrUpdateDTO dto) {
 
         // 删除：权限
-        redissonClient.getSet(TempRedisKeyEnum.PRE_USER_AUTH.name() + ":" + baseUserDO.getId()).delete();
+        redissonClient.getSet(TempRedisKeyEnum.PRE_USER_AUTH.name() + ":" + tempUserDO.getId()).delete();
 
         // 如果禁用了，则子表不进行新增操作
-        if (BooleanUtil.isFalse(baseUserDO.getEnableFlag())) {
+        if (BooleanUtil.isFalse(tempUserDO.getEnableFlag())) {
 
-            MyUserUtil.setDisable(baseUserDO.getId()); // 设置：账号被冻结
+            MyUserUtil.setDisable(tempUserDO.getId()); // 设置：账号被冻结
 
             return;
 
         } else {
 
-            MyUserUtil.removeDisable(baseUserDO.getId()); // 移除：账号被冻结
+            MyUserUtil.removeDisable(tempUserDO.getId()); // 移除：账号被冻结
 
         }
 
@@ -369,7 +369,7 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUserDO>
                 BaseRoleRefUserDO sysRoleRefUserDO = new BaseRoleRefUserDO();
 
                 sysRoleRefUserDO.setRoleId(item);
-                sysRoleRefUserDO.setUserId(baseUserDO.getId());
+                sysRoleRefUserDO.setUserId(tempUserDO.getId());
 
                 insertList.add(sysRoleRefUserDO);
 
@@ -378,7 +378,7 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUserDO>
             baseRoleRefUserService.saveBatch(insertList);
 
             // 更新缓存
-            BaseRoleServiceImpl.updateCache(null, CollUtil.newHashSet(baseUserDO.getId()), null);
+            BaseRoleServiceImpl.updateCache(null, CollUtil.newHashSet(tempUserDO.getId()), null);
 
         }
 
@@ -441,30 +441,30 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUserDO>
      */
     @SneakyThrows
     @Override
-    public BaseUserInfoByIdVO infoById(NotNullId notNullId) {
+    public TempUserInfoByIdVO infoById(NotNullId notNullId) {
 
-        BaseUserDO baseUserDO = lambdaQuery().eq(TempEntity::getId, notNullId.getId()).one();
+        TempUserDO tempUserDO = lambdaQuery().eq(TempEntity::getId, notNullId.getId()).one();
 
-        if (baseUserDO == null) {
+        if (tempUserDO == null) {
             return null;
         }
 
-        BaseUserInfoByIdVO baseUserInfoByIdVO = BeanUtil.copyProperties(baseUserDO, BaseUserInfoByIdVO.class);
+        TempUserInfoByIdVO baseUserInfoByIdVO = BeanUtil.copyProperties(tempUserDO, TempUserInfoByIdVO.class);
 
         CountDownLatch countDownLatch = ThreadUtil.newCountDownLatch(2);
 
         MyThreadUtil.execute(() -> {
 
-            BaseUserInfoDO baseUserInfoDO =
-                ChainWrappers.lambdaQueryChain(baseUserInfoMapper).eq(BaseUserInfoDO::getId, notNullId.getId())
-                    .select(BaseUserInfoDO::getNickname, BaseUserInfoDO::getAvatarFileId, BaseUserInfoDO::getBio).one();
+            TempUserInfoDO tempUserInfoDO =
+                ChainWrappers.lambdaQueryChain(baseUserInfoMapper).eq(TempUserInfoDO::getId, notNullId.getId())
+                    .select(TempUserInfoDO::getNickname, TempUserInfoDO::getAvatarFileId, TempUserInfoDO::getBio).one();
 
-            baseUserInfoByIdVO.setNickname(baseUserInfoDO.getNickname());
-            baseUserInfoByIdVO.setAvatarFileId(baseUserInfoDO.getAvatarFileId());
-            baseUserInfoByIdVO.setBio(baseUserInfoDO.getBio());
+            baseUserInfoByIdVO.setNickname(tempUserInfoDO.getNickname());
+            baseUserInfoByIdVO.setAvatarFileId(tempUserInfoDO.getAvatarFileId());
+            baseUserInfoByIdVO.setBio(tempUserInfoDO.getBio());
 
             // 获取
-            Boolean manageSignInFlag = getManageSignInFlag(baseUserDO.getId());
+            Boolean manageSignInFlag = getManageSignInFlag(tempUserDO.getId());
 
             baseUserInfoByIdVO.setManageSignInFlag(manageSignInFlag);
 
@@ -536,8 +536,8 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUserDO>
             return TempBizCodeEnum.OK;
         }
 
-        ChainWrappers.lambdaUpdateChain(baseUserInfoMapper).in(BaseUserInfoDO::getId, notEmptyIdSet.getIdSet())
-            .set(BaseUserInfoDO::getAvatarFileId, -1).update();
+        ChainWrappers.lambdaUpdateChain(baseUserInfoMapper).in(TempUserInfoDO::getId, notEmptyIdSet.getIdSet())
+            .set(TempUserInfoDO::getAvatarFileId, -1).update();
 
         return TempBizCodeEnum.OK;
 
@@ -577,7 +577,7 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUserDO>
 
         }
 
-        lambdaUpdate().in(TempEntity::getId, dto.getIdSet()).set(BaseUserDO::getPassword, password).update();
+        lambdaUpdate().in(TempEntity::getId, dto.getIdSet()).set(TempUserDO::getPassword, password).update();
 
         // 移除：jwt相关
         SignUtil.removeJwt(dto.getIdSet());
@@ -599,8 +599,8 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUserDO>
             return TempBizCodeEnum.OK;
         }
 
-        lambdaUpdate().in(TempEntity::getId, notEmptyIdSet.getIdSet()).eq(BaseUserDO::getEnableFlag, false)
-            .set(BaseUserDO::getEnableFlag, true).update();
+        lambdaUpdate().in(TempEntity::getId, notEmptyIdSet.getIdSet()).eq(TempUserDO::getEnableFlag, false)
+            .set(TempUserDO::getEnableFlag, true).update();
 
         MyUserUtil.removeDisable(notEmptyIdSet.getIdSet()); // 设置：账号被冻结
 
@@ -621,8 +621,8 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, BaseUserDO>
             return TempBizCodeEnum.OK;
         }
 
-        lambdaUpdate().in(TempEntity::getId, notEmptyIdSet.getIdSet()).eq(BaseUserDO::getEnableFlag, true)
-            .set(BaseUserDO::getEnableFlag, false).update();
+        lambdaUpdate().in(TempEntity::getId, notEmptyIdSet.getIdSet()).eq(TempUserDO::getEnableFlag, true)
+            .set(TempUserDO::getEnableFlag, false).update();
 
         MyUserUtil.setDisable(notEmptyIdSet.getIdSet()); // 设置：账号被冻结
 

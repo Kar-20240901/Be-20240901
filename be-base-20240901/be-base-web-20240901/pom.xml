@@ -22,6 +22,18 @@
       <version>${kar.version}</version>
     </dependency>
 
+    <!-- spring-kafka -->
+    <dependency>
+      <groupId>org.springframework.kafka</groupId>
+      <artifactId>spring-kafka</artifactId>
+    </dependency>
+
+    <!-- 离线IP地址定位库 -->
+    <dependency>
+      <groupId>org.lionsoul</groupId>
+      <artifactId>ip2region</artifactId>
+    </dependency>
+
     <!-- spring-boot-web -->
     <dependency>
       <groupId>org.springframework.boot</groupId>

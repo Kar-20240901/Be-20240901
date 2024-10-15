@@ -1,8 +1,8 @@
 be:
   common:
-    host: localhost
+    host: 81.69.58.190
     username: root
-    password: password
+    password: Kar@20240901.
   mysql:
     connect-param: characterEncoding=utf-8&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&allowMultiQueries=true&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true
 

@@ -7,9 +7,9 @@ import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.BaseUserMapper;
-import com.kar20240901.be.base.web.model.domain.BaseUserDO;
-import com.kar20240901.be.base.web.model.domain.BaseUserInfoDO;
 import com.kar20240901.be.base.web.model.domain.TempEntity;
+import com.kar20240901.be.base.web.model.domain.TempUserDO;
+import com.kar20240901.be.base.web.model.domain.TempUserInfoDO;
 import com.kar20240901.be.base.web.model.dto.BaseUserSelfUpdateInfoDTO;
 import com.kar20240901.be.base.web.model.vo.BaseUserSelfInfoVO;
 import com.kar20240901.be.base.web.properties.BaseSecurityProperties;
@@ -52,15 +52,15 @@ public class BaseUserSelfServiceImpl implements BaseUserSelfService {
 
         MyThreadUtil.execute(() -> {
 
-            BaseUserInfoDO baseUserInfoDO =
-                ChainWrappers.lambdaQueryChain(baseUserInfoMapper).eq(BaseUserInfoDO::getId, currentUserId)
-                    .select(BaseUserInfoDO::getAvatarFileId, BaseUserInfoDO::getNickname, BaseUserInfoDO::getBio).one();
+            TempUserInfoDO tempUserInfoDO =
+                ChainWrappers.lambdaQueryChain(baseUserInfoMapper).eq(TempUserInfoDO::getId, currentUserId)
+                    .select(TempUserInfoDO::getAvatarFileId, TempUserInfoDO::getNickname, TempUserInfoDO::getBio).one();
 
-            if (baseUserInfoDO != null) {
+            if (tempUserInfoDO != null) {
 
-                baseUserSelfInfoVO.setAvatarFileId(baseUserInfoDO.getAvatarFileId());
-                baseUserSelfInfoVO.setNickname(baseUserInfoDO.getNickname());
-                baseUserSelfInfoVO.setBio(baseUserInfoDO.getBio());
+                baseUserSelfInfoVO.setAvatarFileId(tempUserInfoDO.getAvatarFileId());
+                baseUserSelfInfoVO.setNickname(tempUserInfoDO.getNickname());
+                baseUserSelfInfoVO.setBio(tempUserInfoDO.getBio());
 
             }
 
@@ -68,25 +68,25 @@ public class BaseUserSelfServiceImpl implements BaseUserSelfService {
 
         MyThreadUtil.execute(() -> {
 
-            BaseUserDO baseUserDO = ChainWrappers.lambdaQueryChain(baseUserMapper).eq(TempEntity::getId, currentUserId)
-                .select(BaseUserDO::getEmail, BaseUserDO::getPassword, BaseUserDO::getUsername, BaseUserDO::getPhone,
-                    BaseUserDO::getWxOpenId, BaseUserDO::getCreateTime, BaseUserDO::getWxAppId).one();
+            TempUserDO tempUserDO = ChainWrappers.lambdaQueryChain(baseUserMapper).eq(TempEntity::getId, currentUserId)
+                .select(TempUserDO::getEmail, TempUserDO::getPassword, TempUserDO::getUsername, TempUserDO::getPhone,
+                    TempUserDO::getWxOpenId, TempUserDO::getCreateTime, TempUserDO::getWxAppId).one();
 
-            if (baseUserDO != null) {
+            if (tempUserDO != null) {
 
                 // 备注：要和 userMyPage接口保持一致
-                baseUserSelfInfoVO.setEmail(DesensitizedUtil.email(baseUserDO.getEmail())); // 脱敏
-                baseUserSelfInfoVO.setUsername(DesensitizedUtil.chineseName(baseUserDO.getUsername())); // 脱敏
-                baseUserSelfInfoVO.setPhone(DesensitizedUtil.mobilePhone(baseUserDO.getPhone())); // 脱敏
+                baseUserSelfInfoVO.setEmail(DesensitizedUtil.email(tempUserDO.getEmail())); // 脱敏
+                baseUserSelfInfoVO.setUsername(DesensitizedUtil.chineseName(tempUserDO.getUsername())); // 脱敏
+                baseUserSelfInfoVO.setPhone(DesensitizedUtil.mobilePhone(tempUserDO.getPhone())); // 脱敏
                 // 脱敏：只显示前 3位，后 4位
                 baseUserSelfInfoVO.setWxOpenId(
-                    StrUtil.hide(baseUserDO.getWxOpenId(), 3, baseUserDO.getWxOpenId().length() - 4));
+                    StrUtil.hide(tempUserDO.getWxOpenId(), 3, tempUserDO.getWxOpenId().length() - 4));
                 // 脱敏：只显示前 3位，后 4位
                 baseUserSelfInfoVO.setWxAppId(
-                    StrUtil.hide(baseUserDO.getWxAppId(), 3, baseUserDO.getWxAppId().length() - 4));
+                    StrUtil.hide(tempUserDO.getWxAppId(), 3, tempUserDO.getWxAppId().length() - 4));
 
-                baseUserSelfInfoVO.setPasswordFlag(StrUtil.isNotBlank(baseUserDO.getPassword()));
-                baseUserSelfInfoVO.setCreateTime(baseUserDO.getCreateTime());
+                baseUserSelfInfoVO.setPasswordFlag(StrUtil.isNotBlank(tempUserDO.getPassword()));
+                baseUserSelfInfoVO.setCreateTime(tempUserDO.getCreateTime());
 
             }
 
@@ -106,13 +106,13 @@ public class BaseUserSelfServiceImpl implements BaseUserSelfService {
 
         Long currentUserIdNotAdmin = MyUserUtil.getCurrentUserIdNotAdmin();
 
-        BaseUserInfoDO baseUserInfoDO = new BaseUserInfoDO();
+        TempUserInfoDO tempUserInfoDO = new TempUserInfoDO();
 
-        baseUserInfoDO.setId(currentUserIdNotAdmin);
-        baseUserInfoDO.setNickname(MyEntityUtil.getNotNullStr(dto.getNickname(), NicknameUtil.getRandomNickname()));
-        baseUserInfoDO.setBio(MyEntityUtil.getNotNullAndTrimStr(dto.getBio()));
+        tempUserInfoDO.setId(currentUserIdNotAdmin);
+        tempUserInfoDO.setNickname(MyEntityUtil.getNotNullStr(dto.getNickname(), NicknameUtil.getRandomNickname()));
+        tempUserInfoDO.setBio(MyEntityUtil.getNotNullAndTrimStr(dto.getBio()));
 
-        baseUserInfoMapper.updateById(baseUserInfoDO);
+        baseUserInfoMapper.updateById(tempUserInfoDO);
 
         return TempBizCodeEnum.OK;
 
@@ -126,8 +126,8 @@ public class BaseUserSelfServiceImpl implements BaseUserSelfService {
 
         Long currentUserIdNotAdmin = MyUserUtil.getCurrentUserIdNotAdmin();
 
-        ChainWrappers.lambdaUpdateChain(baseUserInfoMapper).eq(BaseUserInfoDO::getId, currentUserIdNotAdmin)
-            .set(BaseUserInfoDO::getAvatarFileId, -1).update();
+        ChainWrappers.lambdaUpdateChain(baseUserInfoMapper).eq(TempUserInfoDO::getId, currentUserIdNotAdmin)
+            .set(TempUserInfoDO::getAvatarFileId, -1).update();
 
         return TempBizCodeEnum.OK;
 

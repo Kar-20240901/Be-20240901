@@ -4,9 +4,11 @@ import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.jwt.JWT;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
+import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.BaseUserMapper;
+import com.kar20240901.be.base.web.model.constant.UserConfigurationConstant;
 import com.kar20240901.be.base.web.model.domain.BaseUserConfigurationDO;
-import com.kar20240901.be.base.web.model.domain.BaseUserDO;
+import com.kar20240901.be.base.web.model.domain.TempUserDO;
 import com.kar20240901.be.base.web.model.dto.SignUserNameJwtRefreshTokenDTO;
 import com.kar20240901.be.base.web.model.dto.SignUserNameSignDeleteDTO;
 import com.kar20240901.be.base.web.model.dto.SignUserNameSignInPasswordDTO;
@@ -14,16 +16,14 @@ import com.kar20240901.be.base.web.model.dto.SignUserNameSignUpDTO;
 import com.kar20240901.be.base.web.model.dto.SignUserNameUpdatePasswordDTO;
 import com.kar20240901.be.base.web.model.dto.SignUserNameUpdateUserNameDTO;
 import com.kar20240901.be.base.web.model.enums.BaseRedisKeyEnum;
+import com.kar20240901.be.base.web.model.vo.R;
+import com.kar20240901.be.base.web.model.vo.SignInVO;
 import com.kar20240901.be.base.web.service.BaseUserConfigurationService;
 import com.kar20240901.be.base.web.service.SignUserNameService;
 import com.kar20240901.be.base.web.util.BaseJwtUtil;
-import com.kar20240901.be.base.web.util.SignUtil;
-import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
-import com.kar20240901.be.base.web.model.constant.UserConfigurationConstant;
-import com.kar20240901.be.base.web.model.vo.R;
-import com.kar20240901.be.base.web.model.vo.SignInVO;
 import com.kar20240901.be.base.web.util.MyJwtUtil;
 import com.kar20240901.be.base.web.util.RequestUtil;
+import com.kar20240901.be.base.web.util.SignUtil;
 import javax.annotation.Resource;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
@@ -66,7 +66,7 @@ public class SignUserNameServiceImpl implements SignUserNameService {
     public SignInVO signInPassword(SignUserNameSignInPasswordDTO dto) {
 
         return SignUtil.signInPassword(
-            ChainWrappers.lambdaQueryChain(baseUserMapper).eq(BaseUserDO::getUsername, dto.getUsername()),
+            ChainWrappers.lambdaQueryChain(baseUserMapper).eq(TempUserDO::getUsername, dto.getUsername()),
             dto.getPassword(), dto.getUsername(), RequestUtil.getRequestCategoryEnum());
 
     }

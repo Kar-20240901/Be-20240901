@@ -4,13 +4,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kar20240901.be.base.web.model.dto.BaseUserInsertOrUpdateDTO;
 import com.kar20240901.be.base.web.model.dto.BaseUserPageDTO;
 import com.kar20240901.be.base.web.model.dto.BaseUserUpdatePasswordDTO;
-import com.kar20240901.be.base.web.model.vo.BaseUserInfoByIdVO;
-import com.kar20240901.be.base.web.model.vo.BaseUserPageVO;
-import com.kar20240901.be.base.web.service.BaseUserService;
 import com.kar20240901.be.base.web.model.dto.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.NotNullId;
+import com.kar20240901.be.base.web.model.vo.BaseUserPageVO;
 import com.kar20240901.be.base.web.model.vo.DictVO;
 import com.kar20240901.be.base.web.model.vo.R;
+import com.kar20240901.be.base.web.model.vo.TempUserInfoByIdVO;
+import com.kar20240901.be.base.web.service.BaseUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.annotation.Resource;
@@ -53,7 +53,7 @@ public class BaseUserController {
     @Operation(summary = "通过主键id，查看详情")
     @PostMapping("/infoById")
     @PreAuthorize("hasAuthority('baseUser:infoById')")
-    public R<BaseUserInfoByIdVO> infoById(@RequestBody @Valid NotNullId notNullId) {
+    public R<TempUserInfoByIdVO> infoById(@RequestBody @Valid NotNullId notNullId) {
         return R.okData(baseService.infoById(notNullId));
     }
 
