@@ -1,4 +1,4 @@
-package com.kar20240901.be.base.web.model.enums;
+package com.kar20240901.be.base.web.model.enums.socket;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -10,7 +10,7 @@ import lombok.Getter;
  */
 @AllArgsConstructor
 @Getter
-public enum SysSocketTypeEnum {
+public enum BaseSocketTypeEnum {
 
     TCP_PROTOBUF(101), //
 

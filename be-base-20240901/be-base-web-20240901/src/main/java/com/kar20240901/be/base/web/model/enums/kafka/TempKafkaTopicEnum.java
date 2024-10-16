@@ -1,4 +1,4 @@
-package com.kar20240901.be.base.web.model.enums;
+package com.kar20240901.be.base.web.model.enums.kafka;
 
 import com.kar20240901.be.base.web.model.interfaces.IKafkaTopic;
 import lombok.AllArgsConstructor;

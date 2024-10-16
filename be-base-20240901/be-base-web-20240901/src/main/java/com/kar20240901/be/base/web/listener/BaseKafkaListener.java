@@ -3,7 +3,7 @@ package com.kar20240901.be.base.web.listener;
 import cn.hutool.core.collection.CollUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kar20240901.be.base.web.model.domain.kafka.TempKafkaUserInfoDO;
-import com.kar20240901.be.base.web.model.enums.TempKafkaTopicEnum;
+import com.kar20240901.be.base.web.model.enums.kafka.TempKafkaTopicEnum;
 import com.kar20240901.be.base.web.service.TempKafkaUserInfoService;
 import com.kar20240901.be.base.web.util.Ip2RegionUtil;
 import java.util.ArrayList;

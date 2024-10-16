@@ -4,9 +4,7 @@ import cn.hutool.core.convert.NumberWithFormat;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
-import cn.hutool.jwt.JWT;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
-import com.kar20240901.be.base.web.model.configuration.IJwtGetAuthSetConfiguration;
 import com.kar20240901.be.base.web.model.constant.SecurityConstant;
 import com.kar20240901.be.base.web.model.enums.BaseRequestCategoryEnum;
 import com.kar20240901.be.base.web.model.enums.TempRedisKeyEnum;
@@ -20,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -46,14 +43,6 @@ public class MyJwtUtil {
     @Resource
     public void setBaseSecurityProperties(BaseSecurityProperties baseSecurityProperties) {
         MyJwtUtil.baseSecurityProperties = baseSecurityProperties;
-    }
-
-    @Nullable
-    private static IJwtGetAuthSetConfiguration iJwtGetAuthSetConfiguration;
-
-    @Autowired(required = false)
-    public void setiJwtGetAuthSetConfiguration(IJwtGetAuthSetConfiguration iJwtGetAuthSetConfiguration) {
-        MyJwtUtil.iJwtGetAuthSetConfiguration = iJwtGetAuthSetConfiguration;
     }
 
     private static RedissonClient redissonClient;
@@ -196,7 +185,7 @@ public class MyJwtUtil {
      * 通过 userId获取到权限的集合
      */
     @NotNull
-    public static Set<String> getAuthSetByUserId(Long userId, JWT jwt) {
+    public static Set<String> getAuthSetByUserId(Long userId) {
 
         if (userId == null) {
             R.error(TempBizCodeEnum.ILLEGAL_REQUEST); // 直接抛出异常
@@ -205,12 +194,6 @@ public class MyJwtUtil {
         // admin账号，自带所有权限
         if (MyUserUtil.getCurrentUserAdminFlag(userId)) {
             return new HashSet<>();
-        }
-
-        if (iJwtGetAuthSetConfiguration != null) {
-
-            return iJwtGetAuthSetConfiguration.getAuthSet(userId, jwt);
-
         }
 
         Set<String> defaultAuthSet =

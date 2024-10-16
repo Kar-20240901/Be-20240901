@@ -12,25 +12,26 @@ import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import com.cmcorg20230301.be.engine.ip2region.util.Ip2RegionUtil;
-import com.cmcorg20230301.be.engine.model.model.constant.BaseConstant;
-import com.cmcorg20230301.be.engine.model.model.constant.LogTopicConstant;
-import com.cmcorg20230301.be.engine.model.model.constant.OperationDescriptionConstant;
-import com.cmcorg20230301.be.engine.netty.websocket.configuration.NettyWebSocketBeanPostProcessor;
-import com.cmcorg20230301.be.engine.netty.websocket.properties.NettyWebSocketProperties;
-import com.cmcorg20230301.be.engine.netty.websocket.util.WebSocketUtil;
-import com.cmcorg20230301.be.engine.redisson.model.enums.BaseRedisKeyEnum;
-import com.cmcorg20230301.be.engine.security.exception.BaseBizCodeEnum;
-import com.cmcorg20230301.be.engine.security.exception.BaseException;
-import com.cmcorg20230301.be.engine.security.model.dto.WebSocketMessageDTO;
-import com.cmcorg20230301.be.engine.security.model.entity.SysRequestDO;
-import com.cmcorg20230301.be.engine.security.model.enums.SysRequestCategoryEnum;
-import com.cmcorg20230301.be.engine.security.model.vo.ApiResultVO;
-import com.cmcorg20230301.be.engine.security.util.*;
-import com.cmcorg20230301.be.engine.socket.model.entity.SysSocketRefUserDO;
-import com.cmcorg20230301.be.engine.socket.service.SysSocketRefUserService;
-import com.cmcorg20230301.be.engine.socket.util.SocketUtil;
-import com.cmcorg20230301.be.engine.util.util.CallBack;
+import com.kar20240901.be.base.web.configuration.socket.NettyWebSocketProperties;
+import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
+import com.kar20240901.be.base.web.exception.TempException;
+import com.kar20240901.be.base.web.model.configuration.socket.NettyWebSocketBeanPostProcessor;
+import com.kar20240901.be.base.web.model.constant.TempConstant;
+import com.kar20240901.be.base.web.model.domain.socket.BaseSocketRefUserDO;
+import com.kar20240901.be.base.web.model.dto.socket.WebSocketMessageDTO;
+import com.kar20240901.be.base.web.model.enums.BaseRedisKeyEnum;
+import com.kar20240901.be.base.web.model.enums.BaseRequestCategoryEnum;
+import com.kar20240901.be.base.web.model.vo.R;
+import com.kar20240901.be.base.web.service.socket.BaseSocketRefUserService;
+import com.kar20240901.be.base.web.util.CallBack;
+import com.kar20240901.be.base.web.util.MyEntityUtil;
+import com.kar20240901.be.base.web.util.MyExceptionUtil;
+import com.kar20240901.be.base.web.util.MyThreadUtil;
+import com.kar20240901.be.base.web.util.MyTryUtil;
+import com.kar20240901.be.base.web.util.MyUserUtil;
+import com.kar20240901.be.base.web.util.MyValidUtil;
+import com.kar20240901.be.base.web.util.socket.SocketUtil;
+import com.kar20240901.be.base.web.util.socket.WebSocketUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -61,7 +62,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @ChannelHandler.Sharable
-@Slf4j(topic = LogTopicConstant.NETTY_WEB_SOCKET)
+@Slf4j
 public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
     @Resource
@@ -71,18 +72,18 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
     RedissonClient redissonClient;
 
     @Resource
-    SysSocketRefUserService sysSocketRefUserService;
+    BaseSocketRefUserService baseSocketRefUserService;
 
     // UserId key
     public static final AttributeKey<Long> USER_ID_KEY = AttributeKey.valueOf("USER_ID_KEY");
 
-    // SysSocketRefUserId key
-    public static final AttributeKey<Long> SYS_SOCKET_REF_USER_ID_KEY =
-        AttributeKey.valueOf("SYS_SOCKET_REF_USER_ID_KEY");
+    // BaseSocketRefUserId key
+    public static final AttributeKey<Long> BASE_SOCKET_REF_USER_ID_KEY =
+        AttributeKey.valueOf("BASE_SOCKET_REF_USER_ID_KEY");
 
-    // SysRequestCategoryEnum key
-    public static final AttributeKey<SysRequestCategoryEnum> SYS_REQUEST_CATEGORY_ENUM_KEY =
-        AttributeKey.valueOf("SYS_REQUEST_CATEGORY_ENUM_KEY");
+    // BaseRequestCategoryEnum key
+    public static final AttributeKey<BaseRequestCategoryEnum> BASE_REQUEST_CATEGORY_ENUM_KEY =
+        AttributeKey.valueOf("BASE_REQUEST_CATEGORY_ENUM_KEY");
 
     // Ip key
     public static final AttributeKey<String> IP_KEY = AttributeKey.valueOf("IP_KEY");
@@ -90,20 +91,20 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
     // 最近活跃时间 key
     public static final AttributeKey<Date> ACTIVITY_TIME_KEY = AttributeKey.valueOf("ACTIVITY_TIME_KEY");
 
-    // 用户通道 map，大key：用户主键 id，小key：sysSocketRefUserId，value：通道
+    // 用户通道 map，大key：用户主键 id，小key：baseSocketRefUserId，value：通道
     public static final ConcurrentHashMap<Long, ConcurrentHashMap<Long, Channel>> USER_ID_CHANNEL_MAP =
         MapUtil.newConcurrentHashMap();
 
-    private static CopyOnWriteArraySet<Long> SYS_SOCKET_REMOVE_REF_USER_ID_SET = new CopyOnWriteArraySet<>();
+    private static CopyOnWriteArraySet<Long> BASE_SOCKET_REMOVE_REF_USER_ID_SET = new CopyOnWriteArraySet<>();
 
-    private static CopyOnWriteArrayList<SysSocketRefUserDO> SYS_SOCKET_REF_USER_DO_INSERT_LIST =
+    private static CopyOnWriteArrayList<BaseSocketRefUserDO> BASE_SOCKET_REF_USER_DO_INSERT_LIST =
         new CopyOnWriteArrayList<>();
 
     /**
      * 定时任务，检查 webSocket活跃状态
      */
     @PreDestroy
-    @Scheduled(fixedDelay = BaseConstant.MINUTE_1_EXPIRE_TIME)
+    @Scheduled(fixedDelay = TempConstant.MINUTE_1_EXPIRE_TIME)
     public void scheduledCheckActivityTime() {
 
         long currentTimeMillis = System.currentTimeMillis();
@@ -120,7 +121,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
                 long time = subItem.attr(ACTIVITY_TIME_KEY).get().getTime();
 
                 // 如果：5分钟没有活跃，则关闭该 webSocket
-                if (time + BaseConstant.MINUTE_5_EXPIRE_TIME < currentTimeMillis) {
+                if (time + TempConstant.MINUTE_5_EXPIRE_TIME < currentTimeMillis) {
 
                     subItem.close(); // 直接可以关闭该通道，不会影响遍历，因为已经包了一层新的集合
 
@@ -139,29 +140,29 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
     @Scheduled(fixedDelay = 5000)
     public void scheduledSava() {
 
-        // 处理：SYS_SOCKET_REF_USER_DO_LIST
-        handleSysSocketRefUserDOList();
+        // 处理：BASE_SOCKET_REF_USER_DO_LIST
+        handleBaseSocketRefUserDOList();
 
-        // 处理：SYS_SOCKET_REF_USER_ID_SET
-        handleSysSocketRefUserIdSet();
+        // 处理：BASE_SOCKET_REF_USER_ID_SET
+        handleBaseSocketRefUserIdSet();
 
     }
 
     /**
      * 处理：SYS_SOCKET_REF_USER_DO_LIST
      */
-    private void handleSysSocketRefUserDOList() {
+    private void handleBaseSocketRefUserDOList() {
 
-        CopyOnWriteArrayList<SysSocketRefUserDO> tempSysSocketRefUserDOList;
+        CopyOnWriteArrayList<BaseSocketRefUserDO> tempSysSocketRefUserDoList;
 
-        synchronized (SYS_SOCKET_REF_USER_DO_INSERT_LIST) {
+        synchronized (BASE_SOCKET_REF_USER_DO_INSERT_LIST) {
 
-            if (CollUtil.isEmpty(SYS_SOCKET_REF_USER_DO_INSERT_LIST)) {
+            if (CollUtil.isEmpty(BASE_SOCKET_REF_USER_DO_INSERT_LIST)) {
                 return;
             }
 
-            tempSysSocketRefUserDOList = SYS_SOCKET_REF_USER_DO_INSERT_LIST;
-            SYS_SOCKET_REF_USER_DO_INSERT_LIST = new CopyOnWriteArrayList<>();
+            tempSysSocketRefUserDoList = BASE_SOCKET_REF_USER_DO_INSERT_LIST;
+            BASE_SOCKET_REF_USER_DO_INSERT_LIST = new CopyOnWriteArrayList<>();
 
         }
 
@@ -170,10 +171,10 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
             int sum = USER_ID_CHANNEL_MAP.values().stream().mapToInt(it -> it.values().size()).sum();
 
-            log.info("WebSocket 保存数据，长度：{}，连接总数：{}", tempSysSocketRefUserDOList.size(), sum);
+            log.info("WebSocket 保存数据，长度：{}，连接总数：{}", tempSysSocketRefUserDoList.size(), sum);
 
             // 批量保存数据
-            sysSocketRefUserService.saveBatch(tempSysSocketRefUserDOList);
+            baseSocketRefUserService.saveBatch(tempSysSocketRefUserDoList);
 
         }, DateUtil.offsetMillisecond(new Date(), 1500));
 
@@ -182,18 +183,18 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
     /**
      * 处理：SYS_SOCKET_REF_USER_ID_SET
      */
-    private void handleSysSocketRefUserIdSet() {
+    private void handleBaseSocketRefUserIdSet() {
 
         CopyOnWriteArraySet<Long> tempSysSocketRefUserIdSet;
 
-        synchronized (SYS_SOCKET_REMOVE_REF_USER_ID_SET) {
+        synchronized (BASE_SOCKET_REMOVE_REF_USER_ID_SET) {
 
-            if (CollUtil.isEmpty(SYS_SOCKET_REMOVE_REF_USER_ID_SET)) {
+            if (CollUtil.isEmpty(BASE_SOCKET_REMOVE_REF_USER_ID_SET)) {
                 return;
             }
 
-            tempSysSocketRefUserIdSet = SYS_SOCKET_REMOVE_REF_USER_ID_SET;
-            SYS_SOCKET_REMOVE_REF_USER_ID_SET = new CopyOnWriteArraySet<>();
+            tempSysSocketRefUserIdSet = BASE_SOCKET_REMOVE_REF_USER_ID_SET;
+            BASE_SOCKET_REMOVE_REF_USER_ID_SET = new CopyOnWriteArraySet<>();
 
         }
 
@@ -205,9 +206,9 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
             log.info("WebSocket 移除数据，长度：{}，连接总数：{}", tempSysSocketRefUserIdSet.size(), sum);
 
             // 批量保存数据
-            sysSocketRefUserService.removeByIds(tempSysSocketRefUserIdSet);
+            baseSocketRefUserService.removeByIds(tempSysSocketRefUserIdSet);
 
-        }, DateUtil.offsetMillisecond(new Date(), 3000));
+        }, DateUtil.offsetMillisecond(new Date(), 1500));
 
     }
 
@@ -235,17 +236,17 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
         if (userId != null) {
 
-            Long sysSocketRefUserId = channel.attr(SYS_SOCKET_REF_USER_ID_KEY).get();
+            Long baseSocketRefUserId = channel.attr(BASE_SOCKET_REF_USER_ID_KEY).get();
 
             ConcurrentHashMap<Long, Channel> channelMap =
                 USER_ID_CHANNEL_MAP.computeIfAbsent(userId, k -> MapUtil.newConcurrentHashMap());
 
-            channelMap.remove(sysSocketRefUserId);
+            channelMap.remove(baseSocketRefUserId);
 
-            log.info("WebSocket 断开，用户：{}，连接数：{}，sysSocketRefUserId：{}", userId, channelMap.size(),
-                sysSocketRefUserId);
+            log.info("WebSocket 断开，用户：{}，连接数：{}，baseSocketRefUserId：{}", userId, channelMap.size(),
+                baseSocketRefUserId);
 
-            SYS_SOCKET_REMOVE_REF_USER_ID_SET.add(sysSocketRefUserId);
+            BASE_SOCKET_REMOVE_REF_USER_ID_SET.add(baseSocketRefUserId);
 
         }
 
@@ -275,7 +276,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
         // 首次连接是 FullHttpRequest，处理参数
         if (msg instanceof FullHttpRequest) {
 
-            TryUtil.tryCatch(() -> {
+            MyTryUtil.tryCatch(() -> {
 
                 // 处理：FullHttpRequest
                 handleFullHttpRequest(ctx, (FullHttpRequest)msg);
@@ -291,7 +292,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
         } else if (msg instanceof TextWebSocketFrame) {
 
-            TryUtil.tryCatchFinally(() -> {
+            MyTryUtil.tryCatchFinally(() -> {
 
                 // 处理：TextWebSocketFrame
                 handleTextWebSocketFrame((TextWebSocketFrame)msg, ctx.channel());
@@ -360,12 +361,10 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
         Long userId = channel.attr(USER_ID_KEY).get();
 
-        Long tenantId = channel.attr(TENANT_ID_KEY).get();
-
         // 备注：加了该注解，并且使用代理 bean对象执行该方法，会自动检查权限
         boolean setAuthoritySetFlag = method.getAnnotation(PreAuthorize.class) != null;
 
-        UserUtil.securityContextHolderSetAuthenticationAndExecFun(() -> {
+        MyUserUtil.securityContextHolderSetAuthenticationAndExecFun(() -> {
 
             try {
 
@@ -389,7 +388,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
             }
 
-        }, userId, tenantId, null, null, setAuthoritySetFlag);
+        }, userId, null, null, setAuthoritySetFlag);
 
     }
 
@@ -401,12 +400,12 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
         WebSocketMessageDTO<Object> webSocketMessageDTO = new WebSocketMessageDTO<>(uri);
 
-        if (invoke instanceof ApiResultVO) {
+        if (invoke instanceof R) {
 
-            ApiResultVO<?> apiResultVO = (ApiResultVO<?>)invoke;
+            R<?> r = (R<?>)invoke;
 
-            webSocketMessageDTO.setCode(apiResultVO.getCode());
-            webSocketMessageDTO.setData(apiResultVO.getData());
+            webSocketMessageDTO.setCode(r.getCode());
+            webSocketMessageDTO.setData(r.getData());
 
         } else {
 
@@ -473,17 +472,17 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
         WebSocketMessageDTO<Object> webSocketMessageDTO = new WebSocketMessageDTO<>(uri);
 
-        if (e instanceof BaseException) {
+        if (e instanceof TempException) {
 
-            ApiResultVO<?> apiResultVO = ((BaseException)e).getApiResultVO();
+            R<?> r = ((TempException)e).getR();
 
-            webSocketMessageDTO.setCode(apiResultVO.getCode());
-            webSocketMessageDTO.setMsg(apiResultVO.getMsg());
+            webSocketMessageDTO.setCode(r.getCode());
+            webSocketMessageDTO.setMsg(r.getMsg());
 
         } else {
 
-            webSocketMessageDTO.setCode(BaseBizCodeEnum.API_RESULT_SYS_ERROR.getCode());
-            webSocketMessageDTO.setMsg(BaseBizCodeEnum.API_RESULT_SYS_ERROR.getMsg());
+            webSocketMessageDTO.setCode(TempBizCodeEnum.RESULT_SYS_ERROR.getCode());
+            webSocketMessageDTO.setMsg(TempBizCodeEnum.RESULT_SYS_ERROR.getMsg());
 
         }
 
@@ -512,18 +511,18 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
         String key = BaseRedisKeyEnum.PRE_WEB_SOCKET_CODE.name() + code;
 
-        SysSocketRefUserDO sysSocketRefUserDO = redissonClient.<SysSocketRefUserDO>getBucket(key).getAndDelete();
+        BaseSocketRefUserDO baseSocketRefUserDO = redissonClient.<BaseSocketRefUserDO>getBucket(key).getAndDelete();
 
-        if (sysSocketRefUserDO == null) {
+        if (baseSocketRefUserDO == null) {
 
-            handleFullHttpRequestError(ctx, fullHttpRequest.uri(), "SysSocketRefUserDO为null",
+            handleFullHttpRequestError(ctx, fullHttpRequest.uri(), "BaseSocketRefUserDO为null",
                 fullHttpRequest); // 处理：非法连接
 
             return;
 
         }
 
-        if (!sysSocketRefUserDO.getSocketId().equals(NettyWebSocketServer.baseSocketServerId)) {
+        if (!baseSocketRefUserDO.getSocketId().equals(NettyWebSocketServer.baseSocketServerId)) {
 
             handleFullHttpRequestError(ctx, fullHttpRequest.uri(), "SocketId不相同", fullHttpRequest); // 处理：非法连接
 
@@ -535,38 +534,33 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
         fullHttpRequest.setUri(nettyWebSocketProperties.getPath());
 
         // 处理：上线操作
-        onlineHandle(ctx.channel(), sysSocketRefUserDO, fullHttpRequest);
+        onlineHandle(ctx.channel(), baseSocketRefUserDO, fullHttpRequest);
 
     }
 
     /**
      * 处理：上线操作
      */
-    private void onlineHandle(Channel channel, SysSocketRefUserDO sysSocketRefUserDO,
+    private void onlineHandle(Channel channel, BaseSocketRefUserDO baseSocketRefUserDO,
         @NotNull FullHttpRequest fullHttpRequest) {
 
-        SYS_SOCKET_REF_USER_DO_INSERT_LIST.add(sysSocketRefUserDO);
+        BASE_SOCKET_REF_USER_DO_INSERT_LIST.add(baseSocketRefUserDO);
 
-        Long userId = sysSocketRefUserDO.getUserId();
+        Long userId = baseSocketRefUserDO.getUserId();
 
-        Long sysSocketRefUserDoId = sysSocketRefUserDO.getId();
-
-        Long tenantId = sysSocketRefUserDO.getTenantId();
+        Long baseSocketRefUserDoId = baseSocketRefUserDO.getId();
 
         // 绑定 UserId
         channel.attr(USER_ID_KEY).set(userId);
 
         // 绑定 SysSocketRefUserId
-        channel.attr(SYS_SOCKET_REF_USER_ID_KEY).set(sysSocketRefUserDoId);
+        channel.attr(BASE_SOCKET_REF_USER_ID_KEY).set(baseSocketRefUserDoId);
 
         // 绑定 SysRequestCategoryEnum
-        channel.attr(SYS_REQUEST_CATEGORY_ENUM_KEY).set(sysSocketRefUserDO.getCategory());
+        channel.attr(BASE_REQUEST_CATEGORY_ENUM_KEY).set(baseSocketRefUserDO.getCategory());
 
         // 绑定 Ip
         channel.attr(IP_KEY).set(SocketUtil.getIp(fullHttpRequest, channel));
-
-        // 绑定 TenantId
-        channel.attr(TENANT_ID_KEY).set(tenantId);
 
         // 设置：最近活跃时间
         channel.attr(ACTIVITY_TIME_KEY).set(new Date());
@@ -574,10 +568,10 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
         ConcurrentHashMap<Long, Channel> channelMap =
             USER_ID_CHANNEL_MAP.computeIfAbsent(userId, k -> MapUtil.newConcurrentHashMap());
 
-        channelMap.put(sysSocketRefUserDoId, channel);
+        channelMap.put(baseSocketRefUserDoId, channel);
 
-        log.info("WebSocket 连接，用户：{}，连接数：{}，sysSocketRefUserDoId：{}", userId, channelMap.size(),
-            sysSocketRefUserDoId);
+        log.info("WebSocket 连接，用户：{}，连接数：{}，baseSocketRefUserDoId：{}", userId, channelMap.size(),
+            baseSocketRefUserDoId);
 
     }
 
@@ -588,35 +582,6 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
         @NotNull FullHttpRequest fullHttpRequest) {
 
         ctx.close(); // 关闭连接
-
-        Date date = new Date();
-
-        SysRequestDO sysRequestDO = new SysRequestDO();
-
-        sysRequestDO.setUri("");
-        sysRequestDO.setCostMsStr("");
-        sysRequestDO.setCostMs(0L);
-        sysRequestDO.setName("WebSocket连接错误");
-        sysRequestDO.setCategory(SysRequestCategoryEnum.PC_BROWSER_WINDOWS);
-
-        sysRequestDO.setIp(SocketUtil.getIp(fullHttpRequest, ctx.channel()));
-        sysRequestDO.setRegion(Ip2RegionUtil.getRegion(sysRequestDO.getIp()));
-
-        sysRequestDO.setSuccessFlag(false);
-        sysRequestDO.setErrorMsg(errorMsg);
-        sysRequestDO.setRequestParam(requestParam);
-        sysRequestDO.setType(OperationDescriptionConstant.WEB_SOCKET_CONNECT_ERROR);
-        sysRequestDO.setResponseValue("");
-
-        sysRequestDO.setCreateTime(date);
-        sysRequestDO.setUpdateTime(date);
-
-        sysRequestDO.setEnableFlag(true);
-        sysRequestDO.setDelFlag(false);
-        sysRequestDO.setRemark("");
-
-        // 添加一个：请求数据
-        RequestUtil.add(sysRequestDO);
 
     }
 

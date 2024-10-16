@@ -1,4 +1,4 @@
-package com.kar20240901.be.base.web.model.configuration;
+package com.kar20240901.be.base.web.model.configuration.socket;
 
 import lombok.Data;
 

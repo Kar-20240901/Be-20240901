@@ -1,9 +1,10 @@
 package com.kar20240901.be.base.web.util.socket;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.BetweenFormatter;
-import cn.hutool.core.date.DateUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketEventBO;
+import com.kar20240901.be.base.web.model.configuration.socket.NettyWebSocketBeanPostProcessor;
+import com.kar20240901.be.base.web.model.dto.socket.WebSocketMessageDTO;
 import com.kar20240901.be.base.web.server.NettyWebSocketServerHandler;
 import com.kar20240901.be.base.web.util.MyUserInfoUtil;
 import io.netty.channel.Channel;
@@ -34,7 +35,7 @@ public class WebSocketUtil {
      * 发送消息
      */
     @SneakyThrows
-    public static void send(@Nullable SysWebSocketEventBO<?> bo) {
+    public static void send(@Nullable BaseWebSocketEventBO<?> bo) {
 
         if (bo == null) {
             return;
@@ -68,7 +69,7 @@ public class WebSocketUtil {
                 if (checkFlag) {
 
                     Long sysSocketRefUserId =
-                        subItem.attr(NettyWebSocketServerHandler.SYS_SOCKET_REF_USER_ID_KEY).get();
+                        subItem.attr(NettyWebSocketServerHandler.BASE_SOCKET_REF_USER_ID_KEY).get();
 
                     if (!sysSocketRefUserIdSet.contains(sysSocketRefUserId)) {
                         continue;
@@ -94,12 +95,9 @@ public class WebSocketUtil {
 
         Long userId = channel.attr(NettyWebSocketServerHandler.USER_ID_KEY).get();
 
-        Long tenantId = channel.attr(NettyWebSocketServerHandler.TENANT_ID_KEY).get();
-
         Date date = new Date();
 
         costMs = System.currentTimeMillis() - costMs; // 耗时（毫秒）
-        String costMsStr = DateUtil.formatBetween(costMs, BetweenFormatter.Level.MILLISECOND); // 耗时（字符串）
 
         String summary;
 

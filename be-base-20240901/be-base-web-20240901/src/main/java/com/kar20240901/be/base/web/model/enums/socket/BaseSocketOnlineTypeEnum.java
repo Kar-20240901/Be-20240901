@@ -1,4 +1,4 @@
-package com.kar20240901.be.base.web.model.enums;
+package com.kar20240901.be.base.web.model.enums.socket;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
  */
 @AllArgsConstructor
 @Getter
-public enum SysSocketOnlineTypeEnum {
+public enum BaseSocketOnlineTypeEnum {
 
     ONLINE(101), // 在线
 
@@ -26,13 +26,13 @@ public enum SysSocketOnlineTypeEnum {
     private final int code;
 
     @NotNull
-    public static SysSocketOnlineTypeEnum getByCode(Integer code) {
+    public static BaseSocketOnlineTypeEnum getByCode(Integer code) {
 
         if (code == null) {
             return ONLINE;
         }
 
-        for (SysSocketOnlineTypeEnum item : SysSocketOnlineTypeEnum.values()) {
+        for (BaseSocketOnlineTypeEnum item : BaseSocketOnlineTypeEnum.values()) {
 
             if (item.getCode() == code) {
 

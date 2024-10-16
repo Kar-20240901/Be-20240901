@@ -2,7 +2,7 @@ package com.kar20240901.be.base.web.model.domain.socket;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.kar20240901.be.base.web.model.domain.TempEntity;
-import com.kar20240901.be.base.web.model.enums.SysSocketTypeEnum;
+import com.kar20240901.be.base.web.model.enums.socket.BaseSocketTypeEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,7 +26,7 @@ public class BaseSocketDO extends TempEntity {
     private String path;
 
     @Schema(description = "socket类型")
-    private SysSocketTypeEnum type;
+    private BaseSocketTypeEnum type;
 
     @Schema(description = "mac地址，用于：和 port一起判断是否是重复启动，如果是，则需要移除之前的 socket信息")
     private String macAddress;

@@ -97,7 +97,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         handleIjwtFilterList(userId, jwt, request); // 扩展处理 jwt
 
-        Set<String> authSet = MyJwtUtil.getAuthSetByUserId(userId, jwt); // 获取：权限
+        Set<String> authSet = MyJwtUtil.getAuthSetByUserId(userId); // 获取：权限
 
         List<GrantedAuthority> authoritieList =
             authSet.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());

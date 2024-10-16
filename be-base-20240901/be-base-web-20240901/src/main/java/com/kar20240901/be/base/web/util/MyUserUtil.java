@@ -6,13 +6,14 @@ import cn.hutool.core.lang.func.VoidFunc0;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import cn.hutool.jwt.JWT;
+import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
+import com.kar20240901.be.base.web.mapper.TempUserInfoMapper;
 import com.kar20240901.be.base.web.model.constant.TempConstant;
 import com.kar20240901.be.base.web.model.domain.TempUserDO;
+import com.kar20240901.be.base.web.model.domain.TempUserInfoDO;
 import com.kar20240901.be.base.web.model.enums.TempRedisKeyEnum;
 import com.kar20240901.be.base.web.model.vo.R;
-import com.kar20240901.be.base.web.properties.BaseSecurityProperties;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,11 +39,11 @@ public class MyUserUtil {
         MyUserUtil.redissonClient = redissonClient;
     }
 
-    private static BaseSecurityProperties baseSecurityProperties;
+    private static TempUserInfoMapper tempUserInfoMapper;
 
     @Resource
-    public void setSecurityProperties(BaseSecurityProperties baseSecurityProperties) {
-        MyUserUtil.baseSecurityProperties = baseSecurityProperties;
+    public void setTempUserInfoMapper(TempUserInfoMapper tempUserInfoMapper) {
+        MyUserUtil.tempUserInfoMapper = tempUserInfoMapper;
     }
 
     /**
@@ -124,6 +125,26 @@ public class MyUserUtil {
     public static boolean getCurrentUserAdminFlag(Long userId) {
 
         return TempConstant.ADMIN_ID.equals(userId);
+
+    }
+
+    /**
+     * 获取当前用户的昵称 这里只会返回实际的昵称，如果为 null，则会抛出异常
+     */
+    @NotNull
+    public static String getCurrentUserNickName() {
+
+        Long userId = getCurrentUserId();
+
+        TempUserInfoDO tempUserInfoDO =
+            ChainWrappers.lambdaQueryChain(tempUserInfoMapper).eq(TempUserInfoDO::getId, userId)
+                .select(TempUserInfoDO::getNickname).one();
+
+        if (tempUserInfoDO == null) {
+            return "";
+        }
+
+        return tempUserInfoDO.getNickname();
 
     }
 
@@ -269,11 +290,11 @@ public class MyUserUtil {
      * 给 security设置用户信息，并执行方法
      */
     public static void securityContextHolderSetAuthenticationAndExecFun(VoidFunc0 voidFunc0, TempUserDO tempUserDO,
-        boolean setAuthoritySetFlag, String jwt) {
+        boolean setAuthoritySetFlag) {
 
         // 执行
         securityContextHolderSetAuthenticationAndExecFun(voidFunc0, tempUserDO.getId(), tempUserDO.getWxAppId(),
-            tempUserDO.getWxOpenId(), setAuthoritySetFlag, jwt);
+            tempUserDO.getWxOpenId(), setAuthoritySetFlag);
 
     }
 
@@ -283,7 +304,7 @@ public class MyUserUtil {
      * @param setAuthoritySetFlag 是否设置：权限
      */
     public static void securityContextHolderSetAuthenticationAndExecFun(VoidFunc0 voidFunc0, @Nullable Long userId,
-        @Nullable String wxAppId, @Nullable String wxOpenId, boolean setAuthoritySetFlag, String jwt) {
+        @Nullable String wxAppId, @Nullable String wxOpenId, boolean setAuthoritySetFlag) {
 
         JSONObject principalJson = JSONUtil.createObj();
 
@@ -309,7 +330,7 @@ public class MyUserUtil {
 
         if (setAuthoritySetFlag) {
 
-            Set<String> authSet = MyJwtUtil.getAuthSetByUserId(userId, JWT.of(jwt));
+            Set<String> authSet = MyJwtUtil.getAuthSetByUserId(userId);
 
             authorityList = authSet.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
 

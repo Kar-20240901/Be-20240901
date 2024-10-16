@@ -4,10 +4,18 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.socket.BaseSocketRefUserMapper;
+import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketEventBO;
+import com.kar20240901.be.base.web.model.domain.TempEntity;
 import com.kar20240901.be.base.web.model.domain.socket.BaseSocketRefUserDO;
 import com.kar20240901.be.base.web.model.dto.NotEmptyIdSet;
+import com.kar20240901.be.base.web.model.dto.NotNullIdAndNotEmptyLongSet;
+import com.kar20240901.be.base.web.model.dto.socket.BaseSocketRefUserPageDTO;
+import com.kar20240901.be.base.web.model.dto.socket.WebSocketMessageDTO;
+import com.kar20240901.be.base.web.model.enums.socket.BaseWebSocketUriEnum;
 import com.kar20240901.be.base.web.service.socket.BaseSocketRefUserService;
+import com.kar20240901.be.base.web.util.kafka.TempKafkaUtil;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,21 +29,20 @@ public class BaseSocketRefUserServiceImpl extends ServiceImpl<BaseSocketRefUserM
      * 分页排序查询
      */
     @Override
-    public Page<BaseSocketRefUserDO> myPage(SysSocketRefUserPageDTO dto) {
+    public Page<BaseSocketRefUserDO> myPage(BaseSocketRefUserPageDTO dto) {
 
-        return lambdaQuery().eq(dto.getUserId() != null, BaseSocketRefUserDO::getUserId, dto.getUserId())
-            .eq(dto.getSocketId() != null, BaseSocketRefUserDO::getSocketId, dto.getSocketId())
-            .like(StrUtil.isNotBlank(dto.getScheme()), BaseSocketRefUserDO::getScheme, dto.getScheme())
-            .like(StrUtil.isNotBlank(dto.getHost()), BaseSocketRefUserDO::getHost, dto.getHost())
-            .eq(dto.getPort() != null, BaseSocketRefUserDO::getPort, dto.getPort())
-            .eq(dto.getType() != null, BaseSocketRefUserDO::getType, dto.getType())
-            .eq(dto.getId() != null, BaseEntity::getId, dto.getId())
-            .eq(dto.getOnlineType() != null, BaseSocketRefUserDO::getOnlineType, dto.getOnlineType())
-            .like(StrUtil.isNotBlank(dto.getIp()), BaseSocketRefUserDO::getIp, dto.getIp())
-            .like(StrUtil.isNotBlank(dto.getRegion()), BaseSocketRefUserDO::getRegion, dto.getRegion())
-            .like(StrUtil.isNotBlank(dto.getRemark()), BaseSocketRefUserDO::getRemark, dto.getRemark())
-            .in(BaseEntityNoId::getTenantId, dto.getTenantIdSet()) //
-            .page(dto.page(true));
+        return lambdaQuery().eq(dto.getUserId() != null, BaseSocketRefUserDO::getUserId, dto.getUserId()) //
+            .eq(dto.getSocketId() != null, BaseSocketRefUserDO::getSocketId, dto.getSocketId()) //
+            .like(StrUtil.isNotBlank(dto.getScheme()), BaseSocketRefUserDO::getScheme, dto.getScheme()) //
+            .like(StrUtil.isNotBlank(dto.getHost()), BaseSocketRefUserDO::getHost, dto.getHost()) //
+            .eq(dto.getPort() != null, BaseSocketRefUserDO::getPort, dto.getPort()) //
+            .eq(dto.getType() != null, BaseSocketRefUserDO::getType, dto.getType()) //
+            .eq(dto.getId() != null, TempEntity::getId, dto.getId()) //
+            .eq(dto.getOnlineType() != null, BaseSocketRefUserDO::getOnlineType, dto.getOnlineType()) //
+            .like(StrUtil.isNotBlank(dto.getIp()), BaseSocketRefUserDO::getIp, dto.getIp()) //
+            .like(StrUtil.isNotBlank(dto.getRegion()), BaseSocketRefUserDO::getRegion, dto.getRegion()) //
+            .like(StrUtil.isNotBlank(dto.getRemark()), BaseSocketRefUserDO::getRemark, dto.getRemark()) //
+            .page(dto.pageOrder());
 
     }
 
@@ -46,32 +53,36 @@ public class BaseSocketRefUserServiceImpl extends ServiceImpl<BaseSocketRefUserM
     public String offlineByIdSet(NotEmptyIdSet notEmptyIdSet) {
 
         if (CollUtil.isEmpty(notEmptyIdSet.getIdSet())) {
-            return BaseBizCodeEnum.OK;
+            return TempBizCodeEnum.OK;
         }
 
-        // 检查：是否非法操作
-        SysTenantUtil.checkIllegal(notEmptyIdSet.getIdSet(),
-            tenantIdSet -> lambdaQuery().in(BaseEntity::getId, notEmptyIdSet.getIdSet())
-                .in(BaseEntityNoId::getTenantId, tenantIdSet).count());
+        List<BaseSocketRefUserDO> baseSocketRefUserDoList =
+            lambdaQuery().in(TempEntity::getId, notEmptyIdSet.getIdSet()).select(BaseSocketRefUserDO::getUserId).list();
 
-        List<BaseSocketRefUserDO> BaseSocketRefUserDOList =
-            lambdaQuery().in(BaseEntity::getId, notEmptyIdSet.getIdSet())
-                .select(BaseSocketRefUserDO::getJwtHash, BaseSocketRefUserDO::getJwtHashExpireTs).list();
+        Set<Long> userIdSet =
+            baseSocketRefUserDoList.stream().map(BaseSocketRefUserDO::getUserId).collect(Collectors.toSet());
 
-        if (CollUtil.isNotEmpty(BaseSocketRefUserDOList)) {
-
-            for (BaseSocketRefUserDO BaseSocketRefUserDO : BaseSocketRefUserDOList) {
-
-                CacheRedisKafkaLocalUtil.put(BaseSocketRefUserDO.getJwtHash(), BaseSocketRefUserDO.getJwtHashExpireTs(),
-                    () -> "不可用的 jwt：下线");
-
-            }
-
-            lambdaUpdate().in(BaseEntity::getId, notEmptyIdSet.getIdSet()).remove();
-
+        if (CollUtil.isEmpty(userIdSet)) {
+            return TempBizCodeEnum.OK;
         }
 
-        return BaseBizCodeEnum.OK;
+        BaseWebSocketEventBO<NotNullIdAndNotEmptyLongSet> baseWebSocketEventBO = new BaseWebSocketEventBO<>();
+
+        baseWebSocketEventBO.setUserIdSet(userIdSet);
+
+        baseWebSocketEventBO.setSysSocketRefUserIdSet(notEmptyIdSet.getIdSet());
+
+        WebSocketMessageDTO<NotNullIdAndNotEmptyLongSet> webSocketMessageDTO =
+            WebSocketMessageDTO.okData(BaseWebSocketUriEnum.BASE_SIGN_OUT, null);
+
+        baseWebSocketEventBO.setWebSocketMessageDTO(webSocketMessageDTO);
+
+        // 发送：webSocket事件
+        TempKafkaUtil.sendBaseWebSocketEventTopic(baseWebSocketEventBO);
+
+        lambdaUpdate().in(TempEntity::getId, notEmptyIdSet.getIdSet()).remove();
+
+        return TempBizCodeEnum.OK;
 
     }
 
@@ -81,31 +92,31 @@ public class BaseSocketRefUserServiceImpl extends ServiceImpl<BaseSocketRefUserM
     @Override
     public String changeConsoleFlagByIdSet(NotEmptyIdSet notEmptyIdSet) {
 
-        List<BaseSocketRefUserDO> BaseSocketRefUserDOList =
-            lambdaQuery().in(BaseEntity::getId, notEmptyIdSet.getIdSet()).select(BaseSocketRefUserDO::getUserId).list();
+        List<BaseSocketRefUserDO> baseSocketRefUserDoList =
+            lambdaQuery().in(TempEntity::getId, notEmptyIdSet.getIdSet()).select(BaseSocketRefUserDO::getUserId).list();
 
         Set<Long> userIdSet =
-            BaseSocketRefUserDOList.stream().map(BaseSocketRefUserDO::getUserId).collect(Collectors.toSet());
+            baseSocketRefUserDoList.stream().map(BaseSocketRefUserDO::getUserId).collect(Collectors.toSet());
 
         if (CollUtil.isEmpty(userIdSet)) {
-            return BaseBizCodeEnum.OK;
+            return TempBizCodeEnum.OK;
         }
 
-        SysWebSocketEventBO<NotNullIdAndNotEmptyLongSet> sysWebSocketEventBO = new SysWebSocketEventBO<>();
+        BaseWebSocketEventBO<NotNullIdAndNotEmptyLongSet> baseWebSocketEventBO = new BaseWebSocketEventBO<>();
 
-        sysWebSocketEventBO.setUserIdSet(userIdSet);
+        baseWebSocketEventBO.setUserIdSet(userIdSet);
 
-        sysWebSocketEventBO.setSysSocketRefUserIdSet(notEmptyIdSet.getIdSet());
+        baseWebSocketEventBO.setSysSocketRefUserIdSet(notEmptyIdSet.getIdSet());
 
         WebSocketMessageDTO<NotNullIdAndNotEmptyLongSet> webSocketMessageDTO =
-            WebSocketMessageDTO.okData(BaseWebSocketUriEnum.SYS_SOCKET_REF_USER_CHANGE_CONSOLE_FLAG_BY_ID_SET, null);
+            WebSocketMessageDTO.okData(BaseWebSocketUriEnum.BASE_SOCKET_REF_USER_CHANGE_CONSOLE_FLAG_BY_ID_SET, null);
 
-        sysWebSocketEventBO.setWebSocketMessageDTO(webSocketMessageDTO);
+        baseWebSocketEventBO.setWebSocketMessageDTO(webSocketMessageDTO);
 
         // 发送：webSocket事件
-        KafkaUtil.sendSysWebSocketEventTopic(sysWebSocketEventBO);
+        TempKafkaUtil.sendBaseWebSocketEventTopic(baseWebSocketEventBO);
 
-        return BaseBizCodeEnum.OK;
+        return TempBizCodeEnum.OK;
 
     }
 

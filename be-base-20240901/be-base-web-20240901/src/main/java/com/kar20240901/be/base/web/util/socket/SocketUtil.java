@@ -3,11 +3,11 @@ package com.kar20240901.be.base.web.util.socket;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.net.NetUtil;
 import cn.hutool.core.util.StrUtil;
-import com.kar20240901.be.base.web.model.configuration.BaseSocketBaseProperties;
+import com.kar20240901.be.base.web.model.configuration.socket.BaseSocketBaseProperties;
 import com.kar20240901.be.base.web.model.domain.TempEntity;
 import com.kar20240901.be.base.web.model.domain.socket.BaseSocketDO;
 import com.kar20240901.be.base.web.model.domain.socket.BaseSocketRefUserDO;
-import com.kar20240901.be.base.web.model.enums.SysSocketTypeEnum;
+import com.kar20240901.be.base.web.model.enums.socket.BaseSocketTypeEnum;
 import com.kar20240901.be.base.web.service.socket.BaseSocketRefUserService;
 import com.kar20240901.be.base.web.service.socket.BaseSocketService;
 import com.kar20240901.be.base.web.util.MyEntityUtil;
@@ -130,7 +130,7 @@ public class SocketUtil {
 
         }
 
-        log.info("{} 下线{}：{}，移除连接：{}", name, removeFlag ? "成功" : "失败", sysSocketServerId, closeChannelCount);
+        log.info("{} 下线 {}：{}，移除连接：{}", name, removeFlag ? "成功" : "失败", sysSocketServerId, closeChannelCount);
 
         if (channelFuture != null) {
 
@@ -156,7 +156,7 @@ public class SocketUtil {
      * 获取：sysSocketServerId
      */
     public static Long getSysSocketServerId(int port, BaseSocketBaseProperties baseSocketBaseProperties,
-        SysSocketTypeEnum sysSocketTypeEnum) {
+        BaseSocketTypeEnum baseSocketTypeEnum) {
 
         BaseSocketDO baseSocketDO = new BaseSocketDO();
 
@@ -164,7 +164,7 @@ public class SocketUtil {
         baseSocketDO.setHost(MyEntityUtil.getNotNullStr(baseSocketBaseProperties.getHost()));
         baseSocketDO.setPort(port);
         baseSocketDO.setPath(MyEntityUtil.getNotNullStr(baseSocketBaseProperties.getPath()));
-        baseSocketDO.setType(sysSocketTypeEnum);
+        baseSocketDO.setType(baseSocketTypeEnum);
 
         baseSocketDO.setMacAddress(NetUtil.getLocalMacAddress());
 

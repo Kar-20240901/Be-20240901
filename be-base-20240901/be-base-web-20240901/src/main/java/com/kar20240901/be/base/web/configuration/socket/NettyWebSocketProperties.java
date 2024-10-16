@@ -1,6 +1,6 @@
 package com.kar20240901.be.base.web.configuration.socket;
 
-import com.kar20240901.be.base.web.model.configuration.BaseSocketBaseProperties;
+import com.kar20240901.be.base.web.model.configuration.socket.BaseSocketBaseProperties;
 import com.kar20240901.be.base.web.model.constant.PropertiesPrefixConstant;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

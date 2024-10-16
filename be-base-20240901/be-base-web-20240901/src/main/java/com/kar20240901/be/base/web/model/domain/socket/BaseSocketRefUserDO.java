@@ -3,8 +3,8 @@ package com.kar20240901.be.base.web.model.domain.socket;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.kar20240901.be.base.web.model.domain.TempEntity;
 import com.kar20240901.be.base.web.model.enums.BaseRequestCategoryEnum;
-import com.kar20240901.be.base.web.model.enums.SysSocketOnlineTypeEnum;
-import com.kar20240901.be.base.web.model.enums.SysSocketTypeEnum;
+import com.kar20240901.be.base.web.model.enums.socket.BaseSocketOnlineTypeEnum;
+import com.kar20240901.be.base.web.model.enums.socket.BaseSocketTypeEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -37,10 +37,10 @@ public class BaseSocketRefUserDO extends TempEntity {
     private String path;
 
     @Schema(description = "冗余字段，socket类型")
-    private SysSocketTypeEnum type;
+    private BaseSocketTypeEnum type;
 
     @Schema(description = "socket 在线状态")
-    private SysSocketOnlineTypeEnum onlineType;
+    private BaseSocketOnlineTypeEnum onlineType;
 
     @Schema(description = "ip")
     private String ip;

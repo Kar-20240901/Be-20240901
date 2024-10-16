@@ -4,10 +4,16 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.socket.BaseSocketMapper;
+import com.kar20240901.be.base.web.model.annotation.MyTransactional;
+import com.kar20240901.be.base.web.model.domain.TempEntity;
+import com.kar20240901.be.base.web.model.domain.TempEntityNoId;
 import com.kar20240901.be.base.web.model.domain.socket.BaseSocketDO;
 import com.kar20240901.be.base.web.model.dto.NotEmptyIdSet;
+import com.kar20240901.be.base.web.model.dto.socket.BaseSocketPageDTO;
 import com.kar20240901.be.base.web.service.socket.BaseSocketService;
+import com.kar20240901.be.base.web.util.kafka.TempKafkaUtil;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,15 +23,16 @@ public class BaseSocketServiceImpl extends ServiceImpl<BaseSocketMapper, BaseSoc
      * 分页排序查询
      */
     @Override
-    public Page<BaseSocketDO> myPage(SysSocketPageDTO dto) {
+    public Page<BaseSocketDO> myPage(BaseSocketPageDTO dto) {
 
         return lambdaQuery().like(StrUtil.isNotBlank(dto.getScheme()), BaseSocketDO::getScheme, dto.getScheme())
-            .like(StrUtil.isNotBlank(dto.getHost()), BaseSocketDO::getHost, dto.getHost())
-            .eq(dto.getPort() != null, BaseSocketDO::getPort, dto.getPort())
-            .eq(dto.getType() != null, BaseSocketDO::getType, dto.getType())
-            .eq(dto.getEnableFlag() != null, BaseEntity::getEnableFlag, dto.getEnableFlag())
-            .eq(dto.getId() != null, BaseEntity::getId, dto.getId())
-            .like(StrUtil.isNotBlank(dto.getRemark()), BaseSocketDO::getRemark, dto.getRemark()).page(dto.page(true));
+            .like(StrUtil.isNotBlank(dto.getHost()), BaseSocketDO::getHost, dto.getHost()) //
+            .eq(dto.getPort() != null, BaseSocketDO::getPort, dto.getPort()) //
+            .eq(dto.getType() != null, BaseSocketDO::getType, dto.getType()) //
+            .eq(dto.getEnableFlag() != null, TempEntityNoId::getEnableFlag, dto.getEnableFlag()) //
+            .eq(dto.getId() != null, TempEntity::getId, dto.getId()) //
+            .like(StrUtil.isNotBlank(dto.getRemark()), BaseSocketDO::getRemark, dto.getRemark()) //
+            .page(dto.pageOrder());
 
     }
 
@@ -36,16 +43,16 @@ public class BaseSocketServiceImpl extends ServiceImpl<BaseSocketMapper, BaseSoc
     public String disableByIdSet(NotEmptyIdSet notEmptyIdSet) {
 
         if (CollUtil.isEmpty(notEmptyIdSet.getIdSet())) {
-            return BaseBizCodeEnum.OK;
+            return TempBizCodeEnum.OK;
         }
 
-        lambdaUpdate().in(BaseEntity::getId, notEmptyIdSet.getIdSet()).set(BaseEntityNoId::getEnableFlag, false)
+        lambdaUpdate().in(TempEntity::getId, notEmptyIdSet.getIdSet()).set(TempEntityNoId::getEnableFlag, false)
             .update();
 
         // 发送消息：socket禁用的 topic
-        KafkaUtil.sendSocketDisableTopic(notEmptyIdSet.getIdSet());
+        TempKafkaUtil.sendSocketDisableTopic(notEmptyIdSet.getIdSet());
 
-        return BaseBizCodeEnum.OK;
+        return TempBizCodeEnum.OK;
 
     }
 
@@ -56,16 +63,16 @@ public class BaseSocketServiceImpl extends ServiceImpl<BaseSocketMapper, BaseSoc
     public String enableByIdSet(NotEmptyIdSet notEmptyIdSet) {
 
         if (CollUtil.isEmpty(notEmptyIdSet.getIdSet())) {
-            return BaseBizCodeEnum.OK;
+            return TempBizCodeEnum.OK;
         }
 
-        lambdaUpdate().in(BaseEntity::getId, notEmptyIdSet.getIdSet()).set(BaseEntityNoId::getEnableFlag, true)
+        lambdaUpdate().in(TempEntity::getId, notEmptyIdSet.getIdSet()).set(TempEntityNoId::getEnableFlag, true)
             .update();
 
         // 发送消息：socket启用的 topic
-        KafkaUtil.sendSocketEnableTopic(notEmptyIdSet.getIdSet());
+        TempKafkaUtil.sendSocketEnableTopic(notEmptyIdSet.getIdSet());
 
-        return BaseBizCodeEnum.OK;
+        return TempBizCodeEnum.OK;
 
     }
 
@@ -73,11 +80,15 @@ public class BaseSocketServiceImpl extends ServiceImpl<BaseSocketMapper, BaseSoc
      * 批量：删除socket
      */
     @Override
+    @MyTransactional
     public String deleteByIdSet(NotEmptyIdSet notEmptyIdSet) {
 
         removeBatchByIds(notEmptyIdSet.getIdSet());
 
-        return BaseBizCodeEnum.OK;
+        // 发送消息：socket禁用的 topic
+        TempKafkaUtil.sendSocketDisableTopic(notEmptyIdSet.getIdSet());
+
+        return TempBizCodeEnum.OK;
 
     }
 
