@@ -153,9 +153,9 @@ public class SocketUtil {
     }
 
     /**
-     * 获取：sysSocketServerId
+     * 获取：baseSocketServerId
      */
-    public static Long getSysSocketServerId(int port, BaseSocketBaseProperties baseSocketBaseProperties,
+    public static Long getBaseSocketServerId(int port, BaseSocketBaseProperties baseSocketBaseProperties,
         BaseSocketTypeEnum baseSocketTypeEnum) {
 
         BaseSocketDO baseSocketDO = new BaseSocketDO();

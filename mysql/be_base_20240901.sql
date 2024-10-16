@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `base_area`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240703：主表：区域表';
+  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240901：主表：区域表';
 
 -- 正在导出表  be_base_20240901.base_area 的数据：~11 rows (大约)
 INSERT INTO `base_area` (`id`, `create_id`, `create_time`, `update_id`, `update_time`,
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS `base_area_ref_user`
     PRIMARY KEY (`area_id`, `user_id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240703：关联表：区域表，用户表';
+  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240901：关联表：区域表，用户表';
 
 -- 正在导出表  be_base_20240901.base_area_ref_user 的数据：~3 rows (大约)
 INSERT INTO `base_area_ref_user` (`area_id`, `user_id`)
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS `base_auth`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240703：主表：权限表';
+  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240901：主表：权限表';
 
 -- 正在导出表  be_base_20240901.base_auth 的数据：~45 rows (大约)
 INSERT INTO `base_auth` (`id`, `create_id`, `create_time`, `update_id`, `update_time`,
@@ -208,7 +208,7 @@ CREATE TABLE IF NOT EXISTS `base_dept`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240703：主表：部门表';
+  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240901：主表：部门表';
 
 -- 正在导出表  be_base_20240901.base_dept 的数据：~15 rows (大约)
 INSERT INTO `base_dept` (`id`, `create_id`, `create_time`, `update_id`, `update_time`,
@@ -252,7 +252,7 @@ CREATE TABLE IF NOT EXISTS `base_dept_ref_user`
     PRIMARY KEY (`dept_id`, `user_id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240703：关联表：部门表，用户表';
+  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240901：关联表：部门表，用户表';
 
 -- 正在导出表  be_base_20240901.base_dept_ref_user 的数据：~3 rows (大约)
 INSERT INTO `base_dept_ref_user` (`dept_id`, `user_id`)
@@ -279,7 +279,7 @@ CREATE TABLE IF NOT EXISTS `base_dict`
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240703：主表：字典表';
+  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240901：主表：字典表';
 
 -- 正在导出表  be_base_20240901.base_dict 的数据：~4 rows (大约)
 INSERT INTO `base_dict` (`id`, `create_id`, `create_time`, `update_id`, `update_time`,
@@ -306,7 +306,7 @@ CREATE TABLE IF NOT EXISTS `base_email_configuration`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240703：主表：邮箱配置表';
+  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240901：主表：邮箱配置表';
 
 -- 正在导出表  be_base_20240901.base_email_configuration 的数据：~0 rows (大约)
 
@@ -334,7 +334,7 @@ CREATE TABLE IF NOT EXISTS `base_menu`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci
-  ROW_FORMAT = DYNAMIC COMMENT ='v20240703：主表：菜单表';
+  ROW_FORMAT = DYNAMIC COMMENT ='v20240901：主表：菜单表';
 
 -- 正在导出表  be_base_20240901.base_menu 的数据：~10 rows (大约)
 INSERT INTO `base_menu` (`id`, `create_id`, `create_time`, `update_id`, `update_time`,
@@ -377,9 +377,9 @@ CREATE TABLE IF NOT EXISTS `base_param`
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240703：主表：参数表';
+  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240901：主表：参数表';
 
--- 正在导出表  be_base_20240901.base_param 的数据：~0 rows (大约)
+-- 正在导出表  be_base_20240901.base_param 的数据：~1 rows (大约)
 INSERT INTO `base_param` (`id`, `create_id`, `create_time`, `update_id`, `update_time`,
                           `enable_flag`, `remark`, `name`, `value`, `uuid`)
 VALUES (240924144747000551, 0, '2024-09-24 14:47:47', 0, '2024-09-24 14:47:47', 1, '',
@@ -402,7 +402,7 @@ CREATE TABLE IF NOT EXISTS `base_post`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240703：主表：岗位表';
+  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240901：主表：岗位表';
 
 -- 正在导出表  be_base_20240901.base_post 的数据：~15 rows (大约)
 INSERT INTO `base_post` (`id`, `create_id`, `create_time`, `update_id`, `update_time`,
@@ -471,7 +471,7 @@ CREATE TABLE IF NOT EXISTS `base_role`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci
-  ROW_FORMAT = DYNAMIC COMMENT ='v20240703：主表：角色表';
+  ROW_FORMAT = DYNAMIC COMMENT ='v20240901：主表：角色表';
 
 -- 正在导出表  be_base_20240901.base_role 的数据：~2 rows (大约)
 INSERT INTO `base_role` (`id`, `create_id`, `create_time`, `update_id`, `update_time`,
@@ -489,7 +489,7 @@ CREATE TABLE IF NOT EXISTS `base_role_ref_auth`
     PRIMARY KEY (`auth_id`, `role_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240703：关联表：角色表，权限表';
+  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240901：关联表：角色表，权限表';
 
 -- 正在导出表  be_base_20240901.base_role_ref_auth 的数据：~71 rows (大约)
 INSERT INTO `base_role_ref_auth` (`role_id`, `auth_id`)
@@ -573,7 +573,7 @@ CREATE TABLE IF NOT EXISTS `base_role_ref_menu`
     PRIMARY KEY (`role_id`, `menu_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240703：关联表：角色表，菜单表';
+  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240901：关联表：角色表，菜单表';
 
 -- 正在导出表  be_base_20240901.base_role_ref_menu 的数据：~20 rows (大约)
 INSERT INTO `base_role_ref_menu` (`role_id`, `menu_id`)
@@ -606,7 +606,7 @@ CREATE TABLE IF NOT EXISTS `base_role_ref_user`
     PRIMARY KEY (`user_id`, `role_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240703：关联表：角色表，用户表';
+  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240901：关联表：角色表，用户表';
 
 -- 正在导出表  be_base_20240901.base_role_ref_user 的数据：~1 rows (大约)
 INSERT INTO `base_role_ref_user` (`role_id`, `user_id`)
@@ -647,9 +647,63 @@ CREATE TABLE IF NOT EXISTS `base_sms_configuration`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240703：主表：短信配置表';
+  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240901：主表：短信配置表';
 
 -- 正在导出表  be_base_20240901.base_sms_configuration 的数据：~0 rows (大约)
+
+-- 导出  表 be_base_20240901.base_socket 结构
+CREATE TABLE IF NOT EXISTS `base_socket`
+(
+    `id`          bigint                                                        NOT NULL,
+    `create_id`   bigint                                                        NOT NULL,
+    `create_time` datetime                                                      NOT NULL,
+    `update_id`   bigint                                                        NOT NULL,
+    `update_time` datetime                                                      NOT NULL,
+    `enable_flag` tinyint(1)                                                    NOT NULL COMMENT '是否启用',
+    `remark`      varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '备注',
+    `scheme`      varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NOT NULL COMMENT '协议',
+    `host`        varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NOT NULL COMMENT '主机',
+    `port`        int                                                           NOT NULL COMMENT '端口',
+    `path`        varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NOT NULL COMMENT '路径',
+    `type`        int                                                           NOT NULL COMMENT 'socket类型：101 tcp 201 webSocket 301 udp',
+    `mac_address` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NOT NULL COMMENT 'mac地址，用于：和 port一起判断是否是重复启动，如果是，则需要移除之前的 socket信息',
+    PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci
+  ROW_FORMAT = DYNAMIC COMMENT ='v20240901：主表：socket';
+
+-- 正在导出表  be_base_20240901.base_socket 的数据：~0 rows (大约)
+
+-- 导出  表 be_base_20240901.base_socket_ref_user 结构
+CREATE TABLE IF NOT EXISTS `base_socket_ref_user`
+(
+    `id`          bigint                                                        NOT NULL,
+    `create_id`   bigint                                                        NOT NULL,
+    `create_time` datetime                                                      NOT NULL,
+    `update_id`   bigint                                                        NOT NULL,
+    `update_time` datetime                                                      NOT NULL,
+    `enable_flag` tinyint(1)                                                    NOT NULL COMMENT '是否启用',
+    `remark`      varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '备注',
+    `user_id`     bigint                                                        NOT NULL COMMENT '用户主键 id',
+    `socket_id`   bigint                                                        NOT NULL COMMENT 'socket主键 id',
+    `nickname`    varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NOT NULL COMMENT '冗余字段，用户昵称',
+    `scheme`      varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NOT NULL COMMENT '冗余字段，协议',
+    `host`        varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NOT NULL COMMENT '冗余字段，主机',
+    `port`        int                                                           NOT NULL COMMENT '冗余字段，端口',
+    `path`        varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NOT NULL COMMENT '冗余字段，路径',
+    `type`        int                                                           NOT NULL COMMENT '冗余字段，socket类型',
+    `online_type` int                                                           NOT NULL COMMENT 'socket 在线状态',
+    `ip`          varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'ip',
+    `region`      varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'Ip2RegionUtil.getRegion() 获取到的 ip所处区域',
+    `category`    int                                                           NOT NULL COMMENT '请求类别',
+    PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci
+  ROW_FORMAT = DYNAMIC COMMENT ='v20230901：关联表：socket，用户';
+
+-- 正在导出表  be_base_20240901.base_socket_ref_user 的数据：~0 rows (大约)
 
 -- 导出  表 be_base_20240901.base_user 结构
 CREATE TABLE IF NOT EXISTS `base_user`
@@ -672,7 +726,7 @@ CREATE TABLE IF NOT EXISTS `base_user`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci
-  ROW_FORMAT = DYNAMIC COMMENT ='v20240703：主表：用户表';
+  ROW_FORMAT = DYNAMIC COMMENT ='v20240901：主表：用户表';
 
 -- 正在导出表  be_base_20240901.base_user 的数据：~0 rows (大约)
 
@@ -697,7 +751,7 @@ CREATE TABLE IF NOT EXISTS `base_user_0`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci
-  ROW_FORMAT = DYNAMIC COMMENT ='v20240703：主表：用户表';
+  ROW_FORMAT = DYNAMIC COMMENT ='v20240901：主表：用户表';
 
 -- 正在导出表  be_base_20240901.base_user_0 的数据：~3 rows (大约)
 INSERT INTO `base_user_0` (`id`, `create_id`, `create_time`, `update_id`, `update_time`,
@@ -735,9 +789,9 @@ CREATE TABLE IF NOT EXISTS `base_user_1`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci
-  ROW_FORMAT = DYNAMIC COMMENT ='v20240703：主表：用户表';
+  ROW_FORMAT = DYNAMIC COMMENT ='v20240901：主表：用户表';
 
--- 正在导出表  be_base_20240901.base_user_1 的数据：~0 rows (大约)
+-- 正在导出表  be_base_20240901.base_user_1 的数据：~1 rows (大约)
 INSERT INTO `base_user_1` (`id`, `create_id`, `create_time`, `update_id`, `update_time`,
                            `enable_flag`, `remark`, `password`, `email`, `username`, `phone`,
                            `wx_app_id`, `wx_open_id`, `wx_union_id`)
@@ -762,7 +816,7 @@ CREATE TABLE IF NOT EXISTS `base_user_info`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci
-  ROW_FORMAT = DYNAMIC COMMENT ='v20240703：子表：用户基本信息表，主表：用户表';
+  ROW_FORMAT = DYNAMIC COMMENT ='v20240901：子表：用户基本信息表，主表：用户表';
 
 -- 正在导出表  be_base_20240901.base_user_info 的数据：~0 rows (大约)
 
@@ -782,7 +836,7 @@ CREATE TABLE IF NOT EXISTS `base_user_info_0`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci
-  ROW_FORMAT = DYNAMIC COMMENT ='v20240703：子表：用户基本信息表，主表：用户表';
+  ROW_FORMAT = DYNAMIC COMMENT ='v20240901：子表：用户基本信息表，主表：用户表';
 
 -- 正在导出表  be_base_20240901.base_user_info_0 的数据：~3 rows (大约)
 INSERT INTO `base_user_info_0` (`id`, `uuid`, `nickname`, `bio`, `avatar_file_id`, `sign_up_type`,
@@ -810,7 +864,7 @@ CREATE TABLE IF NOT EXISTS `base_user_info_1`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci
-  ROW_FORMAT = DYNAMIC COMMENT ='v20240703：子表：用户基本信息表，主表：用户表';
+  ROW_FORMAT = DYNAMIC COMMENT ='v20240901：子表：用户基本信息表，主表：用户表';
 
 -- 正在导出表  be_base_20240901.base_user_info_1 的数据：~1 rows (大约)
 INSERT INTO `base_user_info_1` (`id`, `uuid`, `nickname`, `bio`, `avatar_file_id`, `sign_up_type`,

@@ -205,7 +205,7 @@ public class NettyWebSocketServer {
         channelFuture = serverBootstrap.bind().sync(); // 服务器同步创建绑定
 
         baseSocketServerId =
-            SocketUtil.getSysSocketServerId(port, nettyWebSocketProperties, BaseSocketTypeEnum.WEB_SOCKET);
+            SocketUtil.getBaseSocketServerId(port, nettyWebSocketProperties, BaseSocketTypeEnum.WEB_SOCKET);
 
         log.info("NettyWebSocket 启动完成：端口：{}，总接口个数：{}个", port,
             NettyWebSocketBeanPostProcessor.getMappingMapSize());
