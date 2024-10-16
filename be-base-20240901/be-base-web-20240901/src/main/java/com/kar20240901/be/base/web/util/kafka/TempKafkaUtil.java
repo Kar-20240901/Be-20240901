@@ -1,4 +1,4 @@
-package com.kar20240901.be.base.web.util;
+package com.kar20240901.be.base.web.util.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kar20240901.be.base.web.model.domain.kafka.TempKafkaUserInfoDO;

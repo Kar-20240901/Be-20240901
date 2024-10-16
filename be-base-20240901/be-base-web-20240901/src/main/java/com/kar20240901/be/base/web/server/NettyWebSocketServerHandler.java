@@ -1,0 +1,623 @@
+package com.kar20240901.be.base.web.server;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.convert.Convert;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.lang.func.VoidFunc0;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.net.url.UrlQuery;
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.CharsetUtil;
+import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
+import com.cmcorg20230301.be.engine.ip2region.util.Ip2RegionUtil;
+import com.cmcorg20230301.be.engine.model.model.constant.BaseConstant;
+import com.cmcorg20230301.be.engine.model.model.constant.LogTopicConstant;
+import com.cmcorg20230301.be.engine.model.model.constant.OperationDescriptionConstant;
+import com.cmcorg20230301.be.engine.netty.websocket.configuration.NettyWebSocketBeanPostProcessor;
+import com.cmcorg20230301.be.engine.netty.websocket.properties.NettyWebSocketProperties;
+import com.cmcorg20230301.be.engine.netty.websocket.util.WebSocketUtil;
+import com.cmcorg20230301.be.engine.redisson.model.enums.BaseRedisKeyEnum;
+import com.cmcorg20230301.be.engine.security.exception.BaseBizCodeEnum;
+import com.cmcorg20230301.be.engine.security.exception.BaseException;
+import com.cmcorg20230301.be.engine.security.model.dto.WebSocketMessageDTO;
+import com.cmcorg20230301.be.engine.security.model.entity.SysRequestDO;
+import com.cmcorg20230301.be.engine.security.model.enums.SysRequestCategoryEnum;
+import com.cmcorg20230301.be.engine.security.model.vo.ApiResultVO;
+import com.cmcorg20230301.be.engine.security.util.*;
+import com.cmcorg20230301.be.engine.socket.model.entity.SysSocketRefUserDO;
+import com.cmcorg20230301.be.engine.socket.service.SysSocketRefUserService;
+import com.cmcorg20230301.be.engine.socket.util.SocketUtil;
+import com.cmcorg20230301.be.engine.util.util.CallBack;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.util.AttributeKey;
+import io.netty.util.ReferenceCountUtil;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
+import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
+import javax.validation.Valid;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.redisson.api.RedissonClient;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Component;
+
+@Component
+@ChannelHandler.Sharable
+@Slf4j(topic = LogTopicConstant.NETTY_WEB_SOCKET)
+public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
+
+    @Resource
+    NettyWebSocketProperties nettyWebSocketProperties;
+
+    @Resource
+    RedissonClient redissonClient;
+
+    @Resource
+    SysSocketRefUserService sysSocketRefUserService;
+
+    // UserId key
+    public static final AttributeKey<Long> USER_ID_KEY = AttributeKey.valueOf("USER_ID_KEY");
+
+    // SysSocketRefUserId key
+    public static final AttributeKey<Long> SYS_SOCKET_REF_USER_ID_KEY =
+        AttributeKey.valueOf("SYS_SOCKET_REF_USER_ID_KEY");
+
+    // SysRequestCategoryEnum key
+    public static final AttributeKey<SysRequestCategoryEnum> SYS_REQUEST_CATEGORY_ENUM_KEY =
+        AttributeKey.valueOf("SYS_REQUEST_CATEGORY_ENUM_KEY");
+
+    // Ip key
+    public static final AttributeKey<String> IP_KEY = AttributeKey.valueOf("IP_KEY");
+
+    // 最近活跃时间 key
+    public static final AttributeKey<Date> ACTIVITY_TIME_KEY = AttributeKey.valueOf("ACTIVITY_TIME_KEY");
+
+    // 用户通道 map，大key：用户主键 id，小key：sysSocketRefUserId，value：通道
+    public static final ConcurrentHashMap<Long, ConcurrentHashMap<Long, Channel>> USER_ID_CHANNEL_MAP =
+        MapUtil.newConcurrentHashMap();
+
+    private static CopyOnWriteArraySet<Long> SYS_SOCKET_REMOVE_REF_USER_ID_SET = new CopyOnWriteArraySet<>();
+
+    private static CopyOnWriteArrayList<SysSocketRefUserDO> SYS_SOCKET_REF_USER_DO_INSERT_LIST =
+        new CopyOnWriteArrayList<>();
+
+    /**
+     * 定时任务，检查 webSocket活跃状态
+     */
+    @PreDestroy
+    @Scheduled(fixedDelay = BaseConstant.MINUTE_1_EXPIRE_TIME)
+    public void scheduledCheckActivityTime() {
+
+        long currentTimeMillis = System.currentTimeMillis();
+
+        // 再包一层的原因：防止遍历的时候，被修改了
+        List<ConcurrentHashMap<Long, Channel>> allChannelMapList = new ArrayList<>(USER_ID_CHANNEL_MAP.values());
+
+        for (ConcurrentHashMap<Long, Channel> item : allChannelMapList) {
+
+            List<Channel> channelList = new ArrayList<>(item.values());
+
+            for (Channel subItem : channelList) {
+
+                long time = subItem.attr(ACTIVITY_TIME_KEY).get().getTime();
+
+                // 如果：5分钟没有活跃，则关闭该 webSocket
+                if (time + BaseConstant.MINUTE_5_EXPIRE_TIME < currentTimeMillis) {
+
+                    subItem.close(); // 直接可以关闭该通道，不会影响遍历，因为已经包了一层新的集合
+
+                }
+
+            }
+
+        }
+
+    }
+
+    /**
+     * 定时任务，保存数据
+     */
+    @PreDestroy
+    @Scheduled(fixedDelay = 5000)
+    public void scheduledSava() {
+
+        // 处理：SYS_SOCKET_REF_USER_DO_LIST
+        handleSysSocketRefUserDOList();
+
+        // 处理：SYS_SOCKET_REF_USER_ID_SET
+        handleSysSocketRefUserIdSet();
+
+    }
+
+    /**
+     * 处理：SYS_SOCKET_REF_USER_DO_LIST
+     */
+    private void handleSysSocketRefUserDOList() {
+
+        CopyOnWriteArrayList<SysSocketRefUserDO> tempSysSocketRefUserDOList;
+
+        synchronized (SYS_SOCKET_REF_USER_DO_INSERT_LIST) {
+
+            if (CollUtil.isEmpty(SYS_SOCKET_REF_USER_DO_INSERT_LIST)) {
+                return;
+            }
+
+            tempSysSocketRefUserDOList = SYS_SOCKET_REF_USER_DO_INSERT_LIST;
+            SYS_SOCKET_REF_USER_DO_INSERT_LIST = new CopyOnWriteArrayList<>();
+
+        }
+
+        // 目的：防止还有程序往：tempList，里面添加数据，所以这里等待一会
+        MyThreadUtil.schedule(() -> {
+
+            int sum = USER_ID_CHANNEL_MAP.values().stream().mapToInt(it -> it.values().size()).sum();
+
+            log.info("WebSocket 保存数据，长度：{}，连接总数：{}", tempSysSocketRefUserDOList.size(), sum);
+
+            // 批量保存数据
+            sysSocketRefUserService.saveBatch(tempSysSocketRefUserDOList);
+
+        }, DateUtil.offsetMillisecond(new Date(), 1500));
+
+    }
+
+    /**
+     * 处理：SYS_SOCKET_REF_USER_ID_SET
+     */
+    private void handleSysSocketRefUserIdSet() {
+
+        CopyOnWriteArraySet<Long> tempSysSocketRefUserIdSet;
+
+        synchronized (SYS_SOCKET_REMOVE_REF_USER_ID_SET) {
+
+            if (CollUtil.isEmpty(SYS_SOCKET_REMOVE_REF_USER_ID_SET)) {
+                return;
+            }
+
+            tempSysSocketRefUserIdSet = SYS_SOCKET_REMOVE_REF_USER_ID_SET;
+            SYS_SOCKET_REMOVE_REF_USER_ID_SET = new CopyOnWriteArraySet<>();
+
+        }
+
+        // 目的：防止还有程序往：tempList，里面添加数据，所以这里等待一会
+        MyThreadUtil.schedule(() -> {
+
+            int sum = USER_ID_CHANNEL_MAP.values().stream().mapToInt(it -> it.values().size()).sum();
+
+            log.info("WebSocket 移除数据，长度：{}，连接总数：{}", tempSysSocketRefUserIdSet.size(), sum);
+
+            // 批量保存数据
+            sysSocketRefUserService.removeByIds(tempSysSocketRefUserIdSet);
+
+        }, DateUtil.offsetMillisecond(new Date(), 3000));
+
+    }
+
+    /**
+     * 连接成功时
+     */
+    @SneakyThrows
+    @Override
+    public void channelActive(@NotNull ChannelHandlerContext ctx) {
+
+        super.channelActive(ctx);
+
+    }
+
+    /**
+     * 调用 close等操作，连接断开时
+     */
+    @SneakyThrows
+    @Override
+    public void channelInactive(@NotNull ChannelHandlerContext ctx) {
+
+        Channel channel = ctx.channel();
+
+        Long userId = channel.attr(USER_ID_KEY).get();
+
+        if (userId != null) {
+
+            Long sysSocketRefUserId = channel.attr(SYS_SOCKET_REF_USER_ID_KEY).get();
+
+            ConcurrentHashMap<Long, Channel> channelMap =
+                USER_ID_CHANNEL_MAP.computeIfAbsent(userId, k -> MapUtil.newConcurrentHashMap());
+
+            channelMap.remove(sysSocketRefUserId);
+
+            log.info("WebSocket 断开，用户：{}，连接数：{}，sysSocketRefUserId：{}", userId, channelMap.size(),
+                sysSocketRefUserId);
+
+            SYS_SOCKET_REMOVE_REF_USER_ID_SET.add(sysSocketRefUserId);
+
+        }
+
+        super.channelInactive(ctx);
+
+    }
+
+    /**
+     * 发生异常时，比如：远程主机强迫关闭了一个现有的连接，或者任何没有被捕获的异常
+     */
+    @SneakyThrows
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable e) {
+
+        ctx.close(); // 会执行：channelInactive 方法
+
+        super.exceptionCaught(ctx, e); // 会打印日志
+
+    }
+
+    /**
+     * 收到消息时
+     */
+    @Override
+    public void channelRead(@NotNull ChannelHandlerContext ctx, @NotNull Object msg) {
+
+        // 首次连接是 FullHttpRequest，处理参数
+        if (msg instanceof FullHttpRequest) {
+
+            TryUtil.tryCatch(() -> {
+
+                // 处理：FullHttpRequest
+                handleFullHttpRequest(ctx, (FullHttpRequest)msg);
+
+                // 传递给下一个 handler，备注：这里不需要释放资源
+                ctx.fireChannelRead(msg);
+
+            }, e -> {
+
+                ReferenceCountUtil.release(msg); // 备注：这里需要释放资源
+
+            });
+
+        } else if (msg instanceof TextWebSocketFrame) {
+
+            TryUtil.tryCatchFinally(() -> {
+
+                // 处理：TextWebSocketFrame
+                handleTextWebSocketFrame((TextWebSocketFrame)msg, ctx.channel());
+
+            }, () -> {
+
+                ReferenceCountUtil.release(msg); // 备注：这里需要释放资源
+
+            });
+
+        } else {
+
+            // 传递给下一个 handler，备注：这里不需要释放资源
+            ctx.fireChannelRead(msg);
+
+        }
+
+    }
+
+    /**
+     * 处理：TextWebSocketFrame
+     */
+    private void handleTextWebSocketFrame(@NotNull TextWebSocketFrame textWebSocketFrame, Channel channel) {
+
+        long costMs = System.currentTimeMillis();
+
+        String text = textWebSocketFrame.text();
+
+        WebSocketMessageDTO<?> dto = JSONUtil.toBean(text, WebSocketMessageDTO.class);
+
+        String uri = dto.getUri();
+
+        NettyWebSocketBeanPostProcessor.MappingValue mappingValue =
+            NettyWebSocketBeanPostProcessor.getMappingValueByKey(uri);
+
+        if (mappingValue == null) {
+
+            WebSocketMessageDTO<Object> webSocketMessageDTO = WebSocketMessageDTO.errorCode(uri, 404);
+
+            WebSocketUtil.send(channel, webSocketMessageDTO, text, costMs, null, "", false);
+
+            return;
+
+        }
+
+        channel.attr(ACTIVITY_TIME_KEY).set(new Date()); // 设置：活跃时间，备注：404不设置活跃时间，目的：防止随便请求
+
+        Method method = mappingValue.getMethod();
+
+        CallBack<VoidFunc0> validVoidFunc0CallBack = new CallBack<>();
+
+        // 获取：方法的参数数组
+        Object[] args = getMethodArgs(method, dto, validVoidFunc0CallBack);
+
+        // 执行
+        doHandleTextWebSocketFrame(channel, mappingValue, method, args, uri, text, costMs, validVoidFunc0CallBack);
+
+    }
+
+    /**
+     * 执行：处理：TextWebSocketFrame
+     */
+    private void doHandleTextWebSocketFrame(Channel channel, NettyWebSocketBeanPostProcessor.MappingValue mappingValue,
+        Method method, Object[] args, String uri, String text, long costMs,
+        CallBack<VoidFunc0> validVoidFunc0CallBack) {
+
+        Long userId = channel.attr(USER_ID_KEY).get();
+
+        Long tenantId = channel.attr(TENANT_ID_KEY).get();
+
+        // 备注：加了该注解，并且使用代理 bean对象执行该方法，会自动检查权限
+        boolean setAuthoritySetFlag = method.getAnnotation(PreAuthorize.class) != null;
+
+        UserUtil.securityContextHolderSetAuthenticationAndExecFun(() -> {
+
+            try {
+
+                if (validVoidFunc0CallBack.getValue() != null) {
+
+                    validVoidFunc0CallBack.getValue().call();// 备注：aop 时，@Valid 不会起作用，所以在这里编程式调用
+
+                }
+
+                Object invoke = ReflectUtil.invokeRaw(mappingValue.getBean(), method, args);
+
+                // 获取：WebSocketMessageDTO对象
+                WebSocketMessageDTO<Object> webSocketMessageDTO = getWebSocketMessageDTO(uri, invoke);
+
+                WebSocketUtil.send(channel, webSocketMessageDTO, text, costMs, mappingValue, "", true);
+
+            } catch (Throwable e) {
+
+                // 处理：错误
+                handleTextWebSocketFrameError(channel, costMs, text, uri, mappingValue, e);
+
+            }
+
+        }, userId, tenantId, null, null, setAuthoritySetFlag);
+
+    }
+
+    /**
+     * 获取：WebSocketMessageDTO对象
+     */
+    @NotNull
+    private static WebSocketMessageDTO<Object> getWebSocketMessageDTO(String uri, Object invoke) {
+
+        WebSocketMessageDTO<Object> webSocketMessageDTO = new WebSocketMessageDTO<>(uri);
+
+        if (invoke instanceof ApiResultVO) {
+
+            ApiResultVO<?> apiResultVO = (ApiResultVO<?>)invoke;
+
+            webSocketMessageDTO.setCode(apiResultVO.getCode());
+            webSocketMessageDTO.setData(apiResultVO.getData());
+
+        } else {
+
+            webSocketMessageDTO.setCode(200);
+            webSocketMessageDTO.setData(invoke);
+
+        }
+
+        return webSocketMessageDTO;
+
+    }
+
+    /**
+     * 获取：方法的参数数组
+     */
+    private static Object[] getMethodArgs(Method method, WebSocketMessageDTO<?> dto,
+        CallBack<VoidFunc0> validVoidFunc0CallBack) {
+
+        Parameter[] parameterArr = method.getParameters();
+
+        Object[] args = null;
+
+        if (ArrayUtil.isEmpty(parameterArr)) {
+
+            return args;
+
+        }
+
+        Parameter parameter = parameterArr[0];
+
+        Object object = BeanUtil.toBean(dto.getData(), parameter.getType());
+
+        Valid validAnnotation = parameter.getAnnotation(Valid.class);
+
+        if (validAnnotation != null) {
+
+            validVoidFunc0CallBack.setValue(() -> {
+
+                MyValidUtil.validWillError(object);
+
+            });
+
+        }
+
+        args = new Object[] {object};
+
+        return args;
+
+    }
+
+    /**
+     * 处理：错误
+     */
+    private void handleTextWebSocketFrameError(Channel channel, long costMs, String text, String uri,
+        NettyWebSocketBeanPostProcessor.MappingValue mappingValue, Throwable e) {
+
+        if (e instanceof InvocationTargetException) {
+
+            e = ((InvocationTargetException)e).getTargetException();
+
+        }
+
+        MyExceptionUtil.printError(e);
+
+        WebSocketMessageDTO<Object> webSocketMessageDTO = new WebSocketMessageDTO<>(uri);
+
+        if (e instanceof BaseException) {
+
+            ApiResultVO<?> apiResultVO = ((BaseException)e).getApiResultVO();
+
+            webSocketMessageDTO.setCode(apiResultVO.getCode());
+            webSocketMessageDTO.setMsg(apiResultVO.getMsg());
+
+        } else {
+
+            webSocketMessageDTO.setCode(BaseBizCodeEnum.API_RESULT_SYS_ERROR.getCode());
+            webSocketMessageDTO.setMsg(BaseBizCodeEnum.API_RESULT_SYS_ERROR.getMsg());
+
+        }
+
+        // 发送消息
+        WebSocketUtil.send(channel, webSocketMessageDTO, text, costMs, mappingValue,
+            MyEntityUtil.getNotNullStr(e.getMessage()), false);
+
+    }
+
+    /**
+     * 处理：FullHttpRequest
+     */
+    private void handleFullHttpRequest(@NotNull ChannelHandlerContext ctx, @NotNull FullHttpRequest fullHttpRequest) {
+
+        UrlQuery urlQuery = UrlQuery.of(fullHttpRequest.uri(), CharsetUtil.CHARSET_UTF_8);
+
+        String code = Convert.toStr(urlQuery.get("code")); // 随机码
+
+        if (StrUtil.isBlank(code)) {
+
+            handleFullHttpRequestError(ctx, fullHttpRequest.uri(), "code为空", fullHttpRequest);
+
+            return;
+
+        }
+
+        String key = BaseRedisKeyEnum.PRE_WEB_SOCKET_CODE.name() + code;
+
+        SysSocketRefUserDO sysSocketRefUserDO = redissonClient.<SysSocketRefUserDO>getBucket(key).getAndDelete();
+
+        if (sysSocketRefUserDO == null) {
+
+            handleFullHttpRequestError(ctx, fullHttpRequest.uri(), "SysSocketRefUserDO为null",
+                fullHttpRequest); // 处理：非法连接
+
+            return;
+
+        }
+
+        if (!sysSocketRefUserDO.getSocketId().equals(NettyWebSocketServer.baseSocketServerId)) {
+
+            handleFullHttpRequestError(ctx, fullHttpRequest.uri(), "SocketId不相同", fullHttpRequest); // 处理：非法连接
+
+            return;
+
+        }
+
+        // url包含参数，需要舍弃
+        fullHttpRequest.setUri(nettyWebSocketProperties.getPath());
+
+        // 处理：上线操作
+        onlineHandle(ctx.channel(), sysSocketRefUserDO, fullHttpRequest);
+
+    }
+
+    /**
+     * 处理：上线操作
+     */
+    private void onlineHandle(Channel channel, SysSocketRefUserDO sysSocketRefUserDO,
+        @NotNull FullHttpRequest fullHttpRequest) {
+
+        SYS_SOCKET_REF_USER_DO_INSERT_LIST.add(sysSocketRefUserDO);
+
+        Long userId = sysSocketRefUserDO.getUserId();
+
+        Long sysSocketRefUserDoId = sysSocketRefUserDO.getId();
+
+        Long tenantId = sysSocketRefUserDO.getTenantId();
+
+        // 绑定 UserId
+        channel.attr(USER_ID_KEY).set(userId);
+
+        // 绑定 SysSocketRefUserId
+        channel.attr(SYS_SOCKET_REF_USER_ID_KEY).set(sysSocketRefUserDoId);
+
+        // 绑定 SysRequestCategoryEnum
+        channel.attr(SYS_REQUEST_CATEGORY_ENUM_KEY).set(sysSocketRefUserDO.getCategory());
+
+        // 绑定 Ip
+        channel.attr(IP_KEY).set(SocketUtil.getIp(fullHttpRequest, channel));
+
+        // 绑定 TenantId
+        channel.attr(TENANT_ID_KEY).set(tenantId);
+
+        // 设置：最近活跃时间
+        channel.attr(ACTIVITY_TIME_KEY).set(new Date());
+
+        ConcurrentHashMap<Long, Channel> channelMap =
+            USER_ID_CHANNEL_MAP.computeIfAbsent(userId, k -> MapUtil.newConcurrentHashMap());
+
+        channelMap.put(sysSocketRefUserDoId, channel);
+
+        log.info("WebSocket 连接，用户：{}，连接数：{}，sysSocketRefUserDoId：{}", userId, channelMap.size(),
+            sysSocketRefUserDoId);
+
+    }
+
+    /**
+     * 处理：非法连接
+     */
+    private void handleFullHttpRequestError(@NotNull ChannelHandlerContext ctx, String requestParam, String errorMsg,
+        @NotNull FullHttpRequest fullHttpRequest) {
+
+        ctx.close(); // 关闭连接
+
+        Date date = new Date();
+
+        SysRequestDO sysRequestDO = new SysRequestDO();
+
+        sysRequestDO.setUri("");
+        sysRequestDO.setCostMsStr("");
+        sysRequestDO.setCostMs(0L);
+        sysRequestDO.setName("WebSocket连接错误");
+        sysRequestDO.setCategory(SysRequestCategoryEnum.PC_BROWSER_WINDOWS);
+
+        sysRequestDO.setIp(SocketUtil.getIp(fullHttpRequest, ctx.channel()));
+        sysRequestDO.setRegion(Ip2RegionUtil.getRegion(sysRequestDO.getIp()));
+
+        sysRequestDO.setSuccessFlag(false);
+        sysRequestDO.setErrorMsg(errorMsg);
+        sysRequestDO.setRequestParam(requestParam);
+        sysRequestDO.setType(OperationDescriptionConstant.WEB_SOCKET_CONNECT_ERROR);
+        sysRequestDO.setResponseValue("");
+
+        sysRequestDO.setCreateTime(date);
+        sysRequestDO.setUpdateTime(date);
+
+        sysRequestDO.setEnableFlag(true);
+        sysRequestDO.setDelFlag(false);
+        sysRequestDO.setRemark("");
+
+        // 添加一个：请求数据
+        RequestUtil.add(sysRequestDO);
+
+    }
+
+}

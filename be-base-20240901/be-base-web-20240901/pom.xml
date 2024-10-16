@@ -22,6 +22,12 @@
       <version>${kar.version}</version>
     </dependency>
 
+    <!-- netty -->
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-all</artifactId>
+    </dependency>
+
     <!-- spring-kafka -->
     <dependency>
       <groupId>org.springframework.kafka</groupId>

@@ -18,7 +18,6 @@ import com.kar20240901.be.base.web.model.domain.BaseRoleRefUserDO;
 import com.kar20240901.be.base.web.model.domain.TempEntity;
 import com.kar20240901.be.base.web.model.domain.TempUserDO;
 import com.kar20240901.be.base.web.model.domain.TempUserInfoDO;
-import com.kar20240901.be.base.web.model.domain.kafka.TempKafkaUserInfoDO;
 import com.kar20240901.be.base.web.model.enums.BaseRedisKeyEnum;
 import com.kar20240901.be.base.web.model.enums.BaseRequestCategoryEnum;
 import com.kar20240901.be.base.web.model.enums.TempRedisKeyEnum;
@@ -204,13 +203,8 @@ public class SignUtil {
 
             baseUserInfoMapper.insert(tempUserInfoDO); // 保存：用户基本信息
 
-            TempKafkaUserInfoDO tempKafkaUserInfoDO = new TempKafkaUserInfoDO();
-
-            tempKafkaUserInfoDO.setId(tempUserDO.getId());
-            tempKafkaUserInfoDO.setLastActiveTime(tempUserInfoDO.getLastActiveTime());
-            tempKafkaUserInfoDO.setLastIp(tempUserInfoDO.getLastIp());
-
-            TempKafkaUtil.sendTempUpdateUserInfoTopic(tempKafkaUserInfoDO); // 更新：用户信息
+            MyUserInfoUtil.updateUserInfo(tempUserDO.getId(), tempUserInfoDO.getLastActiveTime(),
+                tempUserInfoDO.getLastIp());
 
             return tempUserDO;
 
