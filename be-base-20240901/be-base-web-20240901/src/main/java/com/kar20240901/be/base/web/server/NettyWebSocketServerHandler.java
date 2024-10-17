@@ -570,7 +570,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
         channelMap.put(baseSocketRefUserDoId, channel);
 
-        log.info("WebSocket 连接，用户：{}，连接数：{}，baseSocketRefUserDoId：{}", userId, channelMap.size(),
+        log.info("WebSocket 连接，用户：{}，连接数：{}，baseSocketRefUserId：{}", userId, channelMap.size(),
             baseSocketRefUserDoId);
 
     }

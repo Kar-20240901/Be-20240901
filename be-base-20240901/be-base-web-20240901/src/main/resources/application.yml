@@ -5,6 +5,11 @@ be:
     password: password
   mysql:
     connect-param: characterEncoding=utf-8&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&allowMultiQueries=true&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true
+  socket:
+    web-socket:
+      scheme: ws://
+      host: 127.0.0.1
+      path: /ws
 
 mybatis-plus:
   configuration:

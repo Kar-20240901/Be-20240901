@@ -130,7 +130,7 @@ public class SocketUtil {
 
         }
 
-        log.info("{} 下线 {}：{}，移除连接：{}", name, removeFlag ? "成功" : "失败", sysSocketServerId, closeChannelCount);
+        log.info("{} 下线{}：{}，移除连接：{}", name, removeFlag ? "成功" : "失败", sysSocketServerId, closeChannelCount);
 
         if (channelFuture != null) {
 

@@ -120,12 +120,6 @@ public class NettyWebSocketServer {
         SocketUtil.closeSocket(channelFuture, parentGroup, childGroup, baseSocketServerId,
             NettyWebSocketServerHandler.USER_ID_CHANNEL_MAP, "NettyWebSocket", disableFlag);
 
-        if (!disableFlag) {
-
-            baseSocketServerId = null;
-
-        }
-
         channelFuture = null;
         parentGroup = null;
         childGroup = null;
@@ -158,7 +152,7 @@ public class NettyWebSocketServer {
     @SneakyThrows
     private synchronized static void start() {
 
-        if (baseSocketServerId != null) {
+        if (parentGroup != null) {
             return;
         }
 
