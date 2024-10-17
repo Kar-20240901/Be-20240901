@@ -132,7 +132,8 @@ public class SocketUtil {
         }
 
         // 移除：相关的用户连接数据
-        baseSocketRefUserService.lambdaUpdate().in(BaseSocketRefUserDO::getSocketId, baseSocketServerId)
+        baseSocketRefUserService.lambdaUpdate()
+            .eq(baseSocketServerId != null, BaseSocketRefUserDO::getSocketId, baseSocketServerId)
             .or(i -> i.eq(BaseSocketRefUserDO::getMacAddress, BaseConfiguration.MAC_ADDRESS)
                 .eq(BaseSocketRefUserDO::getPort, port)).remove();
 

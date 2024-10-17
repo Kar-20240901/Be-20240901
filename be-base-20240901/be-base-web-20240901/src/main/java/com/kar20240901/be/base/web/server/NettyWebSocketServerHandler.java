@@ -140,20 +140,20 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
     @Scheduled(fixedDelay = 5000)
     public void scheduledSava() {
 
-        // 处理：BASE_SOCKET_REF_USER_DO_LIST
-        handleBaseSocketRefUserDOList();
+        // 处理：BASE_SOCKET_REF_USER_DO_INSERT_LIST
+        handleBaseSocketRefUserDoInsertList();
 
-        // 处理：BASE_SOCKET_REF_USER_ID_SET
-        handleBaseSocketRefUserIdSet();
+        // 处理：BASE_SOCKET_REMOVE_REF_USER_ID_SET
+        handleBaseSocketRemoveRefUserIdSet();
 
     }
 
     /**
      * 处理：SYS_SOCKET_REF_USER_DO_LIST
      */
-    private void handleBaseSocketRefUserDOList() {
+    private void handleBaseSocketRefUserDoInsertList() {
 
-        CopyOnWriteArrayList<BaseSocketRefUserDO> tempSysSocketRefUserDoList;
+        CopyOnWriteArrayList<BaseSocketRefUserDO> tempBaseSocketRefUserDoInsertList;
 
         synchronized (BASE_SOCKET_REF_USER_DO_INSERT_LIST) {
 
@@ -161,7 +161,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
                 return;
             }
 
-            tempSysSocketRefUserDoList = BASE_SOCKET_REF_USER_DO_INSERT_LIST;
+            tempBaseSocketRefUserDoInsertList = BASE_SOCKET_REF_USER_DO_INSERT_LIST;
             BASE_SOCKET_REF_USER_DO_INSERT_LIST = new CopyOnWriteArrayList<>();
 
         }
@@ -169,23 +169,23 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
         // 目的：防止还有程序往：tempList，里面添加数据，所以这里等待一会
         MyThreadUtil.schedule(() -> {
 
-            int sum = USER_ID_CHANNEL_MAP.values().stream().mapToInt(it -> it.values().size()).sum();
-
-            log.info("WebSocket 保存数据，长度：{}，连接总数：{}", tempSysSocketRefUserDoList.size(), sum);
+            //            int sum = USER_ID_CHANNEL_MAP.values().stream().mapToInt(it -> it.values().size()).sum();
+            //
+            //            log.info("WebSocket 保存数据，长度：{}，连接总数：{}", tempBaseSocketRefUserDoInsertList.size(), sum);
 
             // 批量保存数据
-            baseSocketRefUserService.saveBatch(tempSysSocketRefUserDoList);
+            baseSocketRefUserService.saveBatch(tempBaseSocketRefUserDoInsertList);
 
         }, DateUtil.offsetMillisecond(new Date(), 1500));
 
     }
 
     /**
-     * 处理：SYS_SOCKET_REF_USER_ID_SET
+     * 处理：BASE_SOCKET_REMOVE_REF_USER_ID_SET
      */
-    private void handleBaseSocketRefUserIdSet() {
+    private void handleBaseSocketRemoveRefUserIdSet() {
 
-        CopyOnWriteArraySet<Long> tempSysSocketRefUserIdSet;
+        CopyOnWriteArraySet<Long> tempBaseSocketRefUserIdSet;
 
         synchronized (BASE_SOCKET_REMOVE_REF_USER_ID_SET) {
 
@@ -193,7 +193,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
                 return;
             }
 
-            tempSysSocketRefUserIdSet = BASE_SOCKET_REMOVE_REF_USER_ID_SET;
+            tempBaseSocketRefUserIdSet = BASE_SOCKET_REMOVE_REF_USER_ID_SET;
             BASE_SOCKET_REMOVE_REF_USER_ID_SET = new CopyOnWriteArraySet<>();
 
         }
@@ -201,16 +201,16 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
         // 目的：防止还有程序往：tempList，里面添加数据，所以这里等待一会
         MyThreadUtil.schedule(() -> {
 
-            int sum = USER_ID_CHANNEL_MAP.values().stream().mapToInt(it -> it.values().size()).sum();
-
-            log.info("WebSocket 移除数据，长度：{}，连接总数：{}", tempSysSocketRefUserIdSet.size(), sum);
-
-            log.info("tempSysSocketRefUserIdSet：{}", JSONUtil.toJsonStr(tempSysSocketRefUserIdSet));
+            //            int sum = USER_ID_CHANNEL_MAP.values().stream().mapToInt(it -> it.values().size()).sum();
+            //
+            //            log.info("WebSocket 移除数据，长度：{}，连接总数：{}", tempBaseSocketRefUserIdSet.size(), sum);
+            //
+            //            log.info("tempBaseSocketRefUserIdSet：{}", JSONUtil.toJsonStr(tempBaseSocketRefUserIdSet));
 
             // 批量保存数据
-            baseSocketRefUserService.removeByIds(tempSysSocketRefUserIdSet);
+            baseSocketRefUserService.removeByIds(tempBaseSocketRefUserIdSet);
 
-        }, DateUtil.offsetMillisecond(new Date(), 1500));
+        }, DateUtil.offsetMillisecond(new Date(), 5000)); // 这里 5秒的原因：防止 insert未完成
 
     }
 
@@ -245,8 +245,8 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
             channelMap.remove(baseSocketRefUserId);
 
-            log.info("WebSocket 断开，用户：{}，连接数：{}，baseSocketRefUserId：{}", userId, channelMap.size(),
-                baseSocketRefUserId);
+            //            log.info("WebSocket 断开，用户：{}，连接数：{}，baseSocketRefUserId：{}", userId, channelMap.size(),
+            //                baseSocketRefUserId);
 
             BASE_SOCKET_REMOVE_REF_USER_ID_SET.add(baseSocketRefUserId);
 
@@ -572,8 +572,8 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
         channelMap.put(baseSocketRefUserDoId, channel);
 
-        log.info("WebSocket 连接，用户：{}，连接数：{}，baseSocketRefUserId：{}", userId, channelMap.size(),
-            baseSocketRefUserDoId);
+        //        log.info("WebSocket 连接，用户：{}，连接数：{}，baseSocketRefUserId：{}", userId, channelMap.size(),
+        //            baseSocketRefUserDoId);
 
     }
 
