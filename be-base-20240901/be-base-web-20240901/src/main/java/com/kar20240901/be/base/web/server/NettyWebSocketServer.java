@@ -118,7 +118,7 @@ public class NettyWebSocketServer {
 
         // 关闭 socket
         SocketUtil.closeSocket(channelFuture, parentGroup, childGroup, baseSocketServerId,
-            NettyWebSocketServerHandler.USER_ID_CHANNEL_MAP, "NettyWebSocket", disableFlag);
+            NettyWebSocketServerHandler.USER_ID_CHANNEL_MAP, "NettyWebSocket", disableFlag, getPort());
 
         channelFuture = null;
         parentGroup = null;
@@ -146,6 +146,12 @@ public class NettyWebSocketServer {
 
     }
 
+    public static int getPort() {
+
+        return BaseConfiguration.port + 1;
+
+    }
+
     /**
      * 启动 socket
      */
@@ -156,7 +162,7 @@ public class NettyWebSocketServer {
             return;
         }
 
-        int port = BaseConfiguration.port + 1;
+        int port = getPort();
 
         parentGroup = new NioEventLoopGroup(nettyWebSocketProperties.getParentSize());
 

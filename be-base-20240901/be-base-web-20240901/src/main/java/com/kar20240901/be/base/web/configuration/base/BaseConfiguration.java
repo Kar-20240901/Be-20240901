@@ -1,5 +1,6 @@
 package com.kar20240901.be.base.web.configuration.base;
 
+import cn.hutool.core.net.NetUtil;
 import cn.hutool.http.HttpGlobalConfig;
 import java.util.concurrent.ThreadPoolExecutor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,8 @@ public class BaseConfiguration {
     public static String applicationName; // 服务名
     public static Integer port; // 启动的端口
     public static String profilesActive; // 启动的环境
+
+    public static final String MAC_ADDRESS = NetUtil.getLocalMacAddress(); // mac地址
 
     public BaseConfiguration(@Value("${spring.application.name:applicationName}") String applicationName,
         @Value("${server.port:8080}") int port, @Value("${spring.profiles.active:prod}") String profilesActive) {

@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.extra.servlet.ServletUtil;
+import com.kar20240901.be.base.web.configuration.base.BaseConfiguration;
 import com.kar20240901.be.base.web.model.constant.TempConstant;
 import com.kar20240901.be.base.web.model.domain.TempEntityNoId;
 import com.kar20240901.be.base.web.model.domain.socket.BaseSocketDO;
@@ -135,6 +136,7 @@ public class NettyWebSocketServiceImpl implements NettyWebSocketService {
         baseSocketRefUserDO.setHost(baseSocketDO.getHost());
         baseSocketRefUserDO.setPort(baseSocketDO.getPort());
         baseSocketRefUserDO.setPath(baseSocketDO.getPath());
+        baseSocketRefUserDO.setMacAddress(BaseConfiguration.MAC_ADDRESS);
         baseSocketRefUserDO.setType(baseSocketDO.getType());
 
         baseSocketRefUserDO.setOnlineType(baseSocketOnlineTypeEnum);

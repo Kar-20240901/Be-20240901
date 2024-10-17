@@ -3,6 +3,7 @@ package com.kar20240901.be.base.web.util.socket;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.net.NetUtil;
 import cn.hutool.core.util.StrUtil;
+import com.kar20240901.be.base.web.configuration.base.BaseConfiguration;
 import com.kar20240901.be.base.web.model.configuration.socket.BaseSocketBaseProperties;
 import com.kar20240901.be.base.web.model.domain.TempEntity;
 import com.kar20240901.be.base.web.model.domain.socket.BaseSocketDO;
@@ -97,8 +98,8 @@ public class SocketUtil {
      * @param disableFlag 是否是禁用，即：不删除数据库里面的数据
      */
     public static void closeSocket(ChannelFuture channelFuture, EventLoopGroup parentGroup, EventLoopGroup childGroup,
-        Long sysSocketServerId, ConcurrentHashMap<Long, ConcurrentHashMap<Long, Channel>> userIdChannelMap, String name,
-        boolean disableFlag) {
+        Long baseSocketServerId, ConcurrentHashMap<Long, ConcurrentHashMap<Long, Channel>> userIdChannelMap,
+        String name, boolean disableFlag, int port) {
 
         long closeChannelCount = 0;
 
@@ -116,7 +117,7 @@ public class SocketUtil {
 
         boolean removeFlag = false;
 
-        if (sysSocketServerId != null) {
+        if (baseSocketServerId != null) {
 
             if (disableFlag) {
 
@@ -124,13 +125,19 @@ public class SocketUtil {
 
             } else {
 
-                removeFlag = baseSocketService.removeById(sysSocketServerId);
+                removeFlag = baseSocketService.removeById(baseSocketServerId);
 
             }
 
         }
 
-        log.info("{} 下线{}：{}，移除连接：{}", name, removeFlag ? "成功" : "失败", sysSocketServerId, closeChannelCount);
+        // 移除：相关的用户连接数据
+        baseSocketRefUserService.lambdaUpdate().in(BaseSocketRefUserDO::getSocketId, baseSocketServerId)
+            .or(i -> i.eq(BaseSocketRefUserDO::getMacAddress, BaseConfiguration.MAC_ADDRESS)
+                .eq(BaseSocketRefUserDO::getPort, port)).remove();
+
+        log.info("{}，id：{}，mac：{}，port：{}，下线{}，移除连接：{}", name, baseSocketServerId, BaseConfiguration.MAC_ADDRESS,
+            port, removeFlag ? "成功" : "失败", closeChannelCount);
 
         if (channelFuture != null) {
 
@@ -166,7 +173,7 @@ public class SocketUtil {
         baseSocketDO.setPath(MyEntityUtil.getNotNullStr(baseSocketBaseProperties.getPath()));
         baseSocketDO.setType(baseSocketTypeEnum);
 
-        baseSocketDO.setMacAddress(NetUtil.getLocalMacAddress());
+        baseSocketDO.setMacAddress(BaseConfiguration.MAC_ADDRESS);
 
         baseSocketDO.setEnableFlag(true);
         baseSocketDO.setRemark("");
@@ -176,15 +183,20 @@ public class SocketUtil {
             baseSocketService.lambdaQuery().eq(BaseSocketDO::getMacAddress, baseSocketDO.getMacAddress())
                 .eq(BaseSocketDO::getPort, baseSocketDO.getPort()).select(TempEntity::getId).list();
 
+        Set<Long> socketIdSet = null;
+
         if (CollUtil.isNotEmpty(baseSocketDoList)) {
 
-            Set<Long> socketIdSet = baseSocketDoList.stream().map(TempEntity::getId).collect(Collectors.toSet());
-
-            baseSocketRefUserService.lambdaUpdate().in(BaseSocketRefUserDO::getSocketId, socketIdSet).remove();
+            socketIdSet = baseSocketDoList.stream().map(TempEntity::getId).collect(Collectors.toSet());
 
             baseSocketService.removeBatchByIds(socketIdSet);
 
         }
+
+        baseSocketRefUserService.lambdaUpdate()
+            .in(CollUtil.isNotEmpty(socketIdSet), BaseSocketRefUserDO::getSocketId, socketIdSet)
+            .or(i -> i.eq(BaseSocketRefUserDO::getMacAddress, BaseConfiguration.MAC_ADDRESS)
+                .eq(BaseSocketRefUserDO::getPort, port)).remove();
 
         baseSocketService.save(baseSocketDO);
 

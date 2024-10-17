@@ -205,6 +205,8 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
             log.info("WebSocket 移除数据，长度：{}，连接总数：{}", tempSysSocketRefUserIdSet.size(), sum);
 
+            log.info("tempSysSocketRefUserIdSet：{}", JSONUtil.toJsonStr(tempSysSocketRefUserIdSet));
+
             // 批量保存数据
             baseSocketRefUserService.removeByIds(tempSysSocketRefUserIdSet);
 

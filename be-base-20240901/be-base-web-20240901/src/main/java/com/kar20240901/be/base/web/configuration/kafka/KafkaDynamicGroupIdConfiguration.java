@@ -1,6 +1,6 @@
 package com.kar20240901.be.base.web.configuration.kafka;
 
-import cn.hutool.core.net.NetUtil;
+import com.kar20240901.be.base.web.configuration.base.BaseConfiguration;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +22,7 @@ public class KafkaDynamicGroupIdConfiguration {
 
     public String getGroupId() {
 
-        return NetUtil.getLocalMacAddress() + ":" + port;
+        return BaseConfiguration.MAC_ADDRESS + ":" + port;
 
     }
 

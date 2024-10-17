@@ -36,6 +36,9 @@ public class BaseSocketRefUserDO extends TempEntity {
     @Schema(description = "冗余字段，路径")
     private String path;
 
+    @Schema(description = "冗余字段，mac地址")
+    private String macAddress;
+
     @Schema(description = "冗余字段，socket类型")
     private BaseSocketTypeEnum type;
 
