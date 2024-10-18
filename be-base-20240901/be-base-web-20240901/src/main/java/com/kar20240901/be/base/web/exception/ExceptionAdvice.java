@@ -2,7 +2,7 @@ package com.kar20240901.be.base.web.exception;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.json.JSONUtil;
-import com.kar20240901.be.base.web.model.vo.R;
+import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.util.MyEntityUtil;
 import com.kar20240901.be.base.web.util.MyExceptionUtil;
 import io.swagger.v3.oas.annotations.Operation;

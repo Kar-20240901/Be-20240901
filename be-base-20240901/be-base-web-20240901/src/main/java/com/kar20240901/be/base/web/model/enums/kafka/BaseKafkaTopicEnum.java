@@ -1,6 +1,6 @@
 package com.kar20240901.be.base.web.model.enums.kafka;
 
-import com.kar20240901.be.base.web.model.interfaces.IKafkaTopic;
+import com.kar20240901.be.base.web.model.interfaces.kafka.IKafkaTopic;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

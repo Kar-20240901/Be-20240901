@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kar20240901.be.base.web.model.domain.kafka.TempKafkaUserInfoDO;
 import com.kar20240901.be.base.web.model.enums.kafka.BaseKafkaTopicEnum;
 import com.kar20240901.be.base.web.model.enums.kafka.TempKafkaTopicEnum;
-import com.kar20240901.be.base.web.model.interfaces.IKafkaTopic;
+import com.kar20240901.be.base.web.model.interfaces.kafka.IKafkaTopic;
 import java.util.Set;
 import lombok.SneakyThrows;
 import org.springframework.kafka.core.KafkaTemplate;

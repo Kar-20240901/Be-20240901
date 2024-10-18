@@ -1,6 +1,6 @@
 package com.kar20240901.be.base.web.configuration.security;
 
-import com.kar20240901.be.base.web.util.MyUserUtil;
+import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import java.util.Collection;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;

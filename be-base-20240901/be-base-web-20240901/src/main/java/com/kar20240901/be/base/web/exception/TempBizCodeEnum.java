@@ -1,6 +1,6 @@
 package com.kar20240901.be.base.web.exception;
 
-import com.kar20240901.be.base.web.model.interfaces.IBizCode;
+import com.kar20240901.be.base.web.model.interfaces.base.IBizCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

@@ -1,7 +1,7 @@
 package com.kar20240901.be.base.web.controller.websocket;
 
-import com.kar20240901.be.base.web.model.annotation.NettyWebSocketController;
-import com.kar20240901.be.base.web.model.vo.R;
+import com.kar20240901.be.base.web.model.annotation.base.NettyWebSocketController;
+import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.socket.NettyWebSocketHeartBeatService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

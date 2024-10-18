@@ -5,7 +5,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
-import com.kar20240901.be.base.web.model.annotation.NettyWebSocketController;
+import com.kar20240901.be.base.web.model.annotation.base.NettyWebSocketController;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;

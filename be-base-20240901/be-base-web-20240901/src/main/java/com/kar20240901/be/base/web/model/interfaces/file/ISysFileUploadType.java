@@ -1,0 +1,22 @@
+package com.kar20240901.be.base.web.model.interfaces.file;
+
+import java.util.Set;
+import org.springframework.web.multipart.MultipartFile;
+
+public interface ISysFileUploadType {
+
+    int getCode(); // 建议从：10001（包含）开始
+
+    String getFolderName();
+
+    Set<String> getAcceptFileTypeSet();
+
+    long getMaxFileSize();
+
+    boolean isPublicFlag();
+
+    String checkFileType(MultipartFile file);
+
+    void checkFileSize(MultipartFile file);
+
+}

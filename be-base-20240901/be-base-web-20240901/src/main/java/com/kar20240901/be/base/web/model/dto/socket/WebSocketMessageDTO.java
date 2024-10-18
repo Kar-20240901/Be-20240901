@@ -3,7 +3,7 @@ package com.kar20240901.be.base.web.model.dto.socket;
 import cn.hutool.core.util.StrUtil;
 import com.kar20240901.be.base.web.configuration.base.BaseConfiguration;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
-import com.kar20240901.be.base.web.model.interfaces.IBizCode;
+import com.kar20240901.be.base.web.model.interfaces.base.IBizCode;
 import com.kar20240901.be.base.web.model.interfaces.socket.IWebSocketUri;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

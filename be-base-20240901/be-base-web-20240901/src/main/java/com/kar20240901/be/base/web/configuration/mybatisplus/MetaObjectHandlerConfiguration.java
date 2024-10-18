@@ -2,7 +2,7 @@ package com.kar20240901.be.base.web.configuration.mybatisplus;
 
 import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
-import com.kar20240901.be.base.web.util.MyUserUtil;
+import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import java.util.Date;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;

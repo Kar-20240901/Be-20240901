@@ -1,7 +1,7 @@
 package com.kar20240901.be.base.web.exception;
 
 import cn.hutool.json.JSONUtil;
-import com.kar20240901.be.base.web.model.vo.R;
+import com.kar20240901.be.base.web.model.vo.base.R;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

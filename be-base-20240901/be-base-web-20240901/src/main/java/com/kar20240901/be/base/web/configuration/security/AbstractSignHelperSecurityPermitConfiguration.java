@@ -2,7 +2,7 @@ package com.kar20240901.be.base.web.configuration.security;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import com.kar20240901.be.base.web.model.configuration.ISecurityPermitConfiguration;
+import com.kar20240901.be.base.web.model.configuration.base.ISecurityPermitConfiguration;
 import java.util.Set;
 import java.util.stream.Collectors;
 

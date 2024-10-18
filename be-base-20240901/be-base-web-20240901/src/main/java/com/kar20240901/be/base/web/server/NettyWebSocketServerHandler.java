@@ -16,12 +16,12 @@ import com.kar20240901.be.base.web.configuration.socket.NettyWebSocketProperties
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.exception.TempException;
 import com.kar20240901.be.base.web.model.configuration.socket.NettyWebSocketBeanPostProcessor;
-import com.kar20240901.be.base.web.model.constant.TempConstant;
+import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.socket.BaseSocketRefUserDO;
 import com.kar20240901.be.base.web.model.dto.socket.WebSocketMessageDTO;
-import com.kar20240901.be.base.web.model.enums.BaseRedisKeyEnum;
-import com.kar20240901.be.base.web.model.enums.BaseRequestCategoryEnum;
-import com.kar20240901.be.base.web.model.vo.R;
+import com.kar20240901.be.base.web.model.enums.base.BaseRedisKeyEnum;
+import com.kar20240901.be.base.web.model.enums.base.BaseRequestCategoryEnum;
+import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.socket.BaseSocketRefUserService;
 import com.kar20240901.be.base.web.util.CallBack;
 import com.kar20240901.be.base.web.util.MyEntityUtil;

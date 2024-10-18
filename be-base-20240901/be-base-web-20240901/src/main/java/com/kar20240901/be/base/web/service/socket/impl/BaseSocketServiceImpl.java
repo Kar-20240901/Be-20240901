@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.socket.BaseSocketMapper;
-import com.kar20240901.be.base.web.model.annotation.MyTransactional;
+import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.domain.TempEntity;
 import com.kar20240901.be.base.web.model.domain.TempEntityNoId;
 import com.kar20240901.be.base.web.model.domain.socket.BaseSocketDO;

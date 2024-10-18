@@ -1,6 +1,6 @@
 package com.kar20240901.be.base.web.validator;
 
-import com.kar20240901.be.base.web.model.annotation.NotCheckBlankPattern;
+import com.kar20240901.be.base.web.model.annotation.base.NotCheckBlankPattern;
 import java.lang.invoke.MethodHandles;
 import java.util.regex.Matcher;
 import java.util.regex.PatternSyntaxException;

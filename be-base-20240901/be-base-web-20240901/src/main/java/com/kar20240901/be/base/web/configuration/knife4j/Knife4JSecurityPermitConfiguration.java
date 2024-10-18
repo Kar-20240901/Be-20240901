@@ -1,7 +1,7 @@
 package com.kar20240901.be.base.web.configuration.knife4j;
 
 import cn.hutool.core.collection.CollUtil;
-import com.kar20240901.be.base.web.model.configuration.ISecurityPermitConfiguration;
+import com.kar20240901.be.base.web.model.configuration.base.ISecurityPermitConfiguration;
 import java.util.Set;
 import org.springframework.stereotype.Component;
 

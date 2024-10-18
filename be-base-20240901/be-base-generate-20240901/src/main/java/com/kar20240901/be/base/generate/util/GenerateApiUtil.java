@@ -13,7 +13,7 @@ import com.kar20240901.be.base.generate.bo.BeApiParameter;
 import com.kar20240901.be.base.generate.bo.BeApiSchema;
 import com.kar20240901.be.base.generate.interfaces.BeApiField;
 import com.kar20240901.be.base.web.model.dto.MyOrderDTO;
-import com.kar20240901.be.base.web.model.vo.R;
+import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.util.CallBack;
 import java.io.File;
 import java.util.HashMap;

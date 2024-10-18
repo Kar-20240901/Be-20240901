@@ -2,7 +2,7 @@ package com.kar20240901.be.base.web.configuration.security;
 
 import com.kar20240901.be.base.web.exception.ExceptionAdvice;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
-import com.kar20240901.be.base.web.util.ResponseUtil;
+import com.kar20240901.be.base.web.util.base.ResponseUtil;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.core.AuthenticationException;
