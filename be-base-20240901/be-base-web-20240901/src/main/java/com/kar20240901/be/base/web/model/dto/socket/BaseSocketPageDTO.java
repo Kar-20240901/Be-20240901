@@ -1,6 +1,6 @@
 package com.kar20240901.be.base.web.model.dto.socket;
 
-import com.kar20240901.be.base.web.model.dto.MyPageDTO;
+import com.kar20240901.be.base.web.model.dto.base.MyPageDTO;
 import com.kar20240901.be.base.web.model.enums.socket.BaseSocketTypeEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

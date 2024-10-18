@@ -1,9 +1,9 @@
 package com.kar20240901.be.base.web.controller.base;
 
-import com.kar20240901.be.base.web.model.dto.BaseUserSelfUpdateInfoDTO;
+import com.kar20240901.be.base.web.model.dto.base.BaseUserSelfUpdateInfoDTO;
 import com.kar20240901.be.base.web.model.vo.base.BaseUserSelfInfoVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
-import com.kar20240901.be.base.web.service.BaseUserSelfService;
+import com.kar20240901.be.base.web.service.base.BaseUserSelfService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.annotation.Resource;

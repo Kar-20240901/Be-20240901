@@ -1,8 +1,8 @@
 package com.kar20240901.be.base.web.model.enums.file;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
-import com.cmcorg20230301.be.engine.security.model.interfaces.ISysFileStorageType;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.kar20240901.be.base.web.model.interfaces.file.ISysFileStorageType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

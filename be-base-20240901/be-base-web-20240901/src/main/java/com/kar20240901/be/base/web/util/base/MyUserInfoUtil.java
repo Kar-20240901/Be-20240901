@@ -2,10 +2,10 @@ package com.kar20240901.be.base.web.util.base;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
-import com.kar20240901.be.base.web.model.domain.TempUserInfoDO;
+import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
 import com.kar20240901.be.base.web.model.domain.kafka.TempKafkaUserInfoDO;
 import com.kar20240901.be.base.web.model.enums.base.BaseRequestCategoryEnum;
-import com.kar20240901.be.base.web.service.BaseUserInfoService;
+import com.kar20240901.be.base.web.service.base.BaseUserInfoService;
 import com.kar20240901.be.base.web.util.kafka.TempKafkaUtil;
 import java.util.ArrayList;
 import java.util.Date;

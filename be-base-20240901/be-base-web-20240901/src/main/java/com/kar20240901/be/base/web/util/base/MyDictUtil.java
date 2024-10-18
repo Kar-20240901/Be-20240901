@@ -2,8 +2,8 @@ package com.kar20240901.be.base.web.util.base;
 
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.mapper.base.BaseDictMapper;
-import com.kar20240901.be.base.web.model.domain.BaseDictDO;
-import com.kar20240901.be.base.web.model.domain.TempEntityNoId;
+import com.kar20240901.be.base.web.model.domain.base.BaseDictDO;
+import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
 import com.kar20240901.be.base.web.model.enums.base.BaseDictTypeEnum;
 import com.kar20240901.be.base.web.model.vo.base.DictIntegerVO;
 import java.util.List;

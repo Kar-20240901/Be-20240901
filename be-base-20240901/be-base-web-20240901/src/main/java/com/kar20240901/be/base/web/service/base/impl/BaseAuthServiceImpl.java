@@ -109,7 +109,7 @@ public class BaseAuthServiceImpl extends ServiceImpl<BaseAuthMapper, BaseAuthDO>
                 .collect(Collectors.toSet());
 
         // 更新缓存
-        com.kar20240901.be.base.web.service.impl.BaseRoleServiceImpl.updateCache(null, userIdSet, roleIdSet);
+        BaseRoleServiceImpl.updateCache(null, userIdSet, roleIdSet);
 
     }
 
@@ -239,7 +239,7 @@ public class BaseAuthServiceImpl extends ServiceImpl<BaseAuthMapper, BaseAuthDO>
                     .collect(Collectors.toSet());
 
             // 更新缓存
-            com.kar20240901.be.base.web.service.impl.BaseRoleServiceImpl.updateCache(null, userIdSet, roleIdSet);
+            BaseRoleServiceImpl.updateCache(null, userIdSet, roleIdSet);
 
         }
 

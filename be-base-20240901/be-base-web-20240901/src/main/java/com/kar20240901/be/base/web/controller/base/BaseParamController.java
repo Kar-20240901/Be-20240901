@@ -1,13 +1,13 @@
 package com.kar20240901.be.base.web.controller.base;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.kar20240901.be.base.web.model.domain.BaseParamDO;
-import com.kar20240901.be.base.web.model.dto.BaseParamInsertOrUpdateDTO;
-import com.kar20240901.be.base.web.model.dto.BaseParamPageDTO;
-import com.kar20240901.be.base.web.model.dto.NotEmptyIdSet;
-import com.kar20240901.be.base.web.model.dto.NotNullId;
+import com.kar20240901.be.base.web.model.domain.base.BaseParamDO;
+import com.kar20240901.be.base.web.model.dto.base.BaseParamInsertOrUpdateDTO;
+import com.kar20240901.be.base.web.model.dto.base.BaseParamPageDTO;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
+import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.vo.base.R;
-import com.kar20240901.be.base.web.service.BaseParamService;
+import com.kar20240901.be.base.web.service.base.BaseParamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.annotation.Resource;

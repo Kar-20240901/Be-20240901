@@ -102,7 +102,7 @@ public class SysFileServiceImpl extends ServiceImpl<SysFileMapper, SysFileDO> im
     @Override
     public LongObjectMapVO<String> getPublicUrl(NotEmptyIdSet notEmptyIdSet) {
 
-        return new LongObjectMapVO<>(SysFileUtil.getPublicUrl(notEmptyIdSet.getIdSet(), true));
+        return new LongObjectMapVO<>(SysFileUtil.getPublicUrl(notEmptyIdSet.getIdSet()));
 
     }
 

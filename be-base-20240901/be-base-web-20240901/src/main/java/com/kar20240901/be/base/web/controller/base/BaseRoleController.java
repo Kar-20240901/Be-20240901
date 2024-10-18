@@ -1,15 +1,15 @@
 package com.kar20240901.be.base.web.controller.base;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.kar20240901.be.base.web.model.domain.BaseRoleDO;
-import com.kar20240901.be.base.web.model.dto.BaseRoleInsertOrUpdateDTO;
-import com.kar20240901.be.base.web.model.dto.BaseRolePageDTO;
-import com.kar20240901.be.base.web.model.dto.NotEmptyIdSet;
-import com.kar20240901.be.base.web.model.dto.NotNullId;
+import com.kar20240901.be.base.web.model.domain.base.BaseRoleDO;
+import com.kar20240901.be.base.web.model.dto.base.BaseRoleInsertOrUpdateDTO;
+import com.kar20240901.be.base.web.model.dto.base.BaseRolePageDTO;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
+import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.vo.base.BaseRoleInfoByIdVO;
 import com.kar20240901.be.base.web.model.vo.base.DictVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
-import com.kar20240901.be.base.web.service.BaseRoleService;
+import com.kar20240901.be.base.web.service.base.BaseRoleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.annotation.Resource;

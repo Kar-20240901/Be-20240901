@@ -2,11 +2,11 @@ package com.kar20240901.be.base.web.service.file;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.cmcorg20230301.be.engine.file.base.model.dto.SysFileStorageConfigurationInsertOrUpdateDTO;
-import com.cmcorg20230301.be.engine.file.base.model.dto.SysFileStorageConfigurationPageDTO;
-import com.cmcorg20230301.be.engine.file.base.model.entity.SysFileStorageConfigurationDO;
-import com.cmcorg20230301.be.engine.model.model.dto.NotEmptyIdSet;
-import com.cmcorg20230301.be.engine.model.model.dto.NotNullId;
+import com.kar20240901.be.base.web.model.domain.file.SysFileStorageConfigurationDO;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
+import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.file.SysFileStorageConfigurationInsertOrUpdateDTO;
+import com.kar20240901.be.base.web.model.dto.file.SysFileStorageConfigurationPageDTO;
 
 public interface SysFileStorageConfigurationService extends IService<SysFileStorageConfigurationDO> {
 

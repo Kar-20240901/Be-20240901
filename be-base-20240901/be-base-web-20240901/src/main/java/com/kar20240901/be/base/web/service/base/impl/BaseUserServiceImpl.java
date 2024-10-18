@@ -1,4 +1,4 @@
-package com.kar20240901.be.base.web.service.impl;
+package com.kar20240901.be.base.web.service.base.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
@@ -20,15 +20,15 @@ import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.constant.base.ParamConstant;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.constant.base.TempRegexConstant;
-import com.kar20240901.be.base.web.model.domain.BaseRoleRefUserDO;
-import com.kar20240901.be.base.web.model.domain.TempEntity;
-import com.kar20240901.be.base.web.model.domain.TempUserDO;
-import com.kar20240901.be.base.web.model.domain.TempUserInfoDO;
-import com.kar20240901.be.base.web.model.dto.BaseUserInsertOrUpdateDTO;
-import com.kar20240901.be.base.web.model.dto.BaseUserPageDTO;
-import com.kar20240901.be.base.web.model.dto.BaseUserUpdatePasswordDTO;
-import com.kar20240901.be.base.web.model.dto.NotEmptyIdSet;
-import com.kar20240901.be.base.web.model.dto.NotNullId;
+import com.kar20240901.be.base.web.model.domain.base.BaseRoleRefUserDO;
+import com.kar20240901.be.base.web.model.domain.base.TempEntity;
+import com.kar20240901.be.base.web.model.domain.base.TempUserDO;
+import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
+import com.kar20240901.be.base.web.model.dto.base.BaseUserInsertOrUpdateDTO;
+import com.kar20240901.be.base.web.model.dto.base.BaseUserPageDTO;
+import com.kar20240901.be.base.web.model.dto.base.BaseUserUpdatePasswordDTO;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
+import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.enums.base.BaseRedisKeyEnum;
 import com.kar20240901.be.base.web.model.enums.base.TempRedisKeyEnum;
 import com.kar20240901.be.base.web.model.interfaces.base.IRedisKey;
@@ -37,19 +37,19 @@ import com.kar20240901.be.base.web.model.vo.base.DictVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.base.TempUserInfoByIdVO;
 import com.kar20240901.be.base.web.properties.base.BaseSecurityProperties;
-import com.kar20240901.be.base.web.service.BaseRoleRefUserService;
-import com.kar20240901.be.base.web.service.BaseUserService;
-import com.kar20240901.be.base.web.util.CallBack;
-import com.kar20240901.be.base.web.util.MyEntityUtil;
-import com.kar20240901.be.base.web.util.MyMapUtil;
-import com.kar20240901.be.base.web.util.MyParamUtil;
-import com.kar20240901.be.base.web.util.MyRsaUtil;
-import com.kar20240901.be.base.web.util.MyThreadUtil;
-import com.kar20240901.be.base.web.util.MyUserUtil;
-import com.kar20240901.be.base.web.util.NicknameUtil;
-import com.kar20240901.be.base.web.util.PasswordConvertUtil;
-import com.kar20240901.be.base.web.util.RedissonUtil;
-import com.kar20240901.be.base.web.util.SignUtil;
+import com.kar20240901.be.base.web.service.base.BaseRoleRefUserService;
+import com.kar20240901.be.base.web.service.base.BaseUserService;
+import com.kar20240901.be.base.web.util.base.CallBack;
+import com.kar20240901.be.base.web.util.base.MyEntityUtil;
+import com.kar20240901.be.base.web.util.base.MyMapUtil;
+import com.kar20240901.be.base.web.util.base.MyParamUtil;
+import com.kar20240901.be.base.web.util.base.MyRsaUtil;
+import com.kar20240901.be.base.web.util.base.MyThreadUtil;
+import com.kar20240901.be.base.web.util.base.MyUserUtil;
+import com.kar20240901.be.base.web.util.base.NicknameUtil;
+import com.kar20240901.be.base.web.util.base.PasswordConvertUtil;
+import com.kar20240901.be.base.web.util.base.RedissonUtil;
+import com.kar20240901.be.base.web.util.base.SignUtil;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -378,7 +378,7 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
             baseRoleRefUserService.saveBatch(insertList);
 
             // 更新缓存
-            com.kar20240901.be.base.web.service.impl.BaseRoleServiceImpl.updateCache(null, CollUtil.newHashSet(tempUserDO.getId()), null);
+            BaseRoleServiceImpl.updateCache(null, CollUtil.newHashSet(tempUserDO.getId()), null);
 
         }
 

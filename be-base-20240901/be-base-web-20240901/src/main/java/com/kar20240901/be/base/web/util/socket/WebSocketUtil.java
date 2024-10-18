@@ -6,7 +6,7 @@ import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketEventBO;
 import com.kar20240901.be.base.web.model.configuration.socket.NettyWebSocketBeanPostProcessor;
 import com.kar20240901.be.base.web.model.dto.socket.WebSocketMessageDTO;
 import com.kar20240901.be.base.web.server.NettyWebSocketServerHandler;
-import com.kar20240901.be.base.web.util.MyUserInfoUtil;
+import com.kar20240901.be.base.web.util.base.MyUserInfoUtil;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.swagger.v3.oas.annotations.Operation;

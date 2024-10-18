@@ -1,13 +1,13 @@
 package com.kar20240901.be.base.web.controller.file;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.cmcorg20230301.be.engine.file.base.model.dto.SysFileStorageConfigurationInsertOrUpdateDTO;
-import com.cmcorg20230301.be.engine.file.base.model.dto.SysFileStorageConfigurationPageDTO;
-import com.cmcorg20230301.be.engine.file.base.model.entity.SysFileStorageConfigurationDO;
-import com.cmcorg20230301.be.engine.file.base.service.SysFileStorageConfigurationService;
-import com.cmcorg20230301.be.engine.model.model.dto.NotEmptyIdSet;
-import com.cmcorg20230301.be.engine.model.model.dto.NotNullId;
-import com.cmcorg20230301.be.engine.security.model.vo.R;
+import com.kar20240901.be.base.web.model.domain.file.SysFileStorageConfigurationDO;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
+import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.file.SysFileStorageConfigurationInsertOrUpdateDTO;
+import com.kar20240901.be.base.web.model.dto.file.SysFileStorageConfigurationPageDTO;
+import com.kar20240901.be.base.web.model.vo.base.R;
+import com.kar20240901.be.base.web.service.file.SysFileStorageConfigurationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.annotation.Resource;

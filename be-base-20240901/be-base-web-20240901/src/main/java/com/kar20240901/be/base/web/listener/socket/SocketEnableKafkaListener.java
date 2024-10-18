@@ -4,7 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;
 import com.kar20240901.be.base.web.model.configuration.socket.ISocketEnable;
 import com.kar20240901.be.base.web.model.enums.kafka.BaseKafkaTopicEnum;
-import com.kar20240901.be.base.web.util.MyTryUtil;
+import com.kar20240901.be.base.web.util.base.MyTryUtil;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;

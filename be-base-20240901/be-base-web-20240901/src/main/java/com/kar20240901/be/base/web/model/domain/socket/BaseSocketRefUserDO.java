@@ -1,7 +1,7 @@
 package com.kar20240901.be.base.web.model.domain.socket;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.kar20240901.be.base.web.model.domain.TempEntity;
+import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.enums.base.BaseRequestCategoryEnum;
 import com.kar20240901.be.base.web.model.enums.socket.BaseSocketOnlineTypeEnum;
 import com.kar20240901.be.base.web.model.enums.socket.BaseSocketTypeEnum;

@@ -9,29 +9,30 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
-import com.cmcorg20230301.be.engine.datasource.util.TransactionUtil;
-import com.cmcorg20230301.be.engine.file.base.mapper.SysFileStorageConfigurationMapper;
-import com.cmcorg20230301.be.engine.file.base.model.bo.SysFileUploadBO;
-import com.cmcorg20230301.be.engine.file.base.model.configuration.ISysFileRemove;
-import com.cmcorg20230301.be.engine.file.base.model.configuration.ISysFileStorage;
-import com.cmcorg20230301.be.engine.file.base.model.entity.SysFileAuthDO;
-import com.cmcorg20230301.be.engine.file.base.model.entity.SysFileDO;
-import com.cmcorg20230301.be.engine.file.base.model.entity.SysFileStorageConfigurationDO;
-import com.cmcorg20230301.be.engine.file.base.model.enums.SysFileTypeEnum;
-import com.cmcorg20230301.be.engine.file.base.service.SysFileAuthService;
-import com.cmcorg20230301.be.engine.file.base.service.SysFileService;
-import com.cmcorg20230301.be.engine.model.model.constant.BaseConstant;
-import com.cmcorg20230301.be.engine.model.model.constant.SysFileTempPathConstant;
-import com.cmcorg20230301.be.engine.security.exception.BaseBizCodeEnum;
-import com.cmcorg20230301.be.engine.security.mapper.SysUserInfoMapper;
-import com.cmcorg20230301.be.engine.security.model.entity.*;
-import com.cmcorg20230301.be.engine.security.model.enums.SysFileUploadTypeEnum;
-import com.cmcorg20230301.be.engine.security.model.interfaces.ISysFileStorageType;
-import com.cmcorg20230301.be.engine.security.model.vo.R;
-import com.cmcorg20230301.be.engine.security.util.MyEntityUtil;
-import com.cmcorg20230301.be.engine.security.util.SysTenantUtil;
-import com.cmcorg20230301.be.engine.security.util.UserUtil;
-import com.cmcorg20230301.be.engine.util.util.CallBack;
+import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
+import com.kar20240901.be.base.web.mapper.base.TempUserInfoMapper;
+import com.kar20240901.be.base.web.mapper.file.SysFileStorageConfigurationMapper;
+import com.kar20240901.be.base.web.model.bo.file.SysFileUploadBO;
+import com.kar20240901.be.base.web.model.configuration.file.ISysFileRemove;
+import com.kar20240901.be.base.web.model.configuration.file.ISysFileStorage;
+import com.kar20240901.be.base.web.model.constant.base.TempConstant;
+import com.kar20240901.be.base.web.model.constant.base.TempFileTempPathConstant;
+import com.kar20240901.be.base.web.model.domain.base.TempEntity;
+import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
+import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
+import com.kar20240901.be.base.web.model.domain.file.SysFileAuthDO;
+import com.kar20240901.be.base.web.model.domain.file.SysFileDO;
+import com.kar20240901.be.base.web.model.domain.file.SysFileStorageConfigurationDO;
+import com.kar20240901.be.base.web.model.enums.file.SysFileTypeEnum;
+import com.kar20240901.be.base.web.model.enums.file.SysFileUploadTypeEnum;
+import com.kar20240901.be.base.web.model.interfaces.file.ISysFileStorageType;
+import com.kar20240901.be.base.web.model.vo.base.R;
+import com.kar20240901.be.base.web.service.file.SysFileAuthService;
+import com.kar20240901.be.base.web.service.file.SysFileService;
+import com.kar20240901.be.base.web.util.base.CallBack;
+import com.kar20240901.be.base.web.util.base.MyEntityUtil;
+import com.kar20240901.be.base.web.util.base.MyUserUtil;
+import com.kar20240901.be.base.web.util.base.TransactionUtil;
 import java.io.File;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -44,8 +45,8 @@ import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 文件工具类
@@ -56,7 +57,7 @@ public class SysFileUtil {
     private static SysFileService sysFileService;
     private static SysFileAuthService sysFileAuthService;
 
-    private static SysUserInfoMapper sysUserInfoMapper;
+    private static TempUserInfoMapper tempUserInfoMapper;
 
     private static final Map<Integer, ISysFileStorage> SYS_FILE_STORAGE_MAP = MapUtil.newHashMap();
 
@@ -65,7 +66,7 @@ public class SysFileUtil {
     private static SysFileStorageConfigurationMapper sysFileStorageConfigurationMapper;
 
     public SysFileUtil(SysFileService sysFileService, SysFileAuthService sysFileAuthService,
-        SysUserInfoMapper sysUserInfoMapper,
+        TempUserInfoMapper tempUserInfoMapper,
         @Autowired(required = false) @Nullable List<ISysFileStorage> iSysFileStorageList,
         @Autowired(required = false) @Nullable List<ISysFileRemove> iSysFileRemoveList,
         SysFileStorageConfigurationMapper sysFileStorageConfigurationMapper) {
@@ -73,7 +74,7 @@ public class SysFileUtil {
         SysFileUtil.sysFileService = sysFileService;
         SysFileUtil.sysFileAuthService = sysFileAuthService;
 
-        SysFileUtil.sysUserInfoMapper = sysUserInfoMapper;
+        SysFileUtil.tempUserInfoMapper = tempUserInfoMapper;
 
         if (CollUtil.isNotEmpty(iSysFileStorageList)) {
 
@@ -112,8 +113,8 @@ public class SysFileUtil {
 
                 (sysFileId) -> {
 
-                    ChainWrappers.lambdaUpdateChain(sysUserInfoMapper).eq(SysUserInfoDO::getId, bo.getUserId())
-                        .set(SysUserInfoDO::getAvatarFileId, sysFileId).update();
+                    ChainWrappers.lambdaUpdateChain(tempUserInfoMapper).eq(TempUserInfoDO::getId, bo.getUserId())
+                        .set(TempUserInfoDO::getAvatarFileId, sysFileId).update();
 
                 }, null);
 
@@ -135,7 +136,7 @@ public class SysFileUtil {
 
         // 获取：存储方式的配置
         sysFileStorageConfigurationDO =
-            getSysFileStorageConfigurationDO(bo.getTenantId(), iSysFileStorageType, sysFileStorageConfigurationDO);
+            getSysFileStorageConfigurationDO(iSysFileStorageType, sysFileStorageConfigurationDO);
 
         Integer storageType = sysFileStorageConfigurationDO.getType();
 
@@ -202,7 +203,7 @@ public class SysFileUtil {
      * 获取：存储方式的配置
      */
     @NotNull
-    private static SysFileStorageConfigurationDO getSysFileStorageConfigurationDO(Long tenantId,
+    private static SysFileStorageConfigurationDO getSysFileStorageConfigurationDO(
         @Nullable ISysFileStorageType iSysFileStorageType,
         @Nullable SysFileStorageConfigurationDO sysFileStorageConfigurationDO) {
 
@@ -213,7 +214,7 @@ public class SysFileUtil {
         }
 
         // 执行获取
-        sysFileStorageConfigurationDO = execGetFileStorageConfigurationDO(tenantId, iSysFileStorageType);
+        sysFileStorageConfigurationDO = execGetFileStorageConfigurationDO(iSysFileStorageType);
 
         if (sysFileStorageConfigurationDO == null) {
 
@@ -228,7 +229,7 @@ public class SysFileUtil {
     /**
      * 执行获取
      */
-    private static SysFileStorageConfigurationDO execGetFileStorageConfigurationDO(Long tenantId,
+    private static SysFileStorageConfigurationDO execGetFileStorageConfigurationDO(
         @Nullable ISysFileStorageType iSysFileStorageType) {
 
         SysFileStorageConfigurationDO sysFileStorageConfigurationDO = null;
@@ -237,36 +238,20 @@ public class SysFileUtil {
 
             // 获取：默认的存储方式
             sysFileStorageConfigurationDO = ChainWrappers.lambdaQueryChain(sysFileStorageConfigurationMapper)
-                .eq(TempEntityNoIdSuper::getTenantId, tenantId).eq(TempEntityNoId::getEnableFlag, true)
-                .eq(SysFileStorageConfigurationDO::getDefaultFlag, true).one();
+                .eq(TempEntityNoId::getEnableFlag, true).eq(SysFileStorageConfigurationDO::getDefaultFlag, true).one();
 
         } else {
 
             // 根据传入的类型，选择一个存储方式
             List<SysFileStorageConfigurationDO> sysFileStorageConfigurationDOList =
                 ChainWrappers.lambdaQueryChain(sysFileStorageConfigurationMapper)
-                    .eq(TempEntityNoIdSuper::getTenantId, tenantId).eq(TempEntityNoId::getEnableFlag, true)
+                    .eq(TempEntityNoId::getEnableFlag, true)
                     .eq(SysFileStorageConfigurationDO::getType, iSysFileStorageType.getCode()).list();
 
             if (CollUtil.isNotEmpty(sysFileStorageConfigurationDOList)) {
 
                 // 随机选择一个存储方式
                 sysFileStorageConfigurationDO = RandomUtil.randomEle(sysFileStorageConfigurationDOList);
-
-            }
-
-        }
-
-        if (sysFileStorageConfigurationDO == null && !UserUtil.getCurrentTenantTopFlag(tenantId)) {
-
-            SysTenantDO sysTenantDO = SysTenantUtil.getSysTenantCacheMap(false).get(tenantId);
-
-            if (sysTenantDO != null) {
-
-                Long parentTenantId = sysTenantDO.getParentId();
-
-                // 获取：上一级租户的文件存储配置
-                return execGetFileStorageConfigurationDO(parentTenantId, iSysFileStorageType);
 
             }
 
@@ -285,8 +270,6 @@ public class SysFileUtil {
         SysFileStorageConfigurationDO sysFileStorageConfigurationDO) {
 
         SysFileDO sysFileDO = new SysFileDO();
-
-        sysFileDO.setTenantId(bo.getTenantId());
 
         sysFileDO.setBelongId(bo.getUserId());
 
@@ -314,7 +297,7 @@ public class SysFileUtil {
 
         sysFileDO.setShowFileName(MyEntityUtil.getNotNullStr(originalFilename));
 
-        sysFileDO.setRefFileId(BaseConstant.NEGATIVE_ONE);
+        sysFileDO.setRefFileId(TempConstant.NEGATIVE_ONE);
 
         sysFileDO.setPublicFlag(bo.getUploadType().isPublicFlag());
 
@@ -323,8 +306,6 @@ public class SysFileUtil {
         sysFileDO.setRefId(MyEntityUtil.getNotNullLong(bo.getRefId()));
 
         sysFileDO.setEnableFlag(true);
-
-        sysFileDO.setDelFlag(false);
 
         sysFileDO.setRemark(MyEntityUtil.getNotNullStr(bo.getRemark()));
 
@@ -341,12 +322,6 @@ public class SysFileUtil {
     @Nullable
     public static InputStream privateDownload(long fileId, @Nullable CallBack<String> fileNameCallBack) {
 
-        Set<Long> idSet = CollUtil.newHashSet(fileId);
-
-        // 检查：是否非法操作
-        SysTenantUtil.checkIllegal(idSet, tenantIdSet -> sysFileService.lambdaQuery().in(TempEntity::getId, idSet)
-            .in(TempEntityNoId::getTenantId, tenantIdSet).count());
-
         SysFileDO sysFileDO = getPrivateDownloadSysFile(fileId);
 
         if (SysFileTypeEnum.FOLDER.equals(sysFileDO.getType())) {
@@ -355,10 +330,10 @@ public class SysFileUtil {
 
         if (BooleanUtil.isFalse(sysFileDO.getPublicFlag())) { // 如果：不是公开下载
 
-            Long currentUserId = UserUtil.getCurrentUserId();
+            Long currentUserId = MyUserUtil.getCurrentUserId();
 
             // 检查：是否是该文件的拥有者
-            if (!currentUserId.equals(sysFileDO.getBelongId()) && !UserUtil.getCurrentUserAdminFlag(currentUserId)) {
+            if (!currentUserId.equals(sysFileDO.getBelongId()) && !MyUserUtil.getCurrentUserAdminFlag(currentUserId)) {
 
                 // 检查：是否有可读权限
                 boolean exists = sysFileAuthService.lambdaQuery().eq(SysFileAuthDO::getFileId, fileId)
@@ -366,7 +341,7 @@ public class SysFileUtil {
                     .eq(TempEntityNoId::getEnableFlag, true).exists();
 
                 if (BooleanUtil.isFalse(exists)) {
-                    R.error(BaseBizCodeEnum.INSUFFICIENT_PERMISSIONS);
+                    R.error(TempBizCodeEnum.INSUFFICIENT_PERMISSIONS);
                 }
 
             }
@@ -412,7 +387,7 @@ public class SysFileUtil {
     @NotNull
     private static SysFileDO getDeepPrivateDownloadSysFile(SysFileDO sysFileDO) {
 
-        if (sysFileDO.getRefFileId() != BaseConstant.NEGATIVE_ONE) {
+        if (sysFileDO.getRefFileId() != TempConstant.NEGATIVE_ONE) {
 
             sysFileDO = getPrivateDownloadSysFile(sysFileDO.getRefFileId());
 
@@ -451,22 +426,13 @@ public class SysFileUtil {
      * 获取：公开文件的 url
      */
     @NotNull
-    public static Map<Long, String> getPublicUrl(Set<Long> fileIdSet, boolean checkIllegalFlag) {
+    public static Map<Long, String> getPublicUrl(Set<Long> fileIdSet) {
 
         // 先移除：所有 -1的文件 id
         fileIdSet.removeAll(CollUtil.newHashSet(-1L));
 
         if (CollUtil.isEmpty(fileIdSet)) {
             return MapUtil.newHashMap();
-        }
-
-        if (checkIllegalFlag) {
-
-            // 检查：是否非法操作
-            SysTenantUtil.checkIllegal(fileIdSet,
-                tenantIdSet -> sysFileService.lambdaQuery().in(TempEntity::getId, fileIdSet)
-                    .in(TempEntityNoId::getTenantId, tenantIdSet).count());
-
         }
 
         List<SysFileDO> sysFileDOList =
@@ -529,11 +495,6 @@ public class SysFileUtil {
             return;
         }
 
-        // 检查：是否非法操作
-        SysTenantUtil.checkIllegal(fileIdSet,
-            tenantIdSet -> sysFileService.lambdaQuery().in(TempEntity::getId, fileIdSet)
-                .in(TempEntityNoId::getTenantId, tenantIdSet).count());
-
         List<SysFileDO> sysFileDOList;
 
         LambdaQueryChainWrapper<SysFileDO> lambdaQueryChainWrapper = sysFileService.lambdaQuery()
@@ -542,7 +503,7 @@ public class SysFileUtil {
 
         if (checkBelongFlag) {
 
-            Long currentUserId = UserUtil.getCurrentUserId();
+            Long currentUserId = MyUserUtil.getCurrentUserId();
 
             // 只有：文件拥有者才可以删除
             sysFileDOList = lambdaQueryChainWrapper.eq(SysFileDO::getBelongId, currentUserId).list();
@@ -652,8 +613,8 @@ public class SysFileUtil {
      * @param fileType 传递 byteArr时，需指定 fileType
      */
     @SneakyThrows
-    public static Long getTempFileId(String remark, Long userId, Long tenantId, @Nullable String fileType,
-        byte @Nullable [] byteArr, @Nullable File fileTemp) {
+    public static Long getTempFileId(String remark, Long userId, @Nullable String fileType, byte @Nullable [] byteArr,
+        @Nullable File fileTemp) {
 
         File file;
 
@@ -663,7 +624,7 @@ public class SysFileUtil {
 
             fileName = IdUtil.simpleUUID() + "." + fileType;
 
-            file = FileUtil.touch(SysFileTempPathConstant.FILE_TEMP_PATH + fileName);
+            file = FileUtil.touch(TempFileTempPathConstant.FILE_TEMP_PATH + fileName);
 
             FileUtil.writeBytes(byteArr, file);
 
@@ -679,12 +640,11 @@ public class SysFileUtil {
 
         try {
 
-            MockMultipartFile mockMultipartFile =
-                new MockMultipartFile(fileName, fileName, null, FileUtil.getInputStream(file));
+            MultipartFile multipartFile = MultipartFileUtil.getByFile(file);
 
             SysFileUploadBO bo = new SysFileUploadBO();
 
-            bo.setFile(mockMultipartFile);
+            bo.setFile(multipartFile);
 
             bo.setUploadType(SysFileUploadTypeEnum.TEMP_FILE);
 
@@ -710,13 +670,13 @@ public class SysFileUtil {
      *
      * @param fileType 传递 byteArr时，需指定 fileType，传递 fileTemp时，不用指定 fileType
      */
-    public static String getTempFileUrl(String remark, Long userId, Long tenantId, @Nullable String fileType,
+    public static String getTempFileUrl(String remark, Long userId, @Nullable String fileType,
         byte @Nullable [] byteArr, @Nullable File fileTemp) {
 
-        Long fileId = getTempFileId(remark, userId, tenantId, fileType, byteArr, fileTemp);
+        Long fileId = getTempFileId(remark, userId, fileType, byteArr, fileTemp);
 
         // 获取：文件链接
-        Map<Long, String> publicUrlMap = SysFileUtil.getPublicUrl(CollUtil.newHashSet(fileId), false);
+        Map<Long, String> publicUrlMap = SysFileUtil.getPublicUrl(CollUtil.newHashSet(fileId));
 
         return publicUrlMap.get(fileId);
 

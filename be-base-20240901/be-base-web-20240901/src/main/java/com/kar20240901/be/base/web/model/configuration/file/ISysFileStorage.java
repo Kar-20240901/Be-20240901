@@ -1,7 +1,7 @@
 package com.kar20240901.be.base.web.model.configuration.file;
 
-import com.cmcorg20230301.be.engine.file.base.model.entity.SysFileStorageConfigurationDO;
-import com.cmcorg20230301.be.engine.security.model.interfaces.ISysFileStorageType;
+import com.kar20240901.be.base.web.model.domain.file.SysFileStorageConfigurationDO;
+import com.kar20240901.be.base.web.model.interfaces.file.ISysFileStorageType;
 import java.io.InputStream;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;

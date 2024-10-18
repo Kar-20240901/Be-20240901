@@ -1,27 +1,24 @@
 package com.kar20240901.be.base.web.service.file.impl;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.func.Func1;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.cmcorg20230301.be.engine.file.base.mapper.SysFileStorageConfigurationMapper;
-import com.cmcorg20230301.be.engine.file.base.model.dto.SysFileStorageConfigurationInsertOrUpdateDTO;
-import com.cmcorg20230301.be.engine.file.base.model.dto.SysFileStorageConfigurationPageDTO;
-import com.cmcorg20230301.be.engine.file.base.model.entity.SysFileStorageConfigurationDO;
-import com.cmcorg20230301.be.engine.file.base.service.SysFileStorageConfigurationService;
-import com.cmcorg20230301.be.engine.model.model.dto.NotEmptyIdSet;
-import com.cmcorg20230301.be.engine.model.model.dto.NotNullId;
-import com.cmcorg20230301.be.engine.security.model.entity.TempEntity;
-import com.cmcorg20230301.be.engine.security.model.entity.TempEntityNoId;
-import com.cmcorg20230301.be.engine.security.model.entity.TempEntityNoIdSuper;
-import com.cmcorg20230301.be.engine.security.util.MyEntityUtil;
-import com.cmcorg20230301.be.engine.security.util.SysTenantUtil;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
+import com.kar20240901.be.base.web.mapper.file.SysFileStorageConfigurationMapper;
 import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
+import com.kar20240901.be.base.web.model.domain.base.TempEntity;
+import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
+import com.kar20240901.be.base.web.model.domain.base.TempEntityNoIdSuper;
+import com.kar20240901.be.base.web.model.domain.file.SysFileStorageConfigurationDO;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
+import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.file.SysFileStorageConfigurationInsertOrUpdateDTO;
+import com.kar20240901.be.base.web.model.dto.file.SysFileStorageConfigurationPageDTO;
+import com.kar20240901.be.base.web.service.file.SysFileStorageConfigurationService;
+import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import java.util.Set;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -59,7 +56,6 @@ public class SysFileStorageConfigurationServiceImpl
 
         sysFileStorageConfigurationDO.setId(dto.getId());
         sysFileStorageConfigurationDO.setEnableFlag(BooleanUtil.isTrue(dto.getEnableFlag()));
-        sysFileStorageConfigurationDO.setDelFlag(false);
         sysFileStorageConfigurationDO.setRemark(MyEntityUtil.getNotNullStr(dto.getRemark()));
 
         saveOrUpdate(sysFileStorageConfigurationDO);
@@ -74,11 +70,9 @@ public class SysFileStorageConfigurationServiceImpl
     @Override
     public Page<SysFileStorageConfigurationDO> myPage(SysFileStorageConfigurationPageDTO dto) {
 
-        // 处理：MyTenantPageDTO
-        SysTenantUtil.handleMyTenantPageDTO(dto, true);
-
-        return lambdaQuery().like(StrUtil.isNotBlank(dto.getName()), SysFileStorageConfigurationDO::getName,
-                dto.getName()).like(StrUtil.isNotBlank(dto.getAccessKey()), SysFileStorageConfigurationDO::getAccessKey,
+        return lambdaQuery() //
+            .like(StrUtil.isNotBlank(dto.getName()), SysFileStorageConfigurationDO::getName, dto.getName()) //
+            .like(StrUtil.isNotBlank(dto.getAccessKey()), SysFileStorageConfigurationDO::getAccessKey,
                 dto.getAccessKey()) //
             .like(StrUtil.isNotBlank(dto.getUploadEndpoint()), SysFileStorageConfigurationDO::getUploadEndpoint,
                 dto.getUploadEndpoint()) //
@@ -92,13 +86,11 @@ public class SysFileStorageConfigurationServiceImpl
             .eq(dto.getType() != null, SysFileStorageConfigurationDO::getType, dto.getType())
             .eq(dto.getDefaultFlag() != null, SysFileStorageConfigurationDO::getDefaultFlag, dto.getDefaultFlag())
             .eq(dto.getEnableFlag() != null, TempEntity::getEnableFlag, dto.getEnableFlag())
-            .in(TempEntityNoId::getTenantId, dto.getTenantIdSet()) //
-            .select(TempEntity::getId, TempEntityNoIdSuper::getTenantId, TempEntityNoId::getEnableFlag,
-                TempEntityNoId::getRemark, TempEntityNoIdSuper::getCreateId, TempEntityNoIdSuper::getCreateTime,
-                TempEntityNoIdSuper::getUpdateId, TempEntityNoIdSuper::getUpdateTime,
-                SysFileStorageConfigurationDO::getName, SysFileStorageConfigurationDO::getType,
-                SysFileStorageConfigurationDO::getDefaultFlag).orderByDesc(TempEntity::getUpdateTime)
-            .page(dto.page(true));
+            .select(TempEntity::getId, TempEntityNoId::getEnableFlag, TempEntityNoId::getRemark,
+                TempEntityNoIdSuper::getCreateId, TempEntityNoIdSuper::getCreateTime, TempEntityNoIdSuper::getUpdateId,
+                TempEntityNoIdSuper::getUpdateTime, SysFileStorageConfigurationDO::getName,
+                SysFileStorageConfigurationDO::getType, SysFileStorageConfigurationDO::getDefaultFlag)
+            .orderByDesc(TempEntity::getUpdateTime).page(dto.pageOrder());
 
     }
 
@@ -108,11 +100,7 @@ public class SysFileStorageConfigurationServiceImpl
     @Override
     public SysFileStorageConfigurationDO infoById(NotNullId notNullId) {
 
-        // 获取：用户关联的租户
-        Set<Long> queryTenantIdSet = SysTenantUtil.getUserRefTenantIdSet();
-
-        return lambdaQuery().eq(TempEntity::getId, notNullId.getId()).in(TempEntityNoId::getTenantId, queryTenantIdSet)
-            .one();
+        return lambdaQuery().eq(TempEntity::getId, notNullId.getId()).one();
 
     }
 
@@ -128,33 +116,9 @@ public class SysFileStorageConfigurationServiceImpl
             return TempBizCodeEnum.OK;
         }
 
-        // 检查：是否非法操作
-        SysTenantUtil.checkIllegal(idSet, getCheckIllegalFunc1(idSet));
-
         removeByIds(idSet); // 根据 idSet删除
 
         return TempBizCodeEnum.OK;
-
-    }
-
-    /**
-     * 获取：检查：是否非法操作的 getCheckIllegalFunc1
-     */
-    @NotNull
-    private Func1<Set<Long>, Long> getCheckIllegalFunc1(Set<Long> idSet) {
-
-        return tenantIdSet -> lambdaQuery().in(TempEntity::getId, idSet).in(TempEntityNoId::getTenantId, tenantIdSet)
-            .count();
-
-    }
-
-    /**
-     * 获取：检查：是否非法操作的 getTenantIdTempEntityFunc1
-     */
-    @NotNull
-    private Func1<Long, TempEntity> getTenantIdTempEntityFunc1() {
-
-        return id -> lambdaQuery().eq(TempEntity::getId, id).select(TempEntity::getTenantId).one();
 
     }
 

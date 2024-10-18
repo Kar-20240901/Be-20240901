@@ -1,9 +1,9 @@
 package com.kar20240901.be.base.web.service.file.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.cmcorg20230301.be.engine.file.base.mapper.SysFileAuthMapper;
-import com.cmcorg20230301.be.engine.file.base.model.entity.SysFileAuthDO;
-import com.cmcorg20230301.be.engine.file.base.service.SysFileAuthService;
+import com.kar20240901.be.base.web.mapper.file.SysFileAuthMapper;
+import com.kar20240901.be.base.web.model.domain.file.SysFileAuthDO;
+import com.kar20240901.be.base.web.service.file.SysFileAuthService;
 import org.springframework.stereotype.Service;
 
 @Service

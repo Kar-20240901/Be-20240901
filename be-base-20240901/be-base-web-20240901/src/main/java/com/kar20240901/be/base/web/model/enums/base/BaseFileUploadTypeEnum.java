@@ -7,7 +7,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.kar20240901.be.base.web.model.vo.base.R;
-import com.kar20240901.be.base.web.util.MyFileTypeUtil;
+import com.kar20240901.be.base.web.util.base.MyFileTypeUtil;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

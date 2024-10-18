@@ -1,6 +1,6 @@
 package com.kar20240901.be.base.web.service.socket;
 
-import com.kar20240901.be.base.web.model.dto.NotNullIdAndIntegerValue;
+import com.kar20240901.be.base.web.model.dto.base.NotNullIdAndIntegerValue;
 import java.util.Set;
 
 public interface NettyWebSocketService {

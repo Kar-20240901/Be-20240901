@@ -1,15 +1,15 @@
 package com.kar20240901.be.base.web.controller.base;
 
 import com.kar20240901.be.base.web.model.constant.base.OperationDescriptionConstant;
-import com.kar20240901.be.base.web.model.dto.SignUserNameJwtRefreshTokenDTO;
-import com.kar20240901.be.base.web.model.dto.SignUserNameSignDeleteDTO;
-import com.kar20240901.be.base.web.model.dto.SignUserNameSignInPasswordDTO;
-import com.kar20240901.be.base.web.model.dto.SignUserNameSignUpDTO;
-import com.kar20240901.be.base.web.model.dto.SignUserNameUpdatePasswordDTO;
-import com.kar20240901.be.base.web.model.dto.SignUserNameUpdateUserNameDTO;
+import com.kar20240901.be.base.web.model.dto.base.SignUserNameJwtRefreshTokenDTO;
+import com.kar20240901.be.base.web.model.dto.base.SignUserNameSignDeleteDTO;
+import com.kar20240901.be.base.web.model.dto.base.SignUserNameSignInPasswordDTO;
+import com.kar20240901.be.base.web.model.dto.base.SignUserNameSignUpDTO;
+import com.kar20240901.be.base.web.model.dto.base.SignUserNameUpdatePasswordDTO;
+import com.kar20240901.be.base.web.model.dto.base.SignUserNameUpdateUserNameDTO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.base.SignInVO;
-import com.kar20240901.be.base.web.service.SignUserNameService;
+import com.kar20240901.be.base.web.service.base.SignUserNameService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.annotation.Resource;

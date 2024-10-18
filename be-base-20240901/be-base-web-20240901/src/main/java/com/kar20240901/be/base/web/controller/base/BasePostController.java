@@ -1,15 +1,15 @@
 package com.kar20240901.be.base.web.controller.base;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.kar20240901.be.base.web.model.domain.BasePostDO;
-import com.kar20240901.be.base.web.model.dto.BasePostInsertOrUpdateDTO;
-import com.kar20240901.be.base.web.model.dto.BasePostPageDTO;
-import com.kar20240901.be.base.web.model.dto.ChangeNumberDTO;
-import com.kar20240901.be.base.web.model.dto.NotEmptyIdSet;
-import com.kar20240901.be.base.web.model.dto.NotNullId;
+import com.kar20240901.be.base.web.model.domain.base.BasePostDO;
+import com.kar20240901.be.base.web.model.dto.base.BasePostInsertOrUpdateDTO;
+import com.kar20240901.be.base.web.model.dto.base.BasePostPageDTO;
+import com.kar20240901.be.base.web.model.dto.base.ChangeNumberDTO;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
+import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.vo.base.BasePostInfoByIdVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
-import com.kar20240901.be.base.web.service.BasePostService;
+import com.kar20240901.be.base.web.service.base.BasePostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;

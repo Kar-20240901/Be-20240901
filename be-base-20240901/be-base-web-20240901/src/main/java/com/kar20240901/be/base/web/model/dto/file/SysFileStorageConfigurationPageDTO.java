@@ -1,14 +1,14 @@
 package com.kar20240901.be.base.web.model.dto.file;
 
-import com.cmcorg20230301.be.engine.security.model.dto.MyTenantPageDTO;
-import com.cmcorg20230301.be.engine.security.model.interfaces.ISysFileStorageType;
+import com.kar20240901.be.base.web.model.dto.base.MyPageDTO;
+import com.kar20240901.be.base.web.model.interfaces.file.ISysFileStorageType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class SysFileStorageConfigurationPageDTO extends MyTenantPageDTO {
+public class SysFileStorageConfigurationPageDTO extends MyPageDTO {
 
     @Schema(description = "文件存储配置名")
     private String name;

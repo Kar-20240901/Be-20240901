@@ -1,16 +1,16 @@
 package com.kar20240901.be.base.web.controller.base;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.kar20240901.be.base.web.model.dto.BaseUserInsertOrUpdateDTO;
-import com.kar20240901.be.base.web.model.dto.BaseUserPageDTO;
-import com.kar20240901.be.base.web.model.dto.BaseUserUpdatePasswordDTO;
-import com.kar20240901.be.base.web.model.dto.NotEmptyIdSet;
-import com.kar20240901.be.base.web.model.dto.NotNullId;
+import com.kar20240901.be.base.web.model.dto.base.BaseUserInsertOrUpdateDTO;
+import com.kar20240901.be.base.web.model.dto.base.BaseUserPageDTO;
+import com.kar20240901.be.base.web.model.dto.base.BaseUserUpdatePasswordDTO;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
+import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.vo.base.BaseUserPageVO;
 import com.kar20240901.be.base.web.model.vo.base.DictVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.base.TempUserInfoByIdVO;
-import com.kar20240901.be.base.web.service.BaseUserService;
+import com.kar20240901.be.base.web.service.base.BaseUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.annotation.Resource;
