@@ -13,8 +13,6 @@ import lombok.Getter;
 @Getter
 public enum BaseFileStorageTypeEnum implements IBaseFileStorageType {
 
-    EMPTY(0), // 无，一般用于引用类型的文件
-
     ALI_YUN(101), // aliyun
 
     MINIO(201), // minio
