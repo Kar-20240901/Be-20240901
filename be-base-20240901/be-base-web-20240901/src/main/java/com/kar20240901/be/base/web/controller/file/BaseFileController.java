@@ -1,15 +1,15 @@
 package com.kar20240901.be.base.web.controller.file;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.kar20240901.be.base.web.model.domain.file.SysFileDO;
+import com.kar20240901.be.base.web.model.domain.file.BaseFileDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
-import com.kar20240901.be.base.web.model.dto.file.SysFilePageDTO;
-import com.kar20240901.be.base.web.model.dto.file.SysFilePageSelfDTO;
-import com.kar20240901.be.base.web.model.dto.file.SysFileUploadDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFilePageDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFilePageSelfDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadDTO;
 import com.kar20240901.be.base.web.model.vo.base.LongObjectMapVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
-import com.kar20240901.be.base.web.service.file.SysFileService;
+import com.kar20240901.be.base.web.service.file.BaseFileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.annotation.Resource;
@@ -22,16 +22,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/sys/file")
+@RequestMapping(value = "/base/file")
 @Tag(name = "基础-文件-管理")
-public class SysFileController {
+public class BaseFileController {
 
     @Resource
-    SysFileService baseService;
+    BaseFileService baseService;
 
     @Operation(summary = "上传文件：公有和私有")
     @PostMapping("/upload")
-    public R<Long> upload(SysFileUploadDTO dto) {
+    public R<Long> upload(BaseFileUploadDTO dto) {
         return R.okData(baseService.upload(dto));
     }
 
@@ -55,14 +55,14 @@ public class SysFileController {
 
     @Operation(summary = "分页排序查询")
     @PostMapping("/page")
-    @PreAuthorize("hasAuthority('sysFile:page')")
-    public R<Page<SysFileDO>> myPage(@RequestBody @Valid SysFilePageDTO dto) {
+    @PreAuthorize("hasAuthority('baseFile:page')")
+    public R<Page<BaseFileDO>> myPage(@RequestBody @Valid BaseFilePageDTO dto) {
         return R.okData(baseService.myPage(dto));
     }
 
     @Operation(summary = "分页排序查询-自我")
     @PostMapping("/page/self")
-    public R<Page<SysFileDO>> myPageSelf(@RequestBody @Valid SysFilePageSelfDTO dto) {
+    public R<Page<BaseFileDO>> myPageSelf(@RequestBody @Valid BaseFilePageSelfDTO dto) {
         return R.okData(baseService.myPageSelf(dto));
     }
 

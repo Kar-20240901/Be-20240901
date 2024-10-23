@@ -1,18 +1,18 @@
 package com.kar20240901.be.base.web.model.dto.file;
 
-import com.kar20240901.be.base.web.model.enums.file.SysFileUploadTypeEnum;
+import com.kar20240901.be.base.web.model.enums.file.BaseFileUploadTypeEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 @Data
-public class SysFileUploadDTO {
+public class BaseFileUploadDTO {
 
     @Schema(description = "文件")
     private MultipartFile file;
 
     @Schema(description = "文件上传的类型")
-    private SysFileUploadTypeEnum uploadType;
+    private BaseFileUploadTypeEnum uploadType;
 
     @Schema(description = "备注")
     private String remark;

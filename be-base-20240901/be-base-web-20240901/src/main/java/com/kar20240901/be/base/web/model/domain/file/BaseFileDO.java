@@ -2,9 +2,9 @@ package com.kar20240901.be.base.web.model.domain.file;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
-import com.kar20240901.be.base.web.model.enums.file.SysFileTypeEnum;
-import com.kar20240901.be.base.web.model.interfaces.file.ISysFileStorageType;
-import com.kar20240901.be.base.web.model.interfaces.file.ISysFileUploadType;
+import com.kar20240901.be.base.web.model.enums.file.BaseFileTypeEnum;
+import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileStorageType;
+import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileUploadType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
 @TableName(value = "base_file")
 @Data
 @Schema(description = "主表：文件")
-public class SysFileDO extends TempEntity {
+public class BaseFileDO extends TempEntity {
 
     @Schema(description = "归属者用户主键 id（拥有全部权限）")
     private Long belongId;
@@ -37,7 +37,7 @@ public class SysFileDO extends TempEntity {
     private String extraJson;
 
     /**
-     * {@link ISysFileUploadType}
+     * {@link IBaseFileUploadType}
      */
     @Schema(description = "文件上传类型")
     private Integer uploadType;
@@ -46,23 +46,19 @@ public class SysFileDO extends TempEntity {
     private Long storageConfigurationId;
 
     /**
-     * {@link ISysFileStorageType}
+     * {@link IBaseFileStorageType}
      */
     @Schema(description = "存放文件的服务器类型")
     private Integer storageType;
 
     @Schema(description = "上级文件夹的文件主键 id，默认为 0")
-    private Long parentId;
+    private Long pid;
 
     @Schema(description = "类型")
-    private SysFileTypeEnum type;
+    private BaseFileTypeEnum type;
 
     @Schema(description = "展示用的文件名，默认为：原始文件名（包含文件类型）")
     private String showFileName;
-
-    @Schema(
-        description = "引用的文件主键 id，没有则为 -1，如果有值，则文件地址从引用的文件里面获取，但是权限等信息，从本条数据获取")
-    private Long refFileId;
 
     @Schema(description = "是否公开访问")
     private Boolean publicFlag;

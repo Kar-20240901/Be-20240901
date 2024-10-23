@@ -2,7 +2,7 @@ package com.kar20240901.be.base.web.model.domain.file;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
-import com.kar20240901.be.base.web.model.interfaces.file.ISysFileStorageType;
+import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileStorageType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,13 +11,13 @@ import lombok.EqualsAndHashCode;
 @TableName(value = "base_file_storage_configuration")
 @Data
 @Schema(description = "主表：文件存储配置")
-public class SysFileStorageConfigurationDO extends TempEntity {
+public class BaseFileStorageConfigurationDO extends TempEntity {
 
     @Schema(description = "文件存储配置名")
     private String name;
 
     /**
-     * {@link ISysFileStorageType}
+     * {@link IBaseFileStorageType}
      */
     @Schema(description = "文件存储类型")
     private Integer type;

@@ -18,7 +18,7 @@ public class BaseWebSocketEventBO<T> {
     /**
      * socket关联用户主键 idSet
      */
-    private Set<Long> sysSocketRefUserIdSet;
+    private Set<Long> baseSocketRefUserIdSet;
 
     /**
      * 传输的数据

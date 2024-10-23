@@ -41,7 +41,7 @@ public class SocketUtil {
     private static BaseSocketRefUserService baseSocketRefUserService;
 
     @Resource
-    public void setSysSocketService(BaseSocketRefUserService baseSocketRefUserService) {
+    public void setBaseSocketRefUserService(BaseSocketRefUserService baseSocketRefUserService) {
         SocketUtil.baseSocketRefUserService = baseSocketRefUserService;
     }
 

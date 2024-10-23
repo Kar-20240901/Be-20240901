@@ -2,18 +2,18 @@ package com.kar20240901.be.base.web.service.file;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.kar20240901.be.base.web.model.domain.file.SysFileDO;
+import com.kar20240901.be.base.web.model.domain.file.BaseFileDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
-import com.kar20240901.be.base.web.model.dto.file.SysFilePageDTO;
-import com.kar20240901.be.base.web.model.dto.file.SysFilePageSelfDTO;
-import com.kar20240901.be.base.web.model.dto.file.SysFileUploadDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFilePageDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFilePageSelfDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadDTO;
 import com.kar20240901.be.base.web.model.vo.base.LongObjectMapVO;
 import javax.servlet.http.HttpServletResponse;
 
-public interface SysFileService extends IService<SysFileDO> {
+public interface BaseFileService extends IService<BaseFileDO> {
 
-    Long upload(SysFileUploadDTO dto);
+    Long upload(BaseFileUploadDTO dto);
 
     void privateDownload(NotNullId notNullId, HttpServletResponse response);
 
@@ -21,8 +21,8 @@ public interface SysFileService extends IService<SysFileDO> {
 
     LongObjectMapVO<String> getPublicUrl(NotEmptyIdSet notEmptyIdSet);
 
-    Page<SysFileDO> myPage(SysFilePageDTO dto);
+    Page<BaseFileDO> myPage(BaseFilePageDTO dto);
 
-    Page<SysFileDO> myPageSelf(SysFilePageSelfDTO dto);
+    Page<BaseFileDO> myPageSelf(BaseFilePageSelfDTO dto);
 
 }

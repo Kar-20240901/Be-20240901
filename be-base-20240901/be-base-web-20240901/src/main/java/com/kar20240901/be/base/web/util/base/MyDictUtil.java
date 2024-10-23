@@ -22,7 +22,7 @@ public class MyDictUtil {
     private static BaseDictMapper baseDictMapper;
 
     @Resource
-    public void setSysDictMapper(BaseDictMapper baseDictMapper) {
+    public void setBaseDictMapper(BaseDictMapper baseDictMapper) {
         MyDictUtil.baseDictMapper = baseDictMapper;
     }
 

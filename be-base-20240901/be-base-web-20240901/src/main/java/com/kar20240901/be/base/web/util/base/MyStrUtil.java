@@ -1,10 +1,30 @@
 package com.kar20240901.be.base.web.util.base;
 
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.StrUtil;
 import java.util.function.Consumer;
 
 public class MyStrUtil {
+
+    /**
+     * 限制字符串长度，如果超过指定长度，截取指定长度
+     */
+    public static String maxLength(CharSequence string, int length) {
+
+        Assert.isTrue(length > 0);
+
+        if (null == string) {
+            return null;
+        }
+
+        if (string.length() <= length) {
+            return string.toString();
+        }
+
+        return StrUtil.sub(string, 0, length);
+
+    }
 
     /**
      * 根据最大长度，拆分字符串，然后把拆分结果多次执行：consumer

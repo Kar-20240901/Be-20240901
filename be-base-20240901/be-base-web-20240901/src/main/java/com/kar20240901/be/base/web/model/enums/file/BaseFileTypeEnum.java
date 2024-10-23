@@ -10,7 +10,7 @@ import lombok.Getter;
  */
 @AllArgsConstructor
 @Getter
-public enum SysFileTypeEnum {
+public enum BaseFileTypeEnum {
 
     FILE(101), // 文件
 

@@ -6,7 +6,7 @@ import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.kar20240901.be.base.web.model.interfaces.file.ISysFileUploadType;
+import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileUploadType;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.util.base.MyFileTypeUtil;
 import java.util.Set;
@@ -22,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @AllArgsConstructor
 @Getter
-public enum SysFileUploadTypeEnum implements ISysFileUploadType {
+public enum BaseFileUploadTypeEnum implements IBaseFileUploadType {
 
     // 头像
     AVATAR(101, "avatar", CollUtil.newHashSet("jpeg", "png", "jpg"), 1024 * 1024 * 2, true), //
@@ -63,7 +63,7 @@ public enum SysFileUploadTypeEnum implements ISysFileUploadType {
     @Nullable
     public String checkFileType(MultipartFile file) {
 
-        return SysFileUploadTypeEnum.checkFileType(this, file);
+        return BaseFileUploadTypeEnum.checkFileType(this, file);
 
     }
 
@@ -73,7 +73,7 @@ public enum SysFileUploadTypeEnum implements ISysFileUploadType {
     @Override
     public void checkFileSize(MultipartFile file) {
 
-        SysFileUploadTypeEnum.checkFileSize(this, file);
+        BaseFileUploadTypeEnum.checkFileSize(this, file);
 
     }
 
@@ -82,7 +82,7 @@ public enum SysFileUploadTypeEnum implements ISysFileUploadType {
      */
     @SneakyThrows
     @Nullable
-    public static String checkFileType(ISysFileUploadType iSysFileUploadType, MultipartFile file) {
+    public static String checkFileType(IBaseFileUploadType iBaseFileUploadType, MultipartFile file) {
 
         // 获取文件类型
         String fileType = MyFileTypeUtil.getType(file.getInputStream(), file.getOriginalFilename());
@@ -92,7 +92,7 @@ public enum SysFileUploadTypeEnum implements ISysFileUploadType {
         }
 
         // 获取：支持上传的文件类型
-        Set<String> acceptFileTypeSet = iSysFileUploadType.getAcceptFileTypeSet();
+        Set<String> acceptFileTypeSet = iBaseFileUploadType.getAcceptFileTypeSet();
 
         if (acceptFileTypeSet == null) {
             return fileType;
@@ -113,9 +113,9 @@ public enum SysFileUploadTypeEnum implements ISysFileUploadType {
     /**
      * 检查：文件大小
      */
-    public static void checkFileSize(ISysFileUploadType iSysFileUploadType, MultipartFile file) {
+    public static void checkFileSize(IBaseFileUploadType iBaseFileUploadType, MultipartFile file) {
 
-        long maxFileSize = iSysFileUploadType.getMaxFileSize();
+        long maxFileSize = iBaseFileUploadType.getMaxFileSize();
 
         if (maxFileSize == -1) {
             return;
@@ -131,12 +131,12 @@ public enum SysFileUploadTypeEnum implements ISysFileUploadType {
      * 上传文件时的检查
      */
     @NotNull
-    public static String uploadCheckWillError(MultipartFile file, ISysFileUploadType iSysFileUploadType) {
+    public static String uploadCheckWillError(MultipartFile file, IBaseFileUploadType iBaseFileUploadType) {
 
         Assert.notNull(file, "file 不能为空");
-        Assert.notNull(iSysFileUploadType, "uploadType 不能为空");
+        Assert.notNull(iBaseFileUploadType, "uploadType 不能为空");
 
-        iSysFileUploadType.checkFileSize(file); // 检查：文件大小
+        iBaseFileUploadType.checkFileSize(file); // 检查：文件大小
 
         String originalFilename = file.getOriginalFilename();
 
@@ -144,7 +144,7 @@ public enum SysFileUploadTypeEnum implements ISysFileUploadType {
             R.errorMsg("操作失败：上传的文件名不能为空");
         }
 
-        String fileType = iSysFileUploadType.checkFileType(file);
+        String fileType = iBaseFileUploadType.checkFileType(file);
 
         if (fileType == null) {
             R.errorMsg("操作失败：暂不支持此文件类型【" + originalFilename + "】，请正确上传文件");

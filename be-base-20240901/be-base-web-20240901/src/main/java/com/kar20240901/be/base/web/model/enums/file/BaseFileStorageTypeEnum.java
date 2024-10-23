@@ -2,7 +2,7 @@ package com.kar20240901.be.base.web.model.enums.file;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.kar20240901.be.base.web.model.interfaces.file.ISysFileStorageType;
+import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileStorageType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -11,7 +11,7 @@ import lombok.Getter;
  */
 @AllArgsConstructor
 @Getter
-public enum SysFileStorageTypeEnum implements ISysFileStorageType {
+public enum BaseFileStorageTypeEnum implements IBaseFileStorageType {
 
     EMPTY(0), // 无，一般用于引用类型的文件
 

@@ -366,12 +366,12 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
 
             for (Long item : dto.getRoleIdSet()) {
 
-                BaseRoleRefUserDO sysRoleRefUserDO = new BaseRoleRefUserDO();
+                BaseRoleRefUserDO baseRoleRefUserDO = new BaseRoleRefUserDO();
 
-                sysRoleRefUserDO.setRoleId(item);
-                sysRoleRefUserDO.setUserId(tempUserDO.getId());
+                baseRoleRefUserDO.setRoleId(item);
+                baseRoleRefUserDO.setUserId(tempUserDO.getId());
 
-                insertList.add(sysRoleRefUserDO);
+                insertList.add(baseRoleRefUserDO);
 
             }
 

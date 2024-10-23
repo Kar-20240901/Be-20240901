@@ -70,7 +70,7 @@ public class BaseSocketRefUserServiceImpl extends ServiceImpl<BaseSocketRefUserM
 
         baseWebSocketEventBO.setUserIdSet(userIdSet);
 
-        baseWebSocketEventBO.setSysSocketRefUserIdSet(notEmptyIdSet.getIdSet());
+        baseWebSocketEventBO.setBaseSocketRefUserIdSet(notEmptyIdSet.getIdSet());
 
         WebSocketMessageDTO<NotNullIdAndNotEmptyLongSet> webSocketMessageDTO =
             WebSocketMessageDTO.okData(BaseWebSocketUriEnum.BASE_SIGN_OUT, null);
@@ -106,7 +106,7 @@ public class BaseSocketRefUserServiceImpl extends ServiceImpl<BaseSocketRefUserM
 
         baseWebSocketEventBO.setUserIdSet(userIdSet);
 
-        baseWebSocketEventBO.setSysSocketRefUserIdSet(notEmptyIdSet.getIdSet());
+        baseWebSocketEventBO.setBaseSocketRefUserIdSet(notEmptyIdSet.getIdSet());
 
         WebSocketMessageDTO<NotNullIdAndNotEmptyLongSet> webSocketMessageDTO =
             WebSocketMessageDTO.okData(BaseWebSocketUriEnum.BASE_SOCKET_REF_USER_CHANGE_CONSOLE_FLAG_BY_ID_SET, null);

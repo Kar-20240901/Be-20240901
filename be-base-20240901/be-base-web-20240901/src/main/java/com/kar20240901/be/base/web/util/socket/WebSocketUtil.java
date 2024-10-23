@@ -49,9 +49,9 @@ public class WebSocketUtil {
 
         String jsonStr = objectMapper.writeValueAsString(bo.getWebSocketMessageDTO());
 
-        Set<Long> sysSocketRefUserIdSet = bo.getSysSocketRefUserIdSet();
+        Set<Long> baseSocketRefUserIdSet = bo.getBaseSocketRefUserIdSet();
 
-        boolean checkFlag = CollUtil.isNotEmpty(sysSocketRefUserIdSet);
+        boolean checkFlag = CollUtil.isNotEmpty(baseSocketRefUserIdSet);
 
         for (Long item : userIdSet) {
 
@@ -68,10 +68,10 @@ public class WebSocketUtil {
 
                 if (checkFlag) {
 
-                    Long sysSocketRefUserId =
+                    Long baseSocketRefUserId =
                         subItem.attr(NettyWebSocketServerHandler.BASE_SOCKET_REF_USER_ID_KEY).get();
 
-                    if (!sysSocketRefUserIdSet.contains(sysSocketRefUserId)) {
+                    if (!baseSocketRefUserIdSet.contains(baseSocketRefUserId)) {
                         continue;
                     }
 

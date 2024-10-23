@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class SysFilePageDTO extends SysFilePageSelfDTO {
+public class BaseFilePageDTO extends BaseFilePageSelfDTO {
 
     @Schema(description = "归属者用户主键 id（拥有全部权限）")
     private Long belongId;

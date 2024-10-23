@@ -1,7 +1,7 @@
 package com.kar20240901.be.base.web.model.dto.file;
 
 import com.kar20240901.be.base.web.model.dto.base.TempInsertOrUpdateDTO;
-import com.kar20240901.be.base.web.model.interfaces.file.ISysFileStorageType;
+import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileStorageType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -10,14 +10,14 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class SysFileStorageConfigurationInsertOrUpdateDTO extends TempInsertOrUpdateDTO {
+public class BaseFileStorageConfigurationInsertOrUpdateDTO extends TempInsertOrUpdateDTO {
 
     @NotBlank
     @Schema(description = "文件存储配置名")
     private String name;
 
     /**
-     * {@link ISysFileStorageType}
+     * {@link IBaseFileStorageType}
      */
     @NotNull
     @Schema(description = "文件存储类型")

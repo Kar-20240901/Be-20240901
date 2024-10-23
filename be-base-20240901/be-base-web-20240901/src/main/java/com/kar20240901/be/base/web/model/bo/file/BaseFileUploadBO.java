@@ -1,13 +1,13 @@
 package com.kar20240901.be.base.web.model.bo.file;
 
-import com.kar20240901.be.base.web.model.interfaces.file.ISysFileUploadType;
+import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileUploadType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 @Data
-public class SysFileUploadBO {
+public class BaseFileUploadBO {
 
     @NotNull
     @Schema(description = "文件")
@@ -15,7 +15,7 @@ public class SysFileUploadBO {
 
     @NotNull
     @Schema(description = "文件上传的类型")
-    private ISysFileUploadType uploadType;
+    private IBaseFileUploadType uploadType;
 
     @Schema(description = "备注")
     private String remark;

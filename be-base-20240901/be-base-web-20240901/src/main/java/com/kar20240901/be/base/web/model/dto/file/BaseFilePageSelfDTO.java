@@ -1,27 +1,27 @@
 package com.kar20240901.be.base.web.model.dto.file;
 
 import com.kar20240901.be.base.web.model.dto.base.MyPageDTO;
-import com.kar20240901.be.base.web.model.interfaces.file.ISysFileStorageType;
-import com.kar20240901.be.base.web.model.interfaces.file.ISysFileUploadType;
+import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileStorageType;
+import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileUploadType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class SysFilePageSelfDTO extends MyPageDTO {
+public class BaseFilePageSelfDTO extends MyPageDTO {
 
     @Schema(description = "文件原始名（包含文件类型）")
     private String originFileName;
 
     /**
-     * {@link ISysFileUploadType}
+     * {@link IBaseFileUploadType}
      */
     @Schema(description = "文件上传类型")
     private Integer uploadType;
 
     /**
-     * {@link ISysFileStorageType}
+     * {@link IBaseFileStorageType}
      */
     @Schema(description = "存放文件的服务器类型")
     private Integer storageType;

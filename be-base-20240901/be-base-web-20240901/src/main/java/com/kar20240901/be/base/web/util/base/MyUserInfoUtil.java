@@ -79,7 +79,7 @@ public class MyUserInfoUtil {
     }
 
     // 微信用户：昵称前缀
-    public static final String WX_SYS_USER_INFO_NICKNAME_PRE = "微信用户";
+    public static final String WX_BASE_USER_INFO_NICKNAME_PRE = "微信用户";
 
     /**
      * 获取：带有昵称的 用户对象
@@ -89,14 +89,14 @@ public class MyUserInfoUtil {
 
         TempUserInfoDO tempUserInfoDO = new TempUserInfoDO();
 
-        tempUserInfoDO.setNickname(NicknameUtil.getRandomNickname(WX_SYS_USER_INFO_NICKNAME_PRE));
+        tempUserInfoDO.setNickname(NicknameUtil.getRandomNickname(WX_BASE_USER_INFO_NICKNAME_PRE));
 
         return tempUserInfoDO;
 
     }
 
     // 企业微信用户：昵称前缀
-    public static final String WX_WORK_SYS_USER_INFO_NICKNAME_PRE = "企业微信用户";
+    public static final String WX_WORK_BASE_USER_INFO_NICKNAME_PRE = "企业微信用户";
 
     /**
      * 获取：带有昵称的 用户对象
@@ -108,7 +108,7 @@ public class MyUserInfoUtil {
 
         tempUserInfoDO.setSignUpType(BaseRequestCategoryEnum.WX_WORK);
 
-        tempUserInfoDO.setNickname(NicknameUtil.getRandomNickname(WX_WORK_SYS_USER_INFO_NICKNAME_PRE));
+        tempUserInfoDO.setNickname(NicknameUtil.getRandomNickname(WX_WORK_BASE_USER_INFO_NICKNAME_PRE));
 
         return tempUserInfoDO;
 

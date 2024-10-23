@@ -243,12 +243,12 @@ public class BaseMenuServiceImpl extends ServiceImpl<BaseMenuMapper, BaseMenuDO>
         BaseMenuInfoByIdVO baseMenuInfoByIdVO = BeanUtil.copyProperties(baseMenuDO, BaseMenuInfoByIdVO.class);
 
         // 设置：角色 idSet
-        List<BaseRoleRefMenuDO> sysRoleRefMenuDOList =
+        List<BaseRoleRefMenuDO> baseRoleRefMenuDOList =
             baseRoleRefMenuService.lambdaQuery().eq(BaseRoleRefMenuDO::getMenuId, notNullId.getId())
                 .select(BaseRoleRefMenuDO::getRoleId).list();
 
         baseMenuInfoByIdVO.setRoleIdSet(
-            sysRoleRefMenuDOList.stream().map(BaseRoleRefMenuDO::getRoleId).collect(Collectors.toSet()));
+            baseRoleRefMenuDOList.stream().map(BaseRoleRefMenuDO::getRoleId).collect(Collectors.toSet()));
 
         // 处理：父级 id
         MyEntityUtil.handleParentId(baseMenuInfoByIdVO);
