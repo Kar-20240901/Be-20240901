@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "base_socket")
 @Data
-@Schema(description = "主表：socket")
+@Schema(description = "主表：socket表")
 public class BaseSocketDO extends TempEntity {
 
     @Schema(description = "协议：例如：ws://，wss:// 等")

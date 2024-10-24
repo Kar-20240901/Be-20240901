@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "base_file_storage_configuration")
 @Data
-@Schema(description = "主表：文件存储配置")
+@Schema(description = "主表：文件存储配置表")
 public class BaseFileStorageConfigurationDO extends TempEntity {
 
     @Schema(description = "文件存储配置名")

@@ -8,7 +8,7 @@ import lombok.Data;
 
 @TableName(value = "base_user_configuration")
 @Data
-@Schema(description = "主表：用户登录注册等相关配置")
+@Schema(description = "主表：用户登录注册等相关配置表")
 public class BaseUserConfigurationDO {
 
     @TableId(type = IdType.INPUT)

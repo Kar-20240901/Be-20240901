@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "base_file")
 @Data
-@Schema(description = "主表：文件")
+@Schema(description = "主表：文件表")
 public class BaseFileDO extends TempEntityTree<BaseFileDO> {
 
     @Schema(description = "归属者用户主键 id（拥有全部权限）")

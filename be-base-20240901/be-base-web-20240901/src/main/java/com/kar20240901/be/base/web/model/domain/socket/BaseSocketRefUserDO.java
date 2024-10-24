@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "base_socket_ref_user")
 @Data
-@Schema(description = "关联表：socket，用户")
+@Schema(description = "关联表：socket表，用户表")
 public class BaseSocketRefUserDO extends TempEntity {
 
     @Schema(description = "用户主键 id")
