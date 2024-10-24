@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class SysRequestSelfLoginRecordPageDTO extends MyPageDTO {
+public class BaseRequestSelfLoginRecordPageDTO extends MyPageDTO {
 
     @Schema(description = "请求类别")
     private BaseRequestCategoryEnum category;

@@ -1,12 +1,20 @@
 package com.kar20240901.be.base.web.exception;
 
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.extra.servlet.ServletUtil;
 import cn.hutool.json.JSONUtil;
+import com.kar20240901.be.base.web.model.domain.request.BaseRequestDO;
+import com.kar20240901.be.base.web.model.domain.request.BaseRequestInfoDO;
 import com.kar20240901.be.base.web.model.vo.base.R;
+import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
+import com.kar20240901.be.base.web.util.base.Ip2RegionUtil;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyExceptionUtil;
+import com.kar20240901.be.base.web.util.base.MyUserUtil;
+import com.kar20240901.be.base.web.util.base.RequestUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import java.lang.reflect.Method;
+import java.util.Date;
 import java.util.Map;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -110,7 +118,7 @@ public class ExceptionAdvice {
         R<String> r = R.errorOrigin(TempBizCodeEnum.INSUFFICIENT_PERMISSIONS);
 
         // 处理：请求
-        handleRequest(httpServletRequest, null, MyEntityUtil.getNotNullStr(JSONUtil.toJsonStr(r)), "");
+        handleRequest(httpServletRequest, null, JSONUtil.toJsonStr(r), "");
 
         return r;
 
@@ -148,6 +156,49 @@ public class ExceptionAdvice {
      */
     public static void handleRequest(HttpServletRequest httpServletRequest, @Nullable Operation operation,
         String errorMsg, String requestParam) {
+
+        Date date = new Date();
+
+        Long currentUserIdDefault = MyUserUtil.getCurrentUserIdDefault();
+
+        String uri = httpServletRequest.getRequestURI();
+
+        BaseRequestDO baseRequestDO = new BaseRequestDO();
+
+        BaseRequestInfoDO baseRequestInfoDO = new BaseRequestInfoDO();
+
+        Long id = IdGeneratorUtil.nextId();
+
+        baseRequestDO.setId(id);
+        baseRequestInfoDO.setId(id);
+
+        baseRequestDO.setUri(uri);
+        baseRequestDO.setCostMs(0L);
+        baseRequestDO.setName(operation == null ? "" : operation.summary());
+
+        baseRequestDO.setCategory(RequestUtil.getRequestCategoryEnum(httpServletRequest));
+        baseRequestDO.setIp(ServletUtil.getClientIP(httpServletRequest));
+        baseRequestDO.setRegion(Ip2RegionUtil.getRegion(baseRequestDO.getIp()));
+
+        baseRequestDO.setSuccessFlag(false);
+
+        // 设置：类型
+        baseRequestDO.setType(operation == null ? "" : MyEntityUtil.getNotNullAndTrimStr(operation.description()));
+
+        baseRequestDO.setCreateId(currentUserIdDefault);
+        baseRequestDO.setCreateTime(date);
+        baseRequestDO.setUpdateId(currentUserIdDefault);
+        baseRequestDO.setUpdateTime(date);
+
+        baseRequestDO.setEnableFlag(true);
+        baseRequestDO.setRemark("");
+
+        baseRequestInfoDO.setErrorMsg(MyEntityUtil.getNotNullStr(errorMsg));
+        baseRequestInfoDO.setRequestParam(requestParam);
+        baseRequestInfoDO.setResponseValue("");
+
+        // 添加一个：请求数据
+        RequestUtil.add(baseRequestDO, baseRequestInfoDO);
 
     }
 

@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class SysRequestPageDTO extends MyPageDTO {
+public class BaseRequestPageDTO extends MyPageDTO {
 
     @Schema(description = "请求的uri")
     private String uri;

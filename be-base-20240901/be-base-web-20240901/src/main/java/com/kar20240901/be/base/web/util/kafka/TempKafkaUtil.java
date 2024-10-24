@@ -1,9 +1,7 @@
 package com.kar20240901.be.base.web.util.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kar20240901.be.base.web.model.domain.kafka.TempKafkaUserInfoDO;
 import com.kar20240901.be.base.web.model.enums.kafka.BaseKafkaTopicEnum;
-import com.kar20240901.be.base.web.model.enums.kafka.TempKafkaTopicEnum;
 import com.kar20240901.be.base.web.model.interfaces.kafka.IKafkaTopic;
 import java.util.Set;
 import lombok.SneakyThrows;
@@ -43,15 +41,6 @@ public class TempKafkaUtil {
             kafkaTemplate.send(iKafkaTopic.name(), objectMapper.writeValueAsString(data));
 
         }
-
-    }
-
-    /**
-     * 发送消息：更新：用户信息
-     */
-    public static void sendTempUpdateUserInfoTopic(TempKafkaUserInfoDO tempKafkaUserInfoDO) {
-
-        send(TempKafkaTopicEnum.TEMP_UPDATE_USER_LAST_ACTIVE, tempKafkaUserInfoDO);
 
     }
 

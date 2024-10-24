@@ -1,20 +1,24 @@
 package com.kar20240901.be.base.web.util.base;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.map.MapUtil;
+import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
-import com.kar20240901.be.base.web.model.domain.kafka.TempKafkaUserInfoDO;
 import com.kar20240901.be.base.web.model.enums.base.BaseRequestCategoryEnum;
 import com.kar20240901.be.base.web.service.base.BaseUserInfoService;
-import com.kar20240901.be.base.web.util.kafka.TempKafkaUtil;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import javax.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -29,22 +33,79 @@ public class MyUserInfoUtil {
 
     }
 
-    /**
-     * 更新用户信息
-     */
-    public static void updateUserInfo(Long userId, Date lastActiveTime, String lastIp) {
+    private static ConcurrentHashMap<Long, TempUserInfoDO> USER_INFO_DO_MAP = new ConcurrentHashMap<>();
 
-        if (userId == null) {
+    /**
+     * 添加 备注：如果为 null，则不会更新该字段
+     */
+    public static void add(Long id, @Nullable Date lastActiveTime, @Nullable String lastIp,
+        @Nullable String lastRegion) {
+
+        if (id == null) {
             return;
         }
 
-        TempKafkaUserInfoDO tempKafkaUserInfoDO = new TempKafkaUserInfoDO();
+        if (TempConstant.NEGATIVE_ONE_LONG.equals(id)) {
+            return;
+        }
 
-        tempKafkaUserInfoDO.setId(userId);
-        tempKafkaUserInfoDO.setLastActiveTime(lastActiveTime);
-        tempKafkaUserInfoDO.setLastIp(lastIp);
+        if (lastActiveTime == null && lastIp == null && lastRegion == null) {
+            return;
+        }
 
-        TempKafkaUtil.sendTempUpdateUserInfoTopic(tempKafkaUserInfoDO);
+        TempUserInfoDO tempUserInfoDO = new TempUserInfoDO();
+
+        tempUserInfoDO.setId(id);
+
+        tempUserInfoDO.setLastActiveTime(lastActiveTime);
+        tempUserInfoDO.setLastIp(lastIp);
+        tempUserInfoDO.setLastRegion(lastRegion);
+
+        // 添加
+        add(tempUserInfoDO);
+
+    }
+
+    /**
+     * 添加
+     */
+    public static void add(TempUserInfoDO tempUserInfoDO) {
+
+        if (tempUserInfoDO.getId() == null) {
+            return;
+        }
+
+        USER_INFO_DO_MAP.put(tempUserInfoDO.getId(), tempUserInfoDO);
+
+    }
+
+    /**
+     * 定时任务，保存数据
+     */
+    @PreDestroy
+    @Scheduled(fixedDelay = 5000)
+    public void scheduledSava() {
+
+        ConcurrentHashMap<Long, TempUserInfoDO> tempUserInfoDoMap;
+
+        synchronized (USER_INFO_DO_MAP) {
+
+            if (CollUtil.isEmpty(USER_INFO_DO_MAP)) {
+                return;
+            }
+
+            tempUserInfoDoMap = USER_INFO_DO_MAP;
+            USER_INFO_DO_MAP = new ConcurrentHashMap<>();
+
+        }
+
+        // 目的：防止还有程序往：tempMap，里面添加数据，所以这里等待一会
+        MyThreadUtil.schedule(() -> {
+
+            // 批量更新数据
+            baseUserInfoService.updateBatchById(tempUserInfoDoMap.values());
+
+        }, DateUtil.offsetMillisecond(new Date(), 1500));
 
     }
 

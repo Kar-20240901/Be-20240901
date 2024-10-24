@@ -17,8 +17,6 @@ public enum TempKafkaTopicEnum implements IKafkaTopic {
 
     // 用户相关 ↓
 
-    TEMP_UPDATE_USER_LAST_ACTIVE // 更新：用户最近活动信息
-
     // 用户相关 ↑
 
     ;

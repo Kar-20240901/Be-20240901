@@ -161,9 +161,9 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
             }
 
-            int sum = USER_ID_CHANNEL_MAP.values().stream().mapToInt(it -> it.values().size()).sum();
+            //            int sum = USER_ID_CHANNEL_MAP.values().stream().mapToInt(it -> it.values().size()).sum();
 
-            log.info("NettyWebSocket 当前连接总数：{}", sum);
+            //            log.info("NettyWebSocket 当前连接总数：{}", sum);
 
         }, DateUtil.offsetMillisecond(new Date(), 1500));
 

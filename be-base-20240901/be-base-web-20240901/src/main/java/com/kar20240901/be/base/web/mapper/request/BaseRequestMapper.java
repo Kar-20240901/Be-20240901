@@ -1,10 +1,10 @@
 package com.kar20240901.be.base.web.mapper.request;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.kar20240901.be.base.web.model.domain.request.SysRequestDO;
+import com.kar20240901.be.base.web.model.domain.request.BaseRequestDO;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface SysRequestMapper extends BaseMapper<SysRequestDO> {
+public interface BaseRequestMapper extends BaseMapper<BaseRequestDO> {
 
 }
