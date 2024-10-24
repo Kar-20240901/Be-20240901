@@ -1,5 +1,6 @@
 package com.kar20240901.be.base.web.exception;
 
+import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.extra.servlet.ServletUtil;
 import cn.hutool.json.JSONUtil;
@@ -59,8 +60,9 @@ public class ExceptionAdvice {
         if (method != null) {
 
             // 处理：请求
-            handleRequest(httpServletRequest, method.getAnnotation(Operation.class), e.getMessage(),
-                JSONUtil.toJsonStr(e.getBindingResult().getTarget()), JSONUtil.toJsonStr(r));
+            handleRequest(httpServletRequest, method.getAnnotation(Operation.class),
+                ExceptionUtil.stacktraceToString(e), JSONUtil.toJsonStr(e.getBindingResult().getTarget()),
+                JSONUtil.toJsonStr(r));
 
         }
 
@@ -91,7 +93,7 @@ public class ExceptionAdvice {
         R<String> r = R.errorOrigin(TempBizCodeEnum.PARAMETER_CHECK_ERROR, e.getMessage());
 
         // 处理：请求
-        handleRequest(httpServletRequest, null, e.getMessage(), "", JSONUtil.toJsonStr(r));
+        handleRequest(httpServletRequest, null, ExceptionUtil.stacktraceToString(e), "", JSONUtil.toJsonStr(r));
 
         return r;
 
@@ -122,7 +124,7 @@ public class ExceptionAdvice {
         R<String> r = R.errorOrigin(TempBizCodeEnum.INSUFFICIENT_PERMISSIONS);
 
         // 处理：请求
-        handleRequest(httpServletRequest, null, e.getMessage(), "", JSONUtil.toJsonStr(r));
+        handleRequest(httpServletRequest, null, ExceptionUtil.stacktraceToString(e), "", JSONUtil.toJsonStr(r));
 
         return r;
 
@@ -149,7 +151,7 @@ public class ExceptionAdvice {
         R<String> r = R.errorOrigin(TempBizCodeEnum.RESULT_SYS_ERROR);
 
         // 处理：请求
-        handleRequest(httpServletRequest, null, e.getMessage(), "", JSONUtil.toJsonStr(r));
+        handleRequest(httpServletRequest, null, ExceptionUtil.stacktraceToString(e), "", JSONUtil.toJsonStr(r));
 
         return r;
 

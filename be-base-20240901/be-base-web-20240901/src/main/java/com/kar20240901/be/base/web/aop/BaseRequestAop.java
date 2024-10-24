@@ -214,7 +214,7 @@ public class BaseRequestAop {
 
         String errorMsg = ExceptionUtil.stacktraceToString(e);
 
-        baseRequestInfoDO.setErrorMsg(MyEntityUtil.getNotNullStr(errorMsg));
+        baseRequestInfoDO.setErrorMsg(errorMsg);
 
         // 处理：耗时相关
         handleCostMs(costMs, baseRequestDO);

@@ -1,5 +1,6 @@
 package com.kar20240901.be.base.web.configuration.security;
 
+import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.json.JSONUtil;
 import com.kar20240901.be.base.web.exception.ExceptionAdvice;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
@@ -22,7 +23,8 @@ public class MyAuthenticationEntryPoint implements AuthenticationEntryPoint {
         // 尚未登录，请先登录
         R<?> r = ResponseUtil.out(response, TempBizCodeEnum.NOT_LOGGED_IN_YET);
 
-        ExceptionAdvice.handleRequest(request, null, authException.getMessage(), "", JSONUtil.toJsonStr(r));
+        ExceptionAdvice.handleRequest(request, null, ExceptionUtil.stacktraceToString(authException), "",
+            JSONUtil.toJsonStr(r));
 
     }
 
