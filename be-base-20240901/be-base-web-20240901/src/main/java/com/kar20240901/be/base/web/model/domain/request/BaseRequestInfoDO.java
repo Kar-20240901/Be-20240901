@@ -15,6 +15,15 @@ public class BaseRequestInfoDO {
     @Schema(description = "主键id")
     private Long id;
 
+    @Schema(description = "冗余字段：请求的 uri")
+    private String uri;
+
+    @Schema(description = "冗余字段：耗时（毫秒）")
+    private Long costMs;
+
+    @Schema(description = "冗余字段：请求是否成功")
+    private Boolean successFlag;
+
     @Schema(description = "失败信息")
     private String errorMsg;
 

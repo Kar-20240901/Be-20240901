@@ -52,6 +52,10 @@ public class RequestUtil {
 
         BASE_REQUEST_DO_INSERT_LIST.add(baseRequestDO);
 
+        baseRequestInfoDO.setUri(baseRequestDO.getUri());
+        baseRequestInfoDO.setCostMs(baseRequestDO.getCostMs());
+        baseRequestInfoDO.setSuccessFlag(baseRequestDO.getSuccessFlag());
+
         BASE_REQUEST_INFO_DO_INSERT_LIST.add(baseRequestInfoDO);
 
     }
