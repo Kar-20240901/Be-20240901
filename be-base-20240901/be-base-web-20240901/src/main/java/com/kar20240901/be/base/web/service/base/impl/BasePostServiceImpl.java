@@ -6,6 +6,7 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
@@ -146,9 +147,15 @@ public class BasePostServiceImpl extends ServiceImpl<BasePostMapper, BasePostDO>
 
         return lambdaQuery().like(StrUtil.isNotBlank(dto.getName()), BasePostDO::getName, dto.getName())
             .eq(dto.getEnableFlag() != null, TempEntity::getEnableFlag, dto.getEnableFlag())
-            .select(TempEntity::getId, TempEntityTree::getPid, BasePostDO::getName, TempEntityNoId::getEnableFlag,
-                BasePostDO::getUuid, TempEntityTree::getOrderNo).orderByDesc(TempEntityTree::getOrderNo)
-            .orderByAsc(TempEntity::getId).page(dto.pageOrder());
+            .select(true, getMyPageSelectList()).orderByDesc(TempEntityTree::getOrderNo).orderByAsc(TempEntity::getId)
+            .page(dto.pageOrder());
+
+    }
+
+    private static ArrayList<SFunction<BasePostDO, ?>> getMyPageSelectList() {
+
+        return CollUtil.newArrayList(TempEntity::getId, TempEntityTree::getPid, BasePostDO::getName,
+            TempEntityNoId::getEnableFlag, BasePostDO::getUuid, TempEntityTree::getOrderNo);
 
     }
 
@@ -167,9 +174,9 @@ public class BasePostServiceImpl extends ServiceImpl<BasePostMapper, BasePostDO>
 
         MyThreadUtil.execute(() -> {
 
-            Page<BasePostDO> page = lambdaQuery().select(TempEntity::getId, TempEntityTree::getPid, BasePostDO::getName,
-                    TempEntityNoId::getEnableFlag, BasePostDO::getUuid, TempEntityTree::getOrderNo)
-                .orderByDesc(TempEntityTree::getOrderNo).orderByAsc(TempEntity::getId).page(dto.pageOrder());
+            Page<BasePostDO> page =
+                lambdaQuery().select(true, getMyPageSelectList()).orderByDesc(TempEntityTree::getOrderNo)
+                    .orderByAsc(TempEntity::getId).page(dto.pageOrder());
 
             allListCallBack.setValue(page.getRecords());
 

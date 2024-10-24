@@ -260,13 +260,13 @@ public class MyTreeUtil {
 
         for (T item : listMap.values()) {
 
-            Long parentId = item.getPid();
+            Long pid = item.getPid();
 
-            if (parentId == null) { // 如果不存在，父级 id，则不处理
+            if (pid == null) { // 如果不存在，父级 id，则不处理
                 continue;
             }
 
-            if (listMap.get(parentId).getId() == null) { // 如果：不存在该父节点，则表示是：顶层节点
+            if (listMap.get(pid).getId() == null) { // 如果：不存在该父节点，则表示是：顶层节点
 
                 resultList.add(item); // 添加：顶层节点
 

@@ -12,6 +12,7 @@ import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -64,6 +65,19 @@ public class BaseFileController {
     @PostMapping("/page/self")
     public R<Page<BaseFileDO>> myPageSelf(@RequestBody @Valid BaseFilePageSelfDTO dto) {
         return R.okData(baseService.myPageSelf(dto));
+    }
+
+    @Operation(summary = "查询：树结构")
+    @PostMapping("/page/tree")
+    @PreAuthorize("hasAuthority('baseFile:page')")
+    public R<List<BaseFileDO>> tree(@RequestBody @Valid BaseFilePageDTO dto) {
+        return R.okData(baseService.tree(dto));
+    }
+
+    @Operation(summary = "查询：树结构-自我")
+    @PostMapping("/page/tree/self")
+    public R<List<BaseFileDO>> treeSelf(@RequestBody @Valid BaseFilePageSelfDTO dto) {
+        return R.okData(baseService.treeSelf(dto));
     }
 
 }

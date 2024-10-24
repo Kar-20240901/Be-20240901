@@ -9,6 +9,7 @@ import com.kar20240901.be.base.web.model.dto.file.BaseFilePageDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadDTO;
 import com.kar20240901.be.base.web.model.vo.base.LongObjectMapVO;
+import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 public interface BaseFileService extends IService<BaseFileDO> {
@@ -24,5 +25,9 @@ public interface BaseFileService extends IService<BaseFileDO> {
     Page<BaseFileDO> myPage(BaseFilePageDTO dto);
 
     Page<BaseFileDO> myPageSelf(BaseFilePageSelfDTO dto);
+
+    List<BaseFileDO> tree(BaseFilePageDTO dto);
+
+    List<BaseFileDO> treeSelf(BaseFilePageSelfDTO dto);
 
 }

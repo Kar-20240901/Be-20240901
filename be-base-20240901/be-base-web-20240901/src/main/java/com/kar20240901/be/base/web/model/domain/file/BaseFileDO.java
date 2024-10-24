@@ -1,7 +1,8 @@
 package com.kar20240901.be.base.web.model.domain.file;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.kar20240901.be.base.web.model.domain.base.TempEntity;
+import com.kar20240901.be.base.web.model.domain.base.TempEntityTree;
 import com.kar20240901.be.base.web.model.enums.file.BaseFileTypeEnum;
 import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileStorageType;
 import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileUploadType;
@@ -13,7 +14,7 @@ import lombok.EqualsAndHashCode;
 @TableName(value = "base_file")
 @Data
 @Schema(description = "主表：文件")
-public class BaseFileDO extends TempEntity {
+public class BaseFileDO extends TempEntityTree<BaseFileDO> {
 
     @Schema(description = "归属者用户主键 id（拥有全部权限）")
     private Long belongId;
@@ -50,6 +51,10 @@ public class BaseFileDO extends TempEntity {
      */
     @Schema(description = "存放文件的服务器类型")
     private Integer storageType;
+
+    @TableField(exist = false)
+    @Schema(description = "排序号（值越大越前面，默认为 0）")
+    private Integer orderNo;
 
     @Schema(description = "上级文件夹的文件主键 id，默认为 0")
     private Long pid;

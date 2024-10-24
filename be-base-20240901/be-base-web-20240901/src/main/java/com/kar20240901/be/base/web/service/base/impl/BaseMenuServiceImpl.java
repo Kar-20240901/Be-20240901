@@ -6,6 +6,7 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
@@ -172,10 +173,16 @@ public class BaseMenuServiceImpl extends ServiceImpl<BaseMenuMapper, BaseMenuDO>
             .eq(dto.getEnableFlag() != null, TempEntity::getEnableFlag, dto.getEnableFlag())
             .eq(dto.getLinkFlag() != null, BaseMenuDO::getLinkFlag, dto.getLinkFlag())
             .eq(dto.getShowFlag() != null, BaseMenuDO::getShowFlag, dto.getShowFlag())
-            .select(TempEntity::getId, TempEntityTree::getPid, BaseMenuDO::getName, BaseMenuDO::getPath,
-                BaseMenuDO::getRouter, BaseMenuDO::getShowFlag, TempEntityNoId::getEnableFlag, BaseMenuDO::getRedirect,
-                BaseMenuDO::getUuid, TempEntityTree::getOrderNo, BaseMenuDO::getIcon)
-            .orderByDesc(TempEntityTree::getOrderNo).orderByAsc(TempEntity::getId).page(dto.pageOrder());
+            .select(true, getMyPageSelectList()).orderByDesc(TempEntityTree::getOrderNo).orderByAsc(TempEntity::getId)
+            .page(dto.pageOrder());
+
+    }
+
+    private static ArrayList<SFunction<BaseMenuDO, ?>> getMyPageSelectList() {
+
+        return CollUtil.newArrayList(TempEntity::getId, TempEntityTree::getPid, BaseMenuDO::getName,
+            BaseMenuDO::getPath, BaseMenuDO::getRouter, BaseMenuDO::getShowFlag, TempEntityNoId::getEnableFlag,
+            BaseMenuDO::getRedirect, BaseMenuDO::getUuid, TempEntityTree::getOrderNo, BaseMenuDO::getIcon);
 
     }
 

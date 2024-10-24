@@ -1,4 +1,4 @@
-package com.kar20240901.be.base.web.controller.file;
+package com.kar20240901.be.base.web.configuration.file;
 
 import com.kar20240901.be.base.web.model.configuration.file.IBaseFileStorage;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
