@@ -337,7 +337,7 @@ CREATE TABLE IF NOT EXISTS `base_file`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci
-  ROW_FORMAT = DYNAMIC COMMENT ='v20240901：主表：文件';
+  ROW_FORMAT = DYNAMIC COMMENT ='v20240901：主表：文件表';
 
 -- 正在导出表  be_base_20240901.base_file 的数据：~0 rows (大约)
 
@@ -360,7 +360,7 @@ CREATE TABLE IF NOT EXISTS `base_file_auth`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci
-  ROW_FORMAT = DYNAMIC COMMENT ='v20240901：子表：文件操作权限，主表：文件';
+  ROW_FORMAT = DYNAMIC COMMENT ='v20240901：子表：文件操作权限表，主表：文件表';
 
 -- 正在导出表  be_base_20240901.base_file_auth 的数据：~0 rows (大约)
 
@@ -387,7 +387,7 @@ CREATE TABLE IF NOT EXISTS `base_file_storage_configuration`
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240901：主表：文件存储配置';
+  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240901：主表：文件存储配置表';
 
 -- 正在导出表  be_base_20240901.base_file_storage_configuration 的数据：~0 rows (大约)
 
@@ -534,6 +534,32 @@ INSERT INTO `base_post_ref_user` (`post_id`, `user_id`)
 VALUES (240912142923006178, 240902154357005281),
        (240912142923006178, 240902163618005502),
        (240912142923006178, 240912095958005834);
+
+-- 导出  表 be_base_20240901.base_request 结构
+CREATE TABLE IF NOT EXISTS `base_request`
+(
+    `id`           bigint                                                        NOT NULL,
+    `create_id`    bigint                                                        NOT NULL,
+    `create_time`  datetime                                                      NOT NULL,
+    `update_id`    bigint                                                        NOT NULL,
+    `update_time`  datetime                                                      NOT NULL,
+    `enable_flag`  tinyint(1)                                                    NOT NULL COMMENT '是否启用',
+    `remark`       varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '备注',
+    `uri`          varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '请求的uri',
+    `name`         varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '接口名（备用）',
+    `cost_ms`      bigint                                                        NOT NULL COMMENT '耗时（毫秒）',
+    `category`     int                                                           NOT NULL COMMENT '请求类别',
+    `ip`           varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'ip',
+    `region`       varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'Ip2RegionUtil.getRegion() 获取到的 ip所处区域',
+    `success_flag` tinyint(1)                                                    NOT NULL COMMENT '请求是否成功',
+    `type`         varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NOT NULL COMMENT '请求类型',
+    PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci
+  ROW_FORMAT = DYNAMIC COMMENT ='v20240901：主表：请求表';
+
+-- 正在导出表  be_base_20240901.base_request 的数据：~0 rows (大约)
 
 -- 导出  表 be_base_20240901.base_role 结构
 CREATE TABLE IF NOT EXISTS `base_role`
@@ -752,7 +778,7 @@ CREATE TABLE IF NOT EXISTS `base_socket`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci
-  ROW_FORMAT = DYNAMIC COMMENT ='v20240901：主表：socket';
+  ROW_FORMAT = DYNAMIC COMMENT ='v20240901：主表：socket表';
 
 -- 正在导出表  be_base_20240901.base_socket 的数据：~2 rows (大约)
 INSERT INTO `base_socket` (`id`, `create_id`, `create_time`, `update_id`, `update_time`,
