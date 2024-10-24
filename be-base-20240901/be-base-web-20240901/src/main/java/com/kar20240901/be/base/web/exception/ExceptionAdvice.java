@@ -59,7 +59,8 @@ public class ExceptionAdvice {
         if (method != null) {
 
             // 处理：请求
-            handleRequest(httpServletRequest, null, MyEntityUtil.getNotNullStr(JSONUtil.toJsonStr(r)), //
+            handleRequest(httpServletRequest, method.getAnnotation(Operation.class),
+                MyEntityUtil.getNotNullStr(JSONUtil.toJsonStr(r)), //
                 MyEntityUtil.getNotNullStr(JSONUtil.toJsonStr(e.getBindingResult().getTarget())));
 
         }
