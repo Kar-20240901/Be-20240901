@@ -310,6 +310,87 @@ CREATE TABLE IF NOT EXISTS `base_email_configuration`
 
 -- 正在导出表  be_base_20240901.base_email_configuration 的数据：~0 rows (大约)
 
+-- 导出  表 be_base_20240901.base_file 结构
+CREATE TABLE IF NOT EXISTS `base_file`
+(
+    `id`               bigint                                                        NOT NULL,
+    `create_id`        bigint                                                        NOT NULL,
+    `create_time`      datetime                                                      NOT NULL,
+    `update_id`        bigint                                                        NOT NULL,
+    `update_time`      datetime                                                      NOT NULL,
+    `enable_flag`      tinyint(1)                                                    NOT NULL COMMENT '是否启用',
+    `remark`           varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '备注',
+    `belong_id`        bigint                                                        NOT NULL COMMENT '归属者用户主键 id（拥有全部权限）',
+    `bucket_name`      varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NOT NULL COMMENT '桶名，例如：be-bucket',
+    `uri`              varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '文件完整路径（包含文件类型，不包含请求端点），例如：avatar/uuid.xxx',
+    `origin_file_name` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '文件原始名（包含文件类型）',
+    `new_file_name`    varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NOT NULL COMMENT '新的文件名（包含文件类型），例如：uuid.xxx',
+    `file_ext_name`    varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NOT NULL COMMENT '文件类型（不含点），备注：这个是读取文件流的头部信息获得文件类型',
+    `extra_json`       varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '额外信息（json格式）',
+    `upload_type`      int                                                           NOT NULL COMMENT '文件上传类型：101 头像 201 文件系统-文件',
+    `storage_type`     int                                                           NOT NULL COMMENT '存放文件的服务器类型：101 阿里云oss 201 minio ',
+    `pid`              bigint                                                        NOT NULL COMMENT '上级文件夹的文件主键 id，默认为 0',
+    `type`             int                                                           NOT NULL COMMENT '类型：1 文件夹 2 文件',
+    `show_file_name`   varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '展示用的文件名，默认为：原始文件名（包含文件类型）',
+    `public_flag`      tinyint(1)                                                    NOT NULL COMMENT '是否公开访问：0 否 1 是',
+    PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci
+  ROW_FORMAT = DYNAMIC COMMENT ='v20240901：主表：文件';
+
+-- 正在导出表  be_base_20240901.base_file 的数据：~0 rows (大约)
+
+-- 导出  表 be_base_20240901.base_file_auth 结构
+CREATE TABLE IF NOT EXISTS `base_file_auth`
+(
+    `id`          bigint                                                        NOT NULL,
+    `tenant_id`   bigint                                                        NOT NULL COMMENT '租户 id',
+    `create_id`   bigint                                                        NOT NULL,
+    `create_time` datetime                                                      NOT NULL,
+    `update_id`   bigint                                                        NOT NULL,
+    `update_time` datetime                                                      NOT NULL,
+    `enable_flag` tinyint(1)                                                    NOT NULL COMMENT '是否启用',
+    `remark`      varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '备注',
+    `file_id`     bigint                                                        NOT NULL COMMENT '文件主键 id',
+    `user_id`     bigint                                                        NOT NULL COMMENT '此权限拥有者的 userId',
+    `read_flag`   tinyint(1)                                                    NOT NULL COMMENT '是否可读：0 否 1 是',
+    `write_flag`  tinyint(1)                                                    NOT NULL COMMENT '是否可写：0 否 1 是',
+    PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci
+  ROW_FORMAT = DYNAMIC COMMENT ='v20240901：子表：文件操作权限，主表：文件';
+
+-- 正在导出表  be_base_20240901.base_file_auth 的数据：~0 rows (大约)
+
+-- 导出  表 be_base_20240901.base_file_storage_configuration 结构
+CREATE TABLE IF NOT EXISTS `base_file_storage_configuration`
+(
+    `id`                       bigint                                                        NOT NULL,
+    `tenant_id`                bigint                                                        NOT NULL COMMENT '租户 id',
+    `create_id`                bigint                                                        NOT NULL,
+    `create_time`              datetime                                                      NOT NULL,
+    `update_id`                bigint                                                        NOT NULL,
+    `update_time`              datetime                                                      NOT NULL,
+    `enable_flag`              tinyint(1)                                                    NOT NULL COMMENT '是否启用',
+    `remark`                   varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '备注',
+    `name`                     varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '文件存储配置名',
+    `type`                     int                                                           NOT NULL COMMENT '文件存储类型',
+    `access_key`               varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '钥匙',
+    `secret_key`               varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '秘钥',
+    `upload_endpoint`          varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '上传的端点',
+    `public_download_endpoint` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '公开下载的端点',
+    `bucket_public_name`       varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '公开类型的桶名',
+    `bucket_private_name`      varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '私有类型的桶名',
+    `default_flag`             tinyint(1)                                                    NOT NULL COMMENT '是否默认存储',
+    PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240901：主表：文件存储配置';
+
+-- 正在导出表  be_base_20240901.base_file_storage_configuration 的数据：~0 rows (大约)
+
 -- 导出  表 be_base_20240901.base_menu 结构
 CREATE TABLE IF NOT EXISTS `base_menu`
 (
@@ -673,7 +754,12 @@ CREATE TABLE IF NOT EXISTS `base_socket`
   COLLATE = utf8mb4_0900_ai_ci
   ROW_FORMAT = DYNAMIC COMMENT ='v20240901：主表：socket';
 
--- 正在导出表  be_base_20240901.base_socket 的数据：~0 rows (大约)
+-- 正在导出表  be_base_20240901.base_socket 的数据：~2 rows (大约)
+INSERT INTO `base_socket` (`id`, `create_id`, `create_time`, `update_id`, `update_time`,
+                           `enable_flag`, `remark`, `scheme`, `host`, `port`, `path`, `type`,
+                           `mac_address`)
+VALUES (241018191117004841, -1, '2024-10-18 19:11:18', -1, '2024-10-18 19:11:18', 1, '', 'ws://',
+        '127.0.0.1', 8002, '/ws', 201, '0a-00-27-00-00-08');
 
 -- 导出  表 be_base_20240901.base_socket_ref_user 结构
 CREATE TABLE IF NOT EXISTS `base_socket_ref_user`
@@ -692,6 +778,7 @@ CREATE TABLE IF NOT EXISTS `base_socket_ref_user`
     `host`        varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NOT NULL COMMENT '冗余字段，主机',
     `port`        int                                                           NOT NULL COMMENT '冗余字段，端口',
     `path`        varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NOT NULL COMMENT '冗余字段，路径',
+    `mac_address` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '冗余字段：mac地址，用于：和 port一起判断是否是重复启动，如果是，则需要移除之前的 socket信息',
     `type`        int                                                           NOT NULL COMMENT '冗余字段，socket类型',
     `online_type` int                                                           NOT NULL COMMENT 'socket 在线状态',
     `ip`          varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'ip',
@@ -703,7 +790,7 @@ CREATE TABLE IF NOT EXISTS `base_socket_ref_user`
   COLLATE = utf8mb4_0900_ai_ci
   ROW_FORMAT = DYNAMIC COMMENT ='v20230901：关联表：socket，用户';
 
--- 正在导出表  be_base_20240901.base_socket_ref_user 的数据：~0 rows (大约)
+-- 正在导出表  be_base_20240901.base_socket_ref_user 的数据：~1 rows (大约)
 
 -- 导出  表 be_base_20240901.base_user 结构
 CREATE TABLE IF NOT EXISTS `base_user`
@@ -841,8 +928,8 @@ CREATE TABLE IF NOT EXISTS `base_user_info_0`
 -- 正在导出表  be_base_20240901.base_user_info_0 的数据：~3 rows (大约)
 INSERT INTO `base_user_info_0` (`id`, `uuid`, `nickname`, `bio`, `avatar_file_id`, `sign_up_type`,
                                 `last_active_time`, `last_ip`, `last_region`)
-VALUES (0, 'admin', 'admin', '', -1, 101, '2024-10-15 15:43:20', '0:0:0:0:0:0:0:1',
-        'ipv6#0:0:0:0:0:0:0:1'),
+VALUES (0, 'admin', 'admin', '', -1, 101, '2024-10-17 15:14:17', '127.0.0.1',
+        '0|0|0|内网IP|内网IP'),
        (240902163618005502, '91a518a5234249a8a312bbc8fb6571c2', 'nickname_kar2', '', -1, 101,
         '2024-10-15 14:38:23', '0:0:0:0:0:0:0:1', 'ipv6#0:0:0:0:0:0:0:1'),
        (240912095958005834, 'b6c7ebff8b044b60a889ed81edc8c8e9', 't1', '', -1, 101,
