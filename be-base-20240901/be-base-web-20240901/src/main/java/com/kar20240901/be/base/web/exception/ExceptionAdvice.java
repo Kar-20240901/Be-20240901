@@ -59,9 +59,8 @@ public class ExceptionAdvice {
         if (method != null) {
 
             // 处理：请求
-            handleRequest(httpServletRequest, method.getAnnotation(Operation.class),
-                MyEntityUtil.getNotNullStr(JSONUtil.toJsonStr(r)), //
-                MyEntityUtil.getNotNullStr(JSONUtil.toJsonStr(e.getBindingResult().getTarget())));
+            handleRequest(httpServletRequest, method.getAnnotation(Operation.class), e.getMessage(),
+                JSONUtil.toJsonStr(e.getBindingResult().getTarget()), JSONUtil.toJsonStr(r));
 
         }
 
@@ -92,7 +91,7 @@ public class ExceptionAdvice {
         R<String> r = R.errorOrigin(TempBizCodeEnum.PARAMETER_CHECK_ERROR, e.getMessage());
 
         // 处理：请求
-        handleRequest(httpServletRequest, null, MyEntityUtil.getNotNullStr(JSONUtil.toJsonStr(r)), "");
+        handleRequest(httpServletRequest, null, e.getMessage(), "", JSONUtil.toJsonStr(r));
 
         return r;
 
@@ -116,10 +115,14 @@ public class ExceptionAdvice {
     @ExceptionHandler(value = AccessDeniedException.class)
     public R<?> handleAccessDeniedException(AccessDeniedException e) {
 
+        Long currentUserIdDefault = MyUserUtil.getCurrentUserIdDefault();
+
+        log.info("权限不足：{}，uri：{}", currentUserIdDefault, httpServletRequest.getRequestURI());
+
         R<String> r = R.errorOrigin(TempBizCodeEnum.INSUFFICIENT_PERMISSIONS);
 
         // 处理：请求
-        handleRequest(httpServletRequest, null, JSONUtil.toJsonStr(r), "");
+        handleRequest(httpServletRequest, null, e.getMessage(), "", JSONUtil.toJsonStr(r));
 
         return r;
 
@@ -146,7 +149,7 @@ public class ExceptionAdvice {
         R<String> r = R.errorOrigin(TempBizCodeEnum.RESULT_SYS_ERROR);
 
         // 处理：请求
-        handleRequest(httpServletRequest, null, MyEntityUtil.getNotNullStr(e.getMessage()), "");
+        handleRequest(httpServletRequest, null, e.getMessage(), "", JSONUtil.toJsonStr(r));
 
         return r;
 
@@ -156,7 +159,7 @@ public class ExceptionAdvice {
      * 处理：请求
      */
     public static void handleRequest(HttpServletRequest httpServletRequest, @Nullable Operation operation,
-        String errorMsg, String requestParam) {
+        String errorMsg, String requestParam, String responseValue) {
 
         Date date = new Date();
 
@@ -195,8 +198,8 @@ public class ExceptionAdvice {
         baseRequestDO.setRemark("");
 
         baseRequestInfoDO.setErrorMsg(MyEntityUtil.getNotNullStr(errorMsg));
-        baseRequestInfoDO.setRequestParam(requestParam);
-        baseRequestInfoDO.setResponseValue("");
+        baseRequestInfoDO.setRequestParam(MyEntityUtil.getNotNullStr(requestParam));
+        baseRequestInfoDO.setResponseValue(MyEntityUtil.getNotNullStr(responseValue));
 
         // 添加一个：请求数据
         RequestUtil.add(baseRequestDO, baseRequestInfoDO);

@@ -59,7 +59,8 @@ public class BaseRequestServiceImpl extends ServiceImpl<BaseRequestMapper, BaseR
     public SysRequestAllAvgVO allAvgPro(BaseRequestPageDTO dto) {
 
         BaseRequestDO baseRequestDO =
-            getMyPageLambdaQueryChainWrapper(dto).select(BaseRequestDO::getCount, BaseRequestDO::getAvgMs).one();
+            getMyPageLambdaQueryChainWrapper(dto).select(BaseRequestDO::getCount, BaseRequestDO::getAvgMs)
+                .gt(BaseRequestDO::getCostMs, 1).one();
 
         return new SysRequestAllAvgVO(baseRequestDO.getCount(), baseRequestDO.getAvgMs());
 

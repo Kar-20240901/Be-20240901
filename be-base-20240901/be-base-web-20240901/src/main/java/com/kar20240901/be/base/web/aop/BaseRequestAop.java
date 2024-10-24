@@ -144,9 +144,21 @@ public class BaseRequestAop {
 
         } catch (Throwable e) {
 
-            handleThrowable(baseRequestDO, e, costMs, baseRequestInfoDO); // 处理：异常
+            if (e instanceof TempException) {
 
-            if (e instanceof TempException || e instanceof IllegalArgumentException) {
+                baseRequestInfoDO.setResponseValue(JSONUtil.toJsonStr(((TempException)e).getR()));
+
+                handleThrowable(baseRequestDO, e, costMs, baseRequestInfoDO); // 处理：异常
+
+                throw e;
+
+            }
+
+            if (e instanceof IllegalArgumentException) { // 参数校验异常：断言
+
+                baseRequestInfoDO.setResponseValue(JSONUtil.toJsonStr(R.errorMsgOrigin(e.getMessage())));
+
+                handleThrowable(baseRequestDO, e, costMs, baseRequestInfoDO); // 处理：异常
 
                 throw e;
 
@@ -159,6 +171,8 @@ public class BaseRequestAop {
             }
 
             MyExceptionUtil.printError(e);
+
+            handleThrowable(baseRequestDO, e, costMs, baseRequestInfoDO); // 处理：异常
 
             throw new NoLogException();
 

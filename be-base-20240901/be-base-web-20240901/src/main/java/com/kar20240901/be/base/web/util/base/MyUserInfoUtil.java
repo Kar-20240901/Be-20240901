@@ -3,6 +3,7 @@ package com.kar20240901.be.base.web.util.base;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
 import com.kar20240901.be.base.web.model.enums.base.BaseRequestCategoryEnum;
@@ -59,7 +60,16 @@ public class MyUserInfoUtil {
 
         tempUserInfoDO.setLastActiveTime(lastActiveTime);
         tempUserInfoDO.setLastIp(lastIp);
-        tempUserInfoDO.setLastRegion(lastRegion);
+
+        if (StrUtil.isBlank(lastIp)) {
+
+            tempUserInfoDO.setLastRegion(Ip2RegionUtil.getRegion(lastIp));
+
+        } else {
+
+            tempUserInfoDO.setLastRegion(lastRegion);
+
+        }
 
         // 添加
         add(tempUserInfoDO);

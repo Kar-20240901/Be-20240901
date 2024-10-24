@@ -203,8 +203,8 @@ public class SignUtil {
 
             baseUserInfoMapper.insert(tempUserInfoDO); // 保存：用户基本信息
 
-            MyUserInfoUtil.updateUserInfo(tempUserDO.getId(), tempUserInfoDO.getLastActiveTime(),
-                tempUserInfoDO.getLastIp());
+            MyUserInfoUtil.add(tempUserDO.getId(), tempUserInfoDO.getLastActiveTime(), tempUserInfoDO.getLastIp(),
+                null);
 
             return tempUserDO;
 

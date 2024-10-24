@@ -14,7 +14,7 @@ import lombok.SneakyThrows;
 public class ResponseUtil {
 
     @SneakyThrows
-    public static void out(HttpServletResponse response, IBizCode iBizCode) {
+    public static R<?> out(HttpServletResponse response, IBizCode iBizCode) {
 
         response.setContentType("application/json;charset=utf-8");
 
@@ -27,6 +27,8 @@ public class ResponseUtil {
         servletOutputStream.write(JSONUtil.toJsonStr(r).getBytes()); // json字符串，输出给前端
         servletOutputStream.flush();
         servletOutputStream.close();
+
+        return r;
 
     }
 
