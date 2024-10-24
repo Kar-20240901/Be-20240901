@@ -12,7 +12,7 @@ public class BaseJwtFilterHandler implements IJwtFilterHandler {
     @Override
     public void handleJwt(Long userId, String ip, JWT jwt) {
 
-        MyUserInfoUtil.updateUserInfo(userId, new Date(), ip);
+        MyUserInfoUtil.add(userId, new Date(), ip, null);
 
     }
 

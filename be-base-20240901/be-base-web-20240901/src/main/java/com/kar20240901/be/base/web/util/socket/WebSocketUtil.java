@@ -117,7 +117,7 @@ public class WebSocketUtil {
 
         String ip = channel.attr(NettyWebSocketServerHandler.IP_KEY).get();
 
-        MyUserInfoUtil.updateUserInfo(userId, date, ip);
+        MyUserInfoUtil.add(userId, date, ip, null);
 
         // 发送数据
         channel.writeAndFlush(new TextWebSocketFrame(jsonStr));
