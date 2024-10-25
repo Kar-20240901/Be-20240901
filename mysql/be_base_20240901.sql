@@ -559,7 +559,195 @@ CREATE TABLE IF NOT EXISTS `base_request`
   COLLATE = utf8mb4_0900_ai_ci
   ROW_FORMAT = DYNAMIC COMMENT ='v20240901：主表：请求表';
 
--- 正在导出表  be_base_20240901.base_request 的数据：~0 rows (大约)
+-- 正在导出表  be_base_20240901.base_request 的数据：~31 rows (大约)
+INSERT INTO `base_request` (`id`, `create_id`, `create_time`, `update_id`, `update_time`,
+                            `enable_flag`, `remark`, `uri`, `name`, `cost_ms`, `category`, `ip`,
+                            `region`, `success_flag`, `type`)
+VALUES (241024185212005612, 0, '2024-10-24 18:52:13', 0, '2024-10-24 18:52:13', 1, '',
+        '/base/user/manageSignInFlag', '是否允许后台登录', 165, 101, '127.0.0.1',
+        '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185213005613, 0, '2024-10-24 18:52:13', 0, '2024-10-24 18:52:13', 1, '',
+        '/base/menu/userSelfMenuList', '获取：当前用户绑定的菜单', 224, 101, '127.0.0.1',
+        '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185214005614, 0, '2024-10-24 18:52:15', 0, '2024-10-24 18:52:15', 1, '',
+        '/base/role/dictList', '下拉列表', 224, 101, '127.0.0.1', '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185214005615, 0, '2024-10-24 18:52:15', 0, '2024-10-24 18:52:15', 1, '',
+        '/base/menu/tree', '查询：树结构', 206, 101, '127.0.0.1', '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185235005616, 240902154357005281, '2024-10-24 18:52:36', 240902154357005281,
+        '2024-10-24 18:52:36', 1, '', '/sign/userName/signIn/password', '账号密码登录', 585, 101,
+        '127.0.0.1', '0|0|0|内网IP|内网IP', 1, 'SIGN_IN'),
+       (241024185236005617, 240902154357005281, '2024-10-24 18:52:36', 240902154357005281,
+        '2024-10-24 18:52:36', 1, '', '/base/user/manageSignInFlag', '是否允许后台登录', 127, 101,
+        '127.0.0.1', '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185236005618, 240902154357005281, '2024-10-24 18:52:37', 240902154357005281,
+        '2024-10-24 18:52:37', 1, '', '/base/menu/userSelfMenuList', '获取：当前用户绑定的菜单', 223,
+        101, '127.0.0.1', '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185239005619, 240902154357005281, '2024-10-24 18:52:39', 240902154357005281,
+        '2024-10-24 18:52:39', 1, '', '/base/menu/tree', '查询：树结构', 119, 101, '127.0.0.1',
+        '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185239005620, 240902154357005281, '2024-10-24 18:52:40', 240902154357005281,
+        '2024-10-24 18:52:40', 1, '', '/base/role/dictList', '下拉列表', 80, 101, '127.0.0.1',
+        '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185240005621, 240902154357005281, '2024-10-24 18:52:41', 240902154357005281,
+        '2024-10-24 18:52:41', 1, '', '/base/menu/infoById', '通过主键id，查看详情', 214, 101,
+        '127.0.0.1', '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185245005622, 240902163618005502, '2024-10-24 18:52:46', 240902163618005502,
+        '2024-10-24 18:52:46', 1, '', '/sign/userName/signIn/password', '账号密码登录', 247, 101,
+        '127.0.0.1', '0|0|0|内网IP|内网IP', 1, 'SIGN_IN'),
+       (241024185245005623, 240902163618005502, '2024-10-24 18:52:46', 240902163618005502,
+        '2024-10-24 18:52:46', 1, '', '/base/user/manageSignInFlag', '是否允许后台登录', 41, 101,
+        '127.0.0.1', '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185246005624, 240902163618005502, '2024-10-24 18:52:46', 240902163618005502,
+        '2024-10-24 18:52:46', 1, '', '/base/menu/userSelfMenuList', '获取：当前用户绑定的菜单', 118,
+        101, '127.0.0.1', '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185248005625, 240902163618005502, '2024-10-24 18:52:49', 240902163618005502,
+        '2024-10-24 18:52:49', 1, '', '/base/menu/tree', '查询：树结构', 120, 101, '127.0.0.1',
+        '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185248005626, 240902163618005502, '2024-10-24 18:52:49', 240902163618005502,
+        '2024-10-24 18:52:49', 1, '', '/base/role/dictList', '下拉列表', 111, 101, '127.0.0.1',
+        '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185250005627, 240902163618005502, '2024-10-24 18:52:50', 240902163618005502,
+        '2024-10-24 18:52:50', 1, '', '/base/menu/infoById', '通过主键id，查看详情', 158, 101,
+        '127.0.0.1', '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185253005628, 240902163618005502, '2024-10-24 18:52:53', 240902163618005502,
+        '2024-10-24 18:52:53', 1, '', '/base/menu/dictTreeList', '下拉树形列表', 125, 101,
+        '127.0.0.1', '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185253005629, 240902163618005502, '2024-10-24 18:52:53', 240902163618005502,
+        '2024-10-24 18:52:53', 1, '', '/base/user/dictList', '下拉列表', 210, 101, '127.0.0.1',
+        '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185253005630, 240902163618005502, '2024-10-24 18:52:53', 240902163618005502,
+        '2024-10-24 18:52:53', 1, '', '/base/auth/dictList', '下拉列表', 131, 101, '127.0.0.1',
+        '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185253005631, 240902163618005502, '2024-10-24 18:52:53', 240902163618005502,
+        '2024-10-24 18:52:53', 1, '', '/base/role/page', '分页排序查询', 316, 101, '127.0.0.1',
+        '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185255005632, 240902163618005502, '2024-10-24 18:52:56', 240902163618005502,
+        '2024-10-24 18:52:56', 1, '', '/base/role/infoById', '通过主键id，查看详情', 376, 101,
+        '127.0.0.1', '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185303005633, 240902163618005502, '2024-10-24 18:53:03', 240902163618005502,
+        '2024-10-24 18:53:03', 1, '', '/base/role/infoById', '通过主键id，查看详情', 349, 101,
+        '127.0.0.1', '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185333005634, 240902163618005502, '2024-10-24 18:53:34', 240902163618005502,
+        '2024-10-24 18:53:34', 1, '', '/base/role/dictList', '下拉列表', 105, 101, '127.0.0.1',
+        '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185333005635, 240902163618005502, '2024-10-24 18:53:34', 240902163618005502,
+        '2024-10-24 18:53:34', 1, '', '/base/user/page', '分页排序查询', 896, 101, '127.0.0.1',
+        '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185335005636, 240902163618005502, '2024-10-24 18:53:36', 240902163618005502,
+        '2024-10-24 18:53:36', 1, '', '/base/user/infoById', '', 0, 101, '127.0.0.1',
+        '0|0|0|内网IP|内网IP', 0, ''),
+       (241024185637005722, 240902163618005502, '2024-10-24 18:56:38', 240902163618005502,
+        '2024-10-24 18:56:38', 1, '', '/base/user/manageSignInFlag', '是否允许后台登录', 152, 101,
+        '127.0.0.1', '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185638005723, 240902163618005502, '2024-10-24 18:56:38', 240902163618005502,
+        '2024-10-24 18:56:38', 1, '', '/base/menu/userSelfMenuList', '获取：当前用户绑定的菜单', 291,
+        101, '127.0.0.1', '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185639005724, 240902163618005502, '2024-10-24 18:56:40', 240902163618005502,
+        '2024-10-24 18:56:40', 1, '', '/base/role/dictList', '下拉列表', 169, 101, '127.0.0.1',
+        '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185639005725, 240902163618005502, '2024-10-24 18:56:40', 240902163618005502,
+        '2024-10-24 18:56:40', 1, '', '/base/user/page', '分页排序查询', 899, 101, '127.0.0.1',
+        '0|0|0|内网IP|内网IP', 1, ''),
+       (241024185642005726, 240902163618005502, '2024-10-24 18:56:43', 240902163618005502,
+        '2024-10-24 18:56:43', 1, '', '/base/user/infoById', '', 0, 101, '127.0.0.1',
+        '0|0|0|内网IP|内网IP', 0, ''),
+       (241024185656005727, 240902163618005502, '2024-10-24 18:56:57', 240902163618005502,
+        '2024-10-24 18:56:57', 1, '', '/base/user/infoById', '', 0, 101, '127.0.0.1',
+        '0|0|0|内网IP|内网IP', 0, '');
+
+-- 导出  表 be_base_20240901.base_request_info 结构
+CREATE TABLE IF NOT EXISTS `base_request_info`
+(
+    `id`             bigint                                                        NOT NULL,
+    `uri`            varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '请求的uri',
+    `cost_ms`        bigint                                                        NOT NULL COMMENT '耗时（毫秒）',
+    `success_flag`   tinyint(1)                                                    NOT NULL COMMENT '请求是否成功',
+    `error_msg`      longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci     NOT NULL COMMENT '失败信息',
+    `request_param`  longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci     NOT NULL COMMENT '请求的参数',
+    `response_value` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci     NOT NULL COMMENT '请求返回的值',
+    PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci
+  ROW_FORMAT = DYNAMIC COMMENT ='v20240901：子表：请求详情表，主表：请求表';
+
+-- 正在导出表  be_base_20240901.base_request_info 的数据：~31 rows (大约)
+INSERT INTO `base_request_info` (`id`, `uri`, `cost_ms`, `success_flag`, `error_msg`,
+                                 `request_param`, `response_value`)
+VALUES (241024185212005612, '/base/user/manageSignInFlag', 165, 1, '', '{}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":true,"service":"be-base-web-20240901"}'),
+       (241024185213005613, '/base/menu/userSelfMenuList', 224, 1, '', '{}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":[{"name":"系统管理","path":"/base","icon":"ri:settings-3-line","showFlag":true,"router":"","redirect":"","uuid":"Base","orderNo":10000,"pid":0,"id":1},{"name":"菜单管理","path":"/base/menu","icon":"ep:menu","showFlag":true,"router":"","redirect":"","uuid":"BaseMenu","orderNo":10000,"pid":1,"id":2},{"name":"角色管理","path":"/base/role","icon":"ri:file-user-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseRole","orderNo":9900,"pid":1,"id":240823111516002532},{"name":"权限管理","path":"/base/auth","icon":"ri:key-2-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseAuth","orderNo":9800,"pid":1,"id":240823140711002641},{"name":"用户管理","path":"/base/user","icon":"ri:user-settings-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseUser","orderNo":9700,"pid":1,"id":240823162121002971},{"name":"区域管理","path":"/base/area","icon":"ri:compass-3-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseArea","orderNo":9600,"pid":1,"id":240912092930005831},{"name":"部门管理","path":"/base/dept","icon":"ri:cup-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseDept","orderNo":9500,"pid":1,"id":240912093214005832},{"name":"岗位管理","path":"/base/post","icon":"ep:briefcase","showFlag":true,"router":"","redirect":"","uuid":"BasePost","orderNo":9400,"pid":1,"id":240912094324005833},{"name":"参数管理","path":"/base/param","icon":"ri:album-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseParam","orderNo":9300,"pid":1,"id":240924112136000441},{"name":"字典管理","path":"/base/dict","icon":"ri:book-2-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseDict","orderNo":9200,"pid":1,"id":240924112334000442}],"service":"be-base-web-20240901"}'),
+       (241024185214005614, '/base/role/dictList', 224, 1, '', '{}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":{"records":[{"id":240830160154004401,"name":"管理员"},{"id":240830160647004402,"name":"默认角色"}],"total":2,"size":10,"current":1},"service":"be-base-web-20240901"}'),
+       (241024185214005615, '/base/menu/tree', 206, 1, '',
+        '{"BaseMenuPageDTO":"{\\"current\\":1,\\"pageSize\\":10}"}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":[{"name":"系统管理","path":"/base","icon":"ri:settings-3-line","showFlag":true,"router":"","redirect":"","uuid":"Base","orderNo":10000,"pid":0,"children":[{"name":"菜单管理","path":"/base/menu","icon":"ep:menu","showFlag":true,"router":"","redirect":"","uuid":"BaseMenu","orderNo":10000,"pid":1,"id":2,"enableFlag":true},{"name":"角色管理","path":"/base/role","icon":"ri:file-user-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseRole","orderNo":9900,"pid":1,"id":240823111516002532,"enableFlag":true},{"name":"权限管理","path":"/base/auth","icon":"ri:key-2-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseAuth","orderNo":9800,"pid":1,"id":240823140711002641,"enableFlag":true},{"name":"用户管理","path":"/base/user","icon":"ri:user-settings-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseUser","orderNo":9700,"pid":1,"id":240823162121002971,"enableFlag":true},{"name":"区域管理","path":"/base/area","icon":"ri:compass-3-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseArea","orderNo":9600,"pid":1,"id":240912092930005831,"enableFlag":true},{"name":"部门管理","path":"/base/dept","icon":"ri:cup-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseDept","orderNo":9500,"pid":1,"id":240912093214005832,"enableFlag":true},{"name":"岗位管理","path":"/base/post","icon":"ep:briefcase","showFlag":true,"router":"","redirect":"","uuid":"BasePost","orderNo":9400,"pid":1,"id":240912094324005833,"enableFlag":true},{"name":"参数管理","path":"/base/param","icon":"ri:album-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseParam","orderNo":9300,"pid":1,"id":240924112136000441,"enableFlag":true},{"name":"字典管理","path":"/base/dict","icon":"ri:book-2-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseDict","orderNo":9200,"pid":1,"id":240924112334000442,"enableFlag":true}],"id":1,"enableFlag":true}],"service":"be-base-web-20240901"}'),
+       (241024185235005616, '/sign/userName/signIn/password', 585, 1, '',
+        '{"SignUserNameSignInPasswordDTO":"{\\"password\\":\\"CVXZHunOScuCut1Ho7xHtwBE149ba2t4f9geQLp/r2K63RbquBn8/psi9oM6/uev3BKpB2ReGjrV0Zg7PxkcFkfii/97XWKTiFhi3GnxLR7m0wUbxoYVzastpaI4nihqFg3ilbvciAnl++efZQBcb4XrZ814Vw0jS9121b7qTo0=\\",\\"username\\":\\"kar1\\"}"}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":{"jwt":"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3Mjk4NTM1NTYsInVzZXJJZCI6MjQwOTAyMTU0MzU3MDA1MjgxLCJ3eEFwcElkIjoiIiwid3hPcGVuSWQiOiIifQ.LIriOssWEO6VA2ZO_Bzn-OdtAWiW3robVhYtmjjaNr8","jwtExpireTs":1729852956304,"jwtRefreshToken":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjI0MDkwMjE1NDM1NzAwNTI4MSwid3hBcHBJZCI6IiIsInd4T3BlbklkIjoiIn0.ijKKD5vMJ7qftPBZlEtLS6FUxMzl43BNB4SjlSPVybM"},"service":"be-base-web-20240901"}'),
+       (241024185236005617, '/base/user/manageSignInFlag', 127, 1, '', '{}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":true,"service":"be-base-web-20240901"}'),
+       (241024185236005618, '/base/menu/userSelfMenuList', 223, 1, '', '{}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":[{"name":"系统管理","path":"/base","icon":"ri:settings-3-line","showFlag":true,"router":"","redirect":"","uuid":"Base","orderNo":10000,"pid":0,"id":1},{"name":"菜单管理","path":"/base/menu","icon":"ep:menu","showFlag":true,"router":"","redirect":"","uuid":"BaseMenu","orderNo":10000,"pid":1,"id":2},{"name":"角色管理","path":"/base/role","icon":"ri:file-user-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseRole","orderNo":9900,"pid":1,"id":240823111516002532},{"name":"权限管理","path":"/base/auth","icon":"ri:key-2-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseAuth","orderNo":9800,"pid":1,"id":240823140711002641},{"name":"用户管理","path":"/base/user","icon":"ri:user-settings-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseUser","orderNo":9700,"pid":1,"id":240823162121002971},{"name":"区域管理","path":"/base/area","icon":"ri:compass-3-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseArea","orderNo":9600,"pid":1,"id":240912092930005831},{"name":"部门管理","path":"/base/dept","icon":"ri:cup-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseDept","orderNo":9500,"pid":1,"id":240912093214005832},{"name":"岗位管理","path":"/base/post","icon":"ep:briefcase","showFlag":true,"router":"","redirect":"","uuid":"BasePost","orderNo":9400,"pid":1,"id":240912094324005833},{"name":"参数管理","path":"/base/param","icon":"ri:album-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseParam","orderNo":9300,"pid":1,"id":240924112136000441},{"name":"字典管理","path":"/base/dict","icon":"ri:book-2-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseDict","orderNo":9200,"pid":1,"id":240924112334000442}],"service":"be-base-web-20240901"}'),
+       (241024185239005619, '/base/menu/tree', 119, 1, '',
+        '{"BaseMenuPageDTO":"{\\"current\\":1,\\"pageSize\\":10}"}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":[{"name":"系统管理","path":"/base","icon":"ri:settings-3-line","showFlag":true,"router":"","redirect":"","uuid":"Base","orderNo":10000,"pid":0,"children":[{"name":"菜单管理","path":"/base/menu","icon":"ep:menu","showFlag":true,"router":"","redirect":"","uuid":"BaseMenu","orderNo":10000,"pid":1,"id":2,"enableFlag":true},{"name":"角色管理","path":"/base/role","icon":"ri:file-user-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseRole","orderNo":9900,"pid":1,"id":240823111516002532,"enableFlag":true},{"name":"权限管理","path":"/base/auth","icon":"ri:key-2-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseAuth","orderNo":9800,"pid":1,"id":240823140711002641,"enableFlag":true},{"name":"用户管理","path":"/base/user","icon":"ri:user-settings-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseUser","orderNo":9700,"pid":1,"id":240823162121002971,"enableFlag":true},{"name":"区域管理","path":"/base/area","icon":"ri:compass-3-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseArea","orderNo":9600,"pid":1,"id":240912092930005831,"enableFlag":true},{"name":"部门管理","path":"/base/dept","icon":"ri:cup-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseDept","orderNo":9500,"pid":1,"id":240912093214005832,"enableFlag":true},{"name":"岗位管理","path":"/base/post","icon":"ep:briefcase","showFlag":true,"router":"","redirect":"","uuid":"BasePost","orderNo":9400,"pid":1,"id":240912094324005833,"enableFlag":true},{"name":"参数管理","path":"/base/param","icon":"ri:album-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseParam","orderNo":9300,"pid":1,"id":240924112136000441,"enableFlag":true},{"name":"字典管理","path":"/base/dict","icon":"ri:book-2-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseDict","orderNo":9200,"pid":1,"id":240924112334000442,"enableFlag":true}],"id":1,"enableFlag":true}],"service":"be-base-web-20240901"}'),
+       (241024185239005620, '/base/role/dictList', 80, 1, '', '{}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":{"records":[{"id":240830160154004401,"name":"管理员"},{"id":240830160647004402,"name":"默认角色"}],"total":2,"size":10,"current":1},"service":"be-base-web-20240901"}'),
+       (241024185240005621, '/base/menu/infoById', 214, 1, '', '{"NotNullId":"{\\"id\\":1}"}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":{"roleIdSet":[240830160647004402,240830160154004401],"name":"系统管理","path":"/base","icon":"ri:settings-3-line","showFlag":true,"linkFlag":false,"router":"","redirect":"","uuid":"Base","orderNo":10000,"id":1,"enableFlag":true,"remark":"","createId":0,"createTime":1723796295000,"updateId":240902154357005281,"updateTime":1725264477000},"service":"be-base-web-20240901"}'),
+       (241024185245005622, '/sign/userName/signIn/password', 247, 1, '',
+        '{"SignUserNameSignInPasswordDTO":"{\\"password\\":\\"m6urK9GldP+XfIyVYwLUhib6n4SW80qkBYb3uXL0bvIa5cMegkJvGT9IhNa2CZPkA9cLBpgOv9POVO8zS/72WUo15PvN8N1Z/TyJcDeVrWQIHzUjnB0uo8nWr1MniaOsqp1JlNSdZ3/s7wLePFbYy2QB4vl++nUL3YL8Aes6Kx0=\\",\\"username\\":\\"kar2\\"}"}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":{"jwt":"Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3Mjk4NTM1NjUsInVzZXJJZCI6MjQwOTAyMTYzNjE4MDA1NTAyLCJ3eEFwcElkIjoiIiwid3hPcGVuSWQiOiIifQ.ZRLrIzVzIdS4uE7zOuEGuKg0wXvjczcgOmF4d7lDQz4","jwtExpireTs":1729852965801,"jwtRefreshToken":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjI0MDkwMjE2MzYxODAwNTUwMiwid3hBcHBJZCI6IiIsInd4T3BlbklkIjoiIn0.EQ5cOG4rw-DBzyGBHwORkDIsOoaUAIYCGs1iIs7z8-4"},"service":"be-base-web-20240901"}'),
+       (241024185245005623, '/base/user/manageSignInFlag', 41, 1, '', '{}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":true,"service":"be-base-web-20240901"}'),
+       (241024185246005624, '/base/menu/userSelfMenuList', 118, 1, '', '{}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":[{"name":"系统管理","path":"/base","icon":"ri:settings-3-line","showFlag":true,"router":"","redirect":"","uuid":"Base","orderNo":10000,"pid":0,"id":1},{"name":"菜单管理","path":"/base/menu","icon":"ep:menu","showFlag":true,"router":"","redirect":"","uuid":"BaseMenu","orderNo":10000,"pid":1,"id":2},{"name":"角色管理","path":"/base/role","icon":"ri:file-user-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseRole","orderNo":9900,"pid":1,"id":240823111516002532},{"name":"权限管理","path":"/base/auth","icon":"ri:key-2-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseAuth","orderNo":9800,"pid":1,"id":240823140711002641},{"name":"用户管理","path":"/base/user","icon":"ri:user-settings-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseUser","orderNo":9700,"pid":1,"id":240823162121002971},{"name":"区域管理","path":"/base/area","icon":"ri:compass-3-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseArea","orderNo":9600,"pid":1,"id":240912092930005831},{"name":"部门管理","path":"/base/dept","icon":"ri:cup-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseDept","orderNo":9500,"pid":1,"id":240912093214005832},{"name":"岗位管理","path":"/base/post","icon":"ep:briefcase","showFlag":true,"router":"","redirect":"","uuid":"BasePost","orderNo":9400,"pid":1,"id":240912094324005833},{"name":"参数管理","path":"/base/param","icon":"ri:album-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseParam","orderNo":9300,"pid":1,"id":240924112136000441},{"name":"字典管理","path":"/base/dict","icon":"ri:book-2-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseDict","orderNo":9200,"pid":1,"id":240924112334000442}],"service":"be-base-web-20240901"}'),
+       (241024185248005625, '/base/menu/tree', 120, 1, '',
+        '{"BaseMenuPageDTO":"{\\"current\\":1,\\"pageSize\\":10}"}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":[{"name":"系统管理","path":"/base","icon":"ri:settings-3-line","showFlag":true,"router":"","redirect":"","uuid":"Base","orderNo":10000,"pid":0,"children":[{"name":"菜单管理","path":"/base/menu","icon":"ep:menu","showFlag":true,"router":"","redirect":"","uuid":"BaseMenu","orderNo":10000,"pid":1,"id":2,"enableFlag":true},{"name":"角色管理","path":"/base/role","icon":"ri:file-user-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseRole","orderNo":9900,"pid":1,"id":240823111516002532,"enableFlag":true},{"name":"权限管理","path":"/base/auth","icon":"ri:key-2-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseAuth","orderNo":9800,"pid":1,"id":240823140711002641,"enableFlag":true},{"name":"用户管理","path":"/base/user","icon":"ri:user-settings-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseUser","orderNo":9700,"pid":1,"id":240823162121002971,"enableFlag":true},{"name":"区域管理","path":"/base/area","icon":"ri:compass-3-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseArea","orderNo":9600,"pid":1,"id":240912092930005831,"enableFlag":true},{"name":"部门管理","path":"/base/dept","icon":"ri:cup-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseDept","orderNo":9500,"pid":1,"id":240912093214005832,"enableFlag":true},{"name":"岗位管理","path":"/base/post","icon":"ep:briefcase","showFlag":true,"router":"","redirect":"","uuid":"BasePost","orderNo":9400,"pid":1,"id":240912094324005833,"enableFlag":true},{"name":"参数管理","path":"/base/param","icon":"ri:album-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseParam","orderNo":9300,"pid":1,"id":240924112136000441,"enableFlag":true},{"name":"字典管理","path":"/base/dict","icon":"ri:book-2-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseDict","orderNo":9200,"pid":1,"id":240924112334000442,"enableFlag":true}],"id":1,"enableFlag":true}],"service":"be-base-web-20240901"}'),
+       (241024185248005626, '/base/role/dictList', 111, 1, '', '{}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":{"records":[{"id":240830160154004401,"name":"管理员"},{"id":240830160647004402,"name":"默认角色"}],"total":2,"size":10,"current":1},"service":"be-base-web-20240901"}'),
+       (241024185250005627, '/base/menu/infoById', 158, 1, '', '{"NotNullId":"{\\"id\\":1}"}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":{"roleIdSet":[240830160647004402,240830160154004401],"name":"系统管理","path":"/base","icon":"ri:settings-3-line","showFlag":true,"linkFlag":false,"router":"","redirect":"","uuid":"Base","orderNo":10000,"id":1,"enableFlag":true,"remark":"","createId":0,"createTime":1723796295000,"updateId":240902154357005281,"updateTime":1725264477000},"service":"be-base-web-20240901"}'),
+       (241024185253005628, '/base/menu/dictTreeList', 125, 1, '', '{}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":[{"name":"系统管理","pid":0,"children":[{"name":"菜单管理","pid":1,"id":2},{"name":"角色管理","pid":1,"id":240823111516002532},{"name":"权限管理","pid":1,"id":240823140711002641},{"name":"用户管理","pid":1,"id":240823162121002971},{"name":"区域管理","pid":1,"id":240912092930005831},{"name":"部门管理","pid":1,"id":240912093214005832},{"name":"岗位管理","pid":1,"id":240912094324005833},{"name":"参数管理","pid":1,"id":240924112136000441},{"name":"字典管理","pid":1,"id":240924112334000442}],"id":1}],"service":"be-base-web-20240901"}'),
+       (241024185253005629, '/base/user/dictList', 210, 1, '', '{}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":{"records":[{"id":240912095958005834,"name":"t1"},{"id":240902163618005502,"name":"nickname_kar2"},{"id":240902154357005281,"name":"nickname_kar1"},{"id":0,"name":"admin"}],"total":4,"size":10,"current":1},"service":"be-base-web-20240901"}'),
+       (241024185253005630, '/base/auth/dictList', 131, 1, '', '{}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":{"records":[{"id":240902143347004951,"name":"基础:菜单:新增修改"},{"id":240902143348004952,"name":"基础:菜单:列表查询"},{"id":240902143348004953,"name":"基础:菜单:删除"},{"id":240902143348004954,"name":"基础:菜单:查看详情"},{"id":240902143348004955,"name":"基础:菜单:下拉列表"},{"id":240902143451004956,"name":"基础:角色:新增修改"},{"id":240902143451004957,"name":"基础:角色:列表查询"},{"id":240902143451004958,"name":"基础:角色:删除"},{"id":240902143451004959,"name":"基础:角色:查看详情"},{"id":240902143452004960,"name":"基础:角色:下拉列表"},{"id":240902143513004961,"name":"基础:权限:新增修改"},{"id":240902143513004962,"name":"基础:权限:列表查询"},{"id":240902143513004963,"name":"基础:权限:删除"},{"id":240902143513004964,"name":"基础:权限:查看详情"},{"id":240902143514004965,"name":"基础:权限:下拉列表"},{"id":240902143532004966,"name":"基础:用户:新增修改"},{"id":240902143532004967,"name":"基础:用户:列表查询"},{"id":240902143533004968,"name":"基础:用户:删除"},{"id":240902143533004969,"name":"基础:用户:查看详情"},{"id":240902143533004970,"name":"基础:用户:下拉列表"},{"id":241015142748002311,"name":"基础:参数:新增修改"},{"id":241015142749002312,"name":"基础:参数:列表查询"},{"id":241015142749002313,"name":"基础:参数:删除"},{"id":241015142750002314,"name":"基础:参数:查看详情"},{"id":241015142751002315,"name":"基础:参数:下拉列表"},{"id":241015142855002316,"name":"基础:字典:新增修改"},{"id":241015142855002317,"name":"基础:字典:列表查询"},{"id":241015142856002318,"name":"基础:字典:删除"},{"id":241015142857002319,"name":"基础:字典:查看详情"},{"id":241015142857002320,"name":"基础:字典:下拉列表"},{"id":241015143600002321,"name":"基础:区域:新增修改"},{"id":241015143600002322,"name":"基础:区域:列表查询"},{"id":241015143601002323,"name":"基础:区域:删除"},{"id":241015143602002324,"name":"基础:区域:查看详情"},{"id":241015143602002325,"name":"基础:区域:下拉列表"},{"id":241015143619002326,"name":"基础:部门:新增修改"},{"id":241015143619002327,"name":"基础:部门:列表查询"},{"id":241015143620002328,"name":"基础:部门:删除"},{"id":241015143621002329,"name":"基础:部门:查看详情"},{"id":241015143621002330,"name":"基础:部门:下拉列表"},{"id":241015143631002331,"name":"基础:岗位:新增修改"},{"id":241015143632002332,"name":"基础:岗位:列表查询"},{"id":241015143632002333,"name":"基础:岗位:删除"},{"id":241015143633002334,"name":"基础:岗位:查看详情"},{"id":241015143634002335,"name":"基础:岗位:下拉列表"}],"total":45,"size":10,"current":1},"service":"be-base-web-20240901"}'),
+       (241024185253005631, '/base/role/page', 316, 1, '',
+        '{"BaseRolePageDTO":"{\\"current\\":1,\\"pageSize\\":15}"}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":{"records":[{"name":"默认角色","uuid":"default","defaultFlag":true,"id":240830160647004402,"enableFlag":true,"remark":"","createId":0,"createTime":1725005208000,"updateId":0,"updateTime":1728974239000},{"name":"管理员","uuid":"admin","defaultFlag":false,"id":240830160154004401,"enableFlag":true,"remark":"","createId":0,"createTime":1725004915000,"updateId":0,"updateTime":1728974216000}],"total":2,"size":15,"current":1},"service":"be-base-web-20240901"}'),
+       (241024185255005632, '/base/role/infoById', 376, 1, '',
+        '{"NotNullId":"{\\"id\\":240830160154004401}"}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":{"userIdSet":[240902154357005281],"menuIdSet":[1,2,240912092930005831,240823111516002532,240823162121002971,240912093214005832,240924112334000442,240924112136000441,240912094324005833,240823140711002641],"authIdSet":[240902143514004965,241015142751002315,241015142856002318,241015143633002334,241015143620002328,241015142857002320,241015143602002324,241015143602002325,240902143532004966,241015142857002319,240902143532004967,240902143348004953,240902143348004952,240902143348004955,241015143619002327,241015143632002333,240902143348004954,241015143619002326,241015143632002332,240902143452004960,241015142748002311,241015143631002331,241015142749002313,241015142749002312,241015143601002323,240902143533004968,240902143347004951,240902143533004969,240902143533004970,241015143600002322,241015143600002321,240902143513004964,241015143634002335,240902143451004957,240902143513004963,240902143451004956,240902143513004962,240902143451004959,240902143513004961,241015142750002314,241015142855002316,240902143451004958,241015142855002317,241015143621002330,241015143621002329],"name":"管理员","uuid":"admin","defaultFlag":false,"id":240830160154004401,"enableFlag":true,"remark":"","createId":0,"createTime":1725004915000,"updateId":0,"updateTime":1728974216000},"service":"be-base-web-20240901"}'),
+       (241024185303005633, '/base/role/infoById', 349, 1, '',
+        '{"NotNullId":"{\\"id\\":240830160647004402}"}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":{"userIdSet":[],"menuIdSet":[1,2,240912092930005831,240823111516002532,240823162121002971,240912093214005832,240924112334000442,240924112136000441,240912094324005833,240823140711002641],"authIdSet":[240902143514004965,241015142751002315,241015143633002334,241015142857002320,241015143602002324,241015143602002325,241015142857002319,240902143532004967,240902143348004952,240902143348004955,241015143619002327,240902143348004954,241015143632002332,240902143452004960,241015142749002312,240902143533004970,241015143600002322,240902143513004964,241015143634002335,240902143451004957,240902143513004962,240902143451004959,241015142750002314,241015142855002317,241015143621002330,241015143621002329],"name":"默认角色","uuid":"default","defaultFlag":true,"id":240830160647004402,"enableFlag":true,"remark":"","createId":0,"createTime":1725005208000,"updateId":0,"updateTime":1728974239000},"service":"be-base-web-20240901"}'),
+       (241024185333005634, '/base/role/dictList', 105, 1, '', '{}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":{"records":[{"id":240830160154004401,"name":"管理员"},{"id":240830160647004402,"name":"默认角色"}],"total":2,"size":10,"current":1},"service":"be-base-web-20240901"}'),
+       (241024185333005635, '/base/user/page', 896, 1, '',
+        '{"BaseUserPageDTO":"{\\"current\\":1,\\"pageSize\\":15,\\"order\\":{\\"name\\":\\"lastActiveTime\\",\\"value\\":\\"descend\\"}}"}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":{"records":[{"id":240902163618005502,"nickname":"nickname_kar2","avatarFileId":-1,"email":"","username":"k***","phone":"","wxAppId":"","wxOpenId":"","enableFlag":true,"passwordFlag":true,"createTime":1725266178000,"lastActiveTime":1729767183000,"ip":"127.0.0.1","region":"0|0|0|内网IP|内网IP","signUpType":"PC_BROWSER_WINDOWS","manageSignInFlag":true},{"id":240902154357005281,"nickname":"nickname_kar1","avatarFileId":-1,"email":"k***@qq.com","username":"k***","phone":"186****3333","wxAppId":"","wxOpenId":"","enableFlag":true,"passwordFlag":true,"createTime":1725263037000,"lastActiveTime":1729767161000,"ip":"127.0.0.1","region":"0|0|0|内网IP|内网IP","signUpType":"PC_BROWSER_WINDOWS","roleIdSet":[240830160154004401],"manageSignInFlag":true},{"id":0,"nickname":"admin","avatarFileId":-1,"email":"","username":"a****","phone":"","wxAppId":"","wxOpenId":"","enableFlag":true,"passwordFlag":true,"createTime":1726106399000,"lastActiveTime":1729767135000,"ip":"127.0.0.1","region":"0|0|0|内网IP|内网IP","signUpType":"PC_BROWSER_WINDOWS","manageSignInFlag":true},{"id":240912095958005834,"nickname":"t1","avatarFileId":-1,"email":"","username":"t*","phone":"","wxAppId":"","wxOpenId":"","enableFlag":true,"passwordFlag":true,"createTime":1726106399000,"lastActiveTime":1726106399000,"ip":"0:0:0:0:0:0:0:1","region":"ipv6#0:0:0:0:0:0:0:1","signUpType":"PC_BROWSER_WINDOWS","manageSignInFlag":true}],"total":4,"size":15,"current":1},"service":"be-base-web-20240901"}'),
+       (241024185335005636, '/base/user/infoById', 0, 0, '不允许访问', '',
+        '{"code":100041,"msg":"权限不足","receive":true,"service":"be-base-web-20240901"}'),
+       (241024185637005722, '/base/user/manageSignInFlag', 152, 1, '', '{}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":true,"service":"be-base-web-20240901"}'),
+       (241024185638005723, '/base/menu/userSelfMenuList', 291, 1, '', '{}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":[{"name":"系统管理","path":"/base","icon":"ri:settings-3-line","showFlag":true,"router":"","redirect":"","uuid":"Base","orderNo":10000,"pid":0,"id":1},{"name":"菜单管理","path":"/base/menu","icon":"ep:menu","showFlag":true,"router":"","redirect":"","uuid":"BaseMenu","orderNo":10000,"pid":1,"id":2},{"name":"角色管理","path":"/base/role","icon":"ri:file-user-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseRole","orderNo":9900,"pid":1,"id":240823111516002532},{"name":"权限管理","path":"/base/auth","icon":"ri:key-2-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseAuth","orderNo":9800,"pid":1,"id":240823140711002641},{"name":"用户管理","path":"/base/user","icon":"ri:user-settings-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseUser","orderNo":9700,"pid":1,"id":240823162121002971},{"name":"区域管理","path":"/base/area","icon":"ri:compass-3-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseArea","orderNo":9600,"pid":1,"id":240912092930005831},{"name":"部门管理","path":"/base/dept","icon":"ri:cup-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseDept","orderNo":9500,"pid":1,"id":240912093214005832},{"name":"岗位管理","path":"/base/post","icon":"ep:briefcase","showFlag":true,"router":"","redirect":"","uuid":"BasePost","orderNo":9400,"pid":1,"id":240912094324005833},{"name":"参数管理","path":"/base/param","icon":"ri:album-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseParam","orderNo":9300,"pid":1,"id":240924112136000441},{"name":"字典管理","path":"/base/dict","icon":"ri:book-2-fill","showFlag":true,"router":"","redirect":"","uuid":"BaseDict","orderNo":9200,"pid":1,"id":240924112334000442}],"service":"be-base-web-20240901"}'),
+       (241024185639005724, '/base/role/dictList', 169, 1, '', '{}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":{"records":[{"id":240830160154004401,"name":"管理员"},{"id":240830160647004402,"name":"默认角色"}],"total":2,"size":10,"current":1},"service":"be-base-web-20240901"}'),
+       (241024185639005725, '/base/user/page', 899, 1, '',
+        '{"BaseUserPageDTO":"{\\"current\\":1,\\"pageSize\\":15,\\"order\\":{\\"name\\":\\"lastActiveTime\\",\\"value\\":\\"descend\\"}}"}',
+        '{"code":200,"msg":"操作成功","receive":true,"data":{"records":[{"id":240902163618005502,"nickname":"nickname_kar2","avatarFileId":-1,"email":"","username":"k***","phone":"","wxAppId":"","wxOpenId":"","enableFlag":true,"passwordFlag":true,"createTime":1725266178000,"lastActiveTime":1729767216000,"ip":"127.0.0.1","region":"0|0|0|内网IP|内网IP","signUpType":"PC_BROWSER_WINDOWS","manageSignInFlag":true},{"id":240902154357005281,"nickname":"nickname_kar1","avatarFileId":-1,"email":"k***@qq.com","username":"k***","phone":"186****3333","wxAppId":"","wxOpenId":"","enableFlag":true,"passwordFlag":true,"createTime":1725263037000,"lastActiveTime":1729767161000,"ip":"127.0.0.1","region":"0|0|0|内网IP|内网IP","signUpType":"PC_BROWSER_WINDOWS","roleIdSet":[240830160154004401],"manageSignInFlag":true},{"id":0,"nickname":"admin","avatarFileId":-1,"email":"","username":"a****","phone":"","wxAppId":"","wxOpenId":"","enableFlag":true,"passwordFlag":true,"createTime":1726106399000,"lastActiveTime":1729767135000,"ip":"127.0.0.1","region":"0|0|0|内网IP|内网IP","signUpType":"PC_BROWSER_WINDOWS","manageSignInFlag":true},{"id":240912095958005834,"nickname":"t1","avatarFileId":-1,"email":"","username":"t*","phone":"","wxAppId":"","wxOpenId":"","enableFlag":true,"passwordFlag":true,"createTime":1726106399000,"lastActiveTime":1726106399000,"ip":"0:0:0:0:0:0:0:1","region":"ipv6#0:0:0:0:0:0:0:1","signUpType":"PC_BROWSER_WINDOWS","manageSignInFlag":true}],"total":4,"size":15,"current":1},"service":"be-base-web-20240901"}'),
+       (241024185642005726, '/base/user/infoById', 0, 0,
+        'org.springframework.security.access.AccessDeniedException: 不允许访问\r\n	at org.springframework.security.access.vote.AffirmativeBased.decide(AffirmativeBased.java:73)\r\n	at org.springframework.security.access.intercept.AbstractSecurityInterceptor.attemptAuthorization(AbstractSecurityInterceptor.java:239)\r\n	at org.springframework.security.access.intercept.AbstractSecurityInterceptor.beforeInvocation(AbstractSecurityInterceptor.java:208)\r\n	at org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor.invoke(MethodSecurityInterceptor.java:58)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:97)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:707)\r\n	at com.kar20240901.be.base.web.controller.base.BaseUserController$$EnhancerBySpringCGLIB$$269d9808.infoById(<generated>)\r\n	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)\r\n	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.base/java.lang.reflect.Method.invoke(Method.java:568)\r\n	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:205)\r\n	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:150)\r\n	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:117)\r\n	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:895)\r\n	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:808)\r\n	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)\r\n	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1072)\r\n	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:965)\r\n	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)\r\n	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:909)\r\n	at javax.servlet.http.HttpServlet.service(HttpServlet.java:555)\r\n	at org.springframework.web.servlet.FrameworkServlet.service(Framewor',
+        '', '{"code":100041,"msg":"权限不足","receive":true,"service":"be-base-web-20240901"}'),
+       (241024185656005727, '/base/user/infoById', 0, 0,
+        'org.springframework.security.access.AccessDeniedException: 不允许访问\r\n	at org.springframework.security.access.vote.AffirmativeBased.decide(AffirmativeBased.java:73)\r\n	at org.springframework.security.access.intercept.AbstractSecurityInterceptor.attemptAuthorization(AbstractSecurityInterceptor.java:239)\r\n	at org.springframework.security.access.intercept.AbstractSecurityInterceptor.beforeInvocation(AbstractSecurityInterceptor.java:208)\r\n	at org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor.invoke(MethodSecurityInterceptor.java:58)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:97)\r\n	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:186)\r\n	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:762)\r\n	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:707)\r\n	at com.kar20240901.be.base.web.controller.base.BaseUserController$$EnhancerBySpringCGLIB$$269d9808.infoById(<generated>)\r\n	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\r\n	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)\r\n	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\r\n	at java.base/java.lang.reflect.Method.invoke(Method.java:568)\r\n	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:205)\r\n	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:150)\r\n	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:117)\r\n	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:895)\r\n	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:808)\r\n	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)\r\n	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1072)\r\n	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:965)\r\n	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)\r\n	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:909)\r\n	at javax.servlet.http.HttpServlet.service(HttpServlet.java:555)\r\n	at org.springframework.web.servlet.FrameworkServlet.service(Framewor',
+        '', '{"code":100041,"msg":"权限不足","receive":true,"service":"be-base-web-20240901"}');
 
 -- 导出  表 be_base_20240901.base_role 结构
 CREATE TABLE IF NOT EXISTS `base_role`
@@ -780,12 +968,7 @@ CREATE TABLE IF NOT EXISTS `base_socket`
   COLLATE = utf8mb4_0900_ai_ci
   ROW_FORMAT = DYNAMIC COMMENT ='v20240901：主表：socket表';
 
--- 正在导出表  be_base_20240901.base_socket 的数据：~2 rows (大约)
-INSERT INTO `base_socket` (`id`, `create_id`, `create_time`, `update_id`, `update_time`,
-                           `enable_flag`, `remark`, `scheme`, `host`, `port`, `path`, `type`,
-                           `mac_address`)
-VALUES (241018191117004841, -1, '2024-10-18 19:11:18', -1, '2024-10-18 19:11:18', 1, '', 'ws://',
-        '127.0.0.1', 8002, '/ws', 201, '0a-00-27-00-00-08');
+-- 正在导出表  be_base_20240901.base_socket 的数据：~0 rows (大约)
 
 -- 导出  表 be_base_20240901.base_socket_ref_user 结构
 CREATE TABLE IF NOT EXISTS `base_socket_ref_user`
@@ -816,7 +999,7 @@ CREATE TABLE IF NOT EXISTS `base_socket_ref_user`
   COLLATE = utf8mb4_0900_ai_ci
   ROW_FORMAT = DYNAMIC COMMENT ='v20230901：关联表：socket，用户';
 
--- 正在导出表  be_base_20240901.base_socket_ref_user 的数据：~1 rows (大约)
+-- 正在导出表  be_base_20240901.base_socket_ref_user 的数据：~0 rows (大约)
 
 -- 导出  表 be_base_20240901.base_user 结构
 CREATE TABLE IF NOT EXISTS `base_user`
@@ -954,10 +1137,10 @@ CREATE TABLE IF NOT EXISTS `base_user_info_0`
 -- 正在导出表  be_base_20240901.base_user_info_0 的数据：~3 rows (大约)
 INSERT INTO `base_user_info_0` (`id`, `uuid`, `nickname`, `bio`, `avatar_file_id`, `sign_up_type`,
                                 `last_active_time`, `last_ip`, `last_region`)
-VALUES (0, 'admin', 'admin', '', -1, 101, '2024-10-17 15:14:17', '127.0.0.1',
+VALUES (0, 'admin', 'admin', '', -1, 101, '2024-10-24 18:52:15', '127.0.0.1',
         '0|0|0|内网IP|内网IP'),
        (240902163618005502, '91a518a5234249a8a312bbc8fb6571c2', 'nickname_kar2', '', -1, 101,
-        '2024-10-15 14:38:23', '0:0:0:0:0:0:0:1', 'ipv6#0:0:0:0:0:0:0:1'),
+        '2024-10-24 18:56:57', '127.0.0.1', '0|0|0|内网IP|内网IP'),
        (240912095958005834, 'b6c7ebff8b044b60a889ed81edc8c8e9', 't1', '', -1, 101,
         '2024-09-12 09:59:59', '0:0:0:0:0:0:0:1', 'ipv6#0:0:0:0:0:0:0:1');
 
@@ -983,7 +1166,7 @@ CREATE TABLE IF NOT EXISTS `base_user_info_1`
 INSERT INTO `base_user_info_1` (`id`, `uuid`, `nickname`, `bio`, `avatar_file_id`, `sign_up_type`,
                                 `last_active_time`, `last_ip`, `last_region`)
 VALUES (240902154357005281, '36870faf0934422399872a0260c1596a', 'nickname_kar1', 'kar1_bio', -1,
-        101, '2024-10-15 14:37:47', '0:0:0:0:0:0:0:1', 'ipv6#0:0:0:0:0:0:0:1');
+        101, '2024-10-24 18:52:41', '127.0.0.1', '0|0|0|内网IP|内网IP');
 
 /*!40103 SET TIME_ZONE = IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE = IFNULL(@OLD_SQL_MODE, '') */;
