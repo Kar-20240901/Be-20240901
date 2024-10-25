@@ -3,7 +3,6 @@ package com.kar20240901.be.base.web.model.vo.base;
 import com.kar20240901.be.base.web.model.enums.base.BaseRequestCategoryEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Date;
-import java.util.Set;
 import lombok.Data;
 
 @Data
@@ -53,15 +52,6 @@ public class BaseUserPageVO {
 
     @Schema(description = "注册终端")
     private BaseRequestCategoryEnum signUpType;
-
-    @Schema(description = "角色 idSet")
-    private Set<Long> roleIdSet;
-
-    @Schema(description = "部门 idSet")
-    private Set<Long> deptIdSet;
-
-    @Schema(description = "岗位 idSet")
-    private Set<Long> postIdSet;
 
     @Schema(description = "后台登录")
     private Boolean manageSignInFlag;

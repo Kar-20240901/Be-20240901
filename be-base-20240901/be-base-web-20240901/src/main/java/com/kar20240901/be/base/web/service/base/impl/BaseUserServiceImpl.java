@@ -39,7 +39,6 @@ import com.kar20240901.be.base.web.model.vo.base.TempUserInfoByIdVO;
 import com.kar20240901.be.base.web.properties.base.BaseSecurityProperties;
 import com.kar20240901.be.base.web.service.base.BaseRoleRefUserService;
 import com.kar20240901.be.base.web.service.base.BaseUserService;
-import com.kar20240901.be.base.web.util.base.CallBack;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyMapUtil;
 import com.kar20240901.be.base.web.util.base.MyParamUtil;
@@ -51,7 +50,6 @@ import com.kar20240901.be.base.web.util.base.PasswordConvertUtil;
 import com.kar20240901.be.base.web.util.base.RedissonUtil;
 import com.kar20240901.be.base.web.util.base.SignUtil;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -92,8 +90,6 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
         // 备注：mysql 是先 group by 再 order by
         Page<BaseUserPageVO> page = baseMapper.myPage(dtoPage, dto);
 
-        Set<Long> userIdSet = new HashSet<>(MyMapUtil.getInitialCapacity(page.getRecords().size()));
-
         for (BaseUserPageVO item : page.getRecords()) {
 
             // 备注：要和 userSelfInfo接口保持一致
@@ -103,55 +99,9 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
             item.setWxOpenId(StrUtil.hide(item.getWxOpenId(), 3, item.getWxOpenId().length() - 4)); // 脱敏：只显示前 3位，后 4位
             item.setWxAppId(StrUtil.hide(item.getWxAppId(), 3, item.getWxAppId().length() - 4)); // 脱敏：只显示前 3位，后 4位
 
-            userIdSet.add(item.getId());
-
-        }
-
-        if (userIdSet.size() != 0) {
-
-            // 处理：关联的数据
-            handleRefData(page, userIdSet);
-
         }
 
         return page;
-
-    }
-
-    /**
-     * 处理：关联的数据
-     */
-    @SneakyThrows
-    private void handleRefData(Page<BaseUserPageVO> page, Set<Long> userIdSet) {
-
-        CountDownLatch countDownLatch = ThreadUtil.newCountDownLatch(1);
-
-        CallBack<Map<Long, Set<Long>>> userIdRefRoleIdSetCallBack = new CallBack<>();
-
-        MyThreadUtil.execute(() -> {
-
-            Map<Long, Set<Long>> userIdRefRoleIdSetMap =
-                baseRoleRefUserService.lambdaQuery().in(BaseRoleRefUserDO::getUserId, userIdSet)
-                    .select(BaseRoleRefUserDO::getUserId, BaseRoleRefUserDO::getRoleId).list().stream().collect(
-                        Collectors.groupingBy(BaseRoleRefUserDO::getUserId,
-                            Collectors.mapping(BaseRoleRefUserDO::getRoleId, Collectors.toSet())));
-
-            userIdRefRoleIdSetCallBack.setValue(userIdRefRoleIdSetMap);
-
-        }, countDownLatch);
-
-        countDownLatch.await();
-
-        page.getRecords().forEach(it -> {
-
-            it.setRoleIdSet(userIdRefRoleIdSetCallBack.getValue().get(it.getId()));
-
-            // 获取
-            Boolean manageSignInFlag = getManageSignInFlag(it.getId());
-
-            it.setManageSignInFlag(manageSignInFlag);
-
-        });
 
     }
 
