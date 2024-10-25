@@ -1,24 +1,31 @@
 package com.kar20240901.be.base.web.model.domain.request;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.enums.base.BaseRequestCategoryEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Date;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
-@EqualsAndHashCode(callSuper = true)
 @TableName(value = "base_request")
 @Data
 @Schema(description = "主表：请求表")
-public class BaseRequestDO extends TempEntity {
+public class BaseRequestDO {
 
     @TableId(type = IdType.INPUT)
     @Schema(description = "主键id")
     private Long id;
+
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建人id")
+    private Long createId;
+
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建时间")
+    private Date createTime;
 
     @Schema(description = "请求的 uri")
     private String uri;

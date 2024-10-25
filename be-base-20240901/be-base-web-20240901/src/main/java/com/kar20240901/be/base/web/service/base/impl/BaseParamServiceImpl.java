@@ -14,7 +14,6 @@ import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.domain.base.BaseParamDO;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
-import com.kar20240901.be.base.web.model.domain.base.TempEntityNoIdSuper;
 import com.kar20240901.be.base.web.model.dto.base.BaseParamInsertOrUpdateDTO;
 import com.kar20240901.be.base.web.model.dto.base.BaseParamPageDTO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
@@ -72,7 +71,7 @@ public class BaseParamServiceImpl extends ServiceImpl<BaseParamMapper, BaseParam
         return lambdaQuery().like(StrUtil.isNotBlank(dto.getName()), BaseParamDO::getName, dto.getName())
             .like(StrUtil.isNotBlank(dto.getRemark()), TempEntityNoId::getRemark, dto.getRemark())
             .eq(dto.getEnableFlag() != null, TempEntityNoId::getEnableFlag, dto.getEnableFlag())
-            .orderByDesc(TempEntityNoIdSuper::getUpdateTime).page(dto.pageOrder());
+            .page(dto.updateTimeDescDefaultOrderPage());
 
     }
 

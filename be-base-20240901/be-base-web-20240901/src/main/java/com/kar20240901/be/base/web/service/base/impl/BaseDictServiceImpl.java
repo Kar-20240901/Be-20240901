@@ -137,7 +137,7 @@ public class BaseDictServiceImpl extends ServiceImpl<BaseDictMapper, BaseDictDO>
             .eq(dto.getType() != null, BaseDictDO::getType, dto.getType())
             .eq(dto.getValue() != null, BaseDictDO::getValue, dto.getValue())
             .eq(dto.getEnableFlag() != null, TempEntityNoId::getEnableFlag, dto.getEnableFlag())
-            .orderByDesc(BaseDictDO::getOrderNo).page(dto.pageOrder());
+            .orderByDesc(BaseDictDO::getOrderNo).orderByAsc(TempEntity::getId).page(dto.pageOrder());
 
     }
 

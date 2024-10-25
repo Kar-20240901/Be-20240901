@@ -445,7 +445,7 @@ public class BaseRoleServiceImpl extends ServiceImpl<BaseRoleMapper, BaseRoleDO>
             .like(StrUtil.isNotBlank(dto.getRemark()), TempEntity::getRemark, dto.getRemark())
             .eq(dto.getEnableFlag() != null, TempEntity::getEnableFlag, dto.getEnableFlag())
             .eq(dto.getDefaultFlag() != null, BaseRoleDO::getDefaultFlag, dto.getDefaultFlag())
-            .orderByDesc(TempEntity::getUpdateTime).page(dto.pageOrder());
+            .page(dto.updateTimeDescDefaultOrderPage());
 
     }
 

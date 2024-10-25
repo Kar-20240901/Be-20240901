@@ -167,7 +167,7 @@ public class BaseAuthServiceImpl extends ServiceImpl<BaseAuthMapper, BaseAuthDO>
             .like(StrUtil.isNotBlank(dto.getAuth()), BaseAuthDO::getAuth, dto.getAuth())
             .like(StrUtil.isNotBlank(dto.getRemark()), TempEntity::getRemark, dto.getRemark())
             .eq(dto.getEnableFlag() != null, TempEntity::getEnableFlag, dto.getEnableFlag())
-            .orderByDesc(TempEntity::getUpdateTime).page(dto.pageOrder());
+            .page(dto.updateTimeDescDefaultOrderPage());
 
     }
 

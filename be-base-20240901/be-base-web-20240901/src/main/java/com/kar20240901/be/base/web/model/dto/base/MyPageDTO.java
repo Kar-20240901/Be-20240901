@@ -98,6 +98,36 @@ public class MyPageDTO {
      * 分页属性拷贝-增加：默认创建时间 倒序排序
      */
     @NotNull
+    public <T> Page<T> createTimeDescDefaultOrderPage() {
+
+        return createTimeDescDefaultOrderPage(true);
+
+    }
+
+    /**
+     * 分页属性拷贝-增加：默认更新时间 倒序排序
+     */
+    @NotNull
+    public <T> Page<T> updateTimeDescDefaultOrderPage() {
+
+        return updateTimeDescDefaultOrderPage(true);
+
+    }
+
+    /**
+     * 分页属性拷贝-增加：id 倒序排序
+     */
+    @NotNull
+    public <T> Page<T> idDescDefaultOrderPage() {
+
+        return idDescDefaultOrderPage(true);
+
+    }
+
+    /**
+     * 分页属性拷贝-增加：默认创建时间 倒序排序
+     */
+    @NotNull
     public <T> Page<T> createTimeDescDefaultOrderPage(boolean toUnderlineFlag) {
 
         Page<T> page = pageOrder(toUnderlineFlag);

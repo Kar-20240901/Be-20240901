@@ -6,8 +6,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.mapper.request.BaseRequestMapper;
 import com.kar20240901.be.base.web.model.constant.base.OperationDescriptionConstant;
-import com.kar20240901.be.base.web.model.domain.base.TempEntity;
-import com.kar20240901.be.base.web.model.domain.base.TempEntityNoIdSuper;
 import com.kar20240901.be.base.web.model.domain.request.BaseRequestDO;
 import com.kar20240901.be.base.web.model.dto.request.BaseRequestPageDTO;
 import com.kar20240901.be.base.web.model.dto.request.BaseRequestSelfLoginRecordPageDTO;
@@ -27,11 +25,10 @@ public class BaseRequestServiceImpl extends ServiceImpl<BaseRequestMapper, BaseR
     public Page<BaseRequestDO> myPage(BaseRequestPageDTO dto) {
 
         return getMyPageLambdaQueryChainWrapper(dto) //
-            .orderByDesc(TempEntityNoIdSuper::getCreateTime)
             .select(BaseRequestDO::getIp, BaseRequestDO::getUri, BaseRequestDO::getSuccessFlag,
-                TempEntityNoIdSuper::getCreateTime, TempEntityNoIdSuper::getCreateId, BaseRequestDO::getName,
-                BaseRequestDO::getCategory, BaseRequestDO::getIp, BaseRequestDO::getRegion, TempEntity::getId)
-            .page(dto.pageOrder());
+                BaseRequestDO::getCreateTime, BaseRequestDO::getCreateId, BaseRequestDO::getName,
+                BaseRequestDO::getCategory, BaseRequestDO::getIp, BaseRequestDO::getRegion, BaseRequestDO::getId)
+            .page(dto.createTimeDescDefaultOrderPage());
 
     }
 
@@ -47,7 +44,7 @@ public class BaseRequestServiceImpl extends ServiceImpl<BaseRequestMapper, BaseR
             .le(dto.getCtEndTime() != null, BaseRequestDO::getCreateTime, dto.getCtEndTime()) //
             .ge(dto.getCtBeginTime() != null, BaseRequestDO::getCreateTime, dto.getCtBeginTime()) //
             .eq(dto.getCategory() != null, BaseRequestDO::getCategory, dto.getCategory()) //
-            .eq(dto.getCreateId() != null, TempEntity::getCreateId, dto.getCreateId()) //
+            .eq(dto.getCreateId() != null, BaseRequestDO::getCreateId, dto.getCreateId()) //
             .eq(dto.getSuccessFlag() != null, BaseRequestDO::getSuccessFlag, dto.getSuccessFlag());
 
     }

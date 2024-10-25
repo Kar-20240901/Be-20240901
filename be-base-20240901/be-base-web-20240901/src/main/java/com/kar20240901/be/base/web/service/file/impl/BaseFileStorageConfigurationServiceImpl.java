@@ -90,7 +90,7 @@ public class BaseFileStorageConfigurationServiceImpl
                 TempEntityNoIdSuper::getCreateId, TempEntityNoIdSuper::getCreateTime, TempEntityNoIdSuper::getUpdateId,
                 TempEntityNoIdSuper::getUpdateTime, BaseFileStorageConfigurationDO::getName,
                 BaseFileStorageConfigurationDO::getType, BaseFileStorageConfigurationDO::getDefaultFlag)
-            .orderByDesc(TempEntity::getUpdateTime).page(dto.pageOrder());
+            .page(dto.updateTimeDescDefaultOrderPage());
 
     }
 

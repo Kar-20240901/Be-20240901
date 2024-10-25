@@ -13,7 +13,6 @@ import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadBO;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
-import com.kar20240901.be.base.web.model.domain.base.TempEntityTree;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
@@ -131,7 +130,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
             .eq(dto.getPublicFlag() != null, BaseFileDO::getPublicFlag, dto.getPublicFlag()) //
             .eq(dto.getEnableFlag() != null, TempEntity::getEnableFlag, dto.getEnableFlag()) //
             .eq(dto.getRefId() != null, BaseFileDO::getRefId, dto.getRefId()) //
-            .select(true, getMyPageSelectList()).orderByDesc(TempEntity::getCreateTime).page(dto.pageOrder());
+            .select(true, getMyPageSelectList()).page(dto.createTimeDescDefaultOrderPage());
 
     }
 
@@ -176,8 +175,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         MyThreadUtil.execute(() -> {
 
             Page<BaseFileDO> page =
-                lambdaQuery().select(true, getMyPageSelectList()).orderByDesc(TempEntityTree::getCreateTime)
-                    .page(dto.pageOrder());
+                lambdaQuery().select(true, getMyPageSelectList()).page(dto.createTimeDescDefaultOrderPage());
 
             allListCallBack.setValue(page.getRecords());
 
