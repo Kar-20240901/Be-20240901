@@ -92,11 +92,6 @@ public class BaseRequestAop {
 
         baseRequestDO.setCreateId(currentUserIdDefault);
         baseRequestDO.setCreateTime(date);
-        baseRequestDO.setUpdateId(currentUserIdDefault);
-        baseRequestDO.setUpdateTime(date);
-
-        baseRequestDO.setRemark("");
-        baseRequestDO.setEnableFlag(true);
 
         // 设置：类型
         baseRequestDO.setType(MyEntityUtil.getNotNullAndTrimStr(operation.description()));
@@ -246,7 +241,6 @@ public class BaseRequestAop {
         Long userId = MyJwtUtil.getPayloadMapUserIdValue(jwt.getPayload().getClaimsJson());
 
         baseRequestDO.setCreateId(userId);
-        baseRequestDO.setUpdateId(userId);
 
     }
 

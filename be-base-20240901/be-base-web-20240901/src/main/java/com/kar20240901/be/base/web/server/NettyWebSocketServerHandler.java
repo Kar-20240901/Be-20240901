@@ -16,7 +16,10 @@ import com.kar20240901.be.base.web.configuration.socket.NettyWebSocketProperties
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.exception.TempException;
 import com.kar20240901.be.base.web.model.configuration.socket.NettyWebSocketBeanPostProcessor;
+import com.kar20240901.be.base.web.model.constant.base.OperationDescriptionConstant;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
+import com.kar20240901.be.base.web.model.domain.request.BaseRequestDO;
+import com.kar20240901.be.base.web.model.domain.request.BaseRequestInfoDO;
 import com.kar20240901.be.base.web.model.domain.socket.BaseSocketRefUserDO;
 import com.kar20240901.be.base.web.model.dto.socket.WebSocketMessageDTO;
 import com.kar20240901.be.base.web.model.enums.base.BaseRedisKeyEnum;
@@ -24,12 +27,15 @@ import com.kar20240901.be.base.web.model.enums.base.BaseRequestCategoryEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.socket.BaseSocketRefUserService;
 import com.kar20240901.be.base.web.util.base.CallBack;
+import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
+import com.kar20240901.be.base.web.util.base.Ip2RegionUtil;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyExceptionUtil;
 import com.kar20240901.be.base.web.util.base.MyThreadUtil;
 import com.kar20240901.be.base.web.util.base.MyTryUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import com.kar20240901.be.base.web.util.base.MyValidUtil;
+import com.kar20240901.be.base.web.util.base.RequestUtil;
 import com.kar20240901.be.base.web.util.socket.SocketUtil;
 import com.kar20240901.be.base.web.util.socket.WebSocketUtil;
 import io.netty.channel.Channel;
@@ -593,6 +599,38 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
         @NotNull FullHttpRequest fullHttpRequest) {
 
         ctx.close(); // 关闭连接
+
+        Date date = new Date();
+
+        BaseRequestDO baseRequestDO = new BaseRequestDO();
+
+        BaseRequestInfoDO baseRequestInfoDO = new BaseRequestInfoDO();
+
+        Long id = IdGeneratorUtil.nextId();
+
+        baseRequestDO.setId(id);
+        baseRequestInfoDO.setId(id);
+
+        baseRequestDO.setUri("");
+        baseRequestDO.setCostMs(0L);
+        baseRequestDO.setName("WebSocket连接错误");
+        baseRequestDO.setCategory(BaseRequestCategoryEnum.PC_BROWSER_WINDOWS);
+
+        baseRequestDO.setIp(SocketUtil.getIp(fullHttpRequest, ctx.channel()));
+        baseRequestDO.setRegion(Ip2RegionUtil.getRegion(baseRequestDO.getIp()));
+
+        baseRequestDO.setSuccessFlag(false);
+
+        baseRequestDO.setType(OperationDescriptionConstant.WEB_SOCKET_CONNECT_ERROR);
+
+        baseRequestDO.setCreateTime(date);
+
+        baseRequestInfoDO.setErrorMsg(errorMsg);
+        baseRequestInfoDO.setRequestParam(requestParam);
+        baseRequestInfoDO.setResponseValue("");
+
+        // 添加一个：请求数据
+        RequestUtil.add(baseRequestDO, baseRequestInfoDO);
 
     }
 

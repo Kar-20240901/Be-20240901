@@ -193,11 +193,6 @@ public class ExceptionAdvice {
 
         baseRequestDO.setCreateId(currentUserIdDefault);
         baseRequestDO.setCreateTime(date);
-        baseRequestDO.setUpdateId(currentUserIdDefault);
-        baseRequestDO.setUpdateTime(date);
-
-        baseRequestDO.setEnableFlag(true);
-        baseRequestDO.setRemark("");
 
         baseRequestInfoDO.setErrorMsg(MyEntityUtil.getNotNullStr(errorMsg));
         baseRequestInfoDO.setRequestParam(MyEntityUtil.getNotNullStr(requestParam));

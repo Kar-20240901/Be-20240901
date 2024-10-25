@@ -4,9 +4,15 @@ import cn.hutool.core.collection.CollUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketEventBO;
 import com.kar20240901.be.base.web.model.configuration.socket.NettyWebSocketBeanPostProcessor;
+import com.kar20240901.be.base.web.model.constant.base.OperationDescriptionConstant;
+import com.kar20240901.be.base.web.model.domain.request.BaseRequestDO;
+import com.kar20240901.be.base.web.model.domain.request.BaseRequestInfoDO;
 import com.kar20240901.be.base.web.model.dto.socket.WebSocketMessageDTO;
 import com.kar20240901.be.base.web.server.NettyWebSocketServerHandler;
+import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
+import com.kar20240901.be.base.web.util.base.Ip2RegionUtil;
 import com.kar20240901.be.base.web.util.base.MyUserInfoUtil;
+import com.kar20240901.be.base.web.util.base.RequestUtil;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.swagger.v3.oas.annotations.Operation;
@@ -115,9 +121,40 @@ public class WebSocketUtil {
 
         String jsonStr = objectMapper.writeValueAsString(dto);
 
+        BaseRequestDO baseRequestDO = new BaseRequestDO();
+
+        BaseRequestInfoDO baseRequestInfoDO = new BaseRequestInfoDO();
+
+        Long id = IdGeneratorUtil.nextId();
+
+        baseRequestDO.setId(id);
+        baseRequestInfoDO.setId(id);
+
+        baseRequestDO.setUri(dto.getUri());
+        baseRequestDO.setCostMs(costMs);
+        baseRequestDO.setName(summary);
+        baseRequestDO.setCategory(channel.attr(NettyWebSocketServerHandler.BASE_REQUEST_CATEGORY_ENUM_KEY).get());
+
         String ip = channel.attr(NettyWebSocketServerHandler.IP_KEY).get();
 
-        MyUserInfoUtil.add(userId, date, ip, null);
+        baseRequestDO.setIp(ip);
+        baseRequestDO.setRegion(Ip2RegionUtil.getRegion(baseRequestDO.getIp()));
+
+        // 更新：用户信息
+        MyUserInfoUtil.add(userId, date, ip, baseRequestDO.getRegion());
+
+        baseRequestDO.setSuccessFlag(successFlag);
+        baseRequestDO.setType(OperationDescriptionConstant.WEB_SOCKET);
+
+        baseRequestDO.setCreateId(userId);
+        baseRequestDO.setCreateTime(date);
+
+        baseRequestInfoDO.setErrorMsg(errorMsg);
+        baseRequestInfoDO.setRequestParam(text);
+        baseRequestInfoDO.setResponseValue(jsonStr);
+
+        // 添加一个：请求数据
+        RequestUtil.add(baseRequestDO, baseRequestInfoDO);
 
         // 发送数据
         channel.writeAndFlush(new TextWebSocketFrame(jsonStr));
