@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ public class MyUserInfoUtil {
 
     }
 
-    private static CopyOnWriteArrayList<TempUserInfoDO> USER_INFO_DO_LIST = new CopyOnWriteArrayList<>();
+    private static ConcurrentHashMap<Long, TempUserInfoDO> USER_INFO_DO_MAP = new ConcurrentHashMap<>();
 
     /**
      * 添加 备注：如果为 null，则不会更新该字段
@@ -85,7 +85,7 @@ public class MyUserInfoUtil {
             return;
         }
 
-        USER_INFO_DO_LIST.add(tempUserInfoDO);
+        USER_INFO_DO_MAP.put(tempUserInfoDO.getId(), tempUserInfoDO);
 
     }
 
@@ -96,16 +96,16 @@ public class MyUserInfoUtil {
     @Scheduled(fixedDelay = 5000)
     public void scheduledSava() {
 
-        CopyOnWriteArrayList<TempUserInfoDO> tempUserInfoDoList;
+        ConcurrentHashMap<Long, TempUserInfoDO> tempUserInfoDoMap;
 
-        synchronized (USER_INFO_DO_LIST) {
+        synchronized (USER_INFO_DO_MAP) {
 
-            if (CollUtil.isEmpty(USER_INFO_DO_LIST)) {
+            if (CollUtil.isEmpty(USER_INFO_DO_MAP)) {
                 return;
             }
 
-            tempUserInfoDoList = USER_INFO_DO_LIST;
-            USER_INFO_DO_LIST = new CopyOnWriteArrayList<>();
+            tempUserInfoDoMap = USER_INFO_DO_MAP;
+            USER_INFO_DO_MAP = new ConcurrentHashMap<>();
 
         }
 
@@ -113,7 +113,7 @@ public class MyUserInfoUtil {
         MyThreadUtil.schedule(() -> {
 
             // 批量更新数据
-            baseUserInfoService.updateBatchById(tempUserInfoDoList);
+            baseUserInfoService.updateBatchById(tempUserInfoDoMap.values());
 
         }, DateUtil.offsetMillisecond(new Date(), 1500));
 
