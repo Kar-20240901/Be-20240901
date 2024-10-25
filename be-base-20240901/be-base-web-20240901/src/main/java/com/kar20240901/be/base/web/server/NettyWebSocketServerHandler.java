@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.lang.func.VoidFunc0;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.net.url.UrlQuery;
@@ -29,7 +30,6 @@ import com.kar20240901.be.base.web.service.socket.BaseSocketRefUserService;
 import com.kar20240901.be.base.web.util.base.CallBack;
 import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
 import com.kar20240901.be.base.web.util.base.Ip2RegionUtil;
-import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyExceptionUtil;
 import com.kar20240901.be.base.web.util.base.MyThreadUtil;
 import com.kar20240901.be.base.web.util.base.MyTryUtil;
@@ -505,7 +505,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
         // 发送消息
         WebSocketUtil.send(channel, webSocketMessageDTO, text, costMs, mappingValue,
-            MyEntityUtil.getNotNullStr(e.getMessage()), false);
+            ExceptionUtil.stacktraceToString(e), false);
 
     }
 
