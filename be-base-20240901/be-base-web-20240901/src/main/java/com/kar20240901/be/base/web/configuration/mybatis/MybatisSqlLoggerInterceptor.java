@@ -126,8 +126,8 @@ public class MybatisSqlLoggerInterceptor implements Interceptor {
 
             }
 
-            log.info("{}sql，耗时：{}，内容：{}【{}】：{}", pre, timeNumber, sqlIdCallBack.getValue(),
-                sqlCommandType.toString(), sqlCallBack.getValue());
+            log.info("{}sql，耗时：{}，类型：【{}】{}\n\033[0;31m{}\033[0m", pre, timeNumber, sqlCommandType.toString(),
+                sqlIdCallBack.getValue(), sqlCallBack.getValue());
 
         }
 
