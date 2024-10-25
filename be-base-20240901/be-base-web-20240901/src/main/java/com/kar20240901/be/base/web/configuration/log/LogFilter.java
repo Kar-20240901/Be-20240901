@@ -14,17 +14,28 @@ import com.kar20240901.be.base.web.util.base.MyTryUtil;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.yaml.snakeyaml.Yaml;
 
 @Slf4j
 public class LogFilter extends Filter<ILoggingEvent> {
 
-    public static LogProperties logProperties;
+    public static LogProperties logProperties = new LogProperties();
 
     static {
 
-        MyTryUtil.tryCatch(LogFilter::initLogProperties);
+        try {
+
+            initLogProperties();
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
 
     }
 
@@ -32,35 +43,35 @@ public class LogFilter extends Filter<ILoggingEvent> {
 
         File file = FileUtil.touch("/home/conf/log.yml");
 
-        handle(file);
+        handle(file, "初始化");
 
         WatchMonitor.createAll(file, new Watcher() {
 
             @Override
             public void onCreate(WatchEvent<?> event, Path currentPath) {
 
-                handle(file);
+                MyTryUtil.tryCatch(() -> handle(file, "创建"));
 
             }
 
             @Override
             public void onModify(WatchEvent<?> event, Path currentPath) {
 
-                handle(file);
+                MyTryUtil.tryCatch(() -> handle(file, "修改"));
 
             }
 
             @Override
             public void onDelete(WatchEvent<?> event, Path currentPath) {
 
-                handle(file);
+                MyTryUtil.tryCatch(() -> handle(file, "删除"));
 
             }
 
             @Override
             public void onOverflow(WatchEvent<?> event, Path currentPath) {
 
-                handle(file);
+                MyTryUtil.tryCatch(() -> handle(file, "覆盖"));
 
             }
 
@@ -68,13 +79,57 @@ public class LogFilter extends Filter<ILoggingEvent> {
 
     }
 
-    private static void handle(File file) {
+    private static void handle(File file, String type) {
 
-        String str = FileUtil.readUtf8String(file);
+        String str = "";
 
-        logProperties = new Yaml().loadAs(str, LogProperties.class);
+        if (file.exists()) {
 
-        log.info("logProperties：{}", JSONUtil.toJsonStr(logProperties));
+            try {
+
+                str = FileUtil.readUtf8String(file);
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
+
+            }
+
+        }
+
+        Iterable<Object> objectIterable = new Yaml().loadAll(str);
+
+        logProperties.setLogTopicSet(new HashSet<>());
+        logProperties.setNotLogTopicSet(new HashSet<>());
+
+        if (objectIterable.iterator().hasNext()) {
+
+            LinkedHashMap<String, ArrayList<String>> map =
+                (LinkedHashMap<String, ArrayList<String>>)objectIterable.iterator().next();
+
+            if (CollUtil.isNotEmpty(map)) {
+
+                ArrayList<String> logTopicList = map.get("log-topic-set");
+
+                ArrayList<String> notLogTopicList = map.get("not-log-topic-set");
+
+                if (CollUtil.isNotEmpty(logTopicList)) {
+
+                    logProperties.setLogTopicSet(new HashSet<>(logTopicList));
+
+                }
+
+                if (CollUtil.isNotEmpty(notLogTopicList)) {
+
+                    logProperties.setNotLogTopicSet(new HashSet<>(notLogTopicList));
+
+                }
+
+            }
+
+        }
+
+        log.info("【{}】logProperties：{}", type, JSONUtil.toJsonStr(logProperties));
 
     }
 

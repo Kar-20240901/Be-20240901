@@ -1,0 +1,6 @@
+log-topic-set:
+  - be.normal
+  - be.mybaits.mybatis
+  - be.mybaits.mybatis.insert
+not-log-topic-set:
+  - org.apache.kafka.clients.consumer.ConsumerConfig
