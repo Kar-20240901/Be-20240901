@@ -11,9 +11,9 @@ be:
       host: 127.0.0.1
       path: /ws
 
-mybatis-plus:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #按环境进行修改：直接注释掉，备注：需要全部注释掉
+#mybatis-plus:
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #按环境进行修改：直接注释掉，备注：需要全部注释掉
 
 springdoc:
   swagger-ui:
