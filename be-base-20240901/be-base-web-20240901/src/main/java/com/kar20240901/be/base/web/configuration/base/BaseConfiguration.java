@@ -1,5 +1,6 @@
 package com.kar20240901.be.base.web.configuration.base;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.net.NetUtil;
 import cn.hutool.http.HttpGlobalConfig;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -35,7 +36,7 @@ public class BaseConfiguration implements ApplicationRunner {
     public static Integer port; // 启动的端口
     public static String profilesActive; // 启动的环境
 
-    private static Long startTime = System.currentTimeMillis(); // 启动时间
+    public static final Long START_TIME = System.currentTimeMillis(); // 启动时间
 
     public static final String MAC_ADDRESS = NetUtil.getLocalMacAddress(); // mac地址
 
@@ -150,7 +151,8 @@ public class BaseConfiguration implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
 
-        log.info("服务已启动，耗时：{}毫秒，地址：http://localhost:{}", System.currentTimeMillis() - startTime, port);
+        log.info("服务已启动，耗时：{}毫秒，地址：http://localhost:{}",
+            DateUtil.formatBetween(System.currentTimeMillis() - START_TIME), port);
 
     }
 
