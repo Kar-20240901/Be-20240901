@@ -6,6 +6,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -27,11 +29,13 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @EnableScheduling
 @AutoConfigureOrder(value = Integer.MIN_VALUE) // 如果配置在；spring.factories 文件里，则可以通过该注解指定加载顺序
 @Slf4j
-public class BaseConfiguration {
+public class BaseConfiguration implements ApplicationRunner {
 
     public static String applicationName; // 服务名
     public static Integer port; // 启动的端口
     public static String profilesActive; // 启动的环境
+
+    private static Long startTime = System.currentTimeMillis(); // 启动时间
 
     public static final String MAC_ADDRESS = NetUtil.getLocalMacAddress(); // mac地址
 
@@ -140,6 +144,13 @@ public class BaseConfiguration {
 
         // 执行初始化
         support.initialize();
+
+    }
+
+    @Override
+    public void run(ApplicationArguments args) {
+
+        log.info("服务已启动，耗时：{}毫秒，地址：http://localhost:{}", System.currentTimeMillis() - startTime, port);
 
     }
 
