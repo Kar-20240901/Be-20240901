@@ -151,7 +151,7 @@ public class BaseConfiguration implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
 
-        log.info("服务已启动，耗时：{}，地址：http://localhost:{}",
+        log.info("服务已启动，耗时：{}，地址：http://localhost：{}",
             DateUtil.formatBetween(System.currentTimeMillis() - START_TIME), port);
 
     }
