@@ -5,7 +5,6 @@ import com.kar20240901.be.base.web.model.constant.base.TempRegexConstant;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Set;
 import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -13,17 +12,14 @@ import lombok.EqualsAndHashCode;
 @Data
 public class BaseUserInsertOrUpdateDTO extends TempInsertOrUpdateDTO {
 
-    @Size(max = 100)
     @NotCheckBlankPattern(regexp = TempRegexConstant.USER_NAME_REGEXP)
     @Schema(description = "用户名")
     private String username;
 
-    @Size(max = 200)
     @NotCheckBlankPattern(regexp = TempRegexConstant.EMAIL)
     @Schema(description = "邮箱")
     private String email;
 
-    @Size(max = 100)
     @NotCheckBlankPattern(regexp = TempRegexConstant.PHONE)
     @Schema(description = "手机号码")
     private String phone;
@@ -43,7 +39,6 @@ public class BaseUserInsertOrUpdateDTO extends TempInsertOrUpdateDTO {
     @Schema(description = "前端加密之后的原始密码")
     private String originPassword;
 
-    @Size(max = 100)
     @Pattern(regexp = TempRegexConstant.NICK_NAME_REGEXP)
     @Schema(description = "昵称")
     private String nickname;
