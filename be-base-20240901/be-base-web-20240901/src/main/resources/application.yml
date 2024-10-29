@@ -43,6 +43,11 @@ spring:
     time-zone: GMT+8
     default-property-inclusion: non_null
 
+  servlet:
+    multipart: #配置文件上传大小限制
+      max-file-size: 100MB
+      max-request-size: 100MB
+
   redis:
     host: ${be.common.host}
     password: ${be.common.password}
