@@ -104,11 +104,11 @@ public class BaseUserSelfServiceImpl implements BaseUserSelfService {
     @Override
     public String userSelfUpdateInfo(BaseUserSelfUpdateInfoDTO dto) {
 
-        Long currentUserIdNotAdmin = MyUserUtil.getCurrentUserIdNotAdmin();
+        Long currentUserId = MyUserUtil.getCurrentUserId();
 
         TempUserInfoDO tempUserInfoDO = new TempUserInfoDO();
 
-        tempUserInfoDO.setId(currentUserIdNotAdmin);
+        tempUserInfoDO.setId(currentUserId);
         tempUserInfoDO.setNickname(MyEntityUtil.getNotNullStr(dto.getNickname(), NicknameUtil.getRandomNickname()));
         tempUserInfoDO.setBio(MyEntityUtil.getNotNullAndTrimStr(dto.getBio()));
 
@@ -124,9 +124,9 @@ public class BaseUserSelfServiceImpl implements BaseUserSelfService {
     @Override
     public String userSelfResetAvatar() {
 
-        Long currentUserIdNotAdmin = MyUserUtil.getCurrentUserIdNotAdmin();
+        Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        ChainWrappers.lambdaUpdateChain(baseUserInfoMapper).eq(TempUserInfoDO::getId, currentUserIdNotAdmin)
+        ChainWrappers.lambdaUpdateChain(baseUserInfoMapper).eq(TempUserInfoDO::getId, currentUserId)
             .set(TempUserInfoDO::getAvatarFileId, -1).update();
 
         return TempBizCodeEnum.OK;
