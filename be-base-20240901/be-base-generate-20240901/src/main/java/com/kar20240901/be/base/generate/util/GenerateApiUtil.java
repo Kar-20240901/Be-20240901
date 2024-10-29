@@ -197,7 +197,7 @@ public class GenerateApiUtil {
         String returnTypeStr = beApi.getReturnTypeStr(); // 返回的类型
 
         if (StrUtil.isBlank(returnTypeStr)) {
-            returnTypeStr = "void";
+            returnTypeStr = "undefined";
         }
 
         String httpStr; // 请求的类型
