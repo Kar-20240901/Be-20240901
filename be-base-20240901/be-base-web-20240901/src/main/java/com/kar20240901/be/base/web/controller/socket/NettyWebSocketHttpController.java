@@ -1,4 +1,4 @@
-package com.kar20240901.be.base.web.controller.websocket;
+package com.kar20240901.be.base.web.controller.socket;
 
 import com.kar20240901.be.base.web.model.dto.base.NotNullIdAndIntegerValue;
 import com.kar20240901.be.base.web.model.vo.base.R;
