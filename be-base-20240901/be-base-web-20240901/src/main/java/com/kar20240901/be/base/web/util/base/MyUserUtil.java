@@ -8,8 +8,11 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
+import com.kar20240901.be.base.web.exception.base.BaseBizCodeEnum;
+import com.kar20240901.be.base.web.mapper.base.BaseUserMapper;
 import com.kar20240901.be.base.web.mapper.base.TempUserInfoMapper;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
+import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.base.TempUserDO;
 import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
 import com.kar20240901.be.base.web.model.enums.base.TempRedisKeyEnum;
@@ -44,6 +47,13 @@ public class MyUserUtil {
     @Resource
     public void setTempUserInfoMapper(TempUserInfoMapper tempUserInfoMapper) {
         MyUserUtil.tempUserInfoMapper = tempUserInfoMapper;
+    }
+
+    private static BaseUserMapper baseUserMapper;
+
+    @Resource
+    public void setBaseUserMapper(BaseUserMapper baseUserMapper) {
+        MyUserUtil.baseUserMapper = baseUserMapper;
     }
 
     /**
@@ -145,6 +155,44 @@ public class MyUserUtil {
         }
 
         return tempUserInfoDO.getNickname();
+
+    }
+
+    /**
+     * 获取当前用户的 邮箱，如果是 admin账号，则会报错，只会返回当前用户的 邮箱，不会返回 null
+     */
+    @NotNull
+    public static String getCurrentUserEmail() {
+
+        Long currentUserId = getCurrentUserId();
+
+        TempUserDO tempUserDO = ChainWrappers.lambdaQueryChain(baseUserMapper).eq(TempEntity::getId, currentUserId)
+            .select(TempUserDO::getEmail).one();
+
+        if (tempUserDO == null || StrUtil.isBlank(tempUserDO.getEmail())) {
+            R.error(BaseBizCodeEnum.THIS_OPERATION_CANNOT_BE_PERFORMED_WITHOUT_BINDING_AN_EMAIL_ADDRESS);
+        }
+
+        return tempUserDO.getEmail();
+
+    }
+
+    /**
+     * 获取当前用户的 手机号码，如果是 admin账号，则会报错，只会返回当前用户的 手机号码，不会返回 null
+     */
+    @NotNull
+    public static String getCurrentUserPhone() {
+
+        Long currentUserId = getCurrentUserId();
+
+        TempUserDO tempUserDO = ChainWrappers.lambdaQueryChain(baseUserMapper).eq(TempEntity::getId, currentUserId)
+            .select(TempUserDO::getPhone).one();
+
+        if (tempUserDO == null || StrUtil.isBlank(tempUserDO.getPhone())) {
+            R.error(BaseBizCodeEnum.THERE_IS_NO_BOUND_MOBILE_PHONE_NUMBER_SO_THIS_OPERATION_CANNOT_BE_PERFORMED);
+        }
+
+        return tempUserDO.getPhone();
 
     }
 

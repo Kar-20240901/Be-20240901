@@ -67,7 +67,7 @@ public class SignUserNameServiceImpl implements SignUserNameService {
 
         return SignUtil.signInPassword(
             ChainWrappers.lambdaQueryChain(baseUserMapper).eq(TempUserDO::getUsername, dto.getUsername()),
-            dto.getPassword(), dto.getUsername(), RequestUtil.getRequestCategoryEnum());
+            dto.getPassword(), RequestUtil.getRequestCategoryEnum());
 
     }
 

@@ -1,34 +1,46 @@
 package com.kar20240901.be.base.web.util.base;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.func.Func1;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.exception.base.BaseBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.base.BaseRoleRefUserMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseUserMapper;
+import com.kar20240901.be.base.web.mapper.otherapp.BaseOtherAppMapper;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.constant.base.TempRegexConstant;
 import com.kar20240901.be.base.web.model.domain.base.BaseRoleRefUserDO;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
+import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
 import com.kar20240901.be.base.web.model.domain.base.TempUserDO;
 import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
+import com.kar20240901.be.base.web.model.domain.otherapp.BaseOtherAppDO;
 import com.kar20240901.be.base.web.model.enums.base.BaseRedisKeyEnum;
 import com.kar20240901.be.base.web.model.enums.base.BaseRequestCategoryEnum;
 import com.kar20240901.be.base.web.model.enums.base.TempRedisKeyEnum;
+import com.kar20240901.be.base.web.model.enums.otherapp.BaseOtherAppTypeEnum;
+import com.kar20240901.be.base.web.model.interfaces.base.IBaseQrCodeSceneType;
+import com.kar20240901.be.base.web.model.interfaces.base.IBizCode;
 import com.kar20240901.be.base.web.model.interfaces.base.IRedisKey;
+import com.kar20240901.be.base.web.model.vo.base.GetQrCodeVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.base.SignInVO;
 import com.kar20240901.be.base.web.properties.base.BaseSecurityProperties;
+import com.kar20240901.be.base.web.util.otherapp.WxUtil;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import javax.annotation.Resource;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.redisson.api.RAtomicLong;
@@ -66,15 +78,204 @@ public class SignUtil {
     private static BaseSecurityProperties baseSecurityProperties;
 
     @Resource
-    public void setSecurityProperties(BaseSecurityProperties baseSecurityProperties) {
+    public void setBaseSecurityProperties(BaseSecurityProperties baseSecurityProperties) {
         SignUtil.baseSecurityProperties = baseSecurityProperties;
     }
 
     private static BaseRoleRefUserMapper baseRoleRefUserMapper;
 
     @Resource
-    public void setBaseRoleUserMapper(BaseRoleRefUserMapper baseRoleRefUserMapper) {
+    public void setBaseRoleRefUserMapper(BaseRoleRefUserMapper baseRoleRefUserMapper) {
         SignUtil.baseRoleRefUserMapper = baseRoleRefUserMapper;
+    }
+
+    private static BaseOtherAppMapper baseOtherAppMapper;
+
+    @Resource
+    public void setBaseOtherAppMapper(BaseOtherAppMapper baseOtherAppMapper) {
+        SignUtil.baseOtherAppMapper = baseOtherAppMapper;
+    }
+
+    /**
+     * 发送验证码
+     *
+     * @param mustExist 是否必须存在，如果为 null，则，不存在和 存在都不会报错，例如：手机验证码注册并登录时
+     */
+    public static String sendCode(String key, @Nullable LambdaQueryChainWrapper<TempUserDO> lambdaQueryChainWrapper,
+        @Nullable Boolean mustExist, IBizCode iBizCode, Consumer<String> consumer) {
+
+        // 检查：账户是否存在
+        checkAccountExistWillError(lambdaQueryChainWrapper, mustExist, iBizCode);
+
+        String code = CodeUtil.getCode();
+
+        consumer.accept(code); // 进行额外的处理
+
+        // 保存到 redis中，设置 10分钟过期
+        redissonClient.getBucket(key).set(code, Duration.ofMillis(TempConstant.LONG_CODE_EXPIRE_TIME));
+
+        return TempBizCodeEnum.SEND_OK;
+
+    }
+
+    /**
+     * 检查：账号是否存在
+     *
+     * @param mustExist 是否必须存在，如果为 null，则，不存在和 存在都不会报错，例如：手机验证码注册并登录时
+     */
+    @SneakyThrows
+    public static void checkAccountExistWillError(@Nullable LambdaQueryChainWrapper<TempUserDO> lambdaQueryChainWrapper,
+        @Nullable Boolean mustExist, IBizCode iBizCode) {
+
+        // 判断是否存在
+        boolean exists;
+
+        if (lambdaQueryChainWrapper == null) {
+
+            exists = true;
+
+        } else {
+
+            exists = lambdaQueryChainWrapper.exists();
+
+        }
+
+        if (mustExist == null) {
+
+        } else if (mustExist) {
+
+            if (!exists) {
+                R.error(iBizCode);
+            }
+
+        } else {
+
+            if (exists) {
+                R.error(iBizCode);
+            }
+
+        }
+
+    }
+
+    /**
+     * 获取账户信息，并执行发送验证码操作
+     */
+    public static String getAccountAndSendCode(Enum<? extends IRedisKey> redisKeyEnum,
+        VoidFunc2<String, String> voidFunc2) {
+
+        String account = getAccountByUserIdAndRedisKeyEnum(redisKeyEnum, MyUserUtil.getCurrentUserIdNotAdmin());
+
+        if (BaseRedisKeyEnum.PRE_EMAIL.equals(redisKeyEnum)) {
+
+            if (StrUtil.isBlank(account)) {
+
+                R.error(BaseBizCodeEnum.THIS_OPERATION_CANNOT_BE_PERFORMED_WITHOUT_BINDING_AN_EMAIL_ADDRESS);
+
+            }
+
+        } else if (BaseRedisKeyEnum.PRE_PHONE.equals(redisKeyEnum)) {
+
+            if (StrUtil.isBlank(account)) {
+
+                R.error(BaseBizCodeEnum.THERE_IS_NO_BOUND_MOBILE_PHONE_NUMBER_SO_THIS_OPERATION_CANNOT_BE_PERFORMED);
+
+            }
+
+        }
+
+        String code = CodeUtil.getCode();
+
+        // 保存到 redis中，设置 10分钟过期
+        redissonClient.getBucket(redisKeyEnum + account)
+            .set(code, Duration.ofMillis(TempConstant.LONG_CODE_EXPIRE_TIME));
+
+        // 执行：发送验证码操作
+        voidFunc2.call(code, account);
+
+        return TempBizCodeEnum.SEND_OK;
+
+    }
+
+    /**
+     * 绑定登录账号
+     *
+     * @param accountRedisKeyEnum 不能为 null
+     */
+    public static String bindAccount(@Nullable String code, Enum<? extends IRedisKey> accountRedisKeyEnum,
+        String account, String appId, @Nullable String codeKey, @Nullable String password) {
+
+        Long currentUserIdNotAdmin = MyUserUtil.getCurrentUserIdNotAdmin();
+
+        if (StrUtil.isNotBlank(password)) {
+
+            // 检查密码是否正确
+            checkCurrentPasswordWillError(password, currentUserIdNotAdmin, null);
+
+        }
+
+        String accountKey = accountRedisKeyEnum + account;
+
+        boolean codeKeyBlankFlag = StrUtil.isBlank(codeKey);
+
+        Set<String> nameSet = CollUtil.newHashSet(accountKey);
+
+        if (!codeKeyBlankFlag) {
+
+            nameSet.add(codeKey);
+
+        }
+
+        return RedissonUtil.doMultiLock(null, nameSet, () -> {
+
+            RBucket<String> bucket = redissonClient.getBucket(codeKeyBlankFlag ? accountKey : codeKey);
+
+            // 检查：绑定的登录账号是否存在
+            boolean exist = accountIsExists(accountRedisKeyEnum, account, null, appId);
+
+            boolean deleteRedisFlag = StrUtil.isNotBlank(code);
+
+            if (exist) {
+
+                if (deleteRedisFlag) {
+
+                    bucket.delete();
+
+                }
+
+                R.errorMsg("操作失败：账号已被绑定，请重试");
+
+            }
+
+            if (deleteRedisFlag) {
+
+                CodeUtil.checkCode(code, bucket.get()); // 检查 code是否正确
+
+            }
+
+            TempUserDO tempUserDO = new TempUserDO();
+
+            // 通过：BaseRedisKeyEnum，设置：账号
+            setTempUserDoAccountByRedisKeyEnum(accountRedisKeyEnum, account, tempUserDO, appId);
+
+            tempUserDO.setId(currentUserIdNotAdmin);
+
+            return TransactionUtil.exec(() -> {
+
+                baseUserMapper.updateById(tempUserDO); // 保存：用户
+
+                if (deleteRedisFlag) {
+
+                    bucket.delete();
+
+                }
+
+                return TempBizCodeEnum.OK;
+
+            });
+
+        });
+
     }
 
     /**
@@ -310,7 +511,7 @@ public class SignUtil {
      * 账号密码登录
      */
     public static SignInVO signInPassword(LambdaQueryChainWrapper<TempUserDO> lambdaQueryChainWrapper, String password,
-        String account, BaseRequestCategoryEnum baseRequestCategoryEnum) {
+        BaseRequestCategoryEnum baseRequestCategoryEnum) {
 
         // 密码解密
         password = MyRsaUtil.rsaDecrypt(password);
@@ -452,7 +653,7 @@ public class SignUtil {
         boolean accountBlankFlag = StrUtil.isBlank(account);
 
         if (accountBlankFlag) {
-            userId = MyUserUtil.getCurrentUserIdNotAdmin();
+            userId = MyUserUtil.getCurrentUserId();
         }
 
         // 敏感操作：
@@ -1054,6 +1255,69 @@ public class SignUtil {
             ChainWrappers.lambdaUpdateChain(baseRoleRefUserMapper).in(BaseRoleRefUserDO::getUserId, userIdSet).remove();
 
         });
+
+    }
+
+    /**
+     * 获取：微信，二维码地址
+     */
+    @SneakyThrows
+    @Nullable
+    public static GetQrCodeVO getQrCodeUrlWx(boolean getQrCodeUrlFlag, IBaseQrCodeSceneType iBaseQrCodeSceneType) {
+
+        // 执行
+        return getQrCodeUrl(getQrCodeUrlFlag, BaseOtherAppTypeEnum.WX_OFFICIAL_ACCOUNT.getCode(), sysOtherAppDO -> {
+
+            String accessToken = WxUtil.getAccessToken(sysOtherAppDO.getAppId());
+
+            Long qrCodeId = IdGeneratorUtil.nextId();
+
+            String qrCodeUrl = WxUtil.getQrCodeUrl(accessToken, iBaseQrCodeSceneType, qrCodeId.toString());
+
+            return new GetQrCodeVO(qrCodeUrl, qrCodeId,
+                System.currentTimeMillis() + ((iBaseQrCodeSceneType.getExpireSecond() - 10) * 1000L));
+
+        }, null);
+
+    }
+
+    /**
+     * 获取：二维码地址
+     */
+    @SneakyThrows
+    @Nullable
+    public static GetQrCodeVO getQrCodeUrl(boolean getQrCodeUrlFlag, @Nullable Integer otherAppType,
+        Func1<BaseOtherAppDO, GetQrCodeVO> func1,
+        @Nullable Consumer<LambdaQueryChainWrapper<BaseOtherAppDO>> lambdaQueryChainWrapperConsumer) {
+
+        if (otherAppType == null) {
+            otherAppType = BaseOtherAppTypeEnum.WX_OFFICIAL_ACCOUNT.getCode();
+        }
+
+        LambdaQueryChainWrapper<BaseOtherAppDO> lambdaQueryChainWrapper =
+            ChainWrappers.lambdaQueryChain(baseOtherAppMapper).eq(BaseOtherAppDO::getType, otherAppType)
+                .eq(TempEntityNoId::getEnableFlag, true);
+
+        if (lambdaQueryChainWrapperConsumer != null) {
+
+            lambdaQueryChainWrapperConsumer.accept(lambdaQueryChainWrapper);
+
+        }
+
+        Page<BaseOtherAppDO> page =
+            lambdaQueryChainWrapper.select(BaseOtherAppDO::getAppId).page(MyPageUtil.getLimit1Page());
+
+        if (CollUtil.isEmpty(page.getRecords())) {
+            return null;
+        }
+
+        if (!getQrCodeUrlFlag) {
+            return new GetQrCodeVO(); // 这里回复一个对象，然后前端可以根据这个值，和前面的 null值进行判断，是否要进一步获取二维码地址，原因：二维码地址获取速度慢
+        }
+
+        BaseOtherAppDO baseOtherAppDO = page.getRecords().get(0);
+
+        return func1.call(baseOtherAppDO);
 
     }
 

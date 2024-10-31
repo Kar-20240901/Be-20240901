@@ -8,6 +8,10 @@ import com.kar20240901.be.base.web.model.interfaces.base.IRedisKey;
 public enum BaseRedisKeyEnum implements IRedisKey {
 
     // 【PRE_】开头 ↓
+    PRE_SYS_WX_WORK_SYNC_MSG, // 企业微信，获取消息锁，锁：【租户主键 id】
+
+    PRE_BASE_WX_QR_CODE_BIND, // 微信扫码绑定时，生成的，二维码 id，备注：只有扫描了二维码之后，才会放数据到 redis里面
+
     PRE_WEB_SOCKET_CODE, // webSocket连接锁，锁：【随机码】
 
     PRE_USER_MANAGE_SIGN_IN_FLAG, // 用户是否允许登录后台，后面跟：用户主键 id
@@ -24,6 +28,11 @@ public enum BaseRedisKeyEnum implements IRedisKey {
     PRE_PASSWORD_ERROR_COUNT, // 密码错误总数：锁【用户主键 id】
 
     // 【_CACHE】结尾 ↓
+    WX_WORK_ACCESS_TOKEN_CACHE, // 企业微信全局唯一后台接口调用凭据
+
+    WX_OFFICIAL_ACCESS_TOKEN_CACHE, // 微信公众号全局唯一后台接口调用凭据
+
+    BAI_DU_ACCESS_TOKEN_CACHE, // 百度全局唯一后台接口调用凭据
 
     // 其他 ↓
 
