@@ -11,12 +11,17 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.exception.base.BaseBizCodeEnum;
+import com.kar20240901.be.base.web.mapper.base.BaseDeptRefUserMapper;
+import com.kar20240901.be.base.web.mapper.base.BasePostRefUserMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseRoleRefUserMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseUserMapper;
 import com.kar20240901.be.base.web.mapper.otherapp.BaseOtherAppMapper;
+import com.kar20240901.be.base.web.model.configuration.base.IUserSignConfiguration;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.constant.base.TempRegexConstant;
+import com.kar20240901.be.base.web.model.domain.base.BaseDeptRefUserDO;
+import com.kar20240901.be.base.web.model.domain.base.BasePostRefUserDO;
 import com.kar20240901.be.base.web.model.domain.base.BaseRoleRefUserDO;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
@@ -36,6 +41,7 @@ import com.kar20240901.be.base.web.model.vo.base.SignInVO;
 import com.kar20240901.be.base.web.properties.base.BaseSecurityProperties;
 import com.kar20240901.be.base.web.util.otherapp.WxUtil;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -94,6 +100,28 @@ public class SignUtil {
     @Resource
     public void setBaseOtherAppMapper(BaseOtherAppMapper baseOtherAppMapper) {
         SignUtil.baseOtherAppMapper = baseOtherAppMapper;
+    }
+
+    @Nullable
+    private static List<IUserSignConfiguration> iUserSignConfigurationList;
+
+    @Resource
+    public void setiUserSignConfigurationList(@Nullable List<IUserSignConfiguration> iUserSignConfigurationList) {
+        SignUtil.iUserSignConfigurationList = iUserSignConfigurationList;
+    }
+
+    private static BaseDeptRefUserMapper baseDeptRefUserMapper;
+
+    @Resource
+    public void setBaseDeptRefUserMapper(BaseDeptRefUserMapper baseDeptRefUserMapper) {
+        SignUtil.baseDeptRefUserMapper = baseDeptRefUserMapper;
+    }
+
+    private static BasePostRefUserMapper basePostRefUserMapper;
+
+    @Resource
+    public void setBasePostRefUserMapper(BasePostRefUserMapper basePostRefUserMapper) {
+        SignUtil.basePostRefUserMapper = basePostRefUserMapper;
     }
 
     /**
@@ -269,6 +297,9 @@ public class SignUtil {
                     bucket.delete();
 
                 }
+
+                // 移除：jwt相关
+                SignUtil.removeJwt(CollUtil.newHashSet(currentUserIdNotAdmin));
 
                 return TempBizCodeEnum.OK;
 
@@ -832,6 +863,9 @@ public class SignUtil {
 
                 });
 
+                // 移除：jwt相关
+                SignUtil.removeJwt(CollUtil.newHashSet(currentUserIdNotAdmin));
+
                 return TempBizCodeEnum.OK;
 
             });
@@ -1080,6 +1114,9 @@ public class SignUtil {
 
                 }
 
+                // 移除：jwt相关
+                SignUtil.removeJwt(CollUtil.newHashSet(currentUserIdNotAdmin));
+
                 return TempBizCodeEnum.OK;
 
             });
@@ -1246,6 +1283,16 @@ public class SignUtil {
 
             if (deleteFlag) {
 
+                if (CollUtil.isNotEmpty(iUserSignConfigurationList) && CollUtil.isNotEmpty(userIdSet)) {
+
+                    for (IUserSignConfiguration item : iUserSignConfigurationList) {
+
+                        item.delete(userIdSet); // 移除：用户额外的数据
+
+                    }
+
+                }
+
                 // 直接：删除用户基本信息
                 ChainWrappers.lambdaUpdateChain(baseUserInfoMapper).in(TempUserInfoDO::getId, userIdSet).remove();
 
@@ -1253,6 +1300,12 @@ public class SignUtil {
 
             // 直接：删除用户绑定的角色
             ChainWrappers.lambdaUpdateChain(baseRoleRefUserMapper).in(BaseRoleRefUserDO::getUserId, userIdSet).remove();
+
+            // 直接：删除用户绑定的部门
+            ChainWrappers.lambdaUpdateChain(baseDeptRefUserMapper).in(BaseDeptRefUserDO::getUserId, userIdSet).remove();
+
+            // 直接：删除用户绑定的岗位
+            ChainWrappers.lambdaUpdateChain(basePostRefUserMapper).in(BasePostRefUserDO::getUserId, userIdSet).remove();
 
         });
 
