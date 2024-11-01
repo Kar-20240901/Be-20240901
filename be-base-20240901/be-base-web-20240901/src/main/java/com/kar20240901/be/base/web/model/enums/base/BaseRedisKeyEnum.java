@@ -12,7 +12,7 @@ public enum BaseRedisKeyEnum implements IRedisKey {
 
     PRE_SIGN_CONFIGURATION, // 用户登录注册相关配置锁
 
-    PRE_SYS_WX_WORK_SYNC_MSG, // 企业微信，获取消息锁
+    PRE_BASE_WX_WORK_SYNC_MSG, // 企业微信，获取消息锁
 
     PRE_BASE_WX_QR_CODE_BIND, // 微信扫码绑定时，生成的，二维码 id，备注：只有扫描了二维码之后，才会放数据到 redis里面
 

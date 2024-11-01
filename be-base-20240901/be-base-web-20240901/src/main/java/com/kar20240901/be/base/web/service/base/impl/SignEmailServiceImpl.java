@@ -4,7 +4,7 @@ import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.exception.base.BaseBizCodeEnum;
-import com.kar20240901.be.base.web.mapper.base.TempUserMapper;
+import com.kar20240901.be.base.web.mapper.base.BaseUserMapper;
 import com.kar20240901.be.base.web.model.domain.base.BaseUserConfigurationDO;
 import com.kar20240901.be.base.web.model.domain.base.TempUserDO;
 import com.kar20240901.be.base.web.model.dto.base.EmailNotBlankDTO;
@@ -48,7 +48,7 @@ public class SignEmailServiceImpl implements SignEmailService {
     private static final BaseRedisKeyEnum PRE_REDIS_KEY_ENUM = BaseRedisKeyEnum.PRE_EMAIL;
 
     @Resource
-    TempUserMapper baseUserMapper;
+    BaseUserMapper baseUserMapper;
 
     @Resource
     BaseUserConfigurationService baseUserConfigurationService;

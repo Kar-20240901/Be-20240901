@@ -19,7 +19,7 @@ public class BaseSmsHelper {
     private static BaseSmsConfigurationService baseSmsConfigurationService;
 
     @Resource
-    public void setSysSmsConfigurationService(BaseSmsConfigurationService baseSmsConfigurationService) {
+    public void setBaseSmsConfigurationService(BaseSmsConfigurationService baseSmsConfigurationService) {
         BaseSmsHelper.baseSmsConfigurationService = baseSmsConfigurationService;
     }
 
@@ -38,7 +38,7 @@ public class BaseSmsHelper {
     }
 
     /**
-     * 获取：SysSmsSendBO对象
+     * 获取：BaseSmsSendBO对象
      */
     public static BaseSmsSendBO getBaseSmsSendBO(String sendContent, String phoneNumber, Long id) {
 
@@ -65,20 +65,20 @@ public class BaseSmsHelper {
     }
 
     /**
-     * 获取：SysSmsConfigurationDO对象
+     * 获取：BaseSmsConfigurationDO对象
      */
     @NotNull
-    public static BaseSmsConfigurationDO getBaseSmsConfigurationDO(Integer sysSmsType) {
+    public static BaseSmsConfigurationDO getBaseSmsConfigurationDO(Integer baseSmsType) {
 
         List<BaseSmsConfigurationDO> baseSmsConfigurationDOList =
             baseSmsConfigurationService.lambdaQuery().eq(TempEntityNoId::getEnableFlag, true)
-                .eq(BaseSmsConfigurationDO::getType, sysSmsType).list();
+                .eq(BaseSmsConfigurationDO::getType, baseSmsType).list();
 
         BaseSmsConfigurationDO baseSmsConfigurationDO = null;
 
         if (CollUtil.isEmpty(baseSmsConfigurationDOList)) {
 
-            R.error("操作失败：暂未配置短信", sysSmsType);
+            R.error("操作失败：暂未配置短信", baseSmsType);
 
         } else {
 
@@ -114,7 +114,7 @@ public class BaseSmsHelper {
     /**
      * 处理：短信方式
      */
-    public static void handleSysSmsConfigurationDO(BaseSmsSendBO baseSmsSendBO) {
+    public static void handleBaseSmsConfigurationDO(BaseSmsSendBO baseSmsSendBO) {
 
         BaseSmsConfigurationDO baseSmsConfigurationDO = baseSmsSendBO.getBaseSmsConfigurationDO();
 

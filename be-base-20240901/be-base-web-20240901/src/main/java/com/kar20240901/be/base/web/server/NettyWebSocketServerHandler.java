@@ -176,7 +176,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
     }
 
     /**
-     * 处理：SYS_SOCKET_REF_USER_DO_LIST
+     * 处理：BASE_SOCKET_REF_USER_DO_LIST
      */
     private void handleBaseSocketRefUserDoInsertList(List<VoidFunc0> voidFunc0List) {
 
@@ -570,10 +570,10 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
         // 绑定 UserId
         channel.attr(USER_ID_KEY).set(userId);
 
-        // 绑定 SysSocketRefUserId
+        // 绑定 BaseSocketRefUserId
         channel.attr(BASE_SOCKET_REF_USER_ID_KEY).set(baseSocketRefUserDoId);
 
-        // 绑定 SysRequestCategoryEnum
+        // 绑定 BaseRequestCategoryEnum
         channel.attr(BASE_REQUEST_CATEGORY_ENUM_KEY).set(baseSocketRefUserDO.getCategory());
 
         // 绑定 Ip

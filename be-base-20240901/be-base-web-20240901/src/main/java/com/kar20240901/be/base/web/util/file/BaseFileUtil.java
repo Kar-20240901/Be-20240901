@@ -10,7 +10,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
-import com.kar20240901.be.base.web.mapper.base.TempUserInfoMapper;
+import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.file.BaseFileStorageConfigurationMapper;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadBO;
 import com.kar20240901.be.base.web.model.configuration.file.IBaseFileRemove;
@@ -59,7 +59,7 @@ public class BaseFileUtil {
     private static BaseFileService baseFileService;
     private static BaseFileAuthService baseFileAuthService;
 
-    private static TempUserInfoMapper tempUserInfoMapper;
+    private static BaseUserInfoMapper baseUserInfoMapper;
 
     private static final Map<Integer, IBaseFileStorage> BASE_FILE_STORAGE_MAP = MapUtil.newHashMap();
 
@@ -68,7 +68,7 @@ public class BaseFileUtil {
     private static BaseFileStorageConfigurationMapper baseFileStorageConfigurationMapper;
 
     public BaseFileUtil(BaseFileService baseFileService, BaseFileAuthService baseFileAuthService,
-        TempUserInfoMapper tempUserInfoMapper,
+        BaseUserInfoMapper baseUserInfoMapper,
         @Autowired(required = false) @Nullable List<IBaseFileStorage> iBaseFileStorageList,
         @Autowired(required = false) @Nullable List<IBaseFileRemove> iBaseFileRemoveList,
         BaseFileStorageConfigurationMapper baseFileStorageConfigurationMapper) {
@@ -76,7 +76,7 @@ public class BaseFileUtil {
         BaseFileUtil.baseFileService = baseFileService;
         BaseFileUtil.baseFileAuthService = baseFileAuthService;
 
-        BaseFileUtil.tempUserInfoMapper = tempUserInfoMapper;
+        BaseFileUtil.baseUserInfoMapper = baseUserInfoMapper;
 
         if (CollUtil.isNotEmpty(iBaseFileStorageList)) {
 
@@ -115,7 +115,7 @@ public class BaseFileUtil {
 
                 (baseFileId) -> {
 
-                    ChainWrappers.lambdaUpdateChain(tempUserInfoMapper).eq(TempUserInfoDO::getId, bo.getUserId())
+                    ChainWrappers.lambdaUpdateChain(baseUserInfoMapper).eq(TempUserInfoDO::getId, bo.getUserId())
                         .set(TempUserInfoDO::getAvatarFileId, baseFileId).update();
 
                 }, null);

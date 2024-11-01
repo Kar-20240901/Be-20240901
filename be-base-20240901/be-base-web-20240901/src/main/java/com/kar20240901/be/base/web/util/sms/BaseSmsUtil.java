@@ -240,7 +240,7 @@ public class BaseSmsUtil {
 
         }
 
-        BaseSmsHelper.handleSysSmsConfigurationDO(baseSmsSendBO);
+        BaseSmsHelper.handleBaseSmsConfigurationDO(baseSmsSendBO);
 
         // 执行：获取
         return doGetIbaseSms(baseSmsSendBO);

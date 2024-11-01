@@ -9,8 +9,8 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.exception.base.BaseBizCodeEnum;
+import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseUserMapper;
-import com.kar20240901.be.base.web.mapper.base.TempUserInfoMapper;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.base.TempUserDO;
@@ -42,11 +42,11 @@ public class MyUserUtil {
         MyUserUtil.redissonClient = redissonClient;
     }
 
-    private static TempUserInfoMapper tempUserInfoMapper;
+    private static BaseUserInfoMapper baseUserInfoMapper;
 
     @Resource
-    public void setTempUserInfoMapper(TempUserInfoMapper tempUserInfoMapper) {
-        MyUserUtil.tempUserInfoMapper = tempUserInfoMapper;
+    public void setBaseUserInfoMapper(BaseUserInfoMapper tempUserInfoMapper) {
+        MyUserUtil.baseUserInfoMapper = tempUserInfoMapper;
     }
 
     private static BaseUserMapper baseUserMapper;
@@ -147,7 +147,7 @@ public class MyUserUtil {
         Long userId = getCurrentUserId();
 
         TempUserInfoDO tempUserInfoDO =
-            ChainWrappers.lambdaQueryChain(tempUserInfoMapper).eq(TempUserInfoDO::getId, userId)
+            ChainWrappers.lambdaQueryChain(baseUserInfoMapper).eq(TempUserInfoDO::getId, userId)
                 .select(TempUserInfoDO::getNickname).one();
 
         if (tempUserInfoDO == null) {

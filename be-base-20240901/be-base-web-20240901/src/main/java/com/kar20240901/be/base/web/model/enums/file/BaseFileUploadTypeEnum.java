@@ -39,11 +39,14 @@ public enum BaseFileUploadTypeEnum implements IBaseFileUploadType {
     // 临时文件-图片
     TEMP_IMAGE(501, "temp-image", AVATAR.getAcceptFileTypeSet(), 1024 * 1024 * 10, true), //
 
+    // bpmn
+    BPMN(601, "bpmn", CollUtil.newHashSet("xml", "bpmn"), 1024 * 1024 * 10, false), //
+
     // 临时文件
     TEMP_FILE(701, "temp-file", null, 1024 * 1024 * 10, true), //
 
-    // bpmn
-    BPMN(601, "bpmn", CollUtil.newHashSet("xml", "bpmn"), 1024 * 1024 * 10, false), //
+    // 文件系统
+    FILE_SYSTEM(801, "file-system", null, -1, false), //
 
     ;
 

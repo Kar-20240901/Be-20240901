@@ -138,26 +138,26 @@ public class WxUtil {
     @NotNull
     public static WxOpenIdVO getWxBrowserOpenIdVoByCode(String code, String appId) {
 
-        BaseOtherAppDO sysOtherAppDO = baseOtherAppService.lambdaQuery().eq(BaseOtherAppDO::getAppId, appId)
+        BaseOtherAppDO baseOtherAppDO = baseOtherAppService.lambdaQuery().eq(BaseOtherAppDO::getAppId, appId)
             .eq(TempEntityNoId::getEnableFlag, true)
             .eq(BaseOtherAppDO::getType, BaseOtherAppTypeEnum.WX_OFFICIAL_ACCOUNT)
             .select(BaseOtherAppDO::getSecret, BaseOtherAppDO::getAppId).one();
 
         String errorMessageStr = "browserOpenId";
 
-        if (sysOtherAppDO == null) {
+        if (baseOtherAppDO == null) {
             R.error(TempBizCodeEnum.ILLEGAL_REQUEST.getMsg(), errorMessageStr);
         }
 
         String jsonStr = HttpUtil.get(
-            "https://api.weixin.qq.com/sns/oauth2/access_token?appid=" + appId + "&secret=" + sysOtherAppDO.getSecret()
+            "https://api.weixin.qq.com/sns/oauth2/access_token?appid=" + appId + "&secret=" + baseOtherAppDO.getSecret()
                 + "&code=" + code + "&grant_type=authorization_code");
 
         WxOpenIdVO wxOpenIdVO = JSONUtil.toBean(jsonStr, WxOpenIdVO.class);
 
         checkWxVO(wxOpenIdVO, errorMessageStr, appId); // 检查：微信回调 vo对象
 
-        wxOpenIdVO.setAppId(sysOtherAppDO.getAppId());
+        wxOpenIdVO.setAppId(baseOtherAppDO.getAppId());
 
         return wxOpenIdVO;
 
@@ -250,18 +250,18 @@ public class WxUtil {
             return accessToken;
         }
 
-        BaseOtherAppDO sysOtherAppDO = baseOtherAppService.lambdaQuery().eq(BaseOtherAppDO::getAppId, appId)
+        BaseOtherAppDO baseOtherAppDO = baseOtherAppService.lambdaQuery().eq(BaseOtherAppDO::getAppId, appId)
             .eq(BaseOtherAppDO::getType, baseOtherAppTypeEnum).eq(TempEntityNoId::getEnableFlag, true)
             .select(BaseOtherAppDO::getSecret).one();
 
         String errorMessageStr = "accessToken";
 
-        if (sysOtherAppDO == null) {
+        if (baseOtherAppDO == null) {
             R.error(TempBizCodeEnum.ILLEGAL_REQUEST.getMsg(), errorMessageStr);
         }
 
         String jsonStr = HttpUtil.get(
-            "https://api.weixin.qq.com/cgi-bin/token?appid=" + appId + "&secret=" + sysOtherAppDO.getSecret()
+            "https://api.weixin.qq.com/cgi-bin/token?appid=" + appId + "&secret=" + baseOtherAppDO.getSecret()
                 + "&grant_type=client_credential");
 
         WxAccessTokenVO wxAccessTokenVO = JSONUtil.toBean(jsonStr, WxAccessTokenVO.class);
@@ -281,9 +281,9 @@ public class WxUtil {
     @NotNull
     public static String getAccessTokenForWork(String appId) {
 
-        BaseOtherAppTypeEnum sysOtherAppTypeEnum = BaseOtherAppTypeEnum.WX_WORK;
+        BaseOtherAppTypeEnum baseOtherAppTypeEnum = BaseOtherAppTypeEnum.WX_WORK;
 
-        String sufKey = sysOtherAppTypeEnum + ":" + appId;
+        String sufKey = baseOtherAppTypeEnum + ":" + appId;
 
         RBucket<String> bucket = redissonClient.getBucket(BaseRedisKeyEnum.WX_WORK_ACCESS_TOKEN_CACHE + ":" + sufKey);
 
@@ -293,18 +293,18 @@ public class WxUtil {
             return accessToken;
         }
 
-        BaseOtherAppDO sysOtherAppDO = baseOtherAppService.lambdaQuery().eq(BaseOtherAppDO::getAppId, appId)
-            .eq(TempEntityNoId::getEnableFlag, true).eq(BaseOtherAppDO::getType, sysOtherAppTypeEnum)
+        BaseOtherAppDO baseOtherAppDO = baseOtherAppService.lambdaQuery().eq(BaseOtherAppDO::getAppId, appId)
+            .eq(TempEntityNoId::getEnableFlag, true).eq(BaseOtherAppDO::getType, baseOtherAppTypeEnum)
             .select(BaseOtherAppDO::getSecret).one();
 
         String errorMessageStr = "accessTokenForWork";
 
-        if (sysOtherAppDO == null) {
+        if (baseOtherAppDO == null) {
             R.error(TempBizCodeEnum.ILLEGAL_REQUEST.getMsg(), errorMessageStr);
         }
 
         String jsonStr = HttpUtil.get("https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=" + appId + "&corpsecret="
-            + sysOtherAppDO.getSecret());
+            + baseOtherAppDO.getSecret());
 
         WxAccessTokenVO wxAccessTokenVO = JSONUtil.toBean(jsonStr, WxAccessTokenVO.class);
 
@@ -503,9 +503,9 @@ public class WxUtil {
     @NotNull
     public static List<JSONObject> syncMsg(String accessToken, String token, String openKfId, String appId) {
 
-        return RedissonUtil.doLock(BaseRedisKeyEnum.PRE_SYS_WX_WORK_SYNC_MSG.name(), () -> {
+        return RedissonUtil.doLock(BaseRedisKeyEnum.PRE_BASE_WX_WORK_SYNC_MSG.name(), () -> {
 
-            RBucket<String> bucket = redissonClient.getBucket(BaseRedisKeyEnum.PRE_SYS_WX_WORK_SYNC_MSG.name());
+            RBucket<String> bucket = redissonClient.getBucket(BaseRedisKeyEnum.PRE_BASE_WX_WORK_SYNC_MSG.name());
 
             // 上一次调用时返回的 next_cursor，第一次拉取可以不填。若不填，从3天内最早的消息开始返回。
             String cursor = bucket.get();
