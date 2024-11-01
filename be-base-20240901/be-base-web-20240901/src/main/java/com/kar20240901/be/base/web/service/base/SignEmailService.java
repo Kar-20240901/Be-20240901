@@ -17,9 +17,9 @@ import com.kar20240901.be.base.web.model.dto.base.SignEmailUpdateEmailSendCodeNe
 import com.kar20240901.be.base.web.model.dto.base.SignEmailUpdatePasswordDTO;
 import com.kar20240901.be.base.web.model.dto.base.SignEmailUpdateUserNameDTO;
 import com.kar20240901.be.base.web.model.dto.base.SignEmailUpdateUserNameSendCodeDTO;
+import com.kar20240901.be.base.web.model.vo.base.BaseQrCodeSceneBindVO;
 import com.kar20240901.be.base.web.model.vo.base.GetQrCodeVO;
 import com.kar20240901.be.base.web.model.vo.base.SignInVO;
-import com.kar20240901.be.base.web.model.vo.base.SysQrCodeSceneBindVO;
 
 public interface SignEmailService {
 
@@ -55,9 +55,9 @@ public interface SignEmailService {
 
     GetQrCodeVO setWxGetQrCodeUrl();
 
-    SysQrCodeSceneBindVO getQrCodeSceneFlag(NotNullId notNullId);
+    BaseQrCodeSceneBindVO getQrCodeSceneFlag(NotNullId notNullId);
 
-    SysQrCodeSceneBindVO setWx(SignEmailSetWxDTO dto);
+    BaseQrCodeSceneBindVO setWx(SignEmailSetWxDTO dto);
 
     String setPhoneSendCodeEmail();
 

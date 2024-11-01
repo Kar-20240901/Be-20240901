@@ -35,8 +35,8 @@ public class BaseFileStorageAliYunConfiguration implements IBaseFileStorage {
 
     @Override
     public void remove(String bucketName, Set<String> objectNameSet,
-        BaseFileStorageConfigurationDO sysFileStorageConfigurationDO) {
-        BaseFileAliYunUtil.remove(bucketName, objectNameSet, sysFileStorageConfigurationDO);
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+        BaseFileAliYunUtil.remove(bucketName, objectNameSet, baseFileStorageConfigurationDO);
     }
 
     @Override

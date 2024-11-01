@@ -6,6 +6,8 @@ import com.kar20240901.be.base.web.model.domain.otherapp.BaseOtherAppOfficialAcc
 import com.kar20240901.be.base.web.model.dto.base.ChangeNumberDTO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.otherapp.BaseOtherAppOfficialAccountMenuInsertOrUpdateDTO;
+import com.kar20240901.be.base.web.model.dto.otherapp.BaseOtherAppOfficialAccountMenuPageDTO;
 import java.util.List;
 
 public interface BaseOtherAppOfficialAccountMenuService extends IService<BaseOtherAppOfficialAccountMenuDO> {

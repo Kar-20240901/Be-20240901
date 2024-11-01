@@ -2,6 +2,8 @@ package com.kar20240901.be.base.web.util.base;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.func.Func1;
+import cn.hutool.core.lang.func.VoidFunc0;
+import cn.hutool.core.lang.func.VoidFunc1;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ReUtil;
@@ -17,6 +19,7 @@ import com.kar20240901.be.base.web.mapper.base.BaseRoleRefUserMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseUserMapper;
 import com.kar20240901.be.base.web.mapper.otherapp.BaseOtherAppMapper;
+import com.kar20240901.be.base.web.model.bo.base.BaseQrCodeSceneBindBO;
 import com.kar20240901.be.base.web.model.configuration.base.IUserSignConfiguration;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.constant.base.TempRegexConstant;
@@ -35,6 +38,7 @@ import com.kar20240901.be.base.web.model.enums.otherapp.BaseOtherAppTypeEnum;
 import com.kar20240901.be.base.web.model.interfaces.base.IBaseQrCodeSceneType;
 import com.kar20240901.be.base.web.model.interfaces.base.IBizCode;
 import com.kar20240901.be.base.web.model.interfaces.base.IRedisKey;
+import com.kar20240901.be.base.web.model.vo.base.BaseQrCodeSceneBindVO;
 import com.kar20240901.be.base.web.model.vo.base.GetQrCodeVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.base.SignInVO;
@@ -684,7 +688,7 @@ public class SignUtil {
         boolean accountBlankFlag = StrUtil.isBlank(account);
 
         if (accountBlankFlag) {
-            userId = MyUserUtil.getCurrentUserId();
+            userId = MyUserUtil.getCurrentUserIdNotAdmin();
         }
 
         // 敏感操作：
@@ -1319,9 +1323,9 @@ public class SignUtil {
     public static GetQrCodeVO getQrCodeUrlWx(boolean getQrCodeUrlFlag, IBaseQrCodeSceneType iBaseQrCodeSceneType) {
 
         // 执行
-        return getQrCodeUrl(getQrCodeUrlFlag, BaseOtherAppTypeEnum.WX_OFFICIAL_ACCOUNT.getCode(), sysOtherAppDO -> {
+        return getQrCodeUrl(getQrCodeUrlFlag, BaseOtherAppTypeEnum.WX_OFFICIAL_ACCOUNT.getCode(), baseOtherAppDO -> {
 
-            String accessToken = WxUtil.getAccessToken(sysOtherAppDO.getAppId());
+            String accessToken = WxUtil.getAccessToken(baseOtherAppDO.getAppId());
 
             Long qrCodeId = IdGeneratorUtil.nextId();
 
@@ -1371,6 +1375,215 @@ public class SignUtil {
         BaseOtherAppDO baseOtherAppDO = page.getRecords().get(0);
 
         return func1.call(baseOtherAppDO);
+
+    }
+
+    /**
+     * 获取：微信绑定信息
+     */
+    @SneakyThrows
+    @NotNull
+    public static BaseQrCodeSceneBindVO getBaseQrCodeSceneBindVoAndHandle(Long qrCodeId, boolean deleteFlag,
+        @Nullable VoidFunc1<BaseQrCodeSceneBindBO> voidFunc1) {
+
+        // 执行
+        return execGetBaseQrCodeSceneBindVoAndHandle(qrCodeId, deleteFlag, BaseRedisKeyEnum.PRE_BASE_WX_QR_CODE_BIND,
+            voidFunc1);
+
+    }
+
+    /**
+     * 获取：微信绑定信息
+     */
+    @SneakyThrows
+    @NotNull
+    public static BaseQrCodeSceneBindVO execGetBaseQrCodeSceneBindVoAndHandle(Long qrCodeId, boolean deleteFlag,
+        BaseRedisKeyEnum baseRedisKeyEnum, @Nullable VoidFunc1<BaseQrCodeSceneBindBO> voidFunc1) {
+
+        RBucket<BaseQrCodeSceneBindBO> rBucket = redissonClient.getBucket(baseRedisKeyEnum.name() + qrCodeId);
+
+        BaseQrCodeSceneBindBO baseQrCodeSceneBindBO;
+
+        if (deleteFlag) {
+
+            baseQrCodeSceneBindBO = rBucket.getAndDelete();
+
+        } else {
+
+            baseQrCodeSceneBindBO = rBucket.get();
+
+        }
+
+        BaseQrCodeSceneBindVO baseQrCodeSceneBindVO = new BaseQrCodeSceneBindVO();
+
+        if (baseQrCodeSceneBindBO == null) {
+
+            baseQrCodeSceneBindVO.setSceneFlag(false);
+
+        } else {
+
+            baseQrCodeSceneBindVO.setSceneFlag(true);
+
+            Long qrCodeUserId = baseQrCodeSceneBindBO.getUserId();
+
+            if (qrCodeUserId == null) { // 如果：不存在用户，则开始绑定
+
+                if (voidFunc1 != null) {
+
+                    voidFunc1.call(baseQrCodeSceneBindBO);
+
+                }
+
+            } else {
+
+                Long currentUserIdNotAdmin = MyUserUtil.getCurrentUserIdNotAdmin();
+
+                if (currentUserIdNotAdmin.equals(qrCodeUserId)) {
+
+                    baseQrCodeSceneBindVO.setErrorMsg("操作失败：您已绑定该微信，请勿重复绑定");
+
+                } else {
+
+                    baseQrCodeSceneBindVO.setErrorMsg("操作失败：该微信已被绑定");
+
+                }
+
+            }
+
+        }
+
+        return baseQrCodeSceneBindVO;
+
+    }
+
+    /**
+     * 绑定微信
+     */
+    @NotNull
+    public static BaseQrCodeSceneBindVO setWx(Long qrCodeId, String code, String codeKey, String currentPassword) {
+
+        // 执行
+        return getBaseQrCodeSceneBindVoAndHandle(qrCodeId, true, baseQrCodeSceneBindBO -> {
+
+            // 执行
+            SignUtil.bindAccount(code, BaseRedisKeyEnum.PRE_WX_OPEN_ID, baseQrCodeSceneBindBO.getOpenId(),
+                baseQrCodeSceneBindBO.getAppId(), codeKey, currentPassword);
+
+        });
+
+    }
+
+    /**
+     * 忘记密码
+     */
+    public static String forgetPassword(String newPasswordTemp, String originNewPasswordTemp, String code,
+        Enum<? extends IRedisKey> redisKeyEnum, String account,
+        LambdaQueryChainWrapper<TempUserDO> lambdaQueryChainWrapper) {
+
+        String newPassword = MyRsaUtil.rsaDecrypt(newPasswordTemp);
+        String originNewPassword = MyRsaUtil.rsaDecrypt(originNewPasswordTemp);
+
+        if (BooleanUtil.isFalse(ReUtil.isMatch(TempRegexConstant.PASSWORD_REGEXP, originNewPassword))) {
+            R.error(BaseBizCodeEnum.PASSWORD_RESTRICTIONS); // 不合法直接抛出异常
+        }
+
+        String key = redisKeyEnum.name() + account;
+
+        return RedissonUtil.doLock(key, () -> {
+
+            RBucket<String> bucket = redissonClient.getBucket(key);
+
+            CodeUtil.checkCode(code, bucket.get()); // 检查 code是否正确
+
+            // 获取：用户 id
+            TempUserDO tempUserDO = lambdaQueryChainWrapper.select(TempEntity::getId).one();
+
+            if (tempUserDO == null) {
+
+                bucket.delete(); // 删除：验证码
+                R.error(BaseBizCodeEnum.USER_DOES_NOT_EXIST);
+
+            }
+
+            tempUserDO.setPassword(PasswordConvertUtil.convert(newPassword, true));
+
+            return TransactionUtil.exec(() -> {
+
+                baseUserMapper.updateById(tempUserDO); // 保存：用户
+
+                RedissonUtil.batch((batch) -> {
+
+                    // 移除密码错误次数相关
+                    batch.getBucket(BaseRedisKeyEnum.PRE_PASSWORD_ERROR_COUNT.name() + ":" + tempUserDO.getId())
+                        .deleteAsync();
+
+                    batch.getMap(BaseRedisKeyEnum.PRE_TOO_MANY_PASSWORD_ERROR.name()).removeAsync(tempUserDO.getId());
+
+                    // 删除：验证码
+                    batch.getBucket(key).deleteAsync();
+
+                });
+
+                // 移除：jwt相关
+                SignUtil.removeJwt(CollUtil.newHashSet(tempUserDO.getId()));
+
+                return TempBizCodeEnum.OK;
+
+            });
+
+        });
+
+    }
+
+    /**
+     * 获取：已经绑定了微信的用户。进行扫码操作
+     */
+    @SneakyThrows
+    @NotNull
+    public static BaseQrCodeSceneBindVO getBaseQrCodeSceneBindVoAndHandleForUserId(Long qrCodeId, boolean deleteFlag,
+        BaseRedisKeyEnum baseRedisKeyEnum, @Nullable VoidFunc0 voidFunc0) {
+
+        RBucket<Long> bucket = redissonClient.getBucket(baseRedisKeyEnum.name() + qrCodeId);
+
+        Long userId;
+
+        if (deleteFlag) {
+
+            userId = bucket.getAndDelete();
+
+        } else {
+
+            userId = bucket.get();
+
+        }
+
+        BaseQrCodeSceneBindVO baseQrCodeSceneBindVO = new BaseQrCodeSceneBindVO();
+
+        if (userId == null) {
+
+            baseQrCodeSceneBindVO.setSceneFlag(false);
+
+        } else {
+
+            baseQrCodeSceneBindVO.setSceneFlag(true);
+
+            Long currentUserIdNotAdmin = MyUserUtil.getCurrentUserIdNotAdmin();
+
+            if (!userId.equals(currentUserIdNotAdmin)) {
+
+                R.errorMsg("操作失败：扫码用户不是当前用户，请重新进行扫码操作");
+
+            }
+
+            if (voidFunc0 != null) {
+
+                voidFunc0.call();
+
+            }
+
+        }
+
+        return baseQrCodeSceneBindVO;
 
     }
 

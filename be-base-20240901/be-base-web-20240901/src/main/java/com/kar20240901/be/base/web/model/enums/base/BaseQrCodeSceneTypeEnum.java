@@ -29,11 +29,11 @@ public enum BaseQrCodeSceneTypeEnum implements IBaseQrCodeSceneType {
         RBucket<BaseQrCodeSceneBindBO> bucket =
             redissonClient.getBucket(BaseRedisKeyEnum.PRE_BASE_WX_QR_CODE_BIND.name() + qrCodeSceneValue);
 
-        BaseQrCodeSceneBindBO sysQrCodeSceneBindBO = new BaseQrCodeSceneBindBO();
+        BaseQrCodeSceneBindBO baseQrCodeSceneBindBO = new BaseQrCodeSceneBindBO();
 
-        sysQrCodeSceneBindBO.setUserId(tempUserDO.getId());
+        baseQrCodeSceneBindBO.setUserId(tempUserDO.getId());
 
-        bucket.set(sysQrCodeSceneBindBO, Duration.ofMillis(TempConstant.MINUTE_3_EXPIRE_TIME));
+        bucket.set(baseQrCodeSceneBindBO, Duration.ofMillis(TempConstant.MINUTE_3_EXPIRE_TIME));
 
     }, false),
 

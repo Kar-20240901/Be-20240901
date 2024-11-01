@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SysRequestAllAvgVO {
+public class BaseRequestAllAvgVO {
 
     @Schema(description = "请求的总数")
     private Long count;

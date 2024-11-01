@@ -5,7 +5,7 @@ import com.kar20240901.be.base.web.model.domain.request.BaseRequestDO;
 import com.kar20240901.be.base.web.model.dto.request.BaseRequestPageDTO;
 import com.kar20240901.be.base.web.model.dto.request.BaseRequestSelfLoginRecordPageDTO;
 import com.kar20240901.be.base.web.model.vo.base.R;
-import com.kar20240901.be.base.web.model.vo.request.SysRequestAllAvgVO;
+import com.kar20240901.be.base.web.model.vo.request.BaseRequestAllAvgVO;
 import com.kar20240901.be.base.web.service.request.BaseRequestService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,7 +34,7 @@ public class BaseRequestController {
 
     @PostMapping("/allAvgPro")
     @Operation(summary = "所有请求的平均耗时-增强：增加筛选项")
-    public R<SysRequestAllAvgVO> allAvgPro(@RequestBody @Valid BaseRequestPageDTO dto) {
+    public R<BaseRequestAllAvgVO> allAvgPro(@RequestBody @Valid BaseRequestPageDTO dto) {
         return R.okData(baseService.allAvgPro(dto));
     }
 

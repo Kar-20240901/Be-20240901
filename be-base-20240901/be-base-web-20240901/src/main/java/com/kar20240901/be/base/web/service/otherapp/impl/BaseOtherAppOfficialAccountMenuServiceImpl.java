@@ -12,12 +12,15 @@ import com.kar20240901.be.base.web.mapper.otherapp.BaseOtherAppOfficialAccountMe
 import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.constant.log.LogTopicConstant;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
+import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityTree;
 import com.kar20240901.be.base.web.model.domain.otherapp.BaseOtherAppDO;
 import com.kar20240901.be.base.web.model.domain.otherapp.BaseOtherAppOfficialAccountMenuDO;
 import com.kar20240901.be.base.web.model.dto.base.ChangeNumberDTO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.otherapp.BaseOtherAppOfficialAccountMenuInsertOrUpdateDTO;
+import com.kar20240901.be.base.web.model.dto.otherapp.BaseOtherAppOfficialAccountMenuPageDTO;
 import com.kar20240901.be.base.web.model.enums.otherapp.BaseOtherAppOfficialAccountMenuButtonTypeEnum;
 import com.kar20240901.be.base.web.model.enums.otherapp.BaseOtherAppOfficialAccountMenuTypeEnum;
 import com.kar20240901.be.base.web.model.enums.otherapp.BaseOtherAppTypeEnum;
@@ -109,7 +112,7 @@ public class BaseOtherAppOfficialAccountMenuServiceImpl
         baseOtherAppOfficialAccountMenuDO.setReplyContent(MyEntityUtil.getNotNullStr(dto.getReplyContent()));
 
         baseOtherAppOfficialAccountMenuDO.setOrderNo(MyEntityUtil.getNotNullOrderNo(dto.getOrderNo()));
-        baseOtherAppOfficialAccountMenuDO.setPid(MyEntityUtil.getNotNullParentId(dto.getParentId()));
+        baseOtherAppOfficialAccountMenuDO.setPid(MyEntityUtil.getNotNullParentId(dto.getPid()));
 
         baseOtherAppOfficialAccountMenuDO.setId(dto.getId());
         baseOtherAppOfficialAccountMenuDO.setEnableFlag(BooleanUtil.isTrue(dto.getEnableFlag()));
@@ -133,11 +136,11 @@ public class BaseOtherAppOfficialAccountMenuServiceImpl
             .like(StrUtil.isNotBlank(dto.getValue()), BaseOtherAppOfficialAccountMenuDO::getValue, dto.getValue())
             .like(StrUtil.isNotBlank(dto.getReplyContent()), BaseOtherAppOfficialAccountMenuDO::getReplyContent,
                 dto.getReplyContent()) //
-            .like(StrUtil.isNotBlank(dto.getRemark()), BaseEntity::getRemark, dto.getRemark())
+            .like(StrUtil.isNotBlank(dto.getRemark()), TempEntityNoId::getRemark, dto.getRemark())
             .eq(dto.getType() != null, BaseOtherAppOfficialAccountMenuDO::getType, dto.getType())
             .eq(dto.getButtonType() != null, BaseOtherAppOfficialAccountMenuDO::getButtonType, dto.getButtonType())
-            .eq(dto.getEnableFlag() != null, BaseEntity::getEnableFlag, dto.getEnableFlag())
-            .orderByDesc(TempEntityTree::getOrderNo).page(dto.page(true));
+            .eq(dto.getEnableFlag() != null, TempEntityNoId::getEnableFlag, dto.getEnableFlag())
+            .orderByDesc(TempEntityTree::getOrderNo).page(dto.createTimeDescDefaultOrderPage());
 
     }
 
@@ -210,7 +213,7 @@ public class BaseOtherAppOfficialAccountMenuServiceImpl
         }
 
         List<BaseOtherAppOfficialAccountMenuDO> baseOtherAppOfficialAccountMenuDOList =
-            lambdaQuery().in(TempEntity::getId, dto.getIdSet()).select(BaseEntity::getId, BaseEntityTree::getOrderNo)
+            lambdaQuery().in(TempEntity::getId, dto.getIdSet()).select(TempEntity::getId, TempEntityTree::getOrderNo)
                 .list();
 
         for (BaseOtherAppOfficialAccountMenuDO item : baseOtherAppOfficialAccountMenuDOList) {

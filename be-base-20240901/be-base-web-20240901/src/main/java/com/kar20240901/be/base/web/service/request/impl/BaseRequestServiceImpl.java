@@ -9,7 +9,7 @@ import com.kar20240901.be.base.web.model.constant.base.OperationDescriptionConst
 import com.kar20240901.be.base.web.model.domain.request.BaseRequestDO;
 import com.kar20240901.be.base.web.model.dto.request.BaseRequestPageDTO;
 import com.kar20240901.be.base.web.model.dto.request.BaseRequestSelfLoginRecordPageDTO;
-import com.kar20240901.be.base.web.model.vo.request.SysRequestAllAvgVO;
+import com.kar20240901.be.base.web.model.vo.request.BaseRequestAllAvgVO;
 import com.kar20240901.be.base.web.service.request.BaseRequestService;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import org.springframework.stereotype.Service;
@@ -53,13 +53,13 @@ public class BaseRequestServiceImpl extends ServiceImpl<BaseRequestMapper, BaseR
      * 所有请求的平均耗时-增强：增加筛选项
      */
     @Override
-    public SysRequestAllAvgVO allAvgPro(BaseRequestPageDTO dto) {
+    public BaseRequestAllAvgVO allAvgPro(BaseRequestPageDTO dto) {
 
         BaseRequestDO baseRequestDO =
             getMyPageLambdaQueryChainWrapper(dto).select(BaseRequestDO::getCount, BaseRequestDO::getAvgMs)
                 .gt(BaseRequestDO::getCostMs, 1).one();
 
-        return new SysRequestAllAvgVO(baseRequestDO.getCount(), baseRequestDO.getAvgMs());
+        return new BaseRequestAllAvgVO(baseRequestDO.getCount(), baseRequestDO.getAvgMs());
 
     }
 

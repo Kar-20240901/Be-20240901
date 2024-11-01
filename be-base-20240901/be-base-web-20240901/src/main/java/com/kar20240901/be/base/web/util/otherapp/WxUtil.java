@@ -105,13 +105,13 @@ public class WxUtil {
     @NotNull
     public static WxPhoneByCodeVO.WxPhoneInfoVO getWxMiniProgramPhoneInfoVoByCode(String code, String appId) {
 
-        BaseOtherAppDO sysOtherAppDO = baseOtherAppService.lambdaQuery().eq(BaseOtherAppDO::getAppId, appId)
+        BaseOtherAppDO baseOtherAppDO = baseOtherAppService.lambdaQuery().eq(BaseOtherAppDO::getAppId, appId)
             .eq(TempEntityNoId::getEnableFlag, true).eq(BaseOtherAppDO::getType, BaseOtherAppTypeEnum.WX_MINI_PROGRAM)
             .select(BaseOtherAppDO::getSecret).one();
 
         String errorMessageStr = "用户手机号";
 
-        if (sysOtherAppDO == null) {
+        if (baseOtherAppDO == null) {
             R.error(TempBizCodeEnum.ILLEGAL_REQUEST.getMsg(), errorMessageStr);
         }
 

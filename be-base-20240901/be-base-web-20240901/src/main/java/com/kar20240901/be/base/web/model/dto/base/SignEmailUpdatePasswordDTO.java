@@ -1,6 +1,6 @@
 package com.kar20240901.be.base.web.model.dto.base;
 
-import com.cmcorg20230301.be.engine.model.model.constant.BaseRegexConstant;
+import com.kar20240901.be.base.web.model.constant.base.TempRegexConstant;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class SignEmailUpdatePasswordDTO {
 
-    @Pattern(regexp = BaseRegexConstant.CODE_6_REGEXP)
+    @Pattern(regexp = TempRegexConstant.CODE_6_REGEXP)
     @NotBlank
     @Schema(description = "邮箱验证码")
     private String code;

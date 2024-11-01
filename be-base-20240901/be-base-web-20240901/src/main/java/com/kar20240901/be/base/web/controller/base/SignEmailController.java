@@ -18,10 +18,10 @@ import com.kar20240901.be.base.web.model.dto.base.SignEmailUpdateEmailSendCodeNe
 import com.kar20240901.be.base.web.model.dto.base.SignEmailUpdatePasswordDTO;
 import com.kar20240901.be.base.web.model.dto.base.SignEmailUpdateUserNameDTO;
 import com.kar20240901.be.base.web.model.dto.base.SignEmailUpdateUserNameSendCodeDTO;
+import com.kar20240901.be.base.web.model.vo.base.BaseQrCodeSceneBindVO;
 import com.kar20240901.be.base.web.model.vo.base.GetQrCodeVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.base.SignInVO;
-import com.kar20240901.be.base.web.model.vo.base.SysQrCodeSceneBindVO;
 import com.kar20240901.be.base.web.service.base.SignEmailService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -138,13 +138,13 @@ public class SignEmailController {
 
     @PostMapping(value = "/setWx/getQrCodeSceneFlag")
     @Operation(summary = "设置微信：获取二维码是否已经被扫描")
-    public R<SysQrCodeSceneBindVO> getQrCodeSceneFlag(@RequestBody @Valid NotNullId notNullId) {
+    public R<BaseQrCodeSceneBindVO> getQrCodeSceneFlag(@RequestBody @Valid NotNullId notNullId) {
         return R.okData(baseService.getQrCodeSceneFlag(notNullId));
     }
 
     @PostMapping(value = "/setWx")
     @Operation(summary = "设置微信")
-    public R<SysQrCodeSceneBindVO> setWx(@RequestBody @Valid SignEmailSetWxDTO dto) {
+    public R<BaseQrCodeSceneBindVO> setWx(@RequestBody @Valid SignEmailSetWxDTO dto) {
         return R.okData(baseService.setWx(dto));
     }
 

@@ -3,14 +3,20 @@ package com.kar20240901.be.base.web.service.otherapp.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.otherapp.BaseOtherAppMapper;
 import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
+import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
 import com.kar20240901.be.base.web.model.domain.otherapp.BaseOtherAppDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.otherapp.BaseOtherAppInsertOrUpdateDTO;
+import com.kar20240901.be.base.web.model.dto.otherapp.BaseOtherAppPageDTO;
+import com.kar20240901.be.base.web.model.enums.base.BaseRedisKeyEnum;
+import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.otherapp.BaseOtherAppService;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.RedissonUtil;
@@ -32,49 +38,48 @@ public class BaseOtherAppServiceImpl extends ServiceImpl<BaseOtherAppMapper, Bas
             BaseRedisKeyEnum.PRE_OTHER_APP_TYPE_AND_APP_ID.name() + ":" + dto.getType() + ":" + dto.getAppId(), () -> {
 
                 // 同一个类型下，第三方 appId，不能重复
-                boolean exists = lambdaQuery().eq(SysOtherAppDO::getAppId, dto.getAppId())
-                    .ne(dto.getId() != null, BaseEntity::getId, dto.getId()).eq(SysOtherAppDO::getType, dto.getType())
+                boolean exists = lambdaQuery().eq(BaseOtherAppDO::getAppId, dto.getAppId())
+                    .ne(dto.getId() != null, TempEntity::getId, dto.getId()).eq(BaseOtherAppDO::getType, dto.getType())
                     .exists();
 
                 if (exists) {
-                    ApiResultVO.errorMsg("操作失败：第三方 appId不能重复");
+                    R.errorMsg("操作失败：第三方 appId不能重复");
                 }
 
                 if (StrUtil.isNotBlank(dto.getOpenId())) {
 
                     // 同一个类型下，第三方 openId，不能重复
-                    exists = lambdaQuery().eq(SysOtherAppDO::getOpenId, dto.getOpenId())
-                        .ne(dto.getId() != null, BaseEntity::getId, dto.getId())
-                        .eq(SysOtherAppDO::getType, dto.getType()).exists();
+                    exists = lambdaQuery().eq(BaseOtherAppDO::getOpenId, dto.getOpenId())
+                        .ne(dto.getId() != null, TempEntity::getId, dto.getId())
+                        .eq(BaseOtherAppDO::getType, dto.getType()).exists();
 
                     if (exists) {
-                        ApiResultVO.errorMsg("操作失败：第三方 openId不能重复");
+                        R.errorMsg("操作失败：第三方 openId不能重复");
                     }
 
                 }
 
-                SysOtherAppDO sysOtherAppDO = new SysOtherAppDO();
+                BaseOtherAppDO baseOtherAppDO = new BaseOtherAppDO();
 
-                sysOtherAppDO.setType(dto.getType());
-                sysOtherAppDO.setName(dto.getName());
-                sysOtherAppDO.setAppId(dto.getAppId());
-                sysOtherAppDO.setSecret(dto.getSecret());
+                baseOtherAppDO.setType(dto.getType());
+                baseOtherAppDO.setName(dto.getName());
+                baseOtherAppDO.setAppId(dto.getAppId());
+                baseOtherAppDO.setSecret(dto.getSecret());
 
-                sysOtherAppDO.setSubscribeReplyContent(MyEntityUtil.getNotNullStr(dto.getSubscribeReplyContent()));
-                sysOtherAppDO.setTextReplyContent(MyEntityUtil.getNotNullStr(dto.getTextReplyContent()));
-                sysOtherAppDO.setImageReplyContent(MyEntityUtil.getNotNullStr(dto.getImageReplyContent()));
+                baseOtherAppDO.setSubscribeReplyContent(MyEntityUtil.getNotNullStr(dto.getSubscribeReplyContent()));
+                baseOtherAppDO.setTextReplyContent(MyEntityUtil.getNotNullStr(dto.getTextReplyContent()));
+                baseOtherAppDO.setImageReplyContent(MyEntityUtil.getNotNullStr(dto.getImageReplyContent()));
 
-                sysOtherAppDO.setQrCode(MyEntityUtil.getNotNullStr(dto.getQrCode()));
-                sysOtherAppDO.setOpenId(MyEntityUtil.getNotNullStr(dto.getOpenId()));
+                baseOtherAppDO.setQrCode(MyEntityUtil.getNotNullStr(dto.getQrCode()));
+                baseOtherAppDO.setOpenId(MyEntityUtil.getNotNullStr(dto.getOpenId()));
 
-                sysOtherAppDO.setId(dto.getId());
-                sysOtherAppDO.setEnableFlag(BooleanUtil.isTrue(dto.getEnableFlag()));
-                sysOtherAppDO.setDelFlag(false);
-                sysOtherAppDO.setRemark(MyEntityUtil.getNotNullStr(dto.getRemark()));
+                baseOtherAppDO.setId(dto.getId());
+                baseOtherAppDO.setEnableFlag(BooleanUtil.isTrue(dto.getEnableFlag()));
+                baseOtherAppDO.setRemark(MyEntityUtil.getNotNullStr(dto.getRemark()));
 
-                saveOrUpdate(sysOtherAppDO);
+                saveOrUpdate(baseOtherAppDO);
 
-                return BaseBizCodeEnum.OK;
+                return TempBizCodeEnum.OK;
 
             });
 
@@ -86,25 +91,23 @@ public class BaseOtherAppServiceImpl extends ServiceImpl<BaseOtherAppMapper, Bas
     @Override
     public Page<BaseOtherAppDO> myPage(BaseOtherAppPageDTO dto) {
 
-        return lambdaQuery().like(StrUtil.isNotBlank(dto.getName()), SysOtherAppDO::getName, dto.getName()) //
-            .like(StrUtil.isNotBlank(dto.getAppId()), SysOtherAppDO::getAppId, dto.getAppId()) //
-            .like(StrUtil.isNotBlank(dto.getSubscribeReplyContent()), SysOtherAppDO::getSubscribeReplyContent,
+        return lambdaQuery().like(StrUtil.isNotBlank(dto.getName()), BaseOtherAppDO::getName, dto.getName()) //
+            .like(StrUtil.isNotBlank(dto.getAppId()), BaseOtherAppDO::getAppId, dto.getAppId()) //
+            .like(StrUtil.isNotBlank(dto.getSubscribeReplyContent()), BaseOtherAppDO::getSubscribeReplyContent,
                 dto.getSubscribeReplyContent()) //
-            .like(StrUtil.isNotBlank(dto.getTextReplyContent()), SysOtherAppDO::getTextReplyContent,
+            .like(StrUtil.isNotBlank(dto.getTextReplyContent()), BaseOtherAppDO::getTextReplyContent,
                 dto.getTextReplyContent()) //
-            .like(StrUtil.isNotBlank(dto.getImageReplyContent()), SysOtherAppDO::getImageReplyContent,
+            .like(StrUtil.isNotBlank(dto.getImageReplyContent()), BaseOtherAppDO::getImageReplyContent,
                 dto.getImageReplyContent()) //
-            .like(StrUtil.isNotBlank(dto.getQrCode()), SysOtherAppDO::getQrCode, dto.getQrCode()) //
-            .like(StrUtil.isNotBlank(dto.getOpenId()), SysOtherAppDO::getOpenId, dto.getOpenId()) //
-            .like(StrUtil.isNotBlank(dto.getRemark()), BaseEntity::getRemark, dto.getRemark()) //
-            .eq(dto.getType() != null, SysOtherAppDO::getType, dto.getType()) //
-            .eq(dto.getEnableFlag() != null, BaseEntity::getEnableFlag, dto.getEnableFlag()) //
-            .in(BaseEntityNoId::getTenantId, dto.getTenantIdSet()) //
-            .select(BaseEntity::getId, BaseEntityNoIdSuper::getTenantId, BaseEntityNoId::getEnableFlag,
-                BaseEntityNoId::getRemark, BaseEntityNoIdSuper::getCreateId, BaseEntityNoIdSuper::getCreateTime,
-                BaseEntityNoIdSuper::getUpdateId, BaseEntityNoIdSuper::getUpdateTime, SysOtherAppDO::getName,
-                SysOtherAppDO::getType, SysOtherAppDO::getSubscribeReplyContent, SysOtherAppDO::getQrCode)
-            .orderByDesc(BaseEntity::getUpdateTime).page(dto.page(true));
+            .like(StrUtil.isNotBlank(dto.getQrCode()), BaseOtherAppDO::getQrCode, dto.getQrCode()) //
+            .like(StrUtil.isNotBlank(dto.getOpenId()), BaseOtherAppDO::getOpenId, dto.getOpenId()) //
+            .like(StrUtil.isNotBlank(dto.getRemark()), TempEntity::getRemark, dto.getRemark()) //
+            .eq(dto.getType() != null, BaseOtherAppDO::getType, dto.getType()) //
+            .eq(dto.getEnableFlag() != null, TempEntity::getEnableFlag, dto.getEnableFlag()) //
+            .select(TempEntity::getId, TempEntityNoId::getEnableFlag, TempEntityNoId::getCreateTime,
+                TempEntityNoId::getUpdateTime, BaseOtherAppDO::getName, BaseOtherAppDO::getType,
+                BaseOtherAppDO::getSubscribeReplyContent, BaseOtherAppDO::getQrCode)
+            .page(dto.createTimeDescDefaultOrderPage());
 
     }
 
