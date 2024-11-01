@@ -4,6 +4,7 @@ import com.kar20240901.be.base.web.model.dto.base.EmailNotBlankDTO;
 import com.kar20240901.be.base.web.model.dto.base.NotBlankCodeDTO;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.base.SignEmailForgetPasswordDTO;
+import com.kar20240901.be.base.web.model.dto.base.SignEmailSetPasswordDTO;
 import com.kar20240901.be.base.web.model.dto.base.SignEmailSetPhoneDTO;
 import com.kar20240901.be.base.web.model.dto.base.SignEmailSetPhoneSendCodePhoneDTO;
 import com.kar20240901.be.base.web.model.dto.base.SignEmailSetUserNameDTO;
@@ -32,6 +33,10 @@ public interface SignEmailService {
     String signInSendCode(EmailNotBlankDTO dto);
 
     SignInVO signInCode(SignEmailSignInCodeDTO dto);
+
+    String setPasswordSendCode();
+
+    String setPassword(SignEmailSetPasswordDTO dto);
 
     String updatePasswordSendCode();
 

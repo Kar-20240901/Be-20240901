@@ -5,6 +5,7 @@ import com.kar20240901.be.base.web.model.dto.base.EmailNotBlankDTO;
 import com.kar20240901.be.base.web.model.dto.base.NotBlankCodeDTO;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.base.SignEmailForgetPasswordDTO;
+import com.kar20240901.be.base.web.model.dto.base.SignEmailSetPasswordDTO;
 import com.kar20240901.be.base.web.model.dto.base.SignEmailSetPhoneDTO;
 import com.kar20240901.be.base.web.model.dto.base.SignEmailSetPhoneSendCodePhoneDTO;
 import com.kar20240901.be.base.web.model.dto.base.SignEmailSetUserNameDTO;
@@ -68,6 +69,18 @@ public class SignEmailController {
     @Operation(summary = "邮箱验证码登录", description = OperationDescriptionConstant.SIGN_IN)
     public R<SignInVO> signInCode(@RequestBody @Valid SignEmailSignInCodeDTO dto) {
         return R.okData(baseService.signInCode(dto));
+    }
+
+    @PostMapping(value = "/setPassword/sendCode")
+    @Operation(summary = "设置密码-发送验证码")
+    public R<String> setPasswordSendCode() {
+        return R.okMsg(baseService.setPasswordSendCode());
+    }
+
+    @PostMapping(value = "/setPassword")
+    @Operation(summary = "设置密码")
+    public R<String> setPassword(@RequestBody @Valid SignEmailSetPasswordDTO dto) {
+        return R.okMsg(baseService.setPassword(dto));
     }
 
     @PostMapping(value = "/updatePassword/sendCode")

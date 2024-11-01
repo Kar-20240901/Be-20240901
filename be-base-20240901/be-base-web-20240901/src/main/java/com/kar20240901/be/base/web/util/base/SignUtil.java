@@ -1587,4 +1587,65 @@ public class SignUtil {
 
     }
 
+    /**
+     * 验证码登录
+     */
+    @Nullable
+    public static SignInVO signInCode(LambdaQueryChainWrapper<TempUserDO> lambdaQueryChainWrapper, String code,
+        Enum<? extends IRedisKey> redisKeyEnum, String account, @Nullable VoidFunc0 voidFunc0,
+        BaseRequestCategoryEnum baseRequestCategoryEnum) {
+
+        // 登录时，获取账号信息
+        TempUserDO tempUserDO = signInGetTempUserDO(lambdaQueryChainWrapper, false);
+
+        String key = redisKeyEnum + account;
+
+        return RedissonUtil.doLock(key, () -> {
+
+            // 执行
+            return doSignInCode(code, redisKeyEnum, account, voidFunc0, key, tempUserDO, baseRequestCategoryEnum);
+
+        });
+
+    }
+
+    /**
+     * 执行：验证码登录
+     */
+    @SneakyThrows
+    @Nullable
+    private static SignInVO doSignInCode(String code, Enum<? extends IRedisKey> redisKeyEnum, String account,
+        @Nullable VoidFunc0 voidFunc0, String key, TempUserDO tempUserDoTemp,
+        BaseRequestCategoryEnum baseRequestCategoryEnum) {
+
+        RBucket<String> bucket = redissonClient.getBucket(key);
+
+        CodeUtil.checkCode(code, bucket.get()); // 检查 code是否正确
+
+        TempUserDO tempUserDO = tempUserDoTemp;
+
+        if (tempUserDO == null) {
+
+            if (voidFunc0 != null) {
+
+                voidFunc0.call();
+
+            }
+
+            // 如果登录的账号不存在，则进行新增
+            Map<Enum<? extends IRedisKey>, String> accountMap = MapUtil.newHashMap();
+
+            accountMap.put(redisKeyEnum, account);
+
+            tempUserDO = SignUtil.insertUser(null, accountMap, false, null, null);
+
+        }
+
+        bucket.delete(); // 删除：验证码
+
+        // 登录时，获取：jwt
+        return signInGetJwt(tempUserDO, true, baseRequestCategoryEnum);
+
+    }
+
 }
