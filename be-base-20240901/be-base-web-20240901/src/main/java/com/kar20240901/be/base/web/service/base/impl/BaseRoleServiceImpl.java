@@ -329,7 +329,7 @@ public class BaseRoleServiceImpl extends ServiceImpl<BaseRoleMapper, BaseRoleDO>
      */
     private static void updateCacheForDefault(Set<Long> authIdSet) {
 
-        RSet<String> rSet = redissonClient.getSet(TempRedisKeyEnum.DEFAULT_USER_AUTH_CACHE.name());
+        RSet<String> rSet = redissonClient.getSetCache(TempRedisKeyEnum.DEFAULT_USER_AUTH_CACHE.name());
 
         rSet.delete();
 

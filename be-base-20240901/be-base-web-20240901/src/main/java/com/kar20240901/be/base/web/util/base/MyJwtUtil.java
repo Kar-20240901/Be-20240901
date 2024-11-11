@@ -197,7 +197,7 @@ public class MyJwtUtil {
         }
 
         Set<String> defaultAuthSet =
-            redissonClient.<String>getSet(TempRedisKeyEnum.DEFAULT_USER_AUTH_CACHE.name()).readAll();
+            redissonClient.<String>getSetCache(TempRedisKeyEnum.DEFAULT_USER_AUTH_CACHE.name()).readAll();
 
         Set<String> authSet =
             redissonClient.<String>getSet(TempRedisKeyEnum.PRE_USER_AUTH.name() + ":" + userId).readAll();
