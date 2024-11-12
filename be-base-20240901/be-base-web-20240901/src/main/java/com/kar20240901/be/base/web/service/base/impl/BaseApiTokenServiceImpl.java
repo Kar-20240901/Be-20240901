@@ -99,7 +99,9 @@ public class BaseApiTokenServiceImpl extends ServiceImpl<BaseApiTokenMapper, Bas
         }
 
         return lambdaQuery().like(StrUtil.isNotBlank(dto.getName()), BaseApiTokenDO::getName, dto.getName())
-            .eq(queryUserId != null, BaseApiTokenDO::getUserId, queryUserId).page(dto.createTimeDescDefaultOrderPage());
+            .eq(queryUserId != null, BaseApiTokenDO::getUserId, queryUserId)
+            .select(BaseApiTokenDO::getId, BaseApiTokenDO::getName, BaseApiTokenDO::getCreateTime)
+            .page(dto.createTimeDescDefaultOrderPage());
 
     }
 

@@ -34,4 +34,8 @@ public class BaseApiTokenDO {
     @Schema(description = "apiToken名")
     private String name;
 
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "最近使用时间")
+    private Date lastUseTime;
+
 }
