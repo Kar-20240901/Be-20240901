@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.service.base.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -59,6 +60,7 @@ public class BaseApiTokenServiceImpl extends ServiceImpl<BaseApiTokenMapper, Bas
 
         baseApiTokenDO.setId(dto.getId());
         baseApiTokenDO.setUserId(userId);
+        baseApiTokenDO.setEnableFlag(BooleanUtil.isTrue(dto.getEnableFlag()));
 
         if (dto.getId() == null) {
 
@@ -100,8 +102,8 @@ public class BaseApiTokenServiceImpl extends ServiceImpl<BaseApiTokenMapper, Bas
 
         return lambdaQuery().like(StrUtil.isNotBlank(dto.getName()), BaseApiTokenDO::getName, dto.getName())
             .eq(queryUserId != null, BaseApiTokenDO::getUserId, queryUserId)
-            .select(BaseApiTokenDO::getId, BaseApiTokenDO::getName, BaseApiTokenDO::getCreateTime)
-            .page(dto.createTimeDescDefaultOrderPage());
+            .select(BaseApiTokenDO::getId, BaseApiTokenDO::getName, BaseApiTokenDO::getLastUseTime,
+                BaseApiTokenDO::getEnableFlag).page(dto.createTimeDescDefaultOrderPage());
 
     }
 

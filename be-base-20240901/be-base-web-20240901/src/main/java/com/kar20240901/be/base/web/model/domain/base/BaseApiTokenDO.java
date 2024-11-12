@@ -38,4 +38,7 @@ public class BaseApiTokenDO {
     @Schema(description = "最近使用时间")
     private Date lastUseTime;
 
+    @Schema(description = "是否启用")
+    private Boolean enableFlag;
+
 }

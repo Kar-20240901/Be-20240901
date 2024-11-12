@@ -16,4 +16,7 @@ public class BaseApiTokenInsertOrUpdateDTO extends TempInsertOrUpdateDTO {
     @Schema(description = "用户主键id")
     private Long userId;
 
+    @Schema(description = "是否启用")
+    private Boolean enableFlag;
+
 }
