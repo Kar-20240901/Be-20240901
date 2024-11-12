@@ -8,6 +8,7 @@ import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.base.BaseUserDeleteLogMapper;
 import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.domain.base.BaseUserDeleteLogDO;
+import com.kar20240901.be.base.web.model.domain.base.TempEntityNoIdSuper;
 import com.kar20240901.be.base.web.model.dto.base.BaseUserDeleteLogPageDTO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
@@ -33,6 +34,7 @@ public class BaseUserDeleteLogServiceImpl extends ServiceImpl<BaseUserDeleteLogM
             .like(StrUtil.isNotBlank(dto.getWxAppId()), BaseUserDeleteLogDO::getWxAppId, dto.getWxAppId())
             .like(StrUtil.isNotBlank(dto.getUuid()), BaseUserDeleteLogDO::getUuid, dto.getUuid())
             .like(StrUtil.isNotBlank(dto.getNickname()), BaseUserDeleteLogDO::getNickname, dto.getNickname())
+            .select(BaseUserDeleteLogDO::getId, TempEntityNoIdSuper::getCreateTime, BaseUserDeleteLogDO::getNickname)
             .page(dto.createTimeDescDefaultOrderPage());
 
     }

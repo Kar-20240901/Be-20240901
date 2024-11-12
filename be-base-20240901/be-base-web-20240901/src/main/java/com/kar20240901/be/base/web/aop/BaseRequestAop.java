@@ -179,7 +179,7 @@ public class BaseRequestAop {
         // 处理：耗时相关
         handleCostMs(costMs, baseRequestDO);
 
-        log.info("uri：{}，耗时：{}", baseRequestDO.getUri(), baseRequestDO.getCostMs());
+        log.info("uri：{}，耗时：{}ms", baseRequestDO.getUri(), baseRequestDO.getCostMs());
 
         // 添加一个：请求数据
         RequestUtil.add(baseRequestDO, baseRequestInfoDO);
