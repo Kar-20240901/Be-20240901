@@ -11,4 +11,7 @@ public class BaseApiTokenPageDTO extends MyPageDTO {
     @Schema(description = "名称")
     private String name;
 
+    @Schema(description = "用户主键id")
+    private Long userId;
+
 }

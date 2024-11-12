@@ -12,6 +12,7 @@ import com.kar20240901.be.base.web.model.dto.base.BaseApiTokenInsertOrUpdateDTO;
 import com.kar20240901.be.base.web.model.dto.base.BaseApiTokenPageDTO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.base.BaseApiTokenService;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import java.util.Set;
@@ -27,10 +28,37 @@ public class BaseApiTokenServiceImpl extends ServiceImpl<BaseApiTokenMapper, Bas
     @Override
     public String insertOrUpdate(BaseApiTokenInsertOrUpdateDTO dto) {
 
+        Long userId = MyUserUtil.getCurrentUserId();
+
+        if (MyUserUtil.getCurrentUserAdminFlag(userId)) {
+
+            if (dto.getUserId() == null) {
+
+                dto.setUserId(userId);
+
+            }
+
+        } else {
+
+            dto.setUserId(userId);
+
+            if (dto.getId() != null) {
+
+                boolean exists =
+                    lambdaQuery().eq(BaseApiTokenDO::getId, dto.getId()).eq(BaseApiTokenDO::getUserId, userId).exists();
+
+                if (!exists) {
+                    R.error(TempBizCodeEnum.ILLEGAL_REQUEST);
+                }
+
+            }
+
+        }
+
         BaseApiTokenDO baseApiTokenDO = new BaseApiTokenDO();
 
         baseApiTokenDO.setId(dto.getId());
-        baseApiTokenDO.setUserId(MyUserUtil.getCurrentUserId());
+        baseApiTokenDO.setUserId(userId);
 
         if (dto.getId() == null) {
 
@@ -52,8 +80,26 @@ public class BaseApiTokenServiceImpl extends ServiceImpl<BaseApiTokenMapper, Bas
     @Override
     public Page<BaseApiTokenDO> myPage(BaseApiTokenPageDTO dto) {
 
+        Long userId = MyUserUtil.getCurrentUserId();
+
+        Long queryUserId = null;
+
+        if (MyUserUtil.getCurrentUserAdminFlag(userId)) {
+
+            if (dto.getUserId() != null) {
+
+                queryUserId = dto.getUserId();
+
+            }
+
+        } else {
+
+            queryUserId = userId;
+
+        }
+
         return lambdaQuery().like(StrUtil.isNotBlank(dto.getName()), BaseApiTokenDO::getName, dto.getName())
-            .page(dto.createTimeDescDefaultOrderPage());
+            .eq(queryUserId != null, BaseApiTokenDO::getUserId, queryUserId).page(dto.createTimeDescDefaultOrderPage());
 
     }
 
@@ -63,7 +109,18 @@ public class BaseApiTokenServiceImpl extends ServiceImpl<BaseApiTokenMapper, Bas
     @Override
     public BaseApiTokenDO infoById(NotNullId notNullId) {
 
-        return lambdaQuery().eq(BaseApiTokenDO::getId, notNullId.getId()).one();
+        Long userId = MyUserUtil.getCurrentUserId();
+
+        Long queryUserId = null;
+
+        if (!MyUserUtil.getCurrentUserAdminFlag(userId)) {
+
+            queryUserId = userId;
+
+        }
+
+        return lambdaQuery().eq(BaseApiTokenDO::getId, notNullId.getId()).eq(BaseApiTokenDO::getUserId, queryUserId)
+            .one();
 
     }
 
@@ -79,7 +136,18 @@ public class BaseApiTokenServiceImpl extends ServiceImpl<BaseApiTokenMapper, Bas
             return TempBizCodeEnum.OK;
         }
 
-        removeByIds(idSet);
+        Long userId = MyUserUtil.getCurrentUserId();
+
+        Long queryUserId = null;
+
+        if (!MyUserUtil.getCurrentUserAdminFlag(userId)) {
+
+            queryUserId = userId;
+
+        }
+
+        lambdaUpdate().in(BaseApiTokenDO::getId, idSet).eq(queryUserId != null, BaseApiTokenDO::getUserId, queryUserId)
+            .remove();
 
         return TempBizCodeEnum.OK;
 
