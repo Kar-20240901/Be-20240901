@@ -121,7 +121,7 @@ public class NettyWebSocketServiceImpl implements NettyWebSocketService {
 
         resSet.add(strBuilder.toString()); // 添加到返回值里
 
-        String key = BaseRedisKeyEnum.PRE_WEB_SOCKET_CODE.name() + code;
+        String key = BaseRedisKeyEnum.PRE_WEB_SOCKET_CODE.name() + ":" + code;
 
         BaseSocketRefUserDO baseSocketRefUserDO = new BaseSocketRefUserDO();
 

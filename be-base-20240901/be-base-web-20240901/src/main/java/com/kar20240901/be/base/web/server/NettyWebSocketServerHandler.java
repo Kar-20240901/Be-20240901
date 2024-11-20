@@ -526,7 +526,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
         }
 
-        String key = BaseRedisKeyEnum.PRE_WEB_SOCKET_CODE.name() + code;
+        String key = BaseRedisKeyEnum.PRE_WEB_SOCKET_CODE.name() + ":" + code;
 
         BaseSocketRefUserDO baseSocketRefUserDO = redissonClient.<BaseSocketRefUserDO>getBucket(key).getAndDelete();
 
