@@ -23,8 +23,8 @@
       AND a.id IN (SELECT subA.menu_id FROM base_role_ref_menu subA WHERE subA.role_id IN (
 
       ( SELECT subSubA.role_id as roleId FROM base_role_ref_user subSubA WHERE subSubA.user_id =
-      #{userId} ) UNION ALL (SELECT subSubA.id as roleId FROM
-      base_role subSubA WHERE subSubA.enable_flag = true AND subSubA.default_flag = true)
+      #{userId} ) UNION ALL ( SELECT subSubA.id as roleId FROM
+      base_role subSubA WHERE subSubA.enable_flag = true AND subSubA.default_flag = true )
 
       ))
     </if>

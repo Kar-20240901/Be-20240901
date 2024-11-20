@@ -71,4 +71,13 @@ public class TempKafkaUtil {
 
     }
 
+    /**
+     * 发送消息：删除缓存的 topic
+     */
+    public static void sendDeleteCacheTopic(String pattern) {
+
+        send(BaseKafkaTopicEnum.DELETE_CACHE_TOPIC, pattern);
+
+    }
+
 }

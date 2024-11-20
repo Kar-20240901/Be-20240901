@@ -30,13 +30,11 @@ import com.kar20240901.be.base.web.model.dto.base.BaseUserUpdatePasswordDTO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.enums.base.BaseRedisKeyEnum;
-import com.kar20240901.be.base.web.model.enums.base.TempRedisKeyEnum;
 import com.kar20240901.be.base.web.model.interfaces.base.IRedisKey;
 import com.kar20240901.be.base.web.model.vo.base.BaseUserPageVO;
 import com.kar20240901.be.base.web.model.vo.base.DictVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.base.TempUserInfoByIdVO;
-import com.kar20240901.be.base.web.properties.base.BaseSecurityProperties;
 import com.kar20240901.be.base.web.service.base.BaseRoleRefUserService;
 import com.kar20240901.be.base.web.service.base.BaseUserService;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
@@ -75,9 +73,6 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
 
     @Resource
     BaseUserInfoMapper baseUserInfoMapper;
-
-    @Resource
-    BaseSecurityProperties baseSecurityProperties;
 
     /**
      * 分页排序查询
@@ -200,14 +195,20 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
         }
 
         // 执行
-        return doInsertOrUpdate(dto, redisKeyEnumSet);
+        Long userId = doInsertOrUpdate(dto, redisKeyEnumSet);
+
+        BaseRoleServiceImpl.deleteAuthCache(CollUtil.newHashSet(userId)); // 删除权限缓存
+
+        BaseRoleServiceImpl.deleteMenuCache(CollUtil.newHashSet(userId)); // 删除菜单缓存
+
+        return TempBizCodeEnum.OK;
 
     }
 
     /**
      * 执行：新增/修改
      */
-    private String doInsertOrUpdate(BaseUserInsertOrUpdateDTO dto, Set<Enum<? extends IRedisKey>> redisKeyEnumSet) {
+    private Long doInsertOrUpdate(BaseUserInsertOrUpdateDTO dto, Set<Enum<? extends IRedisKey>> redisKeyEnumSet) {
 
         return RedissonUtil.doMultiLock(null, redisKeyEnumSet, () -> {
 
@@ -281,7 +282,7 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
 
             }
 
-            return TempBizCodeEnum.OK;
+            return tempUserDO.getId();
 
         });
 
@@ -291,9 +292,6 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
      * 新增/修改：新增数据到子表
      */
     private void insertOrUpdateSub(TempUserDO tempUserDO, BaseUserInsertOrUpdateDTO dto) {
-
-        // 删除：权限
-        redissonClient.getSet(TempRedisKeyEnum.PRE_USER_AUTH.name() + ":" + tempUserDO.getId()).delete();
 
         // 如果禁用了，则子表不进行新增操作
         if (BooleanUtil.isFalse(tempUserDO.getEnableFlag())) {
@@ -326,9 +324,6 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
             }
 
             baseRoleRefUserService.saveBatch(insertList);
-
-            // 更新缓存
-            BaseRoleServiceImpl.updateCache(null, CollUtil.newHashSet(tempUserDO.getId()), null);
 
         }
 

@@ -7,13 +7,10 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.exception.base.BaseBizCodeEnum;
-import com.kar20240901.be.base.web.mapper.base.BaseAuthMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseRoleMapper;
 import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
-import com.kar20240901.be.base.web.model.domain.base.BaseAuthDO;
 import com.kar20240901.be.base.web.model.domain.base.BaseRoleDO;
 import com.kar20240901.be.base.web.model.domain.base.BaseRoleRefAuthDO;
 import com.kar20240901.be.base.web.model.domain.base.BaseRoleRefMenuDO;
@@ -34,19 +31,14 @@ import com.kar20240901.be.base.web.service.base.BaseRoleRefUserService;
 import com.kar20240901.be.base.web.service.base.BaseRoleService;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyMapUtil;
-import com.kar20240901.be.base.web.util.base.TransactionUtil;
+import com.kar20240901.be.base.web.util.kafka.TempKafkaUtil;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.annotation.Resource;
-import org.redisson.api.RBatch;
-import org.redisson.api.RSet;
-import org.redisson.api.RSetAsync;
+import org.redisson.api.RKeys;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
@@ -75,20 +67,6 @@ public class BaseRoleServiceImpl extends ServiceImpl<BaseRoleMapper, BaseRoleDO>
     @Resource
     public void setRedissonClient(RedissonClient redissonClient) {
         BaseRoleServiceImpl.redissonClient = redissonClient;
-    }
-
-    private static BaseAuthMapper baseAuthMapper;
-
-    @Resource
-    public void setBaseAuthMapper(BaseAuthMapper baseAuthMapper) {
-        BaseRoleServiceImpl.baseAuthMapper = baseAuthMapper;
-    }
-
-    private static BaseRoleMapper baseRoleMapper;
-
-    @Resource
-    public void setBaseRoleMapper(BaseRoleMapper baseRoleMapper) {
-        BaseRoleServiceImpl.baseRoleMapper = baseRoleMapper;
     }
 
     /**
@@ -137,13 +115,7 @@ public class BaseRoleServiceImpl extends ServiceImpl<BaseRoleMapper, BaseRoleDO>
         baseRoleDO.setRemark(MyEntityUtil.getNotNullStr(dto.getRemark()));
         baseRoleDO.setId(dto.getId());
 
-        Set<Long> oldUserIdSet = new HashSet<>();
-
         if (dto.getId() != null) {
-
-            oldUserIdSet = baseRoleRefUserService.lambdaQuery().eq(BaseRoleRefUserDO::getRoleId, dto.getId())
-                .select(BaseRoleRefUserDO::getUserId).list().stream().map(BaseRoleRefUserDO::getUserId)
-                .collect(Collectors.toSet());
 
             deleteByIdSetSub(CollUtil.newHashSet(dto.getId())); // 先删除子表数据
 
@@ -153,195 +125,63 @@ public class BaseRoleServiceImpl extends ServiceImpl<BaseRoleMapper, BaseRoleDO>
 
         insertOrUpdateSub(dto, baseRoleDO); // 新增 子表数据
 
-        updateCache(dto, oldUserIdSet, null); // 更新缓存
+        deleteAuthCache(null); // 删除权限缓存
+
+        deleteMenuCache(null); // 删除菜单缓存
 
         return TempBizCodeEnum.OK;
 
     }
 
     /**
-     * 更新缓存
+     * 删除权限缓存
      */
-    public static void updateCache(@Nullable BaseRoleInsertOrUpdateDTO dto, Set<Long> userIdSet,
-        @Nullable Set<Long> roleIdSet) {
+    public static void deleteAuthCache(@Nullable Set<Long> userIdSet) {
 
-        TransactionUtil.exec(() -> {
+        if (userIdSet == null) {
 
-            if (dto == null) {
+            TempKafkaUtil.sendDeleteCacheTopic(TempRedisKeyEnum.PRE_USER_AUTH.name() + ":*");
 
-                if (CollUtil.isNotEmpty(roleIdSet)) {
-
-                    BaseRoleDO baseRoleDO =
-                        ChainWrappers.lambdaQueryChain(baseRoleMapper).in(TempEntity::getId, roleIdSet)
-                            .eq(BaseRoleDO::getDefaultFlag, true).select(TempEntity::getId).one();
-
-                    if (baseRoleDO != null) {
-
-                        Set<Long> authIdSet =
-                            baseRoleRefAuthService.lambdaQuery().eq(BaseRoleRefAuthDO::getRoleId, baseRoleDO.getId())
-                                .select(BaseRoleRefAuthDO::getAuthId).list().stream().map(BaseRoleRefAuthDO::getAuthId)
-                                .collect(Collectors.toSet());
-
-                        // 更新：默认缓存
-                        updateCacheForDefault(authIdSet);
-
-                    }
-
-                }
-
-            } else {
-
-                if (BooleanUtil.isTrue(dto.getDefaultFlag())) {
-
-                    // 更新：默认缓存
-                    updateCacheForDefault(dto.getAuthIdSet());
-
-                }
-
-                if (CollUtil.isNotEmpty(dto.getUserIdSet())) {
-
-                    userIdSet.addAll(dto.getUserIdSet());
-
-                }
-
-            }
+        } else {
 
             if (CollUtil.isEmpty(userIdSet)) {
                 return;
             }
 
-            // 通过：userIdSet，更新缓存
-            updateCacheByUserIdSet(userIdSet);
+            RKeys keys = redissonClient.getKeys();
 
-        });
+            String[] redisKeyArr =
+                userIdSet.stream().map(it -> TempRedisKeyEnum.PRE_USER_AUTH.name() + ":" + it).toArray(String[]::new);
+
+            keys.delete(redisKeyArr);
+
+        }
 
     }
 
     /**
-     * 通过：userIdSet，更新缓存
+     * 删除菜单缓存
      */
-    private static void updateCacheByUserIdSet(Set<Long> userIdSet) {
+    public static void deleteMenuCache(@Nullable Set<Long> userIdSet) {
 
-        List<BaseRoleRefUserDO> baseRoleRefUserDoList =
-            baseRoleRefUserService.lambdaQuery().in(BaseRoleRefUserDO::getUserId, userIdSet)
-                .select(BaseRoleRefUserDO::getRoleId, BaseRoleRefUserDO::getUserId).list();
+        if (userIdSet == null) {
 
-        Set<Long> roleIdSet = new HashSet<>();
+            TempKafkaUtil.sendDeleteCacheTopic(TempRedisKeyEnum.PRE_USER_MENU.name() + ":*");
 
-        Map<Long, Set<Long>> userIdRefRoleIdSetMap = new HashMap<>();
+        } else {
 
-        for (BaseRoleRefUserDO item : baseRoleRefUserDoList) {
-
-            Long userId = item.getUserId();
-
-            Long roleId = item.getRoleId();
-
-            roleIdSet.add(roleId);
-
-            Set<Long> userIdRefRoleIdSet = userIdRefRoleIdSetMap.computeIfAbsent(userId, k -> new HashSet<>());
-
-            userIdRefRoleIdSet.add(roleId);
-
-        }
-
-        Set<Long> authIdSet = new HashSet<>();
-
-        Map<Long, Set<Long>> roleIdRefAuthIdSetMap = new HashMap<>();
-
-        if (CollUtil.isNotEmpty(roleIdSet)) {
-
-            List<BaseRoleRefAuthDO> baseRoleRefAuthDoList =
-                baseRoleRefAuthService.lambdaQuery().in(BaseRoleRefAuthDO::getRoleId, roleIdSet)
-                    .select(BaseRoleRefAuthDO::getRoleId, BaseRoleRefAuthDO::getAuthId).list();
-
-            for (BaseRoleRefAuthDO item : baseRoleRefAuthDoList) {
-
-                Long authId = item.getAuthId();
-
-                Long roleId = item.getRoleId();
-
-                authIdSet.add(authId);
-
-                Set<Long> roleIdRefAuthIdSet = roleIdRefAuthIdSetMap.computeIfAbsent(roleId, k -> new HashSet<>());
-
-                roleIdRefAuthIdSet.add(authId);
-
+            if (CollUtil.isEmpty(userIdSet)) {
+                return;
             }
 
-        }
+            RKeys keys = redissonClient.getKeys();
 
-        Map<Long, String> authMap = new HashMap<>();
+            String[] redisKeyArr =
+                userIdSet.stream().map(it -> TempRedisKeyEnum.PRE_USER_MENU.name() + ":" + it).toArray(String[]::new);
 
-        if (CollUtil.isNotEmpty(authIdSet)) {
-
-            authMap = ChainWrappers.lambdaQueryChain(baseAuthMapper).in(TempEntity::getId, authIdSet)
-                .select(TempEntity::getId, BaseAuthDO::getAuth).list().stream()
-                .collect(Collectors.toMap(TempEntity::getId, BaseAuthDO::getAuth));
+            keys.delete(redisKeyArr);
 
         }
-
-        RBatch rBatch = redissonClient.createBatch();
-
-        for (Long userId : userIdSet) {
-
-            Set<Long> userIdRefRoleIdSet = userIdRefRoleIdSetMap.get(userId);
-
-            RSetAsync<String> rBatchSet = rBatch.getSet(TempRedisKeyEnum.PRE_USER_AUTH.name() + ":" + userId);
-
-            rBatchSet.deleteAsync();
-
-            if (CollUtil.isEmpty(userIdRefRoleIdSet)) {
-                continue;
-            }
-
-            Set<String> authSet = new HashSet<>();
-
-            for (Long roleId : userIdRefRoleIdSet) {
-
-                Set<Long> roleIdRefAuthIdSet = roleIdRefAuthIdSetMap.get(roleId);
-
-                if (CollUtil.isEmpty(roleIdRefAuthIdSet)) {
-                    continue;
-                }
-
-                for (Long authId : roleIdRefAuthIdSet) {
-
-                    String auth = authMap.get(authId);
-
-                    if (StrUtil.isNotBlank(auth)) {
-                        authSet.add(auth);
-                    }
-
-                }
-
-            }
-
-            rBatchSet.addAllAsync(authSet);
-
-        }
-
-        rBatch.execute();
-
-    }
-
-    /**
-     * 更新：默认缓存
-     */
-    private static void updateCacheForDefault(Set<Long> authIdSet) {
-
-        RSet<String> rSet = redissonClient.getSetCache(TempRedisKeyEnum.DEFAULT_USER_AUTH_CACHE.name());
-
-        rSet.delete();
-
-        if (CollUtil.isEmpty(authIdSet)) {
-            return;
-        }
-
-        Set<String> authSet =
-            ChainWrappers.lambdaQueryChain(baseAuthMapper).in(TempEntity::getId, authIdSet).select(BaseAuthDO::getAuth)
-                .list().stream().map(BaseAuthDO::getAuth).collect(Collectors.toSet());
-
-        rSet.addAll(authSet);
 
     }
 
@@ -521,7 +361,9 @@ public class BaseRoleServiceImpl extends ServiceImpl<BaseRoleMapper, BaseRoleDO>
 
         removeByIds(notEmptyIdSet.getIdSet());
 
-        updateCache(null, userIdSet, notEmptyIdSet.getIdSet()); // 更新缓存
+        deleteAuthCache(null); // 删除权限缓存
+
+        deleteMenuCache(null); // 删除菜单缓存
 
         return TempBizCodeEnum.OK;
 

@@ -43,6 +43,7 @@ import com.kar20240901.be.base.web.model.vo.base.GetQrCodeVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.base.SignInVO;
 import com.kar20240901.be.base.web.properties.base.BaseSecurityProperties;
+import com.kar20240901.be.base.web.service.base.impl.BaseRoleServiceImpl;
 import com.kar20240901.be.base.web.util.otherapp.WxUtil;
 import java.time.Duration;
 import java.util.List;
@@ -56,7 +57,6 @@ import org.jetbrains.annotations.Nullable;
 import org.redisson.api.RAtomicLong;
 import org.redisson.api.RBatch;
 import org.redisson.api.RBucket;
-import org.redisson.api.RKeys;
 import org.redisson.api.RKeysAsync;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
@@ -1230,24 +1230,11 @@ public class SignUtil {
             // 删除：冻结相关
             MyUserUtil.removeDisable(userIdSet);
 
-            // 删除：权限相关
-            removeAuth(userIdSet);
+            BaseRoleServiceImpl.deleteAuthCache(userIdSet); // 删除权限缓存
+
+            BaseRoleServiceImpl.deleteMenuCache(userIdSet); // 删除菜单缓存
 
         });
-
-    }
-
-    /**
-     * 删除：权限相关
-     */
-    public static void removeAuth(Set<Long> userIdSet) {
-
-        RKeys keys = redissonClient.getKeys();
-
-        String[] redisKeyArr =
-            userIdSet.stream().map(it -> TempRedisKeyEnum.PRE_USER_AUTH.name() + ":" + it).toArray(String[]::new);
-
-        keys.delete(redisKeyArr);
 
     }
 

@@ -20,7 +20,7 @@ public enum BaseKafkaTopicEnum implements IKafkaTopic {
     // 第三方应用相关 ↑
 
     // 缓存相关 ↓
-
+    DELETE_CACHE_TOPIC, // 删除缓存的 topic
     // 缓存相关 ↑
 
     // 支付相关 ↓

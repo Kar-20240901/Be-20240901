@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kar20240901.be.base.web.mapper.base.BaseAuthMapper">
+  <select id="getAuthSetByUserId" resultType="java.lang.String">
+    SELECT a.auth
+    FROM base_auth a
+    WHERE a.enable_flag = TRUE
+    <if test="userId != null">
+      AND a.id IN (SELECT subA.auth_id FROM base_role_ref_auth subA WHERE subA.role_id IN (
+
+      ( SELECT subSubA.role_id as roleId FROM base_role_ref_user subSubA WHERE subSubA.user_id =
+      #{userId} ) UNION ALL ( SELECT subSubA.id as roleId FROM
+      base_role subSubA WHERE subSubA.enable_flag = true AND subSubA.default_flag = true )
+
+      ))
+    </if>
+  </select>
+</mapper>

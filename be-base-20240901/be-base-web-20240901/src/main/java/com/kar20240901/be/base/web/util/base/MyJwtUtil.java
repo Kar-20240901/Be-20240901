@@ -1,10 +1,16 @@
 package com.kar20240901.be.base.web.util.base;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.NumberWithFormat;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
+import com.kar20240901.be.base.web.mapper.base.BaseAuthMapper;
+import com.kar20240901.be.base.web.mapper.base.BaseRoleMapper;
+import com.kar20240901.be.base.web.mapper.base.BaseRoleRefAuthMapper;
+import com.kar20240901.be.base.web.mapper.base.BaseRoleRefUserMapper;
+import com.kar20240901.be.base.web.model.constant.base.BaseConstant;
 import com.kar20240901.be.base.web.model.constant.base.SecurityConstant;
 import com.kar20240901.be.base.web.model.enums.base.BaseRequestCategoryEnum;
 import com.kar20240901.be.base.web.model.enums.base.TempRedisKeyEnum;
@@ -17,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.redisson.api.RSet;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
 
@@ -50,6 +57,34 @@ public class MyJwtUtil {
     @Resource
     public void setRedissonClient(RedissonClient redissonClient) {
         MyJwtUtil.redissonClient = redissonClient;
+    }
+
+    private static BaseRoleMapper baseRoleMapper;
+
+    @Resource
+    public void setBaseRoleMapper(BaseRoleMapper baseRoleMapper) {
+        MyJwtUtil.baseRoleMapper = baseRoleMapper;
+    }
+
+    private static BaseRoleRefAuthMapper baseRoleRefAuthMapper;
+
+    @Resource
+    public void setBaseRoleRefAuthMapper(BaseRoleRefAuthMapper baseRoleRefAuthMapper) {
+        MyJwtUtil.baseRoleRefAuthMapper = baseRoleRefAuthMapper;
+    }
+
+    private static BaseRoleRefUserMapper baseRoleRefUserMapper;
+
+    @Resource
+    public void setBaseRoleRefUserMapper(BaseRoleRefUserMapper baseRoleRefUserMapper) {
+        MyJwtUtil.baseRoleRefUserMapper = baseRoleRefUserMapper;
+    }
+
+    private static BaseAuthMapper baseAuthMapper;
+
+    @Resource
+    public void setBaseAuthMapper(BaseAuthMapper baseAuthMapper) {
+        MyJwtUtil.baseAuthMapper = baseAuthMapper;
     }
 
     /**
@@ -196,13 +231,21 @@ public class MyJwtUtil {
             return new HashSet<>();
         }
 
-        Set<String> defaultAuthSet =
-            redissonClient.<String>getSetCache(TempRedisKeyEnum.DEFAULT_USER_AUTH_CACHE.name()).readAll();
+        RSet<String> userRset = redissonClient.getSet(TempRedisKeyEnum.PRE_USER_AUTH.name() + ":" + userId);
 
-        Set<String> authSet =
-            redissonClient.<String>getSet(TempRedisKeyEnum.PRE_USER_AUTH.name() + ":" + userId).readAll();
+        Set<String> authSet = userRset.readAll();
 
-        authSet.addAll(defaultAuthSet);
+        if (CollUtil.isEmpty(authSet)) {
+
+            authSet = baseAuthMapper.getAuthSetByUserId(userId);
+
+            if (CollUtil.isEmpty(authSet)) {
+
+                userRset.add(BaseConstant.EMPTY_AUTH);
+
+            }
+
+        }
 
         return authSet;
 

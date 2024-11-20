@@ -94,6 +94,8 @@ public class BaseMenuServiceImpl extends ServiceImpl<BaseMenuMapper, BaseMenuDO>
 
         insertOrUpdateSub(baseMenuDO, dto); // 新增 子表数据
 
+        BaseRoleServiceImpl.deleteMenuCache(null); // 删除缓存
+
         return TempBizCodeEnum.OK;
 
     }
@@ -288,6 +290,8 @@ public class BaseMenuServiceImpl extends ServiceImpl<BaseMenuMapper, BaseMenuDO>
         deleteByIdSetSub(idSet);
 
         removeByIds(idSet);
+
+        BaseRoleServiceImpl.deleteMenuCache(null); // 删除缓存
 
         return TempBizCodeEnum.OK;
 
