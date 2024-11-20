@@ -23,6 +23,7 @@ import com.kar20240901.be.base.web.model.dto.base.BaseMenuPageDTO;
 import com.kar20240901.be.base.web.model.dto.base.ChangeNumberDTO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.enums.base.TempRedisKeyEnum;
 import com.kar20240901.be.base.web.model.vo.base.BaseMenuInfoByIdVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.base.BaseMenuService;
@@ -39,6 +40,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import lombok.SneakyThrows;
+import org.redisson.api.RList;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -46,6 +49,9 @@ public class BaseMenuServiceImpl extends ServiceImpl<BaseMenuMapper, BaseMenuDO>
 
     @Resource
     BaseRoleRefMenuService baseRoleRefMenuService;
+
+    @Resource
+    RedissonClient redissonClient;
 
     /**
      * 新增/修改
@@ -305,13 +311,35 @@ public class BaseMenuServiceImpl extends ServiceImpl<BaseMenuMapper, BaseMenuDO>
 
         Long userId = MyUserUtil.getCurrentUserId();
 
-        if (MyUserUtil.getCurrentUserAdminFlag(userId)) {
+        RList<BaseMenuDO> rList = redissonClient.getList(TempRedisKeyEnum.PRE_USER_MENU.name() + ":" + userId);
 
-            userId = null;
+        List<BaseMenuDO> baseMenuDoList = rList.readAll();
+
+        if (CollUtil.isEmpty(baseMenuDoList)) {
+
+            Long queryUserId = userId;
+
+            if (MyUserUtil.getCurrentUserAdminFlag(queryUserId)) {
+
+                queryUserId = null;
+
+            }
+
+            baseMenuDoList = baseMapper.getMenuListByUserId(queryUserId);
+
+            if (CollUtil.isEmpty(baseMenuDoList)) {
+
+                rList.add(null); // 备注：redis是支持 list和 set里存放 null元素的
+
+            } else {
+
+                rList.addAll(baseMenuDoList);
+
+            }
 
         }
 
-        return baseMapper.getMenuListByUserId(userId);
+        return baseMenuDoList;
 
     }
 

@@ -8,6 +8,8 @@ import com.kar20240901.be.base.web.model.interfaces.base.IRedisKey;
 public enum TempRedisKeyEnum implements IRedisKey {
 
     // 【PRE_】开头 ↓
+    PRE_PARAM_UUID, // 参数前缀，后面跟：paramUuid
+
     PRE_USER_DISABLE, // 用户是否被冻结前缀，后面跟：userId，如果存在，则表示，用户被冻结了
 
     PRE_USER_MENU, // 用户菜单前缀，后面跟：userId

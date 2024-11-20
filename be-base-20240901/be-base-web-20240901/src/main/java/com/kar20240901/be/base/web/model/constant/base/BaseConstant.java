@@ -5,6 +5,4 @@ package com.kar20240901.be.base.web.model.constant.base;
  */
 public interface BaseConstant {
 
-    String EMPTY_AUTH = "emptyAuth";
-
 }

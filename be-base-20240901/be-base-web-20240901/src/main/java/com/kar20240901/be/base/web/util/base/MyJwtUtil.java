@@ -10,7 +10,6 @@ import com.kar20240901.be.base.web.mapper.base.BaseAuthMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseRoleMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseRoleRefAuthMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseRoleRefUserMapper;
-import com.kar20240901.be.base.web.model.constant.base.BaseConstant;
 import com.kar20240901.be.base.web.model.constant.base.SecurityConstant;
 import com.kar20240901.be.base.web.model.enums.base.BaseRequestCategoryEnum;
 import com.kar20240901.be.base.web.model.enums.base.TempRedisKeyEnum;
@@ -231,9 +230,9 @@ public class MyJwtUtil {
             return new HashSet<>();
         }
 
-        RSet<String> userRset = redissonClient.getSet(TempRedisKeyEnum.PRE_USER_AUTH.name() + ":" + userId);
+        RSet<String> rSet = redissonClient.getSet(TempRedisKeyEnum.PRE_USER_AUTH.name() + ":" + userId);
 
-        Set<String> authSet = userRset.readAll();
+        Set<String> authSet = rSet.readAll();
 
         if (CollUtil.isEmpty(authSet)) {
 
@@ -241,7 +240,11 @@ public class MyJwtUtil {
 
             if (CollUtil.isEmpty(authSet)) {
 
-                userRset.add(BaseConstant.EMPTY_AUTH);
+                rSet.add(null); // 备注：redis是支持 list和 set里存放 null元素的
+
+            } else {
+
+                rSet.addAll(authSet);
 
             }
 

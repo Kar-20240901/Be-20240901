@@ -6,10 +6,14 @@ import com.kar20240901.be.base.web.mapper.base.BaseParamMapper;
 import com.kar20240901.be.base.web.model.constant.base.ParamConstant;
 import com.kar20240901.be.base.web.model.domain.base.BaseParamDO;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
+import com.kar20240901.be.base.web.model.enums.base.TempRedisKeyEnum;
 import java.util.HashSet;
 import java.util.Set;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,24 +35,48 @@ public class MyParamUtil {
 
     private static BaseParamMapper baseParamMapper;
 
-    public MyParamUtil(BaseParamMapper baseParamMapper) {
+    @Resource
+    public void setBaseParamMapper(BaseParamMapper baseParamMapper) {
         MyParamUtil.baseParamMapper = baseParamMapper;
     }
 
+    private static RedissonClient redissonClient;
+
+    @Resource
+    public void setRedissonClient(RedissonClient redissonClient) {
+        MyParamUtil.redissonClient = redissonClient;
+    }
+
     /**
-     * 通过：参数的 uuid，获取 value，没有 value则返回 null 备注：请不要直接传字符串，请在：ParamConstant 类里面加一个常量
+     * 通过：参数的 uuid，获取 value，没有 value则返回 null或者空字符串 备注：请不要直接传字符串，请在：ParamConstant 类里面加一个常量
      */
     @Nullable
     public static String getValueByUuid(String paramUuid) {
 
-        BaseParamDO baseParamDO = ChainWrappers.lambdaQueryChain(baseParamMapper).select(BaseParamDO::getValue)
-            .eq(BaseParamDO::getUuid, paramUuid).eq(TempEntityNoId::getEnableFlag, true).one();
+        RBucket<String> bucket = redissonClient.getBucket(TempRedisKeyEnum.PRE_PARAM_UUID.name() + ":" + paramUuid);
 
-        if (baseParamDO == null) {
-            return null;
+        String value = bucket.get();
+
+        if (value == null) {
+
+            BaseParamDO baseParamDO = ChainWrappers.lambdaQueryChain(baseParamMapper).select(BaseParamDO::getValue)
+                .eq(BaseParamDO::getUuid, paramUuid).eq(TempEntityNoId::getEnableFlag, true).one();
+
+            if (baseParamDO == null) {
+
+                value = "";
+
+            } else {
+
+                value = baseParamDO.getValue();
+
+            }
+
+            bucket.set(value);
+
         }
 
-        return baseParamDO.getValue();
+        return value;
 
     }
 

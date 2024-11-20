@@ -18,15 +18,30 @@ import com.kar20240901.be.base.web.model.dto.base.BaseParamInsertOrUpdateDTO;
 import com.kar20240901.be.base.web.model.dto.base.BaseParamPageDTO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.enums.base.TempRedisKeyEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.base.BaseParamService;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyParamUtil;
+import com.kar20240901.be.base.web.util.kafka.TempKafkaUtil;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
+import javax.annotation.Resource;
+import org.redisson.api.RKeys;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
 @Service
 public class BaseParamServiceImpl extends ServiceImpl<BaseParamMapper, BaseParamDO> implements BaseParamService {
+
+    private static RedissonClient redissonClient;
+
+    @Resource
+    public void setRedissonClient(RedissonClient redissonClient) {
+        BaseParamServiceImpl.redissonClient = redissonClient;
+    }
 
     /**
      * 新增/修改
@@ -57,6 +72,8 @@ public class BaseParamServiceImpl extends ServiceImpl<BaseParamMapper, BaseParam
         baseParamDO.setRemark(MyEntityUtil.getNotNullStr(dto.getRemark()));
 
         saveOrUpdate(baseParamDO);
+
+        deleteParamCache(CollUtil.newHashSet(baseParamDO.getUuid())); // 删除参数缓存
 
         return TempBizCodeEnum.OK;
 
@@ -108,9 +125,42 @@ public class BaseParamServiceImpl extends ServiceImpl<BaseParamMapper, BaseParam
 
         }
 
+        List<BaseParamDO> baseParamDoList =
+            lambdaQuery().in(TempEntity::getId, idSet).select(BaseParamDO::getUuid).list();
+
+        Set<String> uuidSet = baseParamDoList.stream().map(BaseParamDO::getUuid).collect(Collectors.toSet());
+
         removeByIds(idSet); // 根据 idSet删除
 
+        deleteParamCache(uuidSet); // 删除参数缓存
+
         return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 删除参数缓存
+     */
+    public static void deleteParamCache(@Nullable Set<String> uuidSet) {
+
+        if (uuidSet == null) {
+
+            TempKafkaUtil.sendDeleteCacheTopic(TempRedisKeyEnum.PRE_PARAM_UUID.name() + ":*");
+
+        } else {
+
+            if (CollUtil.isEmpty(uuidSet)) {
+                return;
+            }
+
+            RKeys keys = redissonClient.getKeys();
+
+            String[] redisKeyArr =
+                uuidSet.stream().map(it -> TempRedisKeyEnum.PRE_PARAM_UUID.name() + ":" + it).toArray(String[]::new);
+
+            keys.delete(redisKeyArr);
+
+        }
 
     }
 
