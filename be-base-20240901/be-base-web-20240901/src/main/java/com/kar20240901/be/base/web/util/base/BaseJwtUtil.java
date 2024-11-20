@@ -92,12 +92,12 @@ public class BaseJwtUtil {
             if (generateRefreshTokenFlag) {
 
                 batch.getBucket(MyJwtUtil.generateRedisJwtRefreshToken(jwtRefreshToken, userId))
-                    .setAsync(jwtRefreshToken);
+                    .setAsync("jwtRefreshToken");
 
             }
 
             batch.getBucket(MyJwtUtil.generateRedisJwt(jwt, userId, baseRequestCategoryEnum))
-                .setAsync(jwt, Duration.ofMillis(jwtExpireTime));
+                .setAsync("jwt", Duration.ofMillis(jwtExpireTime));
 
         });
 

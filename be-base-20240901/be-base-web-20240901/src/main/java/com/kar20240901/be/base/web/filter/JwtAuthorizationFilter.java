@@ -27,6 +27,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -48,6 +49,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Autowired(required = false)
     @Nullable
     List<IJwtFilterHandler> iJwtFilterHandlerList;
+
+    @Resource
+    RedissonClient redissonClient;
 
     @SneakyThrows
     @Override
@@ -91,6 +95,16 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         Long userId = MyJwtUtil.getPayloadMapUserIdValue(jwt.getPayload().getClaimsJson());
 
         if (userId == null) {
+
+            ResponseUtil.out(response, TempBizCodeEnum.LOGIN_EXPIRED);
+            return;
+
+        }
+
+        boolean exists = redissonClient.getBucket(
+            MyJwtUtil.generateRedisJwt(jwtStr, userId, RequestUtil.getRequestCategoryEnum(request))).isExists();
+
+        if (!exists) {
 
             ResponseUtil.out(response, TempBizCodeEnum.LOGIN_EXPIRED);
             return;
