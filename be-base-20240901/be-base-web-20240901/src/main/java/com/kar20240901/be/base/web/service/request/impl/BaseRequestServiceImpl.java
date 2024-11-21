@@ -38,7 +38,7 @@ public class BaseRequestServiceImpl extends ServiceImpl<BaseRequestMapper, BaseR
             .like(StrUtil.isNotBlank(dto.getName()), BaseRequestDO::getName, dto.getName()) //
             .like(StrUtil.isNotBlank(dto.getIp()), BaseRequestDO::getIp, dto.getIp()) //
             .like(StrUtil.isNotBlank(dto.getRegion()), BaseRequestDO::getRegion, dto.getRegion()) //
-            .like(StrUtil.isNotBlank(dto.getType()), BaseRequestDO::getType, dto.getType()) //
+            .eq(StrUtil.isNotBlank(dto.getType()), BaseRequestDO::getType, dto.getType()) //
             .le(dto.getEndCostMs() != null, BaseRequestDO::getCostMs, dto.getEndCostMs()) //
             .ge(dto.getBeginCostMs() != null, BaseRequestDO::getCostMs, dto.getBeginCostMs()) //
             .le(dto.getCtEndTime() != null, BaseRequestDO::getCreateTime, dto.getCtEndTime()) //
