@@ -2,6 +2,7 @@ package com.kar20240901.be.base.web.configuration.mybatis;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.kar20240901.be.base.web.configuration.base.BaseConfiguration;
 import com.kar20240901.be.base.web.configuration.log.LogFilter;
 import com.kar20240901.be.base.web.model.constant.log.LogTopicConstant;
@@ -163,21 +164,13 @@ public class MybatisSqlLoggerInterceptor implements Interceptor {
         // 获取节点的配置
         Configuration configuration = mappedStatement.getConfiguration();
 
-        try {
+        // 获取到最终的sql语句
+        String sql = showSql(configuration, boundSql);
 
-            // 获取到最终的sql语句
-            String sql = showSql(configuration, boundSql);
+        // 设置：回调对象
+        sqlIdCallBack.setValue(sqlId);
 
-            // 设置：回调对象
-            sqlIdCallBack.setValue(sqlId);
-
-            sqlCallBack.setValue(sql);
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-        }
+        sqlCallBack.setValue(sql);
 
     }
 
@@ -204,7 +197,7 @@ public class MybatisSqlLoggerInterceptor implements Interceptor {
 
         if (typeHandlerRegistry.hasTypeHandler(parameterObject.getClass())) {
 
-            sql = sql.replaceFirst("\\?", getParameterValue(parameterObject));
+            sql = StrUtil.replaceFirst(sql, "?", getParameterValue(parameterObject));
 
         } else {
 
@@ -225,19 +218,19 @@ public class MybatisSqlLoggerInterceptor implements Interceptor {
 
                     Object obj = metaObject.getValue(propertyName);
 
-                    sql = sql.replaceFirst("\\?", getParameterValue(obj));
+                    sql = StrUtil.replaceFirst(sql, "?", getParameterValue(obj));
 
                 } else if (boundSql.hasAdditionalParameter(propertyName)) {
 
                     // 该分支是动态sql
                     Object obj = boundSql.getAdditionalParameter(propertyName);
 
-                    sql = sql.replaceFirst("\\?", getParameterValue(obj));
+                    sql = StrUtil.replaceFirst(sql, "?", getParameterValue(obj));
 
                 } else {
 
                     // 打印出缺失，提醒该参数缺失并防止错位
-                    sql = sql.replaceFirst("\\?", "缺失");
+                    sql = StrUtil.replaceFirst(sql, "?", "缺失");
 
                 }
 

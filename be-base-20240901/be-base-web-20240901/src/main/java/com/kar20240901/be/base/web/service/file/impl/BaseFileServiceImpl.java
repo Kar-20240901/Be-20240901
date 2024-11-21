@@ -253,12 +253,17 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        boolean exists = ChainWrappers.lambdaQueryChain(baseFileAuthMapper).eq(BaseFileAuthDO::getUserId, currentUserId)
-            .eq(!TempConstant.TOP_PID.equals(dto.getPid()), BaseFileAuthDO::getFileId, dto.getPid())
-            .eq(BaseFileAuthDO::getWriteFlag, true).exists();
+        if (!MyUserUtil.getCurrentUserAdminFlag(currentUserId)) {
 
-        if (!exists) {
-            return TempBizCodeEnum.OK;
+            boolean exists =
+                ChainWrappers.lambdaQueryChain(baseFileAuthMapper).eq(BaseFileAuthDO::getUserId, currentUserId)
+                    .eq(!TempConstant.TOP_PID.equals(dto.getPid()), BaseFileAuthDO::getFileId, dto.getPid())
+                    .eq(BaseFileAuthDO::getWriteFlag, true).exists();
+
+            if (!exists) {
+                return TempBizCodeEnum.OK;
+            }
+
         }
 
         lambdaUpdate().in(TempEntity::getId, dto.getIdSet())
@@ -278,12 +283,17 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        boolean exists = ChainWrappers.lambdaQueryChain(baseFileAuthMapper).eq(BaseFileAuthDO::getUserId, currentUserId)
-            .eq(!TempConstant.TOP_PID.equals(dto.getPid()), BaseFileAuthDO::getFileId, dto.getPid())
-            .eq(BaseFileAuthDO::getWriteFlag, true).exists();
+        if (!MyUserUtil.getCurrentUserAdminFlag(currentUserId)) {
 
-        if (!exists) {
-            return TempBizCodeEnum.OK;
+            boolean exists =
+                ChainWrappers.lambdaQueryChain(baseFileAuthMapper).eq(BaseFileAuthDO::getUserId, currentUserId)
+                    .eq(!TempConstant.TOP_PID.equals(dto.getPid()), BaseFileAuthDO::getFileId, dto.getPid())
+                    .eq(BaseFileAuthDO::getWriteFlag, true).exists();
+
+            if (!exists) {
+                return TempBizCodeEnum.OK;
+            }
+
         }
 
         List<BaseFileDO> baseFileDoList = lambdaQuery().in(TempEntity::getId, dto.getIdSet())

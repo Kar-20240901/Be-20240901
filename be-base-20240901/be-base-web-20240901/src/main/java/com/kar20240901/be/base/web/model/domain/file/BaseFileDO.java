@@ -22,6 +22,7 @@ public class BaseFileDO extends TempEntityTree<BaseFileDO> {
     @Schema(description = "桶名，例如：be-bucket")
     private String bucketName;
 
+    @TableField(exist = false)
     @Schema(description = "旧的桶名，用于：文件复制时使用")
     private String oldBucketName;
 

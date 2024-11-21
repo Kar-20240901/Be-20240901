@@ -126,7 +126,19 @@ public class BaseFileUtil {
 
             // 如果是：文件系统
             // 通用：上传处理
-            resultBaseFileId = uploadCommonHandle(bo, fileType, null, null, null, bo.getUserId().toString());
+            resultBaseFileId = uploadCommonHandle(bo, fileType, null, (baseFileId) -> {
+
+                BaseFileAuthDO baseFileAuthDO = new BaseFileAuthDO();
+
+                baseFileAuthDO.setFileId(baseFileId);
+                baseFileAuthDO.setUserId(bo.getUserId());
+                baseFileAuthDO.setReadFlag(true);
+                baseFileAuthDO.setWriteFlag(true);
+                baseFileAuthDO.setEnableFlag(true);
+
+                baseFileAuthService.save(baseFileAuthDO);
+
+            }, null, bo.getUserId().toString());
 
         }
 

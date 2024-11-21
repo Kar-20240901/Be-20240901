@@ -19,9 +19,9 @@ public class BaseFileAuthDO extends TempEntity {
     private Long userId;
 
     @Schema(description = "是否可读：0 否 1 是")
-    private Integer readFlag;
+    private Boolean readFlag;
 
     @Schema(description = "是否可写：0 否 1 是")
-    private Integer writeFlag;
+    private Boolean writeFlag;
 
 }
