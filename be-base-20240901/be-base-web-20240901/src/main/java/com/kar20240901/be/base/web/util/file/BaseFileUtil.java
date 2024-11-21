@@ -653,7 +653,7 @@ public class BaseFileUtil {
     /**
      * 复制：文件存储服务器里面的文件
      */
-    private static void copyBaseFileStorage(List<BaseFileDO> baseFileDoList) {
+    public static void copyBaseFileStorage(List<BaseFileDO> baseFileDoList) {
 
         // 移除：文件存储系统里面的文件
         handleBaseFileStorage(baseFileDoList, (iBaseFileStorage, map, baseFileStorageConfigurationDO) -> {

@@ -316,6 +316,9 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         }
 
+        // 复制文件
+        BaseFileUtil.copyBaseFileStorage(baseFileDoList);
+
         saveBatch(baseFileDoList);
 
         return TempBizCodeEnum.OK;
