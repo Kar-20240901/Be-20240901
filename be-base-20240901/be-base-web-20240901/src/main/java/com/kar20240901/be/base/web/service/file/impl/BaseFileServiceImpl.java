@@ -59,6 +59,8 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         baseFileUploadBO.setUserId(currentUserId);
 
+        baseFileUploadBO.setPid(dto.getPid());
+
         // 执行：上传
         return BaseFileUtil.upload(baseFileUploadBO);
 
@@ -130,6 +132,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
             .eq(dto.getPublicFlag() != null, BaseFileDO::getPublicFlag, dto.getPublicFlag()) //
             .eq(dto.getEnableFlag() != null, TempEntity::getEnableFlag, dto.getEnableFlag()) //
             .eq(dto.getRefId() != null, BaseFileDO::getRefId, dto.getRefId()) //
+            .eq(dto.getPid() != null, BaseFileDO::getPid, dto.getPid()) //
             .select(true, getMyPageSelectList()).page(dto.createTimeDescDefaultOrderPage());
 
     }

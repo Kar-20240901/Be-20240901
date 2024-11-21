@@ -163,13 +163,21 @@ public class MybatisSqlLoggerInterceptor implements Interceptor {
         // 获取节点的配置
         Configuration configuration = mappedStatement.getConfiguration();
 
-        // 获取到最终的sql语句
-        String sql = showSql(configuration, boundSql);
+        try {
 
-        // 设置：回调对象
-        sqlIdCallBack.setValue(sqlId);
+            // 获取到最终的sql语句
+            String sql = showSql(configuration, boundSql);
 
-        sqlCallBack.setValue(sql);
+            // 设置：回调对象
+            sqlIdCallBack.setValue(sqlId);
+
+            sqlCallBack.setValue(sql);
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
 
     }
 

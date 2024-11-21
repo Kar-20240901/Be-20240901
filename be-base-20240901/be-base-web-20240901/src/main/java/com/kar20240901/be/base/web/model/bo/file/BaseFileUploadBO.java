@@ -30,4 +30,7 @@ public class BaseFileUploadBO {
     @Schema(description = "关联的 id")
     private Long refId;
 
+    @Schema(description = "父节点id（顶级则为0）")
+    private Long pid;
+
 }

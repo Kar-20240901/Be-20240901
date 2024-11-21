@@ -118,7 +118,13 @@ public class BaseFileUtil {
                     ChainWrappers.lambdaUpdateChain(baseUserInfoMapper).eq(TempUserInfoDO::getId, bo.getUserId())
                         .set(TempUserInfoDO::getAvatarFileId, baseFileId).update();
 
-                }, null);
+                }, null, bo.getUserId().toString());
+
+        } else if (BaseFileUploadTypeEnum.FILE_SYSTEM.equals(bo.getUploadType())) {
+
+            // 如果是：文件系统
+            // 通用：上传处理
+            resultBaseFileId = uploadCommonHandle(bo, fileType, null, null, null, bo.getUserId().toString());
 
         }
 
@@ -134,7 +140,7 @@ public class BaseFileUtil {
     @NotNull
     public static Long uploadCommonHandle(BaseFileUploadBO bo, String fileType,
         @Nullable IBaseFileStorageType iBaseFileStorageType, @Nullable Consumer<Long> consumer,
-        @Nullable BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+        @Nullable BaseFileStorageConfigurationDO baseFileStorageConfigurationDO, @Nullable String otherFolderName) {
 
         // 获取：存储方式的配置
         baseFileStorageConfigurationDO =
@@ -155,6 +161,12 @@ public class BaseFileUtil {
         String originalFilename = bo.getFile().getOriginalFilename(); // 旧的文件名
 
         String newFileName = IdUtil.simpleUUID() + "." + fileType; // 新的文件名
+
+        if (StrUtil.isNotBlank(otherFolderName)) {
+
+            folderName = folderName + "/" + otherFolderName;
+
+        }
 
         String objectName = folderName + "/" + newFileName;
 
@@ -294,7 +306,7 @@ public class BaseFileUtil {
 
         baseFileDO.setStorageType(baseFileStorageConfigurationDO.getType());
 
-        baseFileDO.setPid(MyEntityUtil.getNotNullParentId(null));
+        baseFileDO.setPid(MyEntityUtil.getNotNullParentId(bo.getPid()));
 
         baseFileDO.setType(BaseFileTypeEnum.FILE);
 
@@ -616,15 +628,15 @@ public class BaseFileUtil {
     /**
      * 移除：文件存储服务器里面的文件
      */
-    private static void removeBaseFileStorage(List<BaseFileDO> baseFileDOList) {
+    private static void removeBaseFileStorage(List<BaseFileDO> baseFileDoList) {
 
-        if (CollUtil.isEmpty(baseFileDOList)) {
+        if (CollUtil.isEmpty(baseFileDoList)) {
             return;
         }
 
         // 根据：存储类型 id分类
         Map<Long, List<BaseFileDO>> storageTypeGroupMap =
-            baseFileDOList.stream().collect(Collectors.groupingBy(BaseFileDO::getStorageConfigurationId));
+            baseFileDoList.stream().collect(Collectors.groupingBy(BaseFileDO::getStorageConfigurationId));
 
         List<BaseFileStorageConfigurationDO> baseFileStorageConfigurationDOList =
             ChainWrappers.lambdaQueryChain(baseFileStorageConfigurationMapper)
@@ -717,7 +729,7 @@ public class BaseFileUtil {
             bo.setUserId(userId);
 
             // 通用：上传处理
-            return BaseFileUtil.uploadCommonHandle(bo, fileType, null, null, null);
+            return BaseFileUtil.uploadCommonHandle(bo, fileType, null, null, null, bo.getUserId().toString());
 
         } finally {
 

@@ -11,6 +11,9 @@ import lombok.EqualsAndHashCode;
 @Data
 public class BaseFilePageSelfDTO extends MyPageDTO {
 
+    @Schema(description = "父节点id（顶级则为0）")
+    private Long pid;
+
     @Schema(description = "文件原始名（包含文件类型）")
     private String originFileName;
 
