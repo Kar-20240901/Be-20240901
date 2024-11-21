@@ -14,6 +14,7 @@ import com.kar20240901.be.base.web.mapper.file.BaseFileAuthMapper;
 import com.kar20240901.be.base.web.mapper.file.BaseFileMapper;
 import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadBO;
+import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileAuthDO;
@@ -253,7 +254,8 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
         boolean exists = ChainWrappers.lambdaQueryChain(baseFileAuthMapper).eq(BaseFileAuthDO::getUserId, currentUserId)
-            .eq(BaseFileAuthDO::getFileId, dto.getPid()).eq(BaseFileAuthDO::getWriteFlag, true).exists();
+            .eq(!TempConstant.TOP_PID.equals(dto.getPid()), BaseFileAuthDO::getFileId, dto.getPid())
+            .eq(BaseFileAuthDO::getWriteFlag, true).exists();
 
         if (!exists) {
             return TempBizCodeEnum.OK;
@@ -277,7 +279,8 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
         boolean exists = ChainWrappers.lambdaQueryChain(baseFileAuthMapper).eq(BaseFileAuthDO::getUserId, currentUserId)
-            .eq(BaseFileAuthDO::getFileId, dto.getPid()).eq(BaseFileAuthDO::getWriteFlag, true).exists();
+            .eq(!TempConstant.TOP_PID.equals(dto.getPid()), BaseFileAuthDO::getFileId, dto.getPid())
+            .eq(BaseFileAuthDO::getWriteFlag, true).exists();
 
         if (!exists) {
             return TempBizCodeEnum.OK;
