@@ -27,6 +27,12 @@ public interface IBaseFileStorage {
         BaseFileStorageConfigurationDO baseFileStorageConfigurationDO);
 
     /**
+     * 复制文件
+     */
+    void copy(String sourceBucketName, String sourceObjectName, String toBucketName, String toObjectName,
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO);
+
+    /**
      * 批量删除文件
      */
     void remove(String bucketName, Set<String> objectNameSet,

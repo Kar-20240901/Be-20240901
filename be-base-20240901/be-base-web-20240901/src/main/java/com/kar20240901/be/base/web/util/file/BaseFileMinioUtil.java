@@ -3,6 +3,8 @@ package com.kar20240901.be.base.web.util.file;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.IoUtil;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
+import io.minio.CopyObjectArgs;
+import io.minio.CopySource;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.ObjectWriteArgs;
@@ -55,6 +57,24 @@ public class BaseFileMinioUtil {
             .build();
 
         return minioClient.getObject(GetObjectArgs.builder().bucket(bucketName).object(objectName).build());
+
+    }
+
+    /**
+     * 复制文件
+     */
+    @SneakyThrows
+    public static void copy(String sourceBucketName, String sourceObjectName, String toBucketName, String toObjectName,
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+
+        MinioClient minioClient = MinioClient.builder().endpoint(baseFileStorageConfigurationDO.getUploadEndpoint())
+            .credentials(baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey())
+            .build();
+
+        CopySource copySource = CopySource.builder().bucket(sourceBucketName).object(sourceObjectName).build();
+
+        minioClient.copyObject(
+            CopyObjectArgs.builder().source(copySource).bucket(toBucketName).object(toObjectName).build());
 
     }
 

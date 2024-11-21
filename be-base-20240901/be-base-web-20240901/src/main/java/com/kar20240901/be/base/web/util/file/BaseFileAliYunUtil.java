@@ -55,6 +55,19 @@ public class BaseFileAliYunUtil {
     }
 
     /**
+     * 复制文件
+     */
+    public static void copy(String sourceBucketName, String sourceObjectName, String toBucketName, String toObjectName,
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+
+        OSS oss = new OSSClientBuilder().build(baseFileStorageConfigurationDO.getUploadEndpoint(),
+            baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey());
+
+        oss.copyObject(sourceBucketName, sourceObjectName, toBucketName, toObjectName);
+
+    }
+
+    /**
      * 批量删除文件
      */
     @SneakyThrows

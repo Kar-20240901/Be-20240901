@@ -22,8 +22,15 @@ public class BaseFileDO extends TempEntityTree<BaseFileDO> {
     @Schema(description = "桶名，例如：be-bucket")
     private String bucketName;
 
+    @Schema(description = "旧的桶名，用于：文件复制时使用")
+    private String oldBucketName;
+
     @Schema(description = "文件完整路径（包含文件类型，不包含请求端点），例如：avatar/uuid.xxx")
     private String uri;
+
+    @TableField(exist = false)
+    @Schema(description = "旧的文件完整路径，用于：文件复制时使用")
+    private String oldUri;
 
     @Schema(description = "文件原始名（包含文件类型）")
     private String originFileName;

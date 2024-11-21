@@ -4,8 +4,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileCopySelfDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileMoveSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageSelfDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUpdateSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadDTO;
 import com.kar20240901.be.base.web.model.vo.base.LongObjectMapVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
@@ -42,7 +45,7 @@ public class BaseFileController {
         baseService.privateDownload(notNullId, response);
     }
 
-    @Operation(summary = "批量删除文件：公有和私有")
+    @Operation(summary = "批量删除文件：公有和私有，文件和文件夹")
     @PostMapping("/removeByFileIdSet")
     public R<String> removeByFileIdSet(@RequestBody @Valid NotEmptyIdSet notEmptyIdSet) {
         return R.okMsg(baseService.removeByFileIdSet(notEmptyIdSet, true));
@@ -78,6 +81,24 @@ public class BaseFileController {
     @PostMapping("/page/tree/self")
     public R<List<BaseFileDO>> treeSelf(@RequestBody @Valid BaseFilePageSelfDTO dto) {
         return R.okData(baseService.treeSelf(dto));
+    }
+
+    @Operation(summary = "修改：文件和文件夹-自我")
+    @PostMapping("/update/self")
+    public R<String> updateSelf(@RequestBody @Valid BaseFileUpdateSelfDTO dto) {
+        return R.okMsg(baseService.updateSelf(dto));
+    }
+
+    @Operation(summary = "移动：文件和文件夹-自我")
+    @PostMapping("/move/self")
+    public R<String> moveSelf(@RequestBody @Valid BaseFileMoveSelfDTO dto) {
+        return R.okMsg(baseService.moveSelf(dto));
+    }
+
+    @Operation(summary = "复制：文件和文件夹-自我")
+    @PostMapping("/copy/self")
+    public R<String> copySelf(@RequestBody @Valid BaseFileCopySelfDTO dto) {
+        return R.okMsg(baseService.copySelf(dto));
     }
 
 }

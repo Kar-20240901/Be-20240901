@@ -33,6 +33,7 @@ import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyStrUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import com.kar20240901.be.base.web.util.base.TransactionUtil;
+import com.kar20240901.be.base.web.util.base.VoidFunc3;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -630,6 +632,65 @@ public class BaseFileUtil {
      */
     private static void removeBaseFileStorage(List<BaseFileDO> baseFileDoList) {
 
+        // 移除：文件存储系统里面的文件
+        handleBaseFileStorage(baseFileDoList, (iBaseFileStorage, map, baseFileStorageConfigurationDO) -> {
+
+            // 根据：桶名，进行分类
+            Map<String, Set<String>> bucketGroupMap = map.getValue().stream().collect(
+                Collectors.groupingBy(BaseFileDO::getBucketName,
+                    Collectors.mapping(BaseFileDO::getUri, Collectors.toSet())));
+
+            for (Map.Entry<String, Set<String>> item : bucketGroupMap.entrySet()) {
+
+                iBaseFileStorage.remove(item.getKey(), item.getValue(), baseFileStorageConfigurationDO);
+
+            }
+
+        });
+
+    }
+
+    /**
+     * 复制：文件存储服务器里面的文件
+     */
+    private static void copyBaseFileStorage(List<BaseFileDO> baseFileDoList) {
+
+        // 移除：文件存储系统里面的文件
+        handleBaseFileStorage(baseFileDoList, (iBaseFileStorage, map, baseFileStorageConfigurationDO) -> {
+
+            for (BaseFileDO item : map.getValue()) {
+
+                if (StrUtil.isBlank(item.getOldBucketName())) {
+                    continue;
+                }
+
+                if (StrUtil.isBlank(item.getOldUri())) {
+                    continue;
+                }
+
+                if (StrUtil.isBlank(item.getBucketName())) {
+                    continue;
+                }
+
+                if (StrUtil.isBlank(item.getUri())) {
+                    continue;
+                }
+
+                iBaseFileStorage.copy(item.getOldBucketName(), item.getOldUri(), item.getBucketName(), item.getUri(),
+                    baseFileStorageConfigurationDO);
+
+            }
+
+        });
+
+    }
+
+    /**
+     * 处理：文件存储服务器里面的文件
+     */
+    private static void handleBaseFileStorage(List<BaseFileDO> baseFileDoList,
+        VoidFunc3<IBaseFileStorage, Entry<Long, List<BaseFileDO>>, BaseFileStorageConfigurationDO> voidFunc3) {
+
         if (CollUtil.isEmpty(baseFileDoList)) {
             return;
         }
@@ -638,17 +699,17 @@ public class BaseFileUtil {
         Map<Long, List<BaseFileDO>> storageTypeGroupMap =
             baseFileDoList.stream().collect(Collectors.groupingBy(BaseFileDO::getStorageConfigurationId));
 
-        List<BaseFileStorageConfigurationDO> baseFileStorageConfigurationDOList =
+        List<BaseFileStorageConfigurationDO> baseFileStorageConfigurationDoList =
             ChainWrappers.lambdaQueryChain(baseFileStorageConfigurationMapper)
                 .in(TempEntity::getId, storageTypeGroupMap.keySet()).list();
 
-        if (CollUtil.isEmpty(baseFileStorageConfigurationDOList)) {
+        if (CollUtil.isEmpty(baseFileStorageConfigurationDoList)) {
             return;
         }
 
         // 通过：id进行分组
         Map<Long, BaseFileStorageConfigurationDO> baseFileStorageConfigurationIdMap =
-            baseFileStorageConfigurationDOList.stream().collect(Collectors.toMap(TempEntity::getId, it -> it));
+            baseFileStorageConfigurationDoList.stream().collect(Collectors.toMap(TempEntity::getId, it -> it));
 
         for (Map.Entry<Long, List<BaseFileDO>> item : storageTypeGroupMap.entrySet()) {
 
@@ -665,17 +726,7 @@ public class BaseFileUtil {
                 continue;
             }
 
-            // 根据：桶名，进行分类
-            Map<String, Set<String>> bucketGroupMap = item.getValue().stream().collect(
-                Collectors.groupingBy(BaseFileDO::getBucketName,
-                    Collectors.mapping(BaseFileDO::getUri, Collectors.toSet())));
-
-            for (Map.Entry<String, Set<String>> subItem : bucketGroupMap.entrySet()) {
-
-                // 移除：文件存储系统里面的文件
-                iBaseFileStorage.remove(subItem.getKey(), subItem.getValue(), baseFileStorageConfigurationDO);
-
-            }
+            voidFunc3.call(iBaseFileStorage, item, baseFileStorageConfigurationDO);
 
         }
 

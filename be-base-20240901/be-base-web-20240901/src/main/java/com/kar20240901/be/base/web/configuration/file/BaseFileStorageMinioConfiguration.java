@@ -34,6 +34,13 @@ public class BaseFileStorageMinioConfiguration implements IBaseFileStorage {
     }
 
     @Override
+    public void copy(String sourceBucketName, String sourceObjectName, String toBucketName, String toObjectName,
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+        BaseFileMinioUtil.copy(sourceBucketName, sourceObjectName, toBucketName, toObjectName,
+            baseFileStorageConfigurationDO);
+    }
+
+    @Override
     public void remove(String bucketName, Set<String> objectNameSet,
         BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
         BaseFileMinioUtil.remove(bucketName, objectNameSet, baseFileStorageConfigurationDO);
