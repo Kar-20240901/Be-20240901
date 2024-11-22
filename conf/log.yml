@@ -4,3 +4,4 @@ log-topic-set:
   - be.mybatis.insert
 not-log-topic-set:
   - org.apache.kafka.clients.consumer.ConsumerConfig
+  - com.kar20240901.be.base.web.mapper.request.BaseRequestInfoMapper.insert

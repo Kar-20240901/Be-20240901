@@ -41,31 +41,31 @@ public class SignEmailController {
     @Resource
     SignEmailService baseService;
 
-    @PostMapping(value = "/sign/up/sendCode")
+    @PostMapping(value = "/signUp/sendCode")
     @Operation(summary = "注册-发送验证码")
     public R<String> signUpSendCode(@RequestBody @Valid EmailNotBlankDTO dto) {
         return R.okMsg(baseService.signUpSendCode(dto));
     }
 
-    @PostMapping(value = "/sign/up")
+    @PostMapping(value = "/signUp")
     @Operation(summary = "注册")
     public R<String> signUp(@RequestBody @Valid SignEmailSignUpDTO dto) {
         return R.okMsg(baseService.signUp(dto));
     }
 
-    @PostMapping(value = "/sign/in/password")
+    @PostMapping(value = "/signIn/password")
     @Operation(summary = "邮箱：账号密码登录", description = OperationDescriptionConstant.SIGN_IN)
     public R<SignInVO> signInPassword(@RequestBody @Valid SignEmailSignInPasswordDTO dto) {
         return R.okData(baseService.signInPassword(dto));
     }
 
-    @PostMapping(value = "/sign/in/sendCode")
+    @PostMapping(value = "/signIn/sendCode")
     @Operation(summary = "邮箱验证码登录-发送验证码")
     public R<String> signInSendCode(@RequestBody @Valid EmailNotBlankDTO dto) {
         return R.okMsg(baseService.signInSendCode(dto));
     }
 
-    @PostMapping(value = "/sign/in/code")
+    @PostMapping(value = "/signIn/code")
     @Operation(summary = "邮箱验证码登录", description = OperationDescriptionConstant.SIGN_IN)
     public R<SignInVO> signInCode(@RequestBody @Valid SignEmailSignInCodeDTO dto) {
         return R.okData(baseService.signInCode(dto));

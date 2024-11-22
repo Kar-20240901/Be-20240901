@@ -6,7 +6,6 @@ import cn.hutool.jwt.JWT;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.base.BaseUserMapper;
-import com.kar20240901.be.base.web.model.constant.base.UserConfigurationConstant;
 import com.kar20240901.be.base.web.model.domain.base.BaseUserConfigurationDO;
 import com.kar20240901.be.base.web.model.domain.base.TempUserDO;
 import com.kar20240901.be.base.web.model.dto.base.SignUserNameJwtRefreshTokenDTO;
@@ -48,14 +47,22 @@ public class SignUserNameServiceImpl implements SignUserNameService {
     @Override
     public String signUp(SignUserNameSignUpDTO dto) {
 
-        BaseUserConfigurationDO baseUserConfigurationDO =
-            baseUserConfigurationService.getById(UserConfigurationConstant.ID);
+        checkSignUpEnable(); // 检查：是否允许注册
+
+        return SignUtil.signUp(dto.getPassword(), dto.getOriginPassword(), null, PRE_REDIS_KEY_ENUM, dto.getUsername());
+
+    }
+
+    /**
+     * 检查：是否允许注册
+     */
+    private void checkSignUpEnable() {
+
+        BaseUserConfigurationDO baseUserConfigurationDO = baseUserConfigurationService.getBaseUserConfigurationDo();
 
         if (BooleanUtil.isFalse(baseUserConfigurationDO.getUserNameSignUpEnable())) {
             R.errorMsg("操作失败：不允许用户名注册，请联系管理员");
         }
-
-        return SignUtil.signUp(dto.getPassword(), dto.getOriginPassword(), null, PRE_REDIS_KEY_ENUM, dto.getUsername());
 
     }
 
