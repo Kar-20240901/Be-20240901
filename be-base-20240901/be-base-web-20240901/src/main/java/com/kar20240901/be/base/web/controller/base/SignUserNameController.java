@@ -2,6 +2,8 @@ package com.kar20240901.be.base.web.controller.base;
 
 import com.kar20240901.be.base.web.model.constant.base.OperationDescriptionConstant;
 import com.kar20240901.be.base.web.model.dto.base.SignUserNameJwtRefreshTokenDTO;
+import com.kar20240901.be.base.web.model.dto.base.SignUserNameSetEmailDTO;
+import com.kar20240901.be.base.web.model.dto.base.SignUserNameSetEmailSendCodeDTO;
 import com.kar20240901.be.base.web.model.dto.base.SignUserNameSignDeleteDTO;
 import com.kar20240901.be.base.web.model.dto.base.SignUserNameSignInPasswordDTO;
 import com.kar20240901.be.base.web.model.dto.base.SignUserNameSignUpDTO;
@@ -49,6 +51,18 @@ public class SignUserNameController {
     @Operation(summary = "修改用户名")
     public R<String> updateUserName(@RequestBody @Valid SignUserNameUpdateUserNameDTO dto) {
         return R.okMsg(baseService.updateUserName(dto));
+    }
+
+    @PostMapping(value = "/setEmail/sendCode")
+    @Operation(summary = "设置邮箱：发送验证码")
+    public R<String> setEmailSendCode(@RequestBody @Valid SignUserNameSetEmailSendCodeDTO dto) {
+        return R.okMsg(baseService.setEmailSendCode(dto));
+    }
+
+    @PostMapping(value = "/setEmail")
+    @Operation(summary = "设置邮箱")
+    public R<String> setEmail(@RequestBody @Valid SignUserNameSetEmailDTO dto) {
+        return R.okMsg(baseService.setEmail(dto));
     }
 
     @PostMapping(value = "/signDelete")

@@ -42,7 +42,7 @@ public class SignEmailController {
     SignEmailService baseService;
 
     @PostMapping(value = "/signUp/sendCode")
-    @Operation(summary = "注册-发送验证码")
+    @Operation(summary = "注册：发送验证码")
     public R<String> signUpSendCode(@RequestBody @Valid EmailNotBlankDTO dto) {
         return R.okMsg(baseService.signUpSendCode(dto));
     }
@@ -60,7 +60,7 @@ public class SignEmailController {
     }
 
     @PostMapping(value = "/signIn/sendCode")
-    @Operation(summary = "邮箱验证码登录-发送验证码")
+    @Operation(summary = "邮箱验证码登录：发送验证码")
     public R<String> signInSendCode(@RequestBody @Valid EmailNotBlankDTO dto) {
         return R.okMsg(baseService.signInSendCode(dto));
     }
@@ -72,7 +72,7 @@ public class SignEmailController {
     }
 
     @PostMapping(value = "/setPassword/sendCode")
-    @Operation(summary = "设置密码-发送验证码")
+    @Operation(summary = "设置密码：发送验证码")
     public R<String> setPasswordSendCode() {
         return R.okMsg(baseService.setPasswordSendCode());
     }
@@ -84,7 +84,7 @@ public class SignEmailController {
     }
 
     @PostMapping(value = "/updatePassword/sendCode")
-    @Operation(summary = "修改密码-发送验证码")
+    @Operation(summary = "修改密码：发送验证码")
     public R<String> updatePasswordSendCode() {
         return R.okMsg(baseService.updatePasswordSendCode());
     }
@@ -96,7 +96,7 @@ public class SignEmailController {
     }
 
     @PostMapping(value = "/setUserName/sendCode")
-    @Operation(summary = "设置用户名-发送验证码")
+    @Operation(summary = "设置用户名：发送验证码")
     public R<String> setUserNameSendCode(@RequestBody @Valid SignEmailSetUserNameSendCodeDTO dto) {
         return R.okMsg(baseService.setUserNameSendCode(dto));
     }
@@ -108,7 +108,7 @@ public class SignEmailController {
     }
 
     @PostMapping(value = "/updateUserName/sendCode")
-    @Operation(summary = "修改用户名-发送验证码")
+    @Operation(summary = "修改用户名：发送验证码")
     public R<String> updateUserNameSendCode(@RequestBody @Valid SignEmailUpdateUserNameSendCodeDTO dto) {
         return R.okMsg(baseService.updateUserNameSendCode(dto));
     }
@@ -120,13 +120,13 @@ public class SignEmailController {
     }
 
     @PostMapping(value = "/updateEmail/sendCode/new")
-    @Operation(summary = "修改邮箱-发送新邮箱验证码")
+    @Operation(summary = "修改邮箱：0发送新邮箱验证码")
     public R<String> updateEmailSendCodeNew(@RequestBody @Valid SignEmailUpdateEmailSendCodeNewDTO dto) {
         return R.okMsg(baseService.updateEmailSendCodeNew(dto));
     }
 
     @PostMapping(value = "/updateEmail/sendCode/old")
-    @Operation(summary = "修改邮箱-发送旧邮箱验证码")
+    @Operation(summary = "修改邮箱：发送旧邮箱验证码")
     public R<String> updateEmailSendCodeOld() {
         return R.okMsg(baseService.updateEmailSendCodeOld());
     }
@@ -180,7 +180,7 @@ public class SignEmailController {
     }
 
     @PostMapping(value = "/forgetPassword/sendCode")
-    @Operation(summary = "忘记密码-发送验证码")
+    @Operation(summary = "忘记密码：发送验证码")
     public R<String> forgetPasswordSendCode(@RequestBody @Valid EmailNotBlankDTO dto) {
         return R.okMsg(baseService.forgetPasswordSendCode(dto));
     }
@@ -192,7 +192,7 @@ public class SignEmailController {
     }
 
     @PostMapping(value = "/signDelete/sendCode")
-    @Operation(summary = "账号注销-发送验证码")
+    @Operation(summary = "账号注销：发送验证码")
     public R<String> signDeleteSendCode() {
         return R.okMsg(baseService.signDeleteSendCode());
     }
