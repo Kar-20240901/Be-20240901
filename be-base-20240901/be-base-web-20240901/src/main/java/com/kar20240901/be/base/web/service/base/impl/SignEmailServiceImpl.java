@@ -62,7 +62,7 @@ public class SignEmailServiceImpl implements SignEmailService {
 
         checkSignUpEnable(); // 检查：是否允许注册
 
-        String key = PRE_REDIS_KEY_ENUM + dto.getEmail();
+        String key = PRE_REDIS_KEY_ENUM + ":" + dto.getEmail();
 
         return SignUtil.sendCode(key,
             ChainWrappers.lambdaQueryChain(baseUserMapper).eq(TempUserDO::getEmail, dto.getEmail()), false,
@@ -115,7 +115,7 @@ public class SignEmailServiceImpl implements SignEmailService {
     @Override
     public String signInSendCode(EmailNotBlankDTO dto) {
 
-        String key = PRE_REDIS_KEY_ENUM + dto.getEmail();
+        String key = PRE_REDIS_KEY_ENUM + ":" + dto.getEmail();
 
         return SignUtil.sendCode(key,
             ChainWrappers.lambdaQueryChain(baseUserMapper).eq(TempUserDO::getEmail, dto.getEmail()), true,
@@ -198,7 +198,7 @@ public class SignEmailServiceImpl implements SignEmailService {
 
         String currentUserEmail = MyUserUtil.getCurrentUserEmail();
 
-        String key = BaseRedisKeyEnum.PRE_USER_NAME + dto.getUsername();
+        String key = BaseRedisKeyEnum.PRE_USER_NAME + ":" + dto.getUsername();
 
         return SignUtil.sendCode(key,
             ChainWrappers.lambdaQueryChain(baseUserMapper).eq(TempUserDO::getUsername, dto.getUsername()), false,
@@ -229,7 +229,7 @@ public class SignEmailServiceImpl implements SignEmailService {
 
         String currentUserEmail = MyUserUtil.getCurrentUserEmail();
 
-        String key = BaseRedisKeyEnum.PRE_USER_NAME + dto.getUsername();
+        String key = BaseRedisKeyEnum.PRE_USER_NAME + ":" + dto.getUsername();
 
         return SignUtil.sendCode(key,
             ChainWrappers.lambdaQueryChain(baseUserMapper).eq(TempUserDO::getUsername, dto.getUsername()), false,
@@ -258,7 +258,7 @@ public class SignEmailServiceImpl implements SignEmailService {
 
         SignUtil.checkWillError(PRE_REDIS_KEY_ENUM, null, null); // 检查：是否可以进行操作
 
-        String key = PRE_REDIS_KEY_ENUM + dto.getEmail();
+        String key = PRE_REDIS_KEY_ENUM + ":" + dto.getEmail();
 
         return SignUtil.sendCode(key,
             ChainWrappers.lambdaQueryChain(baseUserMapper).eq(TempUserDO::getEmail, dto.getEmail()), false,
@@ -277,7 +277,7 @@ public class SignEmailServiceImpl implements SignEmailService {
 
         String currentUserEmail = MyUserUtil.getCurrentUserEmail();
 
-        String key = PRE_REDIS_KEY_ENUM + currentUserEmail;
+        String key = PRE_REDIS_KEY_ENUM + ":" + currentUserEmail;
 
         return SignUtil.sendCode(key, null, true, TempBizCodeEnum.RESULT_SYS_ERROR,
             (code) -> MyEmailUtil.send(currentUserEmail, EmailMessageEnum.UPDATE_EMAIL, code));
@@ -307,7 +307,7 @@ public class SignEmailServiceImpl implements SignEmailService {
 
         String currentUserEmail = MyUserUtil.getCurrentUserEmail();
 
-        String key = PRE_REDIS_KEY_ENUM + currentUserEmail;
+        String key = PRE_REDIS_KEY_ENUM + ":" + currentUserEmail;
 
         return SignUtil.sendCode(key, null, true, TempBizCodeEnum.RESULT_SYS_ERROR,
             (code) -> MyEmailUtil.send(currentUserEmail, EmailMessageEnum.BIND_WX, code));
@@ -348,7 +348,7 @@ public class SignEmailServiceImpl implements SignEmailService {
 
         String currentUserEmail = MyUserUtil.getCurrentUserEmail();
 
-        String codeKey = PRE_REDIS_KEY_ENUM + currentUserEmail;
+        String codeKey = PRE_REDIS_KEY_ENUM + ":" + currentUserEmail;
 
         // 执行
         return SignUtil.setWx(dto.getQrCodeId(), dto.getEmailCode(), codeKey, null);
@@ -365,7 +365,7 @@ public class SignEmailServiceImpl implements SignEmailService {
 
         String currentUserEmail = MyUserUtil.getCurrentUserEmail();
 
-        String key = PRE_REDIS_KEY_ENUM + currentUserEmail;
+        String key = PRE_REDIS_KEY_ENUM + ":" + currentUserEmail;
 
         return SignUtil.sendCode(key, null, true, TempBizCodeEnum.RESULT_SYS_ERROR,
             (code) -> MyEmailUtil.send(currentUserEmail, EmailMessageEnum.BIND_PHONE, code));
@@ -380,7 +380,7 @@ public class SignEmailServiceImpl implements SignEmailService {
 
         SignUtil.checkWillError(PRE_REDIS_KEY_ENUM, null, null); // 检查：是否可以进行操作
 
-        String key = BaseRedisKeyEnum.PRE_PHONE + dto.getPhone();
+        String key = BaseRedisKeyEnum.PRE_PHONE + ":" + dto.getPhone();
 
         return SignUtil.sendCode(key,
             ChainWrappers.lambdaQueryChain(baseUserMapper).eq(TempUserDO::getPhone, dto.getPhone()), false,
@@ -410,7 +410,7 @@ public class SignEmailServiceImpl implements SignEmailService {
 
         SignUtil.checkWillError(PRE_REDIS_KEY_ENUM, dto.getEmail(), null); // 检查：是否可以进行操作
 
-        String key = PRE_REDIS_KEY_ENUM + dto.getEmail();
+        String key = PRE_REDIS_KEY_ENUM + ":" + dto.getEmail();
 
         return SignUtil.sendCode(key,
             ChainWrappers.lambdaQueryChain(baseUserMapper).eq(TempUserDO::getEmail, dto.getEmail()), true,

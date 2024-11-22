@@ -219,7 +219,7 @@ public class SignUtil {
         String code = CodeUtil.getCode();
 
         // 保存到 redis中，设置 10分钟过期
-        redissonClient.getBucket(redisKeyEnum + account)
+        redissonClient.getBucket(redisKeyEnum + ":" + account)
             .set(code, Duration.ofMillis(TempConstant.LONG_CODE_EXPIRE_TIME));
 
         // 执行：发送验证码操作
@@ -246,7 +246,7 @@ public class SignUtil {
 
         }
 
-        String accountKey = accountRedisKeyEnum + account;
+        String accountKey = accountRedisKeyEnum + ":" + account;
 
         boolean codeKeyBlankFlag = StrUtil.isBlank(codeKey);
 
@@ -1585,7 +1585,7 @@ public class SignUtil {
         // 登录时，获取账号信息
         TempUserDO tempUserDO = signInGetTempUserDO(lambdaQueryChainWrapper, false);
 
-        String key = redisKeyEnum + account;
+        String key = redisKeyEnum + ":" + account;
 
         return RedissonUtil.doLock(key, () -> {
 
