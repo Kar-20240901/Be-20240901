@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Date;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -46,5 +47,8 @@ public class BaseUserDeleteLogDO extends TempEntityNoIdSuper {
 
     @Schema(description = "头像 fileId（文件主键 id）")
     private Long avatarFileId;
+
+    @Schema(description = "用户创建时间")
+    private Date userCreateTime;
 
 }

@@ -69,6 +69,8 @@ public class BaseSecurityUserSignConfiguration implements IUserSignConfiguration
             baseUserDeleteLogDO.setBio(tempUserInfoDO.getBio());
             baseUserDeleteLogDO.setAvatarFileId(tempUserInfoDO.getAvatarFileId());
 
+            baseUserDeleteLogDO.setUserCreateTime(item.getCreateTime());
+
             baseUserDeleteLogDoList.add(baseUserDeleteLogDO);
 
         }
