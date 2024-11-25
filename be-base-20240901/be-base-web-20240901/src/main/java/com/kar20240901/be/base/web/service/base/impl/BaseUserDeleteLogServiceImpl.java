@@ -34,8 +34,8 @@ public class BaseUserDeleteLogServiceImpl extends ServiceImpl<BaseUserDeleteLogM
             .like(StrUtil.isNotBlank(dto.getWxAppId()), BaseUserDeleteLogDO::getWxAppId, dto.getWxAppId())
             .like(StrUtil.isNotBlank(dto.getUuid()), BaseUserDeleteLogDO::getUuid, dto.getUuid())
             .like(StrUtil.isNotBlank(dto.getNickname()), BaseUserDeleteLogDO::getNickname, dto.getNickname())
-            .select(BaseUserDeleteLogDO::getId, TempEntityNoIdSuper::getCreateTime, BaseUserDeleteLogDO::getNickname)
-            .page(dto.createTimeDescDefaultOrderPage());
+            .select(BaseUserDeleteLogDO::getId, TempEntityNoIdSuper::getCreateTime, BaseUserDeleteLogDO::getNickname,
+                BaseUserDeleteLogDO::getUserCreateTime).page(dto.createTimeDescDefaultOrderPage());
 
     }
 

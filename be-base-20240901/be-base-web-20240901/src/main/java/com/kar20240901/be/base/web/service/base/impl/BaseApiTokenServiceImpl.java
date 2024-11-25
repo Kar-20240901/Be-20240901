@@ -16,6 +16,7 @@ import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.base.BaseApiTokenService;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
+import java.util.Date;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 
@@ -65,6 +66,7 @@ public class BaseApiTokenServiceImpl extends ServiceImpl<BaseApiTokenMapper, Bas
         if (dto.getId() == null) {
 
             baseApiTokenDO.setToken(IdUtil.simpleUUID());
+            baseApiTokenDO.setLastUseTime(new Date());
 
         }
 
@@ -123,8 +125,8 @@ public class BaseApiTokenServiceImpl extends ServiceImpl<BaseApiTokenMapper, Bas
 
         }
 
-        return lambdaQuery().eq(BaseApiTokenDO::getId, notNullId.getId()).eq(BaseApiTokenDO::getUserId, queryUserId)
-            .one();
+        return lambdaQuery().eq(BaseApiTokenDO::getId, notNullId.getId())
+            .eq(queryUserId != null, BaseApiTokenDO::getUserId, queryUserId).one();
 
     }
 

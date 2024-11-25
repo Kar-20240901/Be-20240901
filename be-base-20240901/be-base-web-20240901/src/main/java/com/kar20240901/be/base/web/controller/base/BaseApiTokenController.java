@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "基础-api-token-管理")
+@Tag(name = "基础-令牌-管理")
 @RestController
 @RequestMapping("/base/apiToken")
 public class BaseApiTokenController {
