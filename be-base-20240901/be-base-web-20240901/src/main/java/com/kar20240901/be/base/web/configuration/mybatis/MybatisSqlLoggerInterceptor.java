@@ -77,17 +77,17 @@ public class MybatisSqlLoggerInterceptor implements Interceptor {
 
                 if (SqlCommandType.INSERT.equals(sqlCommandType)) {
 
-                    logFlag = LogFilter.logProperties.getLogTopicSet().contains(LogTopicConstant.MYBATIS_INSERT);
+                    logFlag = LogFilter.baseProperties.getLogTopicSet().contains(LogTopicConstant.MYBATIS_INSERT);
 
                 } else {
 
-                    logFlag = LogFilter.logProperties.getLogTopicSet().contains(LogTopicConstant.MYBATIS);
+                    logFlag = LogFilter.baseProperties.getLogTopicSet().contains(LogTopicConstant.MYBATIS);
 
                 }
 
                 if (logFlag) {
 
-                    logFlag = !LogFilter.logProperties.getNotLogTopicSet().contains(mappedStatement.getId());
+                    logFlag = !LogFilter.baseProperties.getNotLogTopicSet().contains(mappedStatement.getId());
 
                 }
 

@@ -80,8 +80,6 @@ public class BaseSocketRefUserServiceImpl extends ServiceImpl<BaseSocketRefUserM
         // 发送：webSocket事件
         TempKafkaUtil.sendBaseWebSocketEventTopic(baseWebSocketEventBO);
 
-        lambdaUpdate().in(TempEntity::getId, notEmptyIdSet.getIdSet()).remove();
-
         return TempBizCodeEnum.OK;
 
     }

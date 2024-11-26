@@ -3,6 +3,7 @@ package com.kar20240901.be.base.web.model.domain.base;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.kar20240901.be.base.web.model.enums.base.BaseRequestCategoryEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Date;
 import lombok.Data;
@@ -50,5 +51,8 @@ public class BaseUserDeleteLogDO extends TempEntityNoIdSuper {
 
     @Schema(description = "用户创建时间")
     private Date userCreateTime;
+
+    @Schema(description = "注册终端")
+    private BaseRequestCategoryEnum signUpType;
 
 }

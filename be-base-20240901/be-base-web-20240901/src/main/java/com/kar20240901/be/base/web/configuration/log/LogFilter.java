@@ -9,7 +9,7 @@ import cn.hutool.core.io.watch.WatchMonitor;
 import cn.hutool.core.io.watch.Watcher;
 import cn.hutool.json.JSONUtil;
 import com.kar20240901.be.base.web.model.constant.log.LogTopicConstant;
-import com.kar20240901.be.base.web.properties.log.LogProperties;
+import com.kar20240901.be.base.web.properties.log.BaseProperties;
 import com.kar20240901.be.base.web.util.base.MyTryUtil;
 import java.io.File;
 import java.nio.file.Path;
@@ -23,13 +23,13 @@ import org.yaml.snakeyaml.Yaml;
 @Slf4j
 public class LogFilter extends Filter<ILoggingEvent> {
 
-    public static LogProperties logProperties = new LogProperties();
+    public static BaseProperties baseProperties = new BaseProperties();
 
     static {
 
         try {
 
-            initLogProperties();
+            initBaseProperties();
 
         } catch (Exception e) {
 
@@ -39,9 +39,9 @@ public class LogFilter extends Filter<ILoggingEvent> {
 
     }
 
-    private static void initLogProperties() {
+    private static void initBaseProperties() {
 
-        File file = FileUtil.touch("/home/conf/log.yml");
+        File file = FileUtil.touch("/home/conf/base.yml");
 
         handle(file, "初始化");
 
@@ -99,8 +99,8 @@ public class LogFilter extends Filter<ILoggingEvent> {
 
         Iterable<Object> objectIterable = new Yaml().loadAll(str);
 
-        logProperties.setLogTopicSet(new HashSet<>());
-        logProperties.setNotLogTopicSet(new HashSet<>());
+        baseProperties.setLogTopicSet(new HashSet<>());
+        baseProperties.setNotLogTopicSet(new HashSet<>());
 
         if (objectIterable.iterator().hasNext()) {
 
@@ -115,13 +115,13 @@ public class LogFilter extends Filter<ILoggingEvent> {
 
                 if (CollUtil.isNotEmpty(logTopicList)) {
 
-                    logProperties.setLogTopicSet(new HashSet<>(logTopicList));
+                    baseProperties.setLogTopicSet(new HashSet<>(logTopicList));
 
                 }
 
                 if (CollUtil.isNotEmpty(notLogTopicList)) {
 
-                    logProperties.setNotLogTopicSet(new HashSet<>(notLogTopicList));
+                    baseProperties.setNotLogTopicSet(new HashSet<>(notLogTopicList));
 
                 }
 
@@ -129,7 +129,7 @@ public class LogFilter extends Filter<ILoggingEvent> {
 
         }
 
-        log.info("【{}】logProperties：{}", type, JSONUtil.toJsonStr(logProperties));
+        log.info("【{}】baseProperties：{}", type, JSONUtil.toJsonStr(baseProperties));
 
     }
 
@@ -139,18 +139,18 @@ public class LogFilter extends Filter<ILoggingEvent> {
     @Override
     public FilterReply decide(ILoggingEvent iLoggingEvent) {
 
-        if (logProperties != null && CollUtil.isNotEmpty(logProperties.getLogTopicSet())) {
+        if (baseProperties != null && CollUtil.isNotEmpty(baseProperties.getLogTopicSet())) {
 
-            if (logProperties.getLogTopicSet().contains(iLoggingEvent.getLoggerName())) {
+            if (baseProperties.getLogTopicSet().contains(iLoggingEvent.getLoggerName())) {
 
                 return FilterReply.NEUTRAL; // 打印
 
             }
 
-            if (logProperties.getLogTopicSet().contains(LogTopicConstant.NORMAL) && !iLoggingEvent.getLoggerName()
+            if (baseProperties.getLogTopicSet().contains(LogTopicConstant.NORMAL) && !iLoggingEvent.getLoggerName()
                 .startsWith(LogTopicConstant.PRE_BE)) {
 
-                if (logProperties.getNotLogTopicSet().contains(iLoggingEvent.getLoggerName())) {
+                if (baseProperties.getNotLogTopicSet().contains(iLoggingEvent.getLoggerName())) {
 
                     return FilterReply.DENY; // 不打印
 
