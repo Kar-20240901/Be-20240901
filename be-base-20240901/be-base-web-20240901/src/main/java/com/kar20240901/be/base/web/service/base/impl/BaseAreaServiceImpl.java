@@ -90,11 +90,6 @@ public class BaseAreaServiceImpl extends ServiceImpl<BaseAreaMapper, BaseAreaDO>
      */
     private void insertOrUpdateSub(BaseAreaDO baseAreaDO, BaseAreaInsertOrUpdateDTO dto) {
 
-        // 如果禁用了，则子表不进行新增操作
-        if (BooleanUtil.isFalse(baseAreaDO.getEnableFlag())) {
-            return;
-        }
-
         // 新增：区域用户关联表数据
         if (CollUtil.isNotEmpty(dto.getUserIdSet())) {
 

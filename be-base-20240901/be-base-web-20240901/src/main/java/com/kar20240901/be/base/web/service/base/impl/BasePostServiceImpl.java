@@ -90,11 +90,6 @@ public class BasePostServiceImpl extends ServiceImpl<BasePostMapper, BasePostDO>
      */
     private void insertOrUpdateSub(BasePostDO basePostDO, BasePostInsertOrUpdateDTO dto) {
 
-        // 如果禁用了，则子表不进行新增操作
-        if (BooleanUtil.isFalse(basePostDO.getEnableFlag())) {
-            return;
-        }
-
         // 新增：岗位用户关联表数据
         if (CollUtil.isNotEmpty(dto.getUserIdSet())) {
 

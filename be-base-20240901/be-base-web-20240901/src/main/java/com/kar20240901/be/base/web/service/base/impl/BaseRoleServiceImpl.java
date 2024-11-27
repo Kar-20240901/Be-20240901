@@ -190,11 +190,6 @@ public class BaseRoleServiceImpl extends ServiceImpl<BaseRoleMapper, BaseRoleDO>
      */
     private void insertOrUpdateSub(BaseRoleInsertOrUpdateDTO dto, BaseRoleDO baseRoleDO) {
 
-        // 如果禁用了，则子表不进行新增操作
-        if (BooleanUtil.isFalse(baseRoleDO.getEnableFlag())) {
-            return;
-        }
-
         Long roleId = baseRoleDO.getId();
 
         if (CollUtil.isNotEmpty(dto.getMenuIdSet())) {

@@ -90,11 +90,6 @@ public class BaseDeptServiceImpl extends ServiceImpl<BaseDeptMapper, BaseDeptDO>
      */
     private void insertOrUpdateSub(BaseDeptDO baseDeptDO, BaseDeptInsertOrUpdateDTO dto) {
 
-        // 如果禁用了，则子表不进行新增操作
-        if (BooleanUtil.isFalse(baseDeptDO.getEnableFlag())) {
-            return;
-        }
-
         // 新增：部门用户关联表数据
         if (CollUtil.isNotEmpty(dto.getUserIdSet())) {
 

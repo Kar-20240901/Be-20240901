@@ -293,12 +293,9 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
      */
     private void insertOrUpdateSub(TempUserDO tempUserDO, BaseUserInsertOrUpdateDTO dto) {
 
-        // 如果禁用了，则子表不进行新增操作
         if (BooleanUtil.isFalse(tempUserDO.getEnableFlag())) {
 
             MyUserUtil.setDisable(tempUserDO.getId()); // 设置：账号被冻结
-
-            return;
 
         } else {
 
@@ -570,6 +567,8 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
             .set(TempUserDO::getEnableFlag, false).update();
 
         MyUserUtil.setDisable(notEmptyIdSet.getIdSet()); // 设置：账号被冻结
+
+        SignUtil.removeJwt(notEmptyIdSet.getIdSet());  // 删除：jwt相关
 
         return TempBizCodeEnum.OK;
 

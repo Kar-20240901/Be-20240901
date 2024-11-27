@@ -86,11 +86,6 @@ public class BaseAuthServiceImpl extends ServiceImpl<BaseAuthMapper, BaseAuthDO>
      */
     private void insertOrUpdateSub(BaseAuthInsertOrUpdateDTO dto, BaseAuthDO baseAuthDO) {
 
-        // 如果禁用了，则子表不进行新增操作
-        if (BooleanUtil.isFalse(baseAuthDO.getEnableFlag())) {
-            return;
-        }
-
         Long authId = baseAuthDO.getId();
 
         if (CollUtil.isNotEmpty(dto.getRoleIdSet())) {

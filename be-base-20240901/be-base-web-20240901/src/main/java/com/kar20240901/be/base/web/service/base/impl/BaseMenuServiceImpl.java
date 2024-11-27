@@ -139,11 +139,6 @@ public class BaseMenuServiceImpl extends ServiceImpl<BaseMenuMapper, BaseMenuDO>
      */
     private void insertOrUpdateSub(BaseMenuDO baseMenuDO, BaseMenuInsertOrUpdateDTO dto) {
 
-        // 如果禁用了，则子表不进行新增操作
-        if (BooleanUtil.isFalse(baseMenuDO.getEnableFlag())) {
-            return;
-        }
-
         // 新增：角色菜单，菜单用户 关联表数据
         if (CollUtil.isNotEmpty(dto.getRoleIdSet())) {
 
