@@ -568,8 +568,6 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
 
         MyUserUtil.setDisable(notEmptyIdSet.getIdSet()); // 设置：账号被冻结
 
-        SignUtil.removeJwt(notEmptyIdSet.getIdSet());  // 删除：jwt相关
-
         return TempBizCodeEnum.OK;
 
     }

@@ -41,4 +41,10 @@ public class BaseFilePageSelfDTO extends MyPageDTO {
     @Schema(description = "关联的 id")
     private Long refId;
 
+    @Schema(description = "展示用的文件名，默认为：原始文件名（包含文件类型）")
+    private String showFileName;
+
+    @Schema(description = "全局搜索")
+    private Boolean globalFlag;
+
 }

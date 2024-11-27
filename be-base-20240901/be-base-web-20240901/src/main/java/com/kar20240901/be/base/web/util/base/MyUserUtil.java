@@ -1,5 +1,6 @@
 package com.kar20240901.be.base.web.util.base;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.NumberWithFormat;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.func.VoidFunc0;
@@ -282,6 +283,8 @@ public class MyUserUtil {
 
         redissonClient.getBucket(TempRedisKeyEnum.PRE_USER_DISABLE.name() + ":" + userId).set(DateUtil.now());
 
+        SignUtil.removeJwt(CollUtil.newHashSet(userId));  // 删除：jwt相关
+
     }
 
     /**
@@ -300,6 +303,8 @@ public class MyUserUtil {
         }
 
         rBatch.execute();
+
+        SignUtil.removeJwt(userIdSet);  // 删除：jwt相关
 
     }
 

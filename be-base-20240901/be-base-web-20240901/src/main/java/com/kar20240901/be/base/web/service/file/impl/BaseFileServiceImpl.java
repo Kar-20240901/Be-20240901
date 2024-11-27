@@ -3,6 +3,7 @@ package com.kar20240901.be.base.web.service.file.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
@@ -133,6 +134,16 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
      */
     @Override
     public Page<BaseFileDO> myPage(BaseFilePageDTO dto) {
+
+        if (BooleanUtil.isTrue(dto.getGlobalFlag())) {
+
+            dto.setPid(null);
+
+        } else if (dto.getPid() == null) {
+
+            dto.setPid(TempConstant.TOP_PID);
+
+        }
 
         return lambdaQuery() //
             .like(StrUtil.isNotBlank(dto.getOriginFileName()), BaseFileDO::getOriginFileName,
