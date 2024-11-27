@@ -15,6 +15,7 @@ import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.base.TempUserDO;
 import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
+import com.kar20240901.be.base.web.model.enums.base.BaseRedisKeyEnum;
 import com.kar20240901.be.base.web.model.enums.base.TempRedisKeyEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import java.util.List;
@@ -329,6 +330,21 @@ public class MyUserUtil {
 
         String[] redisKeyArr =
             userIdSet.stream().map(it -> TempRedisKeyEnum.PRE_USER_DISABLE.name() + ":" + it).toArray(String[]::new);
+
+        keys.delete(redisKeyArr);
+
+    }
+
+    /**
+     * 统一的：删除：后台登录相关
+     */
+    public static void removeManageSignInFlag(Set<Long> userIdSet) {
+
+        RKeys keys = redissonClient.getKeys();
+
+        String[] redisKeyArr =
+            userIdSet.stream().map(it -> BaseRedisKeyEnum.PRE_USER_MANAGE_SIGN_IN_FLAG.name() + ":" + it)
+                .toArray(String[]::new);
 
         keys.delete(redisKeyArr);
 

@@ -777,11 +777,6 @@ public class SignUtil {
 
         } else if (baseRedisKeyEnum.equals(BaseRedisKeyEnum.PRE_EMAIL)) { // 邮箱
 
-            // 必须有密码，并且，手机为空，微信为空
-            if (StrUtil.isBlank(tempUserDO.getPassword())) {
-                R.errorMsg("操作失败：请设置密码之后再试");
-            }
-
             if (StrUtil.isNotBlank(tempUserDO.getWxAppId())) {
                 R.errorMsg("操作失败：请用微信扫码进行操作");
             }
@@ -1229,6 +1224,9 @@ public class SignUtil {
 
             // 删除：冻结相关
             MyUserUtil.removeDisable(userIdSet);
+
+            // 删除：后台登录相关
+            MyUserUtil.removeManageSignInFlag(userIdSet);
 
             BaseRoleServiceImpl.deleteAuthCache(userIdSet); // 删除权限缓存
 
