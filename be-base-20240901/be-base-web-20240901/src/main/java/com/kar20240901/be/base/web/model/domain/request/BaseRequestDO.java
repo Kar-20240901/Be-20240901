@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.model.domain.request;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -51,11 +52,12 @@ public class BaseRequestDO {
     @Schema(description = "请求类型")
     private String type;
 
-    @TableField(exist = false, value = "COUNT(1) AS count")
+    @TableField(value = "COUNT(1)", insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
     @Schema(description = "总数量")
     private Long count;
 
-    @TableField(exist = false, value = "(SUM(a.cost_ms) DIV COUNT(1)) AS avgMs")
+    @TableField(value = "(SUM(cost_ms) DIV COUNT(1))", insertStrategy = FieldStrategy.NEVER,
+        updateStrategy = FieldStrategy.NEVER)
     @Schema(description = "平均耗时（毫秒）")
     private Integer avgMs;
 

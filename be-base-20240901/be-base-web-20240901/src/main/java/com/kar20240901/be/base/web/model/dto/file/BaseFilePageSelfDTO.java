@@ -47,4 +47,7 @@ public class BaseFilePageSelfDTO extends MyPageDTO {
     @Schema(description = "全局搜索")
     private Boolean globalFlag;
 
+    @Schema(description = "返回上级")
+    private Boolean backUpFlag;
+
 }

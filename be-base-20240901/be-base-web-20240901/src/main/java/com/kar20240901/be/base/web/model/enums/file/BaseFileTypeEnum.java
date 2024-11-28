@@ -14,7 +14,7 @@ public enum BaseFileTypeEnum {
 
     FILE(101), // 文件
 
-    FOLDER(101), // 文件夹
+    FOLDER(201), // 文件夹
 
     ;
 

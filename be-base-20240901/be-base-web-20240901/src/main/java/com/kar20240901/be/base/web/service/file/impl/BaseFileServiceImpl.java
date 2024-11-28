@@ -28,6 +28,7 @@ import com.kar20240901.be.base.web.model.dto.file.BaseFilePageDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUpdateSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadDTO;
+import com.kar20240901.be.base.web.model.enums.file.BaseFileUploadTypeEnum;
 import com.kar20240901.be.base.web.model.vo.base.LongObjectMapVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
@@ -145,9 +146,30 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         }
 
+        if (BooleanUtil.isTrue(dto.getBackUpFlag())) {
+
+            if (dto.getPid() != null && !dto.getPid().equals(TempConstant.TOP_PID)) {
+
+                BaseFileDO baseFileDO = lambdaQuery().eq(TempEntity::getId, dto.getPid())
+                    .eq(dto.getBelongId() != null, BaseFileDO::getBelongId, dto.getBelongId())
+                    .select(BaseFileDO::getPid).one();
+
+                if (baseFileDO == null) {
+
+                    dto.setPid(TempConstant.TOP_PID);
+
+                } else {
+
+                    dto.setPid(baseFileDO.getPid());
+
+                }
+
+            }
+
+        }
+
         return lambdaQuery() //
-            .like(StrUtil.isNotBlank(dto.getOriginFileName()), BaseFileDO::getOriginFileName,
-                dto.getOriginFileName()) //
+            .like(StrUtil.isNotBlank(dto.getShowFileName()), BaseFileDO::getShowFileName, dto.getShowFileName()) //
             .like(StrUtil.isNotBlank(dto.getRemark()), TempEntityNoId::getRemark, dto.getRemark()) //
             .eq(dto.getBelongId() != null, BaseFileDO::getBelongId, dto.getBelongId()) //
             .eq(dto.getUploadType() != null, BaseFileDO::getUploadType, dto.getUploadType()) //
@@ -156,15 +178,15 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
             .eq(dto.getEnableFlag() != null, TempEntity::getEnableFlag, dto.getEnableFlag()) //
             .eq(dto.getRefId() != null, BaseFileDO::getRefId, dto.getRefId()) //
             .eq(dto.getPid() != null, BaseFileDO::getPid, dto.getPid()) //
+            .eq(BaseFileDO::getUploadType, BaseFileUploadTypeEnum.FILE_SYSTEM) //
             .select(true, getMyPageSelectList()).page(dto.createTimeDescDefaultOrderPage());
 
     }
 
     private static ArrayList<SFunction<BaseFileDO, ?>> getMyPageSelectList() {
 
-        return CollUtil.newArrayList(TempEntity::getId, TempEntityNoId::getEnableFlag, TempEntityNoId::getCreateTime,
-            BaseFileDO::getOriginFileName, BaseFileDO::getBelongId, BaseFileDO::getUploadType,
-            BaseFileDO::getPublicFlag, BaseFileDO::getFileSize, BaseFileDO::getRefId);
+        return CollUtil.newArrayList(TempEntity::getId, TempEntityNoId::getCreateTime, BaseFileDO::getBelongId,
+            BaseFileDO::getFileSize, BaseFileDO::getShowFileName, BaseFileDO::getPid);
 
     }
 
