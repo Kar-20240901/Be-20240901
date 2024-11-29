@@ -136,6 +136,8 @@ public class BaseFileUtil {
                 baseFileAuthDO.setWriteFlag(true);
                 baseFileAuthDO.setEnableFlag(true);
 
+                baseFileAuthDO.setRemark("");
+
                 baseFileAuthService.save(baseFileAuthDO);
 
             }, null, bo.getUserId().toString());
