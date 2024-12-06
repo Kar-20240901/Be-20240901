@@ -1,0 +1,5 @@
+mysql
+zookeeper
+kafka
+redis
+minio
