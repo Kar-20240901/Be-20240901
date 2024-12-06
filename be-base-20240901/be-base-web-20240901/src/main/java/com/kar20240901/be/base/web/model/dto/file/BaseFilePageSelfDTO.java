@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.model.dto.file;
 
 import com.kar20240901.be.base.web.model.dto.base.MyPageDTO;
+import com.kar20240901.be.base.web.model.enums.file.BaseFileTypeEnum;
 import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileStorageType;
 import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileUploadType;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -49,5 +50,8 @@ public class BaseFilePageSelfDTO extends MyPageDTO {
 
     @Schema(description = "返回上级")
     private Boolean backUpFlag;
+
+    @Schema(description = "类型")
+    private BaseFileTypeEnum type;
 
 }

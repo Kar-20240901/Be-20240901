@@ -178,6 +178,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
             .eq(dto.getEnableFlag() != null, TempEntity::getEnableFlag, dto.getEnableFlag()) //
             .eq(dto.getRefId() != null, BaseFileDO::getRefId, dto.getRefId()) //
             .eq(dto.getPid() != null, BaseFileDO::getPid, dto.getPid()) //
+            .eq(dto.getType() != null, BaseFileDO::getType, dto.getType()) //
             .eq(BaseFileDO::getUploadType, BaseFileUploadTypeEnum.FILE_SYSTEM) //
             .select(true, getMyPageSelectList()).page(dto.createTimeDescDefaultOrderPage());
 
@@ -222,8 +223,9 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         MyThreadUtil.execute(() -> {
 
-            Page<BaseFileDO> page =
-                lambdaQuery().select(true, getMyPageSelectList()).page(dto.createTimeDescDefaultOrderPage());
+            Page<BaseFileDO> page = lambdaQuery().select(true, getMyPageSelectList())
+                .eq(BaseFileDO::getUploadType, BaseFileUploadTypeEnum.FILE_SYSTEM)
+                .page(dto.createTimeDescDefaultOrderPage());
 
             allListCallBack.setValue(page.getRecords());
 
