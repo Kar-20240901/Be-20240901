@@ -396,9 +396,11 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         }
 
+        String pidPathStr = BaseFileUtil.getPidPathStr(dto.getPid());
+
         lambdaUpdate().in(TempEntity::getId, dto.getIdSet())
             .eq(!MyUserUtil.getCurrentUserAdminFlag(currentUserId), BaseFileDO::getBelongId, currentUserId)
-            .set(BaseFileDO::getPid, dto.getPid()).update();
+            .set(BaseFileDO::getPid, dto.getPid()).set(BaseFileDO::getPidPathStr, pidPathStr).update();
 
         return TempBizCodeEnum.OK;
 
@@ -433,9 +435,13 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
             return TempBizCodeEnum.OK;
         }
 
+        String pidPathStr = BaseFileUtil.getPidPathStr(dto.getPid());
+
         for (BaseFileDO item : baseFileDoList) {
 
             item.setPid(dto.getPid());
+
+            item.setPidPathStr(pidPathStr);
 
             String oldNewFileName = item.getNewFileName();
 

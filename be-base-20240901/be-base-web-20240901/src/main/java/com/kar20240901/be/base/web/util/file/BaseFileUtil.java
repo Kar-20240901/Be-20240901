@@ -342,6 +342,21 @@ public class BaseFileUtil {
 
         baseFileDO.setRemark(MyEntityUtil.getNotNullStr(bo.getRemark()));
 
+        String pidPathStr = getPidPathStr(pid);
+
+        baseFileDO.setPidPathStr(pidPathStr);
+
+        baseFileService.save(baseFileDO);
+
+        return baseFileDO.getId();
+
+    }
+
+    /**
+     * 获取：父节点 id字符串
+     */
+    public static String getPidPathStr(Long pid) {
+
         String pidPathStr;
 
         if (pid.equals(TempConstant.TOP_PID)) {
@@ -363,11 +378,7 @@ public class BaseFileUtil {
 
         }
 
-        baseFileDO.setPidPathStr(pidPathStr);
-
-        baseFileService.save(baseFileDO);
-
-        return baseFileDO.getId();
+        return pidPathStr;
 
     }
 
