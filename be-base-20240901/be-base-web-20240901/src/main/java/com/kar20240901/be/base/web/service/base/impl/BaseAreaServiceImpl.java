@@ -111,7 +111,7 @@ public class BaseAreaServiceImpl extends ServiceImpl<BaseAreaMapper, BaseAreaDO>
         BaseAreaDO baseAreaDO = new BaseAreaDO();
 
         baseAreaDO.setName(dto.getName());
-        baseAreaDO.setPid(MyEntityUtil.getNotNullParentId(dto.getPid()));
+        baseAreaDO.setPid(MyEntityUtil.getNotNullPid(dto.getPid()));
         baseAreaDO.setId(dto.getId());
         baseAreaDO.setEnableFlag(BooleanUtil.isTrue(dto.getEnableFlag()));
 
@@ -231,7 +231,7 @@ public class BaseAreaServiceImpl extends ServiceImpl<BaseAreaMapper, BaseAreaDO>
             baseAreaRefUserDoList.stream().map(BaseAreaRefUserDO::getUserId).collect(Collectors.toSet()));
 
         // 处理：父级 id
-        MyEntityUtil.handleParentId(baseAreaInfoByIdVO);
+        MyEntityUtil.handlePid(baseAreaInfoByIdVO);
 
         return baseAreaInfoByIdVO;
 

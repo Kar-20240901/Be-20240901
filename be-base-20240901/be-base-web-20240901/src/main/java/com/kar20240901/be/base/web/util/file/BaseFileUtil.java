@@ -15,6 +15,7 @@ import com.kar20240901.be.base.web.mapper.file.BaseFileStorageConfigurationMappe
 import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadBO;
 import com.kar20240901.be.base.web.model.configuration.file.IBaseFileRemove;
 import com.kar20240901.be.base.web.model.configuration.file.IBaseFileStorage;
+import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.constant.base.TempFileTempPathConstant;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
@@ -32,6 +33,7 @@ import com.kar20240901.be.base.web.util.base.CallBack;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyStrUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
+import com.kar20240901.be.base.web.util.base.SeparatorUtil;
 import com.kar20240901.be.base.web.util.base.TransactionUtil;
 import com.kar20240901.be.base.web.util.base.VoidFunc3;
 import java.io.File;
@@ -322,7 +324,9 @@ public class BaseFileUtil {
 
         baseFileDO.setStorageType(baseFileStorageConfigurationDO.getType());
 
-        baseFileDO.setPid(MyEntityUtil.getNotNullParentId(bo.getPid()));
+        Long pid = MyEntityUtil.getNotNullPid(bo.getPid());
+
+        baseFileDO.setPid(pid);
 
         baseFileDO.setType(BaseFileTypeEnum.FILE);
 
@@ -337,6 +341,29 @@ public class BaseFileUtil {
         baseFileDO.setEnableFlag(true);
 
         baseFileDO.setRemark(MyEntityUtil.getNotNullStr(bo.getRemark()));
+
+        String pidPathStr;
+
+        if (pid.equals(TempConstant.TOP_PID)) {
+
+            pidPathStr = SeparatorUtil.verticalLine(pid);
+
+        } else {
+
+            BaseFileDO parentBaseFileDo =
+                baseFileService.lambdaQuery().select(BaseFileDO::getPidPathStr).eq(TempEntity::getId, pid).one();
+
+            if (parentBaseFileDo == null) {
+
+                R.error("操作失败：文件夹已被删除", pid);
+
+            }
+
+            pidPathStr = parentBaseFileDo.getPidPathStr() + SeparatorUtil.verticalLine(pid);
+
+        }
+
+        baseFileDO.setPidPathStr(pidPathStr);
 
         baseFileService.save(baseFileDO);
 

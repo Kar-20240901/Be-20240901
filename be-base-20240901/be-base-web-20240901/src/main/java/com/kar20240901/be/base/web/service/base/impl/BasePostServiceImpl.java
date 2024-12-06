@@ -111,7 +111,7 @@ public class BasePostServiceImpl extends ServiceImpl<BasePostMapper, BasePostDO>
         BasePostDO basePostDO = new BasePostDO();
 
         basePostDO.setName(dto.getName());
-        basePostDO.setPid(MyEntityUtil.getNotNullParentId(dto.getPid()));
+        basePostDO.setPid(MyEntityUtil.getNotNullPid(dto.getPid()));
         basePostDO.setId(dto.getId());
         basePostDO.setEnableFlag(BooleanUtil.isTrue(dto.getEnableFlag()));
 
@@ -231,7 +231,7 @@ public class BasePostServiceImpl extends ServiceImpl<BasePostMapper, BasePostDO>
             basePostRefUserDoList.stream().map(BasePostRefUserDO::getUserId).collect(Collectors.toSet()));
 
         // 处理：父级 id
-        MyEntityUtil.handleParentId(basePostInfoByIdVO);
+        MyEntityUtil.handlePid(basePostInfoByIdVO);
 
         return basePostInfoByIdVO;
 

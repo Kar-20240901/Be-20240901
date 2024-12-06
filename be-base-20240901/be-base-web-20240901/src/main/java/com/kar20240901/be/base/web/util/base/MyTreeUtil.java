@@ -93,13 +93,13 @@ public class MyTreeUtil {
     }
 
     private static <T extends TempEntityTree<T>> void getFullTreeListHandle(Map<Long, T> allMap,
-        Collection<T> resultCollection, Long parentId, Set<Long> resultIdSet) {
+        Collection<T> resultCollection, Long pid, Set<Long> resultIdSet) {
 
-        if (parentId == 0) {
+        if (pid == 0) {
             return;
         }
 
-        T item = allMap.get(parentId); // 找到父节点
+        T item = allMap.get(pid); // 找到父节点
 
         if (item == null) {
             return;
@@ -156,45 +156,45 @@ public class MyTreeUtil {
 
         for (T item : collection) {
 
-            T mapDTO = listMap.get(item.getId());
+            T mapDto = listMap.get(item.getId());
 
-            if (mapDTO == null) {
+            if (mapDto == null) {
 
-                mapDTO = item;
+                mapDto = item;
 
-                if (CollUtil.isEmpty(mapDTO.getChildren())) { // 避免：mapDTO里面原来就有 children
+                if (CollUtil.isEmpty(mapDto.getChildren())) { // 避免：mapDTO里面原来就有 children
 
                     if (childrenFlag) {
 
-                        mapDTO.setChildren(new LinkedList<>()); // children 一直为集合
+                        mapDto.setChildren(new LinkedList<>()); // children 一直为集合
 
                     } else {
 
-                        mapDTO.setChildren(null); // 无子节点时，children 为 null
+                        mapDto.setChildren(null); // 无子节点时，children 为 null
 
                     }
 
                 }
 
-                listMap.put(mapDTO.getId(), mapDTO);
+                listMap.put(mapDto.getId(), mapDto);
 
             } else {
 
                 // 如果存在，则只保留 children属性，并补全其他属性
-                BeanUtil.copyProperties(item, mapDTO, "children");
+                BeanUtil.copyProperties(item, mapDto, "children");
 
             }
 
-            if (mapDTO.getPid() == topPid) {
+            if (mapDto.getPid() == topPid) {
 
-                resultList.add(mapDTO);
+                resultList.add(mapDto);
 
                 continue;
 
             }
 
             // 处理：把自己添加到：父节点的 children上
-            listToTreeHandleParentDTO(listMap, item, mapDTO);
+            listToTreeHandleParentDTO(listMap, item, mapDto);
 
         }
 
@@ -209,38 +209,38 @@ public class MyTreeUtil {
      * 处理：把自己添加到：父节点的 children上
      */
     private static <T extends TempEntityTree<T>> void listToTreeHandleParentDTO(Map<Long, T> listMap, T item,
-        T mapDTO) {
+        T mapDto) {
 
         // 获取：父节点
-        T parentDTO = listMap.get(mapDTO.getPid());
+        T pDto = listMap.get(mapDto.getPid());
 
-        if (parentDTO == null) {
+        if (pDto == null) {
 
-            parentDTO = (T)ReflectUtil.newInstance(item.getClass());
+            pDto = (T)ReflectUtil.newInstance(item.getClass());
 
             List<T> children = new LinkedList<>();
 
-            children.add(mapDTO);
+            children.add(mapDto);
 
-            parentDTO.setChildren(children); // 给父节点设置 children属性
+            pDto.setChildren(children); // 给父节点设置 children属性
 
-            listMap.put(mapDTO.getPid(), parentDTO);
+            listMap.put(mapDto.getPid(), pDto);
 
         } else {
 
-            List<T> children = parentDTO.getChildren();
+            List<T> children = pDto.getChildren();
 
             if (children == null) {
 
                 children = new LinkedList<>();
 
-                children.add(mapDTO);
+                children.add(mapDto);
 
-                parentDTO.setChildren(children); // 给父节点设置 children属性
+                pDto.setChildren(children); // 给父节点设置 children属性
 
             } else {
 
-                children.add(mapDTO);
+                children.add(mapDto);
 
             }
 
@@ -301,7 +301,7 @@ public class MyTreeUtil {
 
             Long newParentId = idMap.get(item.getPid());
 
-            item.setPid(MyEntityUtil.getNotNullParentId(newParentId));
+            item.setPid(MyEntityUtil.getNotNullPid(newParentId));
 
         }
 
@@ -371,11 +371,11 @@ public class MyTreeUtil {
     /**
      * 获取：下级节点
      */
-    private static void getIdAndDeepIdSetMapNext(Set<Long> resultSet, Long parentId,
+    private static void getIdAndDeepIdSetMapNext(Set<Long> resultSet, Long pid,
         Map<Long, Set<Long>> groupParentIdMap) {
 
         // 获取：自己下面的子级
-        Set<Long> childrenIdSet = groupParentIdMap.get(parentId);
+        Set<Long> childrenIdSet = groupParentIdMap.get(pid);
 
         if (CollUtil.isEmpty(childrenIdSet)) {
             return;

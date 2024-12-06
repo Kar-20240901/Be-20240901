@@ -48,14 +48,14 @@ public class MyEntityUtil {
      * 获取不为 null对象的 parentId字符串
      */
     @NotNull
-    public static Long getNotNullParentId(Long aLong) {
+    public static Long getNotNullPid(Long aLong) {
         return getNotNullLong(aLong, TempConstant.TOP_PID);
     }
 
     /**
      * 如果 parentId为 0，则设置为 null
      */
-    public static void handleParentId(TempEntityTree<?> tempEntityTree) {
+    public static void handlePid(TempEntityTree<?> tempEntityTree) {
 
         if (tempEntityTree != null && TempConstant.TOP_PID.equals(tempEntityTree.getPid())) {
             tempEntityTree.setPid(null);

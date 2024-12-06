@@ -23,16 +23,20 @@ import com.kar20240901.be.base.web.model.domain.file.BaseFileDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileCopySelfDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileCreateFolderSelfSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileMoveSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUpdateSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadDTO;
+import com.kar20240901.be.base.web.model.enums.file.BaseFileStorageTypeEnum;
+import com.kar20240901.be.base.web.model.enums.file.BaseFileTypeEnum;
 import com.kar20240901.be.base.web.model.enums.file.BaseFileUploadTypeEnum;
 import com.kar20240901.be.base.web.model.vo.base.LongObjectMapVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.util.base.CallBack;
+import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyStrUtil;
 import com.kar20240901.be.base.web.util.base.MyThreadUtil;
 import com.kar20240901.be.base.web.util.base.MyTreeUtil;
@@ -187,7 +191,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
     private static ArrayList<SFunction<BaseFileDO, ?>> getMyPageSelectList() {
 
         return CollUtil.newArrayList(TempEntity::getId, TempEntityNoId::getCreateTime, BaseFileDO::getBelongId,
-            BaseFileDO::getFileSize, BaseFileDO::getShowFileName, BaseFileDO::getPid);
+            BaseFileDO::getFileSize, BaseFileDO::getShowFileName, BaseFileDO::getPid, BaseFileDO::getType);
 
     }
 
@@ -237,14 +241,53 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         countDownLatch.await();
 
         if (baseFileDoList.size() == 0) {
-            return new ArrayList<>();
+
+            return CollUtil.newArrayList(getTopBaseFileDo());
+
         }
 
         if (allListCallBack.getValue().size() == 0) {
-            return new ArrayList<>();
+
+            return CollUtil.newArrayList(getTopBaseFileDo());
+
         }
 
-        return MyTreeUtil.getFullTreeByDeepNode(baseFileDoList, allListCallBack.getValue());
+        List<BaseFileDO> result = MyTreeUtil.getFullTreeByDeepNode(baseFileDoList, allListCallBack.getValue());
+
+        if (CollUtil.isEmpty(result)) {
+
+            return CollUtil.newArrayList(getTopBaseFileDo());
+
+        }
+
+        if (result.get(0).getPid().equals(TempConstant.TOP_PID)) {
+
+            BaseFileDO topBaseFileDo = getTopBaseFileDo();
+
+            topBaseFileDo.setChildren(result);
+
+            return CollUtil.newArrayList(topBaseFileDo);
+
+        }
+
+        return result;
+
+    }
+
+    /**
+     * 获取：根文件夹
+     */
+    public static BaseFileDO getTopBaseFileDo() {
+
+        BaseFileDO baseFileDo = new BaseFileDO();
+
+        baseFileDo.setShowFileName("根文件夹");
+
+        baseFileDo.setType(BaseFileTypeEnum.FOLDER);
+
+        baseFileDo.setId(TempConstant.TOP_PID);
+
+        return baseFileDo;
 
     }
 
@@ -261,6 +304,58 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         baseFilePageDTO.setBelongId(currentUserId); // 设置为：当前用户
 
         return tree(baseFilePageDTO);
+
+    }
+
+    /**
+     * 创建：文件夹-自我
+     */
+    @Override
+    public String createFolderSelf(BaseFileCreateFolderSelfSelfDTO dto) {
+
+        Long userId = MyUserUtil.getCurrentUserId();
+
+        BaseFileDO baseFileDO = new BaseFileDO();
+
+        baseFileDO.setBelongId(userId);
+
+        baseFileDO.setBucketName("");
+
+        baseFileDO.setUri("");
+
+        baseFileDO.setOriginFileName(dto.getFolderName());
+
+        baseFileDO.setNewFileName(IdUtil.simpleUUID());
+
+        baseFileDO.setFileExtName("");
+
+        baseFileDO.setExtraJson("");
+
+        baseFileDO.setUploadType(BaseFileUploadTypeEnum.FILE_SYSTEM.getCode());
+
+        baseFileDO.setStorageConfigurationId(TempConstant.NEGATIVE_ONE);
+
+        baseFileDO.setStorageType(BaseFileStorageTypeEnum.EMPTY.getCode());
+
+        baseFileDO.setPid(MyEntityUtil.getNotNullPid(dto.getPid()));
+
+        baseFileDO.setType(BaseFileTypeEnum.FOLDER);
+
+        baseFileDO.setShowFileName(dto.getFolderName());
+
+        baseFileDO.setPublicFlag(false);
+
+        baseFileDO.setFileSize(TempConstant.ZERO);
+
+        baseFileDO.setRefId(TempConstant.NEGATIVE_ONE);
+
+        baseFileDO.setEnableFlag(true);
+
+        baseFileDO.setRemark("");
+
+        save(baseFileDO);
+
+        return TempBizCodeEnum.OK;
 
     }
 

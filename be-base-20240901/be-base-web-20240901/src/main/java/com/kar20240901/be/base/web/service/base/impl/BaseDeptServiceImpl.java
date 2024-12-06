@@ -111,7 +111,7 @@ public class BaseDeptServiceImpl extends ServiceImpl<BaseDeptMapper, BaseDeptDO>
         BaseDeptDO baseDeptDO = new BaseDeptDO();
 
         baseDeptDO.setName(dto.getName());
-        baseDeptDO.setPid(MyEntityUtil.getNotNullParentId(dto.getPid()));
+        baseDeptDO.setPid(MyEntityUtil.getNotNullPid(dto.getPid()));
         baseDeptDO.setId(dto.getId());
         baseDeptDO.setEnableFlag(BooleanUtil.isTrue(dto.getEnableFlag()));
 
@@ -231,7 +231,7 @@ public class BaseDeptServiceImpl extends ServiceImpl<BaseDeptMapper, BaseDeptDO>
             baseDeptRefUserDoList.stream().map(BaseDeptRefUserDO::getUserId).collect(Collectors.toSet()));
 
         // 处理：父级 id
-        MyEntityUtil.handleParentId(baseDeptInfoByIdVO);
+        MyEntityUtil.handlePid(baseDeptInfoByIdVO);
 
         return baseDeptInfoByIdVO;
 

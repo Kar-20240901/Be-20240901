@@ -67,6 +67,9 @@ public class BaseFileDO extends TempEntityTree<BaseFileDO> {
     @Schema(description = "上级文件夹的文件主键 id，默认为 0")
     private Long pid;
 
+    @Schema(description = "父id组合，例如：|0||1||2|，备注：不包含本级，需包含顶级 0")
+    private String pidPathStr;
+
     @Schema(description = "类型")
     private BaseFileTypeEnum type;
 

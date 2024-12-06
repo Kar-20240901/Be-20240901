@@ -6,6 +6,7 @@ import com.kar20240901.be.base.web.model.domain.file.BaseFileDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileCopySelfDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileCreateFolderSelfSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileMoveSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageSelfDTO;
@@ -32,6 +33,8 @@ public interface BaseFileService extends IService<BaseFileDO> {
     List<BaseFileDO> tree(BaseFilePageDTO dto);
 
     List<BaseFileDO> treeSelf(BaseFilePageSelfDTO dto);
+
+    String createFolderSelf(BaseFileCreateFolderSelfSelfDTO dto);
 
     String updateSelf(BaseFileUpdateSelfDTO dto);
 

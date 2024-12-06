@@ -116,7 +116,7 @@ public class BaseMenuServiceImpl extends ServiceImpl<BaseMenuMapper, BaseMenuDO>
         baseMenuDO.setName(dto.getName());
         baseMenuDO.setPath(MyEntityUtil.getNotNullStr(dto.getPath()));
         baseMenuDO.setIcon(MyEntityUtil.getNotNullStr(dto.getIcon()));
-        baseMenuDO.setPid(MyEntityUtil.getNotNullParentId(dto.getPid()));
+        baseMenuDO.setPid(MyEntityUtil.getNotNullPid(dto.getPid()));
         baseMenuDO.setId(dto.getId());
         baseMenuDO.setEnableFlag(BooleanUtil.isTrue(dto.getEnableFlag()));
 
@@ -261,7 +261,7 @@ public class BaseMenuServiceImpl extends ServiceImpl<BaseMenuMapper, BaseMenuDO>
             baseRoleRefMenuDOList.stream().map(BaseRoleRefMenuDO::getRoleId).collect(Collectors.toSet()));
 
         // 处理：父级 id
-        MyEntityUtil.handleParentId(baseMenuInfoByIdVO);
+        MyEntityUtil.handlePid(baseMenuInfoByIdVO);
 
         return baseMenuInfoByIdVO;
 

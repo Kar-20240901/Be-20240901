@@ -112,7 +112,7 @@ public class BaseOtherAppOfficialAccountMenuServiceImpl
         baseOtherAppOfficialAccountMenuDO.setReplyContent(MyEntityUtil.getNotNullStr(dto.getReplyContent()));
 
         baseOtherAppOfficialAccountMenuDO.setOrderNo(MyEntityUtil.getNotNullOrderNo(dto.getOrderNo()));
-        baseOtherAppOfficialAccountMenuDO.setPid(MyEntityUtil.getNotNullParentId(dto.getPid()));
+        baseOtherAppOfficialAccountMenuDO.setPid(MyEntityUtil.getNotNullPid(dto.getPid()));
 
         baseOtherAppOfficialAccountMenuDO.setId(dto.getId());
         baseOtherAppOfficialAccountMenuDO.setEnableFlag(BooleanUtil.isTrue(dto.getEnableFlag()));
@@ -177,7 +177,7 @@ public class BaseOtherAppOfficialAccountMenuServiceImpl
         BaseOtherAppOfficialAccountMenuDO baseOtherAppOfficialAccountMenuDO =
             lambdaQuery().eq(TempEntity::getId, notNullId.getId()).one();
 
-        MyEntityUtil.handleParentId(baseOtherAppOfficialAccountMenuDO);
+        MyEntityUtil.handlePid(baseOtherAppOfficialAccountMenuDO);
 
         return baseOtherAppOfficialAccountMenuDO;
 

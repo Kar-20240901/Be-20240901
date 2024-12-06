@@ -5,6 +5,7 @@ import com.kar20240901.be.base.web.model.domain.file.BaseFileDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileCopySelfDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileCreateFolderSelfSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileMoveSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageSelfDTO;
@@ -81,6 +82,12 @@ public class BaseFileController {
     @PostMapping("/page/tree/self")
     public R<List<BaseFileDO>> treeSelf(@RequestBody @Valid BaseFilePageSelfDTO dto) {
         return R.okData(baseService.treeSelf(dto));
+    }
+
+    @Operation(summary = "创建：文件夹-自我")
+    @PostMapping("/createFolder/self")
+    public R<String> createFolderSelf(@RequestBody @Valid BaseFileCreateFolderSelfSelfDTO dto) {
+        return R.okMsg(baseService.createFolderSelf(dto));
     }
 
     @Operation(summary = "修改：文件和文件夹-自我")

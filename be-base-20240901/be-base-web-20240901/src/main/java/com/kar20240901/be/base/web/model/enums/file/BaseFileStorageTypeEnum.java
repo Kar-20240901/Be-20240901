@@ -13,6 +13,8 @@ import lombok.Getter;
 @Getter
 public enum BaseFileStorageTypeEnum implements IBaseFileStorageType {
 
+    EMPTY(-1), // 空
+
     ALI_YUN(101), // aliyun
 
     MINIO(201), // minio
