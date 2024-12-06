@@ -337,7 +337,9 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         baseFileDO.setStorageType(BaseFileStorageTypeEnum.EMPTY.getCode());
 
-        baseFileDO.setPid(MyEntityUtil.getNotNullPid(dto.getPid()));
+        Long pid = MyEntityUtil.getNotNullPid(dto.getPid());
+
+        baseFileDO.setPid(pid);
 
         baseFileDO.setType(BaseFileTypeEnum.FOLDER);
 
@@ -352,6 +354,10 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         baseFileDO.setEnableFlag(true);
 
         baseFileDO.setRemark("");
+
+        String pidPathStr = BaseFileUtil.getPidPathStr(pid);
+
+        baseFileDO.setPidPathStr(pidPathStr);
 
         save(baseFileDO);
 

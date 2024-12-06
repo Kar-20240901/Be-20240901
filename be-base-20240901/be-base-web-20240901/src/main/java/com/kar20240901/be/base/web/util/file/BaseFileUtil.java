@@ -355,7 +355,9 @@ public class BaseFileUtil {
     /**
      * 获取：父节点 id字符串
      */
-    public static String getPidPathStr(Long pid) {
+    public static String getPidPathStr(@Nullable Long pid) {
+
+        pid = MyEntityUtil.getNotNullPid(pid);
 
         String pidPathStr;
 
