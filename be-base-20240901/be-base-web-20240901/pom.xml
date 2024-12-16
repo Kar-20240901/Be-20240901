@@ -15,11 +15,22 @@
 
   <dependencies>
 
+    <!-- 微信支付，获取最新版本号：https://github.com/wechatpay-apiv3/wechatpay-java -->
+    <dependency>
+      <groupId>com.github.wechatpay-apiv3</groupId>
+      <artifactId>wechatpay-java</artifactId>
+    </dependency>
+
+    <!-- 支付宝支付，获取最新版本号：https://github.com/alipay/alipay-sdk-java-all -->
+    <dependency>
+      <groupId>com.alipay.sdk</groupId>
+      <artifactId>alipay-sdk-java</artifactId>
+    </dependency>
+
     <!-- 邮件 -->
     <dependency>
       <groupId>com.sun.mail</groupId>
       <artifactId>javax.mail</artifactId>
-      <version>1.6.2</version>
     </dependency>
 
     <!-- be-base-model-20240901 -->
@@ -39,14 +50,12 @@
     <dependency>
       <groupId>io.minio</groupId>
       <artifactId>minio</artifactId>
-      <version>8.5.12</version>
     </dependency>
 
     <!-- 阿里云oss文件存储 -->
     <dependency>
       <groupId>com.aliyun.oss</groupId>
       <artifactId>aliyun-sdk-oss</artifactId>
-      <version>3.18.1</version>
     </dependency>
 
     <!-- netty -->

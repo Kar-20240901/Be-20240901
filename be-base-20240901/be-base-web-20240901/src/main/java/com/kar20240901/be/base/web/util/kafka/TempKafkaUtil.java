@@ -80,4 +80,13 @@ public class TempKafkaUtil {
 
     }
 
+    /**
+     * 发送消息：支付状态发生改变时的 topic
+     */
+    public static void sendPayStatusChangeTopic(Object basePayDO) {
+
+        send(BaseKafkaTopicEnum.BASE_PAY_TRADE_NOTIFY_TOPIC, basePayDO);
+
+    }
+
 }

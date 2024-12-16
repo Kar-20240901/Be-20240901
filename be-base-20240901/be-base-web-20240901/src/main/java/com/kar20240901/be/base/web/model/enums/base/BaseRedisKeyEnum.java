@@ -8,6 +8,8 @@ import com.kar20240901.be.base.web.model.interfaces.base.IRedisKey;
 public enum BaseRedisKeyEnum implements IRedisKey {
 
     // 【PRE_】开头 ↓
+    PRE_PAY, // 支付锁，锁：【支付主键 id】
+
     PRE_OTHER_APP_TYPE_AND_APP_ID, // 第三方应用，类型code 和 appid锁，目的：同一个类型下的 appId不能重复，锁：【类型code 和 appid】
 
     PRE_SIGN_CONFIGURATION, // 用户登录注册相关配置锁
@@ -32,6 +34,8 @@ public enum BaseRedisKeyEnum implements IRedisKey {
     PRE_PASSWORD_ERROR_COUNT, // 密码错误总数：锁【用户主键 id】
 
     // 【_CACHE】结尾 ↓
+    GOOGLE_ACCESS_TOKEN_CACHE, // google接口调用凭据
+
     WX_WORK_ACCESS_TOKEN_CACHE, // 企业微信全局唯一后台接口调用凭据
 
     WX_OFFICIAL_ACCESS_TOKEN_CACHE, // 微信公众号全局唯一后台接口调用凭据

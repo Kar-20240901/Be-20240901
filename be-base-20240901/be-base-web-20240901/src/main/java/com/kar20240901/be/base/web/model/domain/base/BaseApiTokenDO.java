@@ -11,7 +11,7 @@ import lombok.Data;
 
 @Data
 @TableName(value = "base_api_token")
-@Schema(description = "主表：apiToken")
+@Schema(description = "主表：apiToken表")
 public class BaseApiTokenDO {
 
     @TableId(type = IdType.ASSIGN_ID)
