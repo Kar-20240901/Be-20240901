@@ -12,7 +12,6 @@ import com.kar20240901.be.base.web.model.domain.base.TempUserDO;
 import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
 import com.kar20240901.be.base.web.model.dto.base.BaseUserSelfUpdateInfoDTO;
 import com.kar20240901.be.base.web.model.vo.base.BaseUserSelfInfoVO;
-import com.kar20240901.be.base.web.properties.base.BaseSecurityProperties;
 import com.kar20240901.be.base.web.service.base.BaseUserSelfService;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyThreadUtil;
@@ -25,9 +24,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class BaseUserSelfServiceImpl implements BaseUserSelfService {
-
-    @Resource
-    BaseSecurityProperties baseSecurityProperties;
 
     @Resource
     BaseUserInfoMapper baseUserInfoMapper;

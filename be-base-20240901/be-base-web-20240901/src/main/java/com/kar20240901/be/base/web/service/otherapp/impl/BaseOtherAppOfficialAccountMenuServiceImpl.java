@@ -64,7 +64,7 @@ public class BaseOtherAppOfficialAccountMenuServiceImpl
 
         Long otherAppId = dto.getOtherAppId();
 
-        // 第三方应用，必须是在自己租户下
+        // 第三方应用
         BaseOtherAppDO baseOtherAppDO =
             ChainWrappers.lambdaQueryChain(baseOtherAppMapper).eq(TempEntity::getId, otherAppId)
                 .select(BaseOtherAppDO::getType).one();

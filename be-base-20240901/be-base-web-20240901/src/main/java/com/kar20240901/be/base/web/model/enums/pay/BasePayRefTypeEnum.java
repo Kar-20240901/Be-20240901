@@ -17,8 +17,6 @@ public enum BasePayRefTypeEnum implements IBasePayRefType {
 
     WALLET_RECHARGE_USER(201), // 钱包充值-用户
 
-    WALLET_RECHARGE_TENANT(202), // 钱包充值-租户
-
     ;
 
     @EnumValue
