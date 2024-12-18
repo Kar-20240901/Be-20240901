@@ -26,7 +26,8 @@ import org.springframework.stereotype.Service;
 public class BaseUserWalletLogServiceImpl extends ServiceImpl<BaseUserWalletLogMapper, BaseUserWalletLogDO>
     implements BaseUserWalletLogService {
 
-    private static CopyOnWriteArrayList<BaseUserWalletLogDO> SYS_USER_WALLET_LOG_DO_LIST = new CopyOnWriteArrayList<>();
+    private static CopyOnWriteArrayList<BaseUserWalletLogDO> BASE_USER_WALLET_LOG_DO_LIST =
+        new CopyOnWriteArrayList<>();
 
     /**
      * 定时任务，保存数据
@@ -37,14 +38,14 @@ public class BaseUserWalletLogServiceImpl extends ServiceImpl<BaseUserWalletLogM
 
         CopyOnWriteArrayList<BaseUserWalletLogDO> tempBaseUserWalletLogDoList;
 
-        synchronized (SYS_USER_WALLET_LOG_DO_LIST) {
+        synchronized (BASE_USER_WALLET_LOG_DO_LIST) {
 
-            if (CollUtil.isEmpty(SYS_USER_WALLET_LOG_DO_LIST)) {
+            if (CollUtil.isEmpty(BASE_USER_WALLET_LOG_DO_LIST)) {
                 return;
             }
 
-            tempBaseUserWalletLogDoList = SYS_USER_WALLET_LOG_DO_LIST;
-            SYS_USER_WALLET_LOG_DO_LIST = new CopyOnWriteArrayList<>();
+            tempBaseUserWalletLogDoList = BASE_USER_WALLET_LOG_DO_LIST;
+            BASE_USER_WALLET_LOG_DO_LIST = new CopyOnWriteArrayList<>();
 
         }
 
@@ -63,7 +64,7 @@ public class BaseUserWalletLogServiceImpl extends ServiceImpl<BaseUserWalletLogM
      */
     public static void add(BaseUserWalletLogDO baseUserWalletLogDO) {
 
-        SYS_USER_WALLET_LOG_DO_LIST.add(baseUserWalletLogDO);
+        BASE_USER_WALLET_LOG_DO_LIST.add(baseUserWalletLogDO);
 
     }
 

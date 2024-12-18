@@ -19,7 +19,7 @@ public class BaseUserWalletUserSignConfiguration implements IUserSignConfigurati
     @Override
     public Object signUp(@NotNull Long userId) {
 
-        BaseUserWalletDO baseUserWalletDO = getInitSysUserWalletDO(userId);
+        BaseUserWalletDO baseUserWalletDO = getInitBaseUserWalletDO(userId);
 
         baseUserWalletMapper.insert(baseUserWalletDO);
 
@@ -28,10 +28,10 @@ public class BaseUserWalletUserSignConfiguration implements IUserSignConfigurati
     }
 
     /**
-     * 获取：一个初始的 SysUserWalletDO对象
+     * 获取：一个初始的 BaseUserWalletDO对象
      */
     @NotNull
-    public static BaseUserWalletDO getInitSysUserWalletDO(@NotNull Long userId) {
+    public static BaseUserWalletDO getInitBaseUserWalletDO(@NotNull Long userId) {
 
         BaseUserWalletDO baseUserWalletDO = new BaseUserWalletDO();
 

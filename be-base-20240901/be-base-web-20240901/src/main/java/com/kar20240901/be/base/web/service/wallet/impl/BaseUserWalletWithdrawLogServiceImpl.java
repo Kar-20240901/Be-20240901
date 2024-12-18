@@ -130,7 +130,7 @@ public class BaseUserWalletWithdrawLogServiceImpl
         for (BaseUserWalletWithdrawLogDO item : page.getRecords()) {
 
             // 脱敏：BaseUserWalletWithdrawLogDO
-            desensitizedSysUserWalletWithdrawLogDO(item);
+            desensitizedBaseUserWalletWithdrawLogDO(item);
 
         }
 
@@ -141,7 +141,7 @@ public class BaseUserWalletWithdrawLogServiceImpl
     /**
      * 脱敏：BaseUserWalletWithdrawLogDO
      */
-    private void desensitizedSysUserWalletWithdrawLogDO(BaseUserWalletWithdrawLogDO baseUserWalletWithdrawLogDO) {
+    private void desensitizedBaseUserWalletWithdrawLogDO(BaseUserWalletWithdrawLogDO baseUserWalletWithdrawLogDO) {
 
         if (baseUserWalletWithdrawLogDO == null) {
             return;

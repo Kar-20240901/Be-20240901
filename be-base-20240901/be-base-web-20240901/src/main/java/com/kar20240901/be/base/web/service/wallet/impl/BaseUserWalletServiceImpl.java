@@ -110,7 +110,8 @@ public class BaseUserWalletServiceImpl extends ServiceImpl<BaseUserWalletMapper,
 
                     // 新增日志
                     BaseUserWalletLogServiceImpl.add(
-                        addSysUserWalletLogDO(TempConstant.SYS_ID, date, BaseUserWalletLogTypeEnum.ADD_TIME_CHECK, null,
+                        addBaseUserWalletLogDO(TempConstant.SYS_ID, date, BaseUserWalletLogTypeEnum.ADD_TIME_CHECK,
+                            null,
                             null, baseUserWalletDO, preWithdrawableMoney, preWithdrawablePreUseMoney));
 
                 });
@@ -275,7 +276,7 @@ public class BaseUserWalletServiceImpl extends ServiceImpl<BaseUserWalletMapper,
                     BaseUserWalletDO::getWithdrawablePreUseMoney, TempEntityNoId::getEnableFlag).list();
 
             // 处理：baseUserWalletDOList
-            handleSysUserWalletDOList(currentUserId, date, addNumber, iBaseUserWalletLogType, lowErrorFlag,
+            handleBaseUserWalletDOList(currentUserId, date, addNumber, iBaseUserWalletLogType, lowErrorFlag,
                 checkWalletEnableFlag, baseUserWalletLogDoList, baseUserWalletDOList, refId, refData,
                 withdrawableMoneyFlag, reduceFrozenMoneyType);
 
@@ -311,12 +312,12 @@ public class BaseUserWalletServiceImpl extends ServiceImpl<BaseUserWalletMapper,
         PayDTO payDTO = getPayDTO(dto, currentUserId);
 
         // 调用支付
-        BasePayDO basePayDO = PayUtil.pay(payDTO, tempSysPayDO -> {
+        BasePayDO basePayDO = PayUtil.pay(payDTO, tempBasePayDO -> {
 
-            tempSysPayDO.setRefType(BasePayRefTypeEnum.WALLET_RECHARGE_USER.getCode());
-            tempSysPayDO.setRefId(currentUserId);
+            tempBasePayDO.setRefType(BasePayRefTypeEnum.WALLET_RECHARGE_USER.getCode());
+            tempBasePayDO.setRefId(currentUserId);
 
-            tempSysPayDO.setRefStatus(BasePayRefStatusEnum.WAIT_PAY.getCode());
+            tempBasePayDO.setRefStatus(BasePayRefStatusEnum.WAIT_PAY.getCode());
 
         });
 
@@ -351,7 +352,7 @@ public class BaseUserWalletServiceImpl extends ServiceImpl<BaseUserWalletMapper,
      * @param withdrawableMoneyFlag true 操作可提现的钱 false 操作预使用可提现的钱
      * @param reduceFrozenMoneyType 如果 withdrawableMoneyFlag == false 时，并且是减少时：1 （默认）扣除预使用可提现的钱，并减少可提现的钱 2 扣除预使用可提现的钱
      */
-    private void handleSysUserWalletDOList(Long currentUserId, Date date, BigDecimal addNumber,
+    private void handleBaseUserWalletDOList(Long currentUserId, Date date, BigDecimal addNumber,
         IBaseUserWalletLogType iBaseUserWalletLogType, boolean lowErrorFlag, boolean checkWalletEnableFlag,
         List<BaseUserWalletLogDO> baseUserWalletLogDoList, List<BaseUserWalletDO> baseUserWalletDOList,
         @Nullable Long refId, @Nullable String refData, boolean withdrawableMoneyFlag,
@@ -391,7 +392,7 @@ public class BaseUserWalletServiceImpl extends ServiceImpl<BaseUserWalletMapper,
 
             // 新增日志
             baseUserWalletLogDoList.add(
-                addSysUserWalletLogDO(currentUserId, date, iBaseUserWalletLogType, refId, refData, item,
+                addBaseUserWalletLogDO(currentUserId, date, iBaseUserWalletLogType, refId, refData, item,
                     preWithdrawableMoney, preWithdrawablePreUseMoney));
 
         }
@@ -401,7 +402,7 @@ public class BaseUserWalletServiceImpl extends ServiceImpl<BaseUserWalletMapper,
     /**
      * 新增日志
      */
-    public static BaseUserWalletLogDO addSysUserWalletLogDO(Long currentUserId, Date date,
+    public static BaseUserWalletLogDO addBaseUserWalletLogDO(Long currentUserId, Date date,
         IBaseUserWalletLogType iBaseUserWalletLogType, @Nullable Long refId, @Nullable String refData,
         BaseUserWalletDO item, BigDecimal preWithdrawableMoney, BigDecimal preWithdrawablePreUseMoney) {
 
@@ -431,7 +432,7 @@ public class BaseUserWalletServiceImpl extends ServiceImpl<BaseUserWalletMapper,
         baseUserWalletLogDO.setUpdateTime(date);
 
         // 通用：处理：BaseUserWalletLogDO
-        commonHandleSysUserWalletLogDO(baseUserWalletLogDO);
+        commonHandleBaseUserWalletLogDO(baseUserWalletLogDO);
 
         return baseUserWalletLogDO;
 
@@ -475,7 +476,7 @@ public class BaseUserWalletServiceImpl extends ServiceImpl<BaseUserWalletMapper,
     /**
      * 通用：处理：BaseUserWalletLogDO
      */
-    public static void commonHandleSysUserWalletLogDO(BaseUserWalletLogDO baseUserWalletLogDO) {
+    public static void commonHandleBaseUserWalletLogDO(BaseUserWalletLogDO baseUserWalletLogDO) {
 
         baseUserWalletLogDO.setWithdrawableMoneyChange(
             baseUserWalletLogDO.getWithdrawableMoneySuf().subtract(baseUserWalletLogDO.getWithdrawableMoneyPre()));

@@ -94,7 +94,7 @@ public enum BasePayTypeEnum implements IBasePayType {
     }
 
     /**
-     * 获取：微信的，检查 SysPayConfigurationInsertOrUpdateDTO对象的 Consumer
+     * 获取：微信的，检查 BasePayConfigurationInsertOrUpdateDTO对象的 Consumer
      */
     private static Consumer<BasePayConfigurationInsertOrUpdateDTO> getWxCheckBasePayConfigurationInsertOrUpdateDtoConsumer() {
 

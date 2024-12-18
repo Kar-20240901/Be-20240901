@@ -133,7 +133,7 @@ public class BaseUserBankCardServiceImpl extends ServiceImpl<BaseUserBankCardMap
         for (BaseUserBankCardDO item : page.getRecords()) {
 
             // 脱敏：BaseUserBankCardDO
-            desensitizedSysUserBankCardDO(item);
+            desensitizedBaseUserBankCardDO(item);
 
         }
 
@@ -144,7 +144,7 @@ public class BaseUserBankCardServiceImpl extends ServiceImpl<BaseUserBankCardMap
     /**
      * 脱敏：BaseUserBankCardDO
      */
-    public static void desensitizedSysUserBankCardDO(BaseUserBankCardDO baseUserBankCardDO) {
+    public static void desensitizedBaseUserBankCardDO(BaseUserBankCardDO baseUserBankCardDO) {
 
         if (baseUserBankCardDO == null) {
             return;
@@ -190,7 +190,7 @@ public class BaseUserBankCardServiceImpl extends ServiceImpl<BaseUserBankCardMap
         BaseUserBankCardDO baseUserBankCardDO = lambdaQuery().eq(BaseUserBankCardDO::getId, currentUserId).one();
 
         // 脱敏：BaseUserBankCardDO
-        desensitizedSysUserBankCardDO(baseUserBankCardDO);
+        desensitizedBaseUserBankCardDO(baseUserBankCardDO);
 
         return baseUserBankCardDO;
 

@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
  * 购买算力的订单支付回调处理
  */
 @Component
-public class BaseWalletUserSysPayRefHandlerConfiguration implements IBasePayRefHandler {
+public class BaseWalletUserBasePayRefHandlerConfiguration implements IBasePayRefHandler {
 
     @Resource
     BaseUserWalletService baseUserWalletService;
