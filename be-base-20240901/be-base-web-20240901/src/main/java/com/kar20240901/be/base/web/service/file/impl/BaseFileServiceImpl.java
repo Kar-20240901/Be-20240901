@@ -474,7 +474,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        lambdaUpdate().eq(TempEntity::getId, dto.getId())
+        lambdaUpdate().in(TempEntity::getId, dto.getIdSet())
             .eq(!MyUserUtil.getCurrentUserAdminFlag(currentUserId), BaseFileDO::getBelongId, currentUserId)
             .set(BaseFileDO::getShowFileName, dto.getFileName()).update();
 
