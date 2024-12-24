@@ -15,6 +15,7 @@ import com.kar20240901.be.base.web.mapper.file.BaseFileAuthMapper;
 import com.kar20240901.be.base.web.mapper.file.BaseFileMapper;
 import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadBO;
+import com.kar20240901.be.base.web.model.constant.base.BaseConstant;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
@@ -42,11 +43,14 @@ import com.kar20240901.be.base.web.util.base.MyThreadUtil;
 import com.kar20240901.be.base.web.util.base.MyTreeUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import com.kar20240901.be.base.web.util.base.ResponseUtil;
+import com.kar20240901.be.base.web.util.base.SeparatorUtil;
 import com.kar20240901.be.base.web.util.file.BaseFileUtil;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
@@ -172,7 +176,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         }
 
-        return lambdaQuery() //
+        Page<BaseFileDO> page = lambdaQuery() //
             .like(StrUtil.isNotBlank(dto.getShowFileName()), BaseFileDO::getShowFileName, dto.getShowFileName()) //
             .like(StrUtil.isNotBlank(dto.getRemark()), TempEntityNoId::getRemark, dto.getRemark()) //
             .eq(dto.getBelongId() != null, BaseFileDO::getBelongId, dto.getBelongId()) //
@@ -184,14 +188,110 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
             .eq(dto.getPid() != null, BaseFileDO::getPid, dto.getPid()) //
             .eq(dto.getType() != null, BaseFileDO::getType, dto.getType()) //
             .eq(BaseFileDO::getUploadType, BaseFileUploadTypeEnum.FILE_SYSTEM) //
-            .select(true, getMyPageSelectList()).page(dto.createTimeDescDefaultOrderPage());
+            .select(true, getMyPageSelectList(true, true)).page(dto.createTimeDescDefaultOrderPage());
+
+        // 后续处理
+        myPageSuf(page);
+
+        return page;
 
     }
 
-    private static ArrayList<SFunction<BaseFileDO, ?>> getMyPageSelectList() {
+    /**
+     * 后续处理
+     */
+    private void myPageSuf(Page<BaseFileDO> page) {
 
-        return CollUtil.newArrayList(TempEntity::getId, TempEntityNoId::getCreateTime, BaseFileDO::getBelongId,
-            BaseFileDO::getFileSize, BaseFileDO::getShowFileName, BaseFileDO::getPid, BaseFileDO::getType);
+        List<BaseFileDO> recordList = page.getRecords();
+
+        if (recordList.size() == 0) {
+            return;
+        }
+
+        BaseFileDO baseFileDO = recordList.get(0);
+
+        String pidPathStr = baseFileDO.getPidPathStr();
+
+        for (int i = 0; i < recordList.size(); i++) {
+
+            if (i != 0) {
+
+                recordList.get(i).setPidPathStr(null); // 只保留第一个元素的 pidPathStr
+
+            }
+
+        }
+
+        List<String> pidStrList = StrUtil.splitTrim(pidPathStr, SeparatorUtil.VERTICAL_LINE_SEPARATOR);
+
+        if (pidStrList.size() == 1 && pidStrList.get(0).equals(TempConstant.TOP_PID.toString())) {
+
+            baseFileDO.setPathList(CollUtil.newArrayList(BaseConstant.TOP_FOLDER_NAME));
+
+            baseFileDO.setPidList(CollUtil.newArrayList(TempConstant.TOP_PID));
+
+            return;
+
+        }
+
+        pidStrList.remove(TempConstant.TOP_PID.toString());
+
+        List<BaseFileDO> baseFileDoList =
+            lambdaQuery().select(TempEntity::getId, BaseFileDO::getShowFileName).in(TempEntity::getId, pidStrList)
+                .list();
+
+        Map<String, String> idNameMap =
+            baseFileDoList.stream().collect(Collectors.toMap(it -> it.getId().toString(), BaseFileDO::getShowFileName));
+
+        List<String> pathList = new ArrayList<>();
+
+        List<Long> pidList = new ArrayList<>();
+
+        pathList.add(BaseConstant.TOP_FOLDER_NAME);
+
+        pidList.add(TempConstant.TOP_PID);
+
+        for (String item : pidStrList) {
+
+            pathList.add(idNameMap.getOrDefault(item, item));
+
+            pidList.add(Long.valueOf(item));
+
+        }
+
+        // 只给第一个元素赋值
+        baseFileDO.setPathList(pathList);
+
+        baseFileDO.setPidList(pidList);
+
+    }
+
+    /**
+     * 获取：需要查询的字段
+     *
+     * @param folderSizeFlag 是否增加：文件夹大小的查询字段
+     * @param pidPathStrFlag 是否增加：文件路径字符串
+     */
+    private static ArrayList<SFunction<BaseFileDO, ?>> getMyPageSelectList(boolean folderSizeFlag,
+        boolean pidPathStrFlag) {
+
+        ArrayList<SFunction<BaseFileDO, ?>> arrayList =
+            CollUtil.newArrayList(TempEntity::getId, TempEntityNoId::getCreateTime, BaseFileDO::getBelongId,
+                BaseFileDO::getFileSize, BaseFileDO::getShowFileName, BaseFileDO::getPid, BaseFileDO::getType);
+
+        if (folderSizeFlag) {
+
+            arrayList.add(BaseFileDO::getFolderSize);
+
+        }
+
+        if (pidPathStrFlag) {
+
+            arrayList.add(BaseFileDO::getPidPathStr);
+
+        }
+
+        return arrayList;
 
     }
 
@@ -227,7 +327,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         MyThreadUtil.execute(() -> {
 
-            Page<BaseFileDO> page = lambdaQuery().select(true, getMyPageSelectList())
+            Page<BaseFileDO> page = lambdaQuery().select(true, getMyPageSelectList(false, false))
                 .eq(BaseFileDO::getUploadType, BaseFileUploadTypeEnum.FILE_SYSTEM)
                 .page(dto.createTimeDescDefaultOrderPage());
 
@@ -281,7 +381,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         BaseFileDO baseFileDo = new BaseFileDO();
 
-        baseFileDo.setShowFileName("根文件夹");
+        baseFileDo.setShowFileName(BaseConstant.TOP_FOLDER_NAME);
 
         baseFileDo.setType(BaseFileTypeEnum.FOLDER);
 

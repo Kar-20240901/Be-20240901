@@ -1,5 +1,6 @@
 package com.kar20240901.be.base.web.model.domain.file;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityTree;
@@ -7,6 +8,7 @@ import com.kar20240901.be.base.web.model.enums.file.BaseFileTypeEnum;
 import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileStorageType;
 import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileUploadType;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -67,8 +69,17 @@ public class BaseFileDO extends TempEntityTree<BaseFileDO> {
     @Schema(description = "上级文件夹的文件主键 id，默认为 0")
     private Long pid;
 
-    @Schema(description = "父id组合，例如：|0||1||2|，备注：不包含本级，需包含顶级 0")
+    @Schema(description = "父id组合，例如：|0||1||2|，备注：不包含本级，但是包含顶级：0")
     private String pidPathStr;
+
+    @TableField(exist = false)
+    @Schema(description = "父id组合集合，例如：[0,1,2]，备注：不包含本级，但是包含顶级：0，并且和 pathList一一对应")
+    private List<Long> pidList;
+
+    @TableField(exist = false)
+    @Schema(
+        description = "路径字符串集合，例如：/根目录/测试1，备注：不包含本级，但是包含顶级：根目录，并且和 pidList一一对应")
+    private List<String> pathList;
 
     @Schema(description = "类型")
     private BaseFileTypeEnum type;
@@ -84,5 +95,11 @@ public class BaseFileDO extends TempEntityTree<BaseFileDO> {
 
     @Schema(description = "关联的 id")
     private Long refId;
+
+    @TableField(
+        value = "(SELECT SUM(file_size) FROM base_file subA WHERE subA.pid_path_str LIKE CONCAT('%|', id, '|%'))",
+        insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER, select = false)
+    @Schema(description = "文件夹大小")
+    private Integer folderSize;
 
 }

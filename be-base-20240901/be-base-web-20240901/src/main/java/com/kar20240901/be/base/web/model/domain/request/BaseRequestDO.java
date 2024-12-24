@@ -52,12 +52,13 @@ public class BaseRequestDO {
     @Schema(description = "请求类型")
     private String type;
 
-    @TableField(value = "COUNT(1)", insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER)
+    @TableField(value = "COUNT(1)", insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER,
+        select = false)
     @Schema(description = "总数量")
     private Long count;
 
     @TableField(value = "(SUM(cost_ms) DIV COUNT(1))", insertStrategy = FieldStrategy.NEVER,
-        updateStrategy = FieldStrategy.NEVER)
+        updateStrategy = FieldStrategy.NEVER, select = false)
     @Schema(description = "平均耗时（毫秒）")
     private Integer avgMs;
 
