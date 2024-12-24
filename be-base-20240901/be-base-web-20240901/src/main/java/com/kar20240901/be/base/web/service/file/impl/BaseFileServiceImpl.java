@@ -142,7 +142,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
      * 分页排序查询
      */
     @Override
-    public Page<BaseFileDO> myPage(BaseFilePageDTO dto) {
+    public Page<BaseFileDO> myPage(BaseFilePageDTO dto, boolean folderSizeFlag, boolean pidPathStrFlag) {
 
         if (BooleanUtil.isTrue(dto.getGlobalFlag())) {
 
@@ -188,7 +188,8 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
             .eq(dto.getPid() != null, BaseFileDO::getPid, dto.getPid()) //
             .eq(dto.getType() != null, BaseFileDO::getType, dto.getType()) //
             .eq(BaseFileDO::getUploadType, BaseFileUploadTypeEnum.FILE_SYSTEM) //
-            .select(true, getMyPageSelectList(true, true)).page(dto.createTimeDescDefaultOrderPage());
+            .select(true, getMyPageSelectList(folderSizeFlag, pidPathStrFlag))
+            .page(dto.createTimeDescDefaultOrderPage());
 
         // 后续处理
         myPageSuf(page);
@@ -212,13 +213,13 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         String pidPathStr = baseFileDO.getPidPathStr();
 
+        if (StrUtil.isBlank(pidPathStr)) {
+            return;
+        }
+
         for (int i = 0; i < recordList.size(); i++) {
 
-            if (i != 0) {
-
-                recordList.get(i).setPidPathStr(null); // 只保留第一个元素的 pidPathStr
-
-            }
+            recordList.get(i).setPidPathStr(null); // 只保留第一个元素的 pidPathStr
 
         }
 
@@ -308,7 +309,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         baseFilePageDTO.setBelongId(currentUserId); // 设置为：当前用户
 
         // 执行
-        return myPage(baseFilePageDTO);
+        return myPage(baseFilePageDTO, true, true);
 
     }
 
@@ -336,7 +337,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         }, countDownLatch);
 
         // 根据条件进行筛选，得到符合条件的数据，然后再逆向生成整棵树，并返回这个树结构
-        List<BaseFileDO> baseFileDoList = myPage(dto).getRecords();
+        List<BaseFileDO> baseFileDoList = myPage(dto, false, false).getRecords();
 
         countDownLatch.await();
 

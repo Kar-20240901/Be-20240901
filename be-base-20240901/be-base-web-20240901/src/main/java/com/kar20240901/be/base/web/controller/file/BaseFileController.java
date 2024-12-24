@@ -62,7 +62,7 @@ public class BaseFileController {
     @PostMapping("/page")
     @PreAuthorize("hasAuthority('baseFile:page')")
     public R<Page<BaseFileDO>> myPage(@RequestBody @Valid BaseFilePageDTO dto) {
-        return R.okData(baseService.myPage(dto));
+        return R.okData(baseService.myPage(dto, true, true));
     }
 
     @Operation(summary = "分页排序查询-自我")
