@@ -3,14 +3,19 @@ package com.kar20240901.be.base.web.util.file;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.IoUtil;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
+import io.minio.ComposeObjectArgs;
+import io.minio.ComposeSource;
 import io.minio.CopyObjectArgs;
 import io.minio.CopySource;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.ObjectWriteArgs;
 import io.minio.PutObjectArgs;
-import io.minio.RemoveObjectArgs;
+import io.minio.RemoveObjectsArgs;
+import io.minio.messages.DeleteObject;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
@@ -93,11 +98,42 @@ public class BaseFileMinioUtil {
             .credentials(baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey())
             .build();
 
+        List<DeleteObject> deleteObjectList = new ArrayList<>();
+
         for (String item : objectNameSet) {
 
-            minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucketName).object(item).build());
+            deleteObjectList.add(new DeleteObject(item));
 
         }
+
+        minioClient.removeObjects(RemoveObjectsArgs.builder().bucket(bucketName).objects(deleteObjectList).build());
+
+    }
+
+    /**
+     * 合并文件
+     */
+    @SneakyThrows
+    public static void compose(String bucketName, List<String> objectNameList,
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+
+        if (CollUtil.isEmpty(objectNameList)) {
+            return;
+        }
+
+        MinioClient minioClient = MinioClient.builder().endpoint(baseFileStorageConfigurationDO.getUploadEndpoint())
+            .credentials(baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey())
+            .build();
+
+        List<ComposeSource> composeSourceList = new ArrayList<>();
+
+        for (String item : objectNameList) {
+
+            composeSourceList.add(ComposeSource.builder().bucket(bucketName).object(item).build());
+
+        }
+
+        minioClient.composeObject(ComposeObjectArgs.builder().sources(composeSourceList).build());
 
     }
 
