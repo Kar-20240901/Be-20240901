@@ -2,6 +2,9 @@ package com.kar20240901.be.base.web.util.file;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.IoUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import com.kar20240901.be.base.web.model.bo.file.BaseFileComposeBO;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
 import io.minio.ComposeObjectArgs;
 import io.minio.ComposeSource;
@@ -12,13 +15,15 @@ import io.minio.MinioClient;
 import io.minio.ObjectWriteArgs;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectsArgs;
+import io.minio.Result;
+import io.minio.messages.DeleteError;
 import io.minio.messages.DeleteObject;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import lombok.SneakyThrows;
-import org.jetbrains.annotations.NotNull;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
  * minio文件工具类
  */
 @Component
+@Slf4j
 public class BaseFileMinioUtil {
 
     /**
@@ -34,7 +40,7 @@ public class BaseFileMinioUtil {
      */
     @SneakyThrows
     public static void upload(String bucketName, String objectName, MultipartFile file,
-        @NotNull BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
 
         InputStream inputStream = file.getInputStream();
 
@@ -106,7 +112,20 @@ public class BaseFileMinioUtil {
 
         }
 
-        minioClient.removeObjects(RemoveObjectsArgs.builder().bucket(bucketName).objects(deleteObjectList).build());
+        Iterable<Result<DeleteError>> resultList =
+            minioClient.removeObjects(RemoveObjectsArgs.builder().bucket(bucketName).objects(deleteObjectList).build());
+
+        List<JSONObject> errorList = new ArrayList<>();
+
+        for (Result<DeleteError> item : resultList) {
+
+            DeleteError deleteError = item.get();
+
+            errorList.add(JSONUtil.createObj().set("n", deleteError.bucketName()).set("m", deleteError.message()));
+
+        }
+
+        log.info("minio批量删除文件错误，bucketName：{}，reason：{}", bucketName, errorList);
 
     }
 
@@ -114,8 +133,10 @@ public class BaseFileMinioUtil {
      * 合并文件
      */
     @SneakyThrows
-    public static void compose(String bucketName, List<String> objectNameList,
-        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+    public static void compose(String bucketName, BaseFileComposeBO baseFileComposeBO,
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO, String newObjectName) {
+
+        List<String> objectNameList = baseFileComposeBO.getObjectNameList();
 
         if (CollUtil.isEmpty(objectNameList)) {
             return;
@@ -133,7 +154,8 @@ public class BaseFileMinioUtil {
 
         }
 
-        minioClient.composeObject(ComposeObjectArgs.builder().sources(composeSourceList).build());
+        minioClient.composeObject(
+            ComposeObjectArgs.builder().sources(composeSourceList).bucket(bucketName).object(newObjectName).build());
 
     }
 

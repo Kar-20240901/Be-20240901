@@ -2,15 +2,22 @@ package com.kar20240901.be.base.web.util.file;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.util.StrUtil;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.model.CompleteMultipartUploadRequest;
 import com.aliyun.oss.model.DeleteObjectsRequest;
+import com.aliyun.oss.model.PartETag;
+import com.aliyun.oss.model.UploadPartRequest;
+import com.aliyun.oss.model.UploadPartResult;
+import com.kar20240901.be.base.web.model.bo.file.BaseFileComposeBO;
+import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadChunkBO;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import lombok.SneakyThrows;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,7 +33,7 @@ public class BaseFileAliYunUtil {
      */
     @SneakyThrows
     public static void upload(String bucketName, String objectName, MultipartFile file,
-        @NotNull BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
 
         InputStream inputStream = file.getInputStream();
 
@@ -36,6 +43,32 @@ public class BaseFileAliYunUtil {
         oss.putObject(bucketName, objectName, inputStream);
 
         IoUtil.close(inputStream);
+
+    }
+
+    /**
+     * 分片上传文件 备注：objectName 相同会被覆盖掉
+     */
+    @SneakyThrows
+    public static PartETag uploadChunk(String bucketName, String objectName, MultipartFile file,
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO, BaseFileUploadChunkBO baseFileUploadChunkBO) {
+
+        InputStream inputStream = file.getInputStream();
+
+        OSS oss = new OSSClientBuilder().build(baseFileStorageConfigurationDO.getUploadEndpoint(),
+            baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey());
+
+        UploadPartRequest uploadPartRequest = new UploadPartRequest();
+
+        uploadPartRequest.setBucketName(bucketName);
+
+        uploadPartRequest.setKey(objectName);
+
+        uploadPartRequest.setInputStream(inputStream);
+
+        UploadPartResult uploadPartResult = oss.uploadPart(uploadPartRequest);
+
+        return uploadPartResult.getPartETag();
 
     }
 
@@ -86,6 +119,35 @@ public class BaseFileAliYunUtil {
             baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey());
 
         oss.deleteObject(deleteObjectsRequest);
+
+    }
+
+    /**
+     * 合并文件
+     */
+    @SneakyThrows
+    public static void compose(String bucketName, BaseFileComposeBO baseFileComposeBO,
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO, String newObjectName) {
+
+        List<PartETag> partEtagList = baseFileComposeBO.getPartEtagList();
+
+        if (CollUtil.isEmpty(partEtagList)) {
+            return;
+        }
+
+        String uploadId = baseFileComposeBO.getUploadId();
+
+        if (StrUtil.isBlank(uploadId)) {
+            return;
+        }
+
+        OSS oss = new OSSClientBuilder().build(baseFileStorageConfigurationDO.getUploadEndpoint(),
+            baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey());
+
+        CompleteMultipartUploadRequest completeMultipartUploadRequest =
+            new CompleteMultipartUploadRequest(bucketName, newObjectName, uploadId, partEtagList);
+
+        oss.completeMultipartUpload(completeMultipartUploadRequest);
 
     }
 
