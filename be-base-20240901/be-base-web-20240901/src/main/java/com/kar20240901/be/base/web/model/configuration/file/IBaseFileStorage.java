@@ -1,5 +1,7 @@
 package com.kar20240901.be.base.web.model.configuration.file;
 
+import com.kar20240901.be.base.web.model.bo.file.BaseFileComposeBO;
+import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadChunkBO;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
 import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileStorageType;
 import java.io.InputStream;
@@ -18,7 +20,8 @@ public interface IBaseFileStorage {
      * 上传文件 备注：objectName 相同会被覆盖掉
      */
     void upload(String bucketName, String objectName, MultipartFile file,
-        @NotNull BaseFileStorageConfigurationDO baseFileStorageConfigurationDO);
+        @NotNull BaseFileStorageConfigurationDO baseFileStorageConfigurationDO,
+        BaseFileUploadChunkBO baseFileUploadChunkBO);
 
     /**
      * 下载文件
@@ -45,5 +48,11 @@ public interface IBaseFileStorage {
      * @param bucketName 桶名，例如：be-public-bucket，备注：不要在最前面加 /
      */
     String getUrl(String uri, String bucketName, BaseFileStorageConfigurationDO baseFileStorageConfigurationDO);
+
+    /**
+     * 合并文件
+     */
+    void compose(String bucketName, BaseFileComposeBO baseFileComposeBO,
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO, String newObjectName);
 
 }

@@ -64,6 +64,10 @@ public class BaseFileAliYunUtil {
 
         uploadPartRequest.setKey(objectName);
 
+        uploadPartRequest.setUploadId(baseFileUploadChunkBO.getUploadId());
+
+        uploadPartRequest.setPartNumber(baseFileUploadChunkBO.getPartNumber());
+
         uploadPartRequest.setInputStream(inputStream);
 
         UploadPartResult uploadPartResult = oss.uploadPart(uploadPartRequest);

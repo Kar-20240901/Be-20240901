@@ -1,5 +1,7 @@
 package com.kar20240901.be.base.web.configuration.file;
 
+import com.kar20240901.be.base.web.model.bo.file.BaseFileComposeBO;
+import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadChunkBO;
 import com.kar20240901.be.base.web.model.configuration.file.IBaseFileStorage;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
 import com.kar20240901.be.base.web.model.enums.file.BaseFileStorageTypeEnum;
@@ -23,8 +25,10 @@ public class BaseFileStorageAliYunConfiguration implements IBaseFileStorage {
 
     @Override
     public void upload(String bucketName, String objectName, MultipartFile file,
-        @NotNull BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
-        BaseFileAliYunUtil.upload(bucketName, objectName, file, baseFileStorageConfigurationDO);
+        @NotNull BaseFileStorageConfigurationDO baseFileStorageConfigurationDO,
+        BaseFileUploadChunkBO baseFileUploadChunkBO) {
+        BaseFileAliYunUtil.uploadChunk(bucketName, objectName, file, baseFileStorageConfigurationDO,
+            baseFileUploadChunkBO);
     }
 
     @Override
@@ -49,6 +53,12 @@ public class BaseFileStorageAliYunConfiguration implements IBaseFileStorage {
     @Override
     public String getUrl(String uri, String bucketName, BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
         return baseFileStorageConfigurationDO.getPublicDownloadEndpoint() + "/" + uri;
+    }
+
+    @Override
+    public void compose(String bucketName, BaseFileComposeBO baseFileComposeBO,
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO, String newObjectName) {
+        BaseFileAliYunUtil.compose(bucketName, baseFileComposeBO, baseFileStorageConfigurationDO, newObjectName);
     }
 
 }
