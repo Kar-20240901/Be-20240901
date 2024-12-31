@@ -7,6 +7,7 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.CompleteMultipartUploadRequest;
 import com.aliyun.oss.model.DeleteObjectsRequest;
+import com.aliyun.oss.model.GetObjectRequest;
 import com.aliyun.oss.model.PartETag;
 import com.aliyun.oss.model.UploadPartRequest;
 import com.aliyun.oss.model.UploadPartResult;
@@ -87,7 +88,9 @@ public class BaseFileAliYunUtil {
         OSS oss = new OSSClientBuilder().build(baseFileStorageConfigurationDO.getUploadEndpoint(),
             baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey());
 
-        return oss.getObject(bucketName, objectName).getObjectContent();
+        GetObjectRequest getObjectRequest = new GetObjectRequest(bucketName, objectName);
+
+        return oss.getObject(getObjectRequest).getObjectContent();
 
     }
 
