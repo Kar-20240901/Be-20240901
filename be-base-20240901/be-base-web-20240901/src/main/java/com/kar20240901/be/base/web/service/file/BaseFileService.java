@@ -11,6 +11,8 @@ import com.kar20240901.be.base.web.model.dto.file.BaseFileMoveSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUpdateSelfDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadChunkDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadChunkPreDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadDTO;
 import com.kar20240901.be.base.web.model.vo.base.LongObjectMapVO;
 import java.util.List;
@@ -19,6 +21,10 @@ import javax.servlet.http.HttpServletResponse;
 public interface BaseFileService extends IService<BaseFileDO> {
 
     Long upload(BaseFileUploadDTO dto);
+
+    Long uploadChunkPre(BaseFileUploadChunkPreDTO dto);
+
+    Long uploadChunk(BaseFileUploadChunkDTO dto);
 
     void privateDownload(NotNullId notNullId, HttpServletResponse response);
 
