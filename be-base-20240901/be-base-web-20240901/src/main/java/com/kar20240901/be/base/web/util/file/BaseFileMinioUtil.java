@@ -5,7 +5,6 @@ import cn.hutool.core.io.IoUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileComposeBO;
-import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadChunkBO;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
 import io.minio.ComposeObjectArgs;
 import io.minio.ComposeSource;
@@ -41,7 +40,7 @@ public class BaseFileMinioUtil {
      */
     @SneakyThrows
     public static void upload(String bucketName, String objectName, MultipartFile file,
-        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO, BaseFileUploadChunkBO baseFileUploadChunkBO) {
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
 
         InputStream inputStream = file.getInputStream();
 

@@ -25,6 +25,12 @@ public class BaseFileStorageAliYunConfiguration implements IBaseFileStorage {
 
     @Override
     public void upload(String bucketName, String objectName, MultipartFile file,
+        @NotNull BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+        BaseFileAliYunUtil.upload(bucketName, objectName, file, baseFileStorageConfigurationDO);
+    }
+
+    @Override
+    public void uploadChunk(String bucketName, String objectName, MultipartFile file,
         @NotNull BaseFileStorageConfigurationDO baseFileStorageConfigurationDO,
         BaseFileUploadChunkBO baseFileUploadChunkBO) {
         BaseFileAliYunUtil.uploadChunk(bucketName, objectName, file, baseFileStorageConfigurationDO,

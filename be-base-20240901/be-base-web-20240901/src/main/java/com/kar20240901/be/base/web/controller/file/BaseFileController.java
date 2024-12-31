@@ -10,6 +10,8 @@ import com.kar20240901.be.base.web.model.dto.file.BaseFileMoveSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUpdateSelfDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadChunkDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadChunkPreDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadDTO;
 import com.kar20240901.be.base.web.model.vo.base.LongObjectMapVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
@@ -38,6 +40,18 @@ public class BaseFileController {
     @PostMapping("/upload")
     public R<Long> upload(BaseFileUploadDTO dto) {
         return R.okData(baseService.upload(dto));
+    }
+
+    @Operation(summary = "上传分片文件-准备工作：公有和私有")
+    @PostMapping("/upload/chunk/pre")
+    public R<Long> uploadChunkPre(BaseFileUploadChunkPreDTO dto) {
+        return R.okData(baseService.uploadChunkPre(dto));
+    }
+
+    @Operation(summary = "上传分片文件：公有和私有")
+    @PostMapping("/upload/chunk")
+    public R<Long> uploadChunk(BaseFileUploadChunkDTO dto) {
+        return R.okData(baseService.uploadChunk(dto));
     }
 
     @Operation(summary = "下载文件：私有")

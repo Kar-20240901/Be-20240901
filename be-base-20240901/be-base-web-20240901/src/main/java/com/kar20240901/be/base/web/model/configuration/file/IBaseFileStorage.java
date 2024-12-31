@@ -20,6 +20,12 @@ public interface IBaseFileStorage {
      * 上传文件 备注：objectName 相同会被覆盖掉
      */
     void upload(String bucketName, String objectName, MultipartFile file,
+        @NotNull BaseFileStorageConfigurationDO baseFileStorageConfigurationDO);
+
+    /**
+     * 分片上传文件 备注：objectName 相同会被覆盖掉
+     */
+    void uploadChunk(String bucketName, String objectName, MultipartFile file,
         @NotNull BaseFileStorageConfigurationDO baseFileStorageConfigurationDO,
         BaseFileUploadChunkBO baseFileUploadChunkBO);
 

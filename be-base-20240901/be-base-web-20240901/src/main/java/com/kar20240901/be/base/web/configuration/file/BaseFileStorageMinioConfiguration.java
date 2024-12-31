@@ -25,9 +25,15 @@ public class BaseFileStorageMinioConfiguration implements IBaseFileStorage {
 
     @Override
     public void upload(String bucketName, String objectName, MultipartFile file,
+        @NotNull BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+        BaseFileMinioUtil.upload(bucketName, objectName, file, baseFileStorageConfigurationDO);
+    }
+
+    @Override
+    public void uploadChunk(String bucketName, String objectName, MultipartFile file,
         @NotNull BaseFileStorageConfigurationDO baseFileStorageConfigurationDO,
         BaseFileUploadChunkBO baseFileUploadChunkBO) {
-        BaseFileMinioUtil.upload(bucketName, objectName, file, baseFileStorageConfigurationDO, baseFileUploadChunkBO);
+        BaseFileMinioUtil.upload(bucketName, objectName, file, baseFileStorageConfigurationDO);
     }
 
     @Override
