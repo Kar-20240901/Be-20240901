@@ -7,9 +7,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class MultipartFileUtil {
 
+    /**
+     * 通过 file对象，获取：MultipartFile对象
+     */
     public static MultipartFile getByFile(File file) {
 
-        return new MultipartFile() {
+        return new MyMultipartFile() {
 
             @Override
             public String getName() {
@@ -19,16 +22,6 @@ public class MultipartFileUtil {
             @Override
             public String getOriginalFilename() {
                 return file.getName();
-            }
-
-            @Override
-            public String getContentType() {
-                return "application/octet-stream";
-            }
-
-            @Override
-            public boolean isEmpty() {
-                return false;
             }
 
             @Override
@@ -46,9 +39,30 @@ public class MultipartFileUtil {
                 return FileUtil.getInputStream(file);
             }
 
-            @Override
-            public void transferTo(File dest) throws IllegalStateException {
+        };
 
+    }
+
+    /**
+     * 通过 name,size，获取：MultipartFile对象
+     */
+    public static MultipartFile getByFileNameAndFileSize(String name, long size) {
+
+        return new MyMultipartFile() {
+
+            @Override
+            public String getName() {
+                return name;
+            }
+
+            @Override
+            public String getOriginalFilename() {
+                return name;
+            }
+
+            @Override
+            public long getSize() {
+                return size;
             }
 
         };

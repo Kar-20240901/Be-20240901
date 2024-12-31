@@ -2,6 +2,7 @@ package com.kar20240901.be.base.web.model.dto.file;
 
 import com.kar20240901.be.base.web.model.enums.file.BaseFileUploadTypeEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
+import javax.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,6 +12,7 @@ public class BaseFileUploadDTO {
     @Schema(description = "文件")
     private MultipartFile file;
 
+    @NotNull
     @Schema(description = "文件上传的类型")
     private BaseFileUploadTypeEnum uploadType;
 

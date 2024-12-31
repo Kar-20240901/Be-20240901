@@ -2,6 +2,7 @@ package com.kar20240901.be.base.web.util.file;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.file.FileNameUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.IdUtil;
@@ -9,6 +10,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
+import com.kar20240901.be.base.web.configuration.log.LogFilter;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.file.BaseFileStorageConfigurationMapper;
@@ -23,13 +25,21 @@ import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileAuthDO;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileDO;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
+import com.kar20240901.be.base.web.model.domain.file.BaseFileTransferDO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadChunkPreDTO;
+import com.kar20240901.be.base.web.model.enums.file.BaseFileTransferStatusEnum;
+import com.kar20240901.be.base.web.model.enums.file.BaseFileTransferTypeEnum;
 import com.kar20240901.be.base.web.model.enums.file.BaseFileTypeEnum;
 import com.kar20240901.be.base.web.model.enums.file.BaseFileUploadTypeEnum;
 import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileStorageType;
 import com.kar20240901.be.base.web.model.vo.base.R;
+import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkPreVO;
 import com.kar20240901.be.base.web.service.file.BaseFileAuthService;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
+import com.kar20240901.be.base.web.service.file.BaseFileTransferChunkService;
+import com.kar20240901.be.base.web.service.file.BaseFileTransferService;
 import com.kar20240901.be.base.web.util.base.CallBack;
+import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyStrUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
@@ -38,6 +48,8 @@ import com.kar20240901.be.base.web.util.base.TransactionUtil;
 import com.kar20240901.be.base.web.util.base.VoidFunc3;
 import java.io.File;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,6 +59,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -97,6 +110,20 @@ public class BaseFileUtil {
 
     }
 
+    private static BaseFileTransferService baseFileTransferService;
+
+    @Resource
+    public void setBaseFileTransferService(BaseFileTransferService baseFileTransferService) {
+        BaseFileUtil.baseFileTransferService = baseFileTransferService;
+    }
+
+    private static BaseFileTransferChunkService baseFileTransferChunkService;
+
+    @Resource
+    public void setBaseFileTransferChunkService(BaseFileTransferChunkService baseFileTransferChunkService) {
+        BaseFileUtil.baseFileTransferChunkService = baseFileTransferChunkService;
+    }
+
     /**
      * 上传文件：公有和私有 备注：objectName 相同的，会被覆盖掉
      *
@@ -117,22 +144,22 @@ public class BaseFileUtil {
             // 通用：上传处理
             resultBaseFileId = uploadCommonHandle(bo, fileType, null,
 
-                (baseFileId) -> {
+                (baseFileDO) -> {
 
                     ChainWrappers.lambdaUpdateChain(baseUserInfoMapper).eq(TempUserInfoDO::getId, bo.getUserId())
-                        .set(TempUserInfoDO::getAvatarFileId, baseFileId).update();
+                        .set(TempUserInfoDO::getAvatarFileId, baseFileDO.getId()).update();
 
-                }, null, bo.getUserId().toString());
+                }, null, bo.getUserId().toString(), true);
 
         } else if (BaseFileUploadTypeEnum.FILE_SYSTEM.equals(bo.getUploadType())) {
 
             // 如果是：文件系统
             // 通用：上传处理
-            resultBaseFileId = uploadCommonHandle(bo, fileType, null, (baseFileId) -> {
+            resultBaseFileId = uploadCommonHandle(bo, fileType, null, (baseFileDO) -> {
 
                 BaseFileAuthDO baseFileAuthDO = new BaseFileAuthDO();
 
-                baseFileAuthDO.setFileId(baseFileId);
+                baseFileAuthDO.setFileId(baseFileDO.getId());
                 baseFileAuthDO.setUserId(bo.getUserId());
                 baseFileAuthDO.setReadFlag(true);
                 baseFileAuthDO.setWriteFlag(true);
@@ -142,7 +169,7 @@ public class BaseFileUtil {
 
                 baseFileAuthService.save(baseFileAuthDO);
 
-            }, null, bo.getUserId().toString());
+            }, null, bo.getUserId().toString(), true);
 
         }
 
@@ -157,8 +184,9 @@ public class BaseFileUtil {
      */
     @NotNull
     public static Long uploadCommonHandle(BaseFileUploadBO bo, String fileType,
-        @Nullable IBaseFileStorageType iBaseFileStorageType, @Nullable Consumer<Long> consumer,
-        @Nullable BaseFileStorageConfigurationDO baseFileStorageConfigurationDO, @Nullable String otherFolderName) {
+        @Nullable IBaseFileStorageType iBaseFileStorageType, @Nullable Consumer<BaseFileDO> consumer,
+        @Nullable BaseFileStorageConfigurationDO baseFileStorageConfigurationDO, @Nullable String otherFolderName,
+        boolean storageUploadFlag) {
 
         // 获取：存储方式的配置
         baseFileStorageConfigurationDO =
@@ -206,8 +234,12 @@ public class BaseFileUtil {
 
         }
 
-        // 执行：文件上传
-        iBaseFileStorage.upload(bucketName, objectName, bo.getFile(), baseFileStorageConfigurationDO);
+        if (storageUploadFlag) {
+
+            // 执行：文件上传
+            iBaseFileStorage.upload(bucketName, objectName, bo.getFile(), baseFileStorageConfigurationDO);
+
+        }
 
         String finalBucketName = bucketName;
 
@@ -216,17 +248,17 @@ public class BaseFileUtil {
         return TransactionUtil.exec(() -> {
 
             // 通用保存：文件信息到数据库
-            Long baseFileId =
+            BaseFileDO baseFileDO =
                 saveCommonBaseFile(bo, fileType, originalFilename, newFileName, objectName, finalBucketName,
                     finalBaseFileStorageConfigurationDO);
 
             if (consumer != null) {
 
-                consumer.accept(baseFileId);
+                consumer.accept(baseFileDO);
 
             }
 
-            return baseFileId;
+            return baseFileDO.getId();
 
         });
 
@@ -298,7 +330,7 @@ public class BaseFileUtil {
      * 通用保存：文件信息到数据库
      */
     @NotNull
-    public static Long saveCommonBaseFile(BaseFileUploadBO bo, String fileType, String originalFilename,
+    public static BaseFileDO saveCommonBaseFile(BaseFileUploadBO bo, String fileType, String originalFilename,
         String newFileName, String objectName, String bucketName,
         BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
 
@@ -348,7 +380,7 @@ public class BaseFileUtil {
 
         baseFileService.save(baseFileDO);
 
-        return baseFileDO.getId();
+        return baseFileDO;
 
     }
 
@@ -381,6 +413,63 @@ public class BaseFileUtil {
         }
 
         return pidPathStr;
+
+    }
+
+    /**
+     * 上传分片文件-准备工作：公有和私有
+     */
+    public static BaseFileUploadChunkPreVO uploadChunkPre(BaseFileUploadChunkPreDTO dto, BaseFileUploadBO bo) {
+
+        Long fileSize = dto.getFileSize();
+
+        int chunkSize = LogFilter.baseProperties.getFileChunkSize();
+
+        // 分片总个数
+        int chunkTotal =
+            BigDecimal.valueOf(fileSize).divide(BigDecimal.valueOf(chunkSize), RoundingMode.CEILING).intValue();
+
+        String fileType = FileNameUtil.extName(dto.getFileName());
+
+        fileType = BaseFileUploadTypeEnum.doCheckFileType(BaseFileUploadTypeEnum.FILE_SYSTEM, fileType);
+
+        if (fileType == null) {
+            R.errorMsg("操作失败：暂不支持此文件类型【" + dto.getFileName() + "】，请正确上传文件");
+        }
+
+        // 文件传输主键id
+        Long transferId = IdGeneratorUtil.nextId();
+
+        Long fileId = uploadCommonHandle(bo, fileType, null, (baseFileDO) -> {
+
+            BaseFileTransferDO baseFileTransferDO = new BaseFileTransferDO();
+
+            baseFileTransferDO.setId(transferId);
+            baseFileTransferDO.setUserId(bo.getUserId());
+            baseFileTransferDO.setFileId(baseFileDO.getId());
+            baseFileTransferDO.setType(BaseFileTransferTypeEnum.UPLOAD);
+            baseFileTransferDO.setNewFileName(baseFileDO.getNewFileName());
+            baseFileTransferDO.setShowFileName(baseFileDO.getShowFileName());
+            baseFileTransferDO.setFileSize(baseFileDO.getFileSize());
+            baseFileTransferDO.setStatus(BaseFileTransferStatusEnum.TRANSFER_IN);
+            baseFileTransferDO.setFileSign(dto.getFileSign());
+            baseFileTransferDO.setChunkSize(chunkSize);
+            baseFileTransferDO.setChunkTotal(chunkTotal);
+            baseFileTransferDO.setEnableFlag(true);
+            baseFileTransferDO.setRemark("");
+
+            baseFileTransferService.save(baseFileTransferDO);
+
+        }, null, bo.getUserId().toString(), false);
+
+        BaseFileUploadChunkPreVO baseFileUploadChunkPreVO = new BaseFileUploadChunkPreVO();
+
+        baseFileUploadChunkPreVO.setFileId(fileId);
+        baseFileUploadChunkPreVO.setChunkSize(chunkSize);
+        baseFileUploadChunkPreVO.setChunkTotal(chunkTotal);
+        baseFileUploadChunkPreVO.setTransferId(transferId);
+
+        return baseFileUploadChunkPreVO;
 
     }
 
@@ -834,7 +923,7 @@ public class BaseFileUtil {
             bo.setUserId(userId);
 
             // 通用：上传处理
-            return BaseFileUtil.uploadCommonHandle(bo, fileType, null, null, null, bo.getUserId().toString());
+            return BaseFileUtil.uploadCommonHandle(bo, fileType, null, null, null, bo.getUserId().toString(), true);
 
         } finally {
 

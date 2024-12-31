@@ -29,12 +29,16 @@ import com.kar20240901.be.base.web.model.dto.file.BaseFileMoveSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUpdateSelfDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadChunkComposeDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadChunkDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadChunkPreDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadDTO;
 import com.kar20240901.be.base.web.model.enums.file.BaseFileStorageTypeEnum;
 import com.kar20240901.be.base.web.model.enums.file.BaseFileTypeEnum;
 import com.kar20240901.be.base.web.model.enums.file.BaseFileUploadTypeEnum;
 import com.kar20240901.be.base.web.model.vo.base.LongObjectMapVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
+import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkPreVO;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.util.base.CallBack;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
@@ -45,6 +49,7 @@ import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import com.kar20240901.be.base.web.util.base.ResponseUtil;
 import com.kar20240901.be.base.web.util.base.SeparatorUtil;
 import com.kar20240901.be.base.web.util.file.BaseFileUtil;
+import com.kar20240901.be.base.web.util.file.MultipartFileUtil;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +73,18 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
     @Override
     public Long upload(BaseFileUploadDTO dto) {
 
+        BaseFileUploadBO baseFileUploadBO = getBaseFileUploadBOByDTO(dto);
+
+        // 执行：上传
+        return BaseFileUtil.upload(baseFileUploadBO);
+
+    }
+
+    /**
+     * 通过 BaseFileUploadDTO，获取：BaseFileUploadBO
+     */
+    public static BaseFileUploadBO getBaseFileUploadBOByDTO(BaseFileUploadDTO dto) {
+
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
         BaseFileUploadBO baseFileUploadBO = new BaseFileUploadBO();
@@ -83,8 +100,41 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         baseFileUploadBO.setPid(dto.getPid());
 
-        // 执行：上传
-        return BaseFileUtil.upload(baseFileUploadBO);
+        return baseFileUploadBO;
+
+    }
+
+    /**
+     * 上传分片文件-准备工作：公有和私有
+     */
+    @Override
+    public BaseFileUploadChunkPreVO uploadChunkPre(BaseFileUploadChunkPreDTO dto) {
+
+        dto.setFile(MultipartFileUtil.getByFileNameAndFileSize(dto.getFileName(), dto.getFileSize()));
+
+        BaseFileUploadBO baseFileUploadBO = getBaseFileUploadBOByDTO(dto);
+
+        return BaseFileUtil.uploadChunkPre(dto, baseFileUploadBO);
+
+    }
+
+    /**
+     * 上传分片文件：公有和私有
+     */
+    @Override
+    public String uploadChunk(BaseFileUploadChunkDTO dto) {
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 上传分片文件-合并：公有和私有
+     */
+    @Override
+    public String uploadChunkCompose(BaseFileUploadChunkComposeDTO dto) {
+
+        return TempBizCodeEnum.OK;
 
     }
 

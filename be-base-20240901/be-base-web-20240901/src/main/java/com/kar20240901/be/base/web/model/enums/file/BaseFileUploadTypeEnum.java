@@ -90,6 +90,17 @@ public enum BaseFileUploadTypeEnum implements IBaseFileUploadType {
         // 获取文件类型
         String fileType = MyFileTypeUtil.getType(file.getInputStream(), file.getOriginalFilename());
 
+        return doCheckFileType(iBaseFileUploadType, fileType);
+
+    }
+
+    /**
+     * 检查：文件类型，并返回文件类型（不含点），返回 null，则表示不支持此文件类型
+     */
+    @SneakyThrows
+    @Nullable
+    public static String doCheckFileType(IBaseFileUploadType iBaseFileUploadType, String fileType) {
+
         if (StrUtil.isBlank(fileType)) {
             return null;
         }

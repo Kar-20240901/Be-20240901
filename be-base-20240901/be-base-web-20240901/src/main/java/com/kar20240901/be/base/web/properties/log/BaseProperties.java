@@ -1,5 +1,6 @@
 package com.kar20240901.be.base.web.properties.log;
 
+import com.kar20240901.be.base.web.model.constant.base.BaseConstant;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.Data;
@@ -29,5 +30,10 @@ public class BaseProperties {
      * 非生产环境不处理的 kafkaTopic
      */
     private Set<String> devNotHandleKafkaTopicSet = new HashSet<>();
+
+    /**
+     * 每个分片文件的大小
+     */
+    private int fileChunkSize = BaseConstant.FILE_CHUNK_SIZE;
 
 }

@@ -3,6 +3,7 @@ package com.kar20240901.be.base.web.configuration.log;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.watch.WatchMonitor;
@@ -14,9 +15,6 @@ import com.kar20240901.be.base.web.util.base.MyTryUtil;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.yaml.snakeyaml.Yaml;
 
@@ -79,7 +77,10 @@ public class LogFilter extends Filter<ILoggingEvent> {
 
     }
 
-    private static void handle(File file, String type) {
+    /**
+     * 处理
+     */
+    private static synchronized void handle(File file, String type) {
 
         String str = "";
 
@@ -97,37 +98,9 @@ public class LogFilter extends Filter<ILoggingEvent> {
 
         }
 
-        Iterable<Object> objectIterable = new Yaml().loadAll(str);
+        BaseProperties basePropertiesTemp = new Yaml().loadAs(str, BaseProperties.class);
 
-        baseProperties.setLogTopicSet(new HashSet<>());
-        baseProperties.setNotLogTopicSet(new HashSet<>());
-
-        if (objectIterable.iterator().hasNext()) {
-
-            LinkedHashMap<String, ArrayList<String>> map =
-                (LinkedHashMap<String, ArrayList<String>>)objectIterable.iterator().next();
-
-            if (CollUtil.isNotEmpty(map)) {
-
-                ArrayList<String> logTopicList = map.get("log-topic-set");
-
-                ArrayList<String> notLogTopicList = map.get("not-log-topic-set");
-
-                if (CollUtil.isNotEmpty(logTopicList)) {
-
-                    baseProperties.setLogTopicSet(new HashSet<>(logTopicList));
-
-                }
-
-                if (CollUtil.isNotEmpty(notLogTopicList)) {
-
-                    baseProperties.setNotLogTopicSet(new HashSet<>(notLogTopicList));
-
-                }
-
-            }
-
-        }
+        BeanUtil.copyProperties(basePropertiesTemp, baseProperties);
 
         log.info("【{}】baseProperties：{}", type, JSONUtil.toJsonStr(baseProperties));
 
