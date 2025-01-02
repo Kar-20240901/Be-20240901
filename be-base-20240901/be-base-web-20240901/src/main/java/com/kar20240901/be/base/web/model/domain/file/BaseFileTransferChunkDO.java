@@ -21,20 +21,20 @@ public class BaseFileTransferChunkDO extends TempEntity {
     @Schema(description = "文件主键 id")
     private Long fileId;
 
-    @Schema(description = "分片开始位置（包含）")
+    @Schema(description = "分片开始位置（包含），从 0开始")
     private Long chunkBeginNum;
 
     @Schema(description = "分片结束位置（包含）")
     private Long chunkEndNum;
 
-    @Schema(description = "分片大小，计算方式：结束位置 - 开始位置")
-    private Integer chunkSize;
+    @Schema(description = "分片大小，计算方式：结束位置 - 开始位置 + 1")
+    private Long chunkSize;
 
     @Schema(description = "分片序号，从 1开始")
     private Integer chunkNum;
 
     @Schema(description = "已经传输的分片大小")
-    private Integer currentSize;
+    private Long currentSize;
 
     @Schema(description = "冗余字段：桶名，例如：be-bucket")
     private String bucketName;

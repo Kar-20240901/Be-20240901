@@ -73,7 +73,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
     @Override
     public Long upload(BaseFileUploadDTO dto) {
 
-        BaseFileUploadBO baseFileUploadBO = getBaseFileUploadBOByDTO(dto);
+        BaseFileUploadBO baseFileUploadBO = getBaseFileUploadBoByDTO(dto);
 
         // 执行：上传
         return BaseFileUtil.upload(baseFileUploadBO);
@@ -83,7 +83,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
     /**
      * 通过 BaseFileUploadDTO，获取：BaseFileUploadBO
      */
-    public static BaseFileUploadBO getBaseFileUploadBOByDTO(BaseFileUploadDTO dto) {
+    public static BaseFileUploadBO getBaseFileUploadBoByDTO(BaseFileUploadDTO dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
@@ -112,7 +112,8 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         dto.setFile(MultipartFileUtil.getByFileNameAndFileSize(dto.getFileName(), dto.getFileSize()));
 
-        BaseFileUploadBO baseFileUploadBO = getBaseFileUploadBOByDTO(dto);
+        // 获取：BaseFileUploadBO对象
+        BaseFileUploadBO baseFileUploadBO = getBaseFileUploadBoByDTO(dto);
 
         return BaseFileUtil.uploadChunkPre(dto, baseFileUploadBO);
 
@@ -124,7 +125,9 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
     @Override
     public String uploadChunk(BaseFileUploadChunkDTO dto) {
 
-        return TempBizCodeEnum.OK;
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        return BaseFileUtil.uploadChunk(dto, currentUserId);
 
     }
 

@@ -8,18 +8,24 @@ import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.file.BaseFileTransferMapper;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoIdSuper;
+import com.kar20240901.be.base.web.model.domain.file.BaseFileTransferChunkDO;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileTransferDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileTransferPageDTO;
+import com.kar20240901.be.base.web.service.file.BaseFileTransferChunkService;
 import com.kar20240901.be.base.web.service.file.BaseFileTransferService;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import java.util.Set;
+import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
 public class BaseFileTransferServiceImpl extends ServiceImpl<BaseFileTransferMapper, BaseFileTransferDO>
     implements BaseFileTransferService {
+
+    @Resource
+    BaseFileTransferChunkService baseFileTransferChunkService;
 
     /**
      * 分页排序查询
@@ -76,6 +82,9 @@ public class BaseFileTransferServiceImpl extends ServiceImpl<BaseFileTransferMap
         // 根据 idSet删除
         lambdaUpdate().eq(!adminFlag, BaseFileTransferDO::getUserId, currentUserId).in(BaseFileTransferDO::getId, idSet)
             .remove();
+
+        baseFileTransferChunkService.lambdaUpdate().eq(!adminFlag, BaseFileTransferChunkDO::getUserId, currentUserId)
+            .in(BaseFileTransferChunkDO::getTransferId, idSet).remove();
 
         return TempBizCodeEnum.OK;
 

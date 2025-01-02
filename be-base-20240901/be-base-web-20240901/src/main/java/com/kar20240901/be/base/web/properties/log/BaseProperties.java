@@ -34,6 +34,6 @@ public class BaseProperties {
     /**
      * 每个分片文件的大小
      */
-    private int fileChunkSize = BaseConstant.FILE_CHUNK_SIZE;
+    private Long fileChunkSize = BaseConstant.FILE_CHUNK_SIZE;
 
 }

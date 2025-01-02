@@ -45,7 +45,7 @@ public class BaseFileTransferDO extends TempEntity {
     private String fileSign;
 
     @Schema(description = "每个分片的大小")
-    private Integer chunkSize;
+    private Long chunkSize;
 
     @Schema(description = "总分片个数")
     private Integer chunkTotal;

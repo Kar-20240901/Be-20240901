@@ -3,11 +3,13 @@ package com.kar20240901.be.base.web.util.file;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileNameUtil;
+import cn.hutool.core.io.unit.DataSizeUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.configuration.log.LogFilter;
@@ -15,6 +17,7 @@ import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.file.BaseFileStorageConfigurationMapper;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadBO;
+import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadChunkBO;
 import com.kar20240901.be.base.web.model.configuration.file.IBaseFileRemove;
 import com.kar20240901.be.base.web.model.configuration.file.IBaseFileStorage;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
@@ -25,15 +28,23 @@ import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileAuthDO;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileDO;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
+import com.kar20240901.be.base.web.model.domain.file.BaseFileTransferChunkDO;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileTransferDO;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
+import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadChunkDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadChunkPreDTO;
+import com.kar20240901.be.base.web.model.enums.base.BaseRedisKeyEnum;
+import com.kar20240901.be.base.web.model.enums.file.BaseFileStorageTypeEnum;
 import com.kar20240901.be.base.web.model.enums.file.BaseFileTransferStatusEnum;
 import com.kar20240901.be.base.web.model.enums.file.BaseFileTransferTypeEnum;
 import com.kar20240901.be.base.web.model.enums.file.BaseFileTypeEnum;
 import com.kar20240901.be.base.web.model.enums.file.BaseFileUploadTypeEnum;
 import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileStorageType;
+import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileUploadType;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkPreVO;
+import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkVO;
 import com.kar20240901.be.base.web.service.file.BaseFileAuthService;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.service.file.BaseFileTransferChunkService;
@@ -43,6 +54,7 @@ import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyStrUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
+import com.kar20240901.be.base.web.util.base.RedissonUtil;
 import com.kar20240901.be.base.web.util.base.SeparatorUtil;
 import com.kar20240901.be.base.web.util.base.TransactionUtil;
 import com.kar20240901.be.base.web.util.base.VoidFunc3;
@@ -149,7 +161,7 @@ public class BaseFileUtil {
                     ChainWrappers.lambdaUpdateChain(baseUserInfoMapper).eq(TempUserInfoDO::getId, bo.getUserId())
                         .set(TempUserInfoDO::getAvatarFileId, baseFileDO.getId()).update();
 
-                }, null, bo.getUserId().toString(), true);
+                }, null, bo.getUserId().toString(), true, true, null, null);
 
         } else if (BaseFileUploadTypeEnum.FILE_SYSTEM.equals(bo.getUploadType())) {
 
@@ -157,23 +169,33 @@ public class BaseFileUtil {
             // 通用：上传处理
             resultBaseFileId = uploadCommonHandle(bo, fileType, null, (baseFileDO) -> {
 
-                BaseFileAuthDO baseFileAuthDO = new BaseFileAuthDO();
+                // 设置文件权限
+                saveFileAuth(bo.getUserId(), baseFileDO);
 
-                baseFileAuthDO.setFileId(baseFileDO.getId());
-                baseFileAuthDO.setUserId(bo.getUserId());
-                baseFileAuthDO.setReadFlag(true);
-                baseFileAuthDO.setWriteFlag(true);
-                baseFileAuthDO.setEnableFlag(true);
-
-                baseFileAuthDO.setRemark("");
-
-                baseFileAuthService.save(baseFileAuthDO);
-
-            }, null, bo.getUserId().toString(), true);
+            }, null, bo.getUserId().toString(), true, true, null, null);
 
         }
 
         return resultBaseFileId;
+
+    }
+
+    /**
+     * 设置文件权限
+     */
+    public static void saveFileAuth(Long userId, BaseFileDO baseFileDO) {
+
+        BaseFileAuthDO baseFileAuthDO = new BaseFileAuthDO();
+
+        baseFileAuthDO.setFileId(baseFileDO.getId());
+        baseFileAuthDO.setUserId(userId);
+        baseFileAuthDO.setReadFlag(true);
+        baseFileAuthDO.setWriteFlag(true);
+        baseFileAuthDO.setEnableFlag(true);
+
+        baseFileAuthDO.setRemark("");
+
+        baseFileAuthService.save(baseFileAuthDO);
 
     }
 
@@ -185,40 +207,75 @@ public class BaseFileUtil {
     @NotNull
     public static Long uploadCommonHandle(BaseFileUploadBO bo, String fileType,
         @Nullable IBaseFileStorageType iBaseFileStorageType, @Nullable Consumer<BaseFileDO> consumer,
-        @Nullable BaseFileStorageConfigurationDO baseFileStorageConfigurationDO, @Nullable String otherFolderName,
-        boolean storageUploadFlag) {
+        @Nullable BaseFileStorageConfigurationDO baseFileStorageConfigurationDoTemp, @Nullable String otherFolderName,
+        boolean storageUploadFlag, boolean saveBaseFileFlag, String newFileNameTemp, CallBack<String> uriCallBack) {
 
         // 获取：存储方式的配置
-        baseFileStorageConfigurationDO =
-            getBaseFileStorageConfigurationDO(iBaseFileStorageType, baseFileStorageConfigurationDO);
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO =
+            getBaseFileStorageConfigurationDO(iBaseFileStorageType, baseFileStorageConfigurationDoTemp);
 
-        Integer storageType = baseFileStorageConfigurationDO.getType();
-
-        IBaseFileStorage iBaseFileStorage = BASE_FILE_STORAGE_MAP.get(storageType);
-
-        if (iBaseFileStorage == null) {
-
-            R.error("操作失败：文件存储方式未找到", storageType);
-
-        }
-
-        String folderName = bo.getUploadType().getFolderName();
+        // 获取：存储接口对象
+        IBaseFileStorage iBaseFileStorage = getIbaseFileStorage(baseFileStorageConfigurationDO);
 
         String originalFilename = bo.getFile().getOriginalFilename(); // 旧的文件名
 
-        String newFileName = IdUtil.simpleUUID() + "." + fileType; // 新的文件名
+        String folderName = bo.getUploadType().getFolderName();
 
-        if (StrUtil.isNotBlank(otherFolderName)) {
+        // 获取：新的文件名
+        String newFileName = getNewFileName(fileType, newFileNameTemp);
 
-            folderName = folderName + "/" + otherFolderName;
+        // 获取：uri
+        String objectName = getObjectName(otherFolderName, folderName, newFileName);
+
+        if (uriCallBack != null) {
+
+            uriCallBack.setValue(objectName);
 
         }
 
-        String objectName = folderName + "/" + newFileName;
+        // 获取：桶名
+        String bucketName = getBucketName(bo.getUploadType(), baseFileStorageConfigurationDO);
 
+        if (storageUploadFlag) {
+
+            // 执行：文件上传
+            iBaseFileStorage.upload(bucketName, objectName, bo.getFile(), baseFileStorageConfigurationDO);
+
+        }
+
+        if (!saveBaseFileFlag) {
+
+            return TempConstant.NEGATIVE_ONE;
+
+        }
+
+        return TransactionUtil.exec(() -> {
+
+            // 通用保存：文件信息到数据库
+            BaseFileDO baseFileDO = saveBaseFile(bo, fileType, originalFilename, newFileName, objectName, bucketName,
+                baseFileStorageConfigurationDO);
+
+            if (consumer != null) {
+
+                consumer.accept(baseFileDO);
+
+            }
+
+            return baseFileDO.getId();
+
+        });
+
+    }
+
+    /**
+     * 获取：桶名
+     */
+    @NotNull
+    public static String getBucketName(IBaseFileUploadType uploadType,
+        @NotNull BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
         String bucketName;
 
-        if (bo.getUploadType().isPublicFlag()) {
+        if (uploadType.isPublicFlag()) {
 
             bucketName = baseFileStorageConfigurationDO.getBucketPublicName();
 
@@ -230,37 +287,69 @@ public class BaseFileUtil {
 
         if (StrUtil.isBlank(bucketName)) {
 
-            R.errorMsg("操作失败：bucketName为空，请联系管理员");
+            R.errorMsg("操作失败：桶名为空，请联系管理员");
 
         }
 
-        if (storageUploadFlag) {
+        return bucketName;
 
-            // 执行：文件上传
-            iBaseFileStorage.upload(bucketName, objectName, bo.getFile(), baseFileStorageConfigurationDO);
+    }
+
+    /**
+     * 获取：objectName
+     */
+    @NotNull
+    public static String getObjectName(@Nullable String otherFolderName, String folderName, String newFileName) {
+
+        if (StrUtil.isNotBlank(otherFolderName)) {
+
+            folderName = folderName + "/" + otherFolderName;
 
         }
 
-        String finalBucketName = bucketName;
+        return folderName + "/" + newFileName;
 
-        BaseFileStorageConfigurationDO finalBaseFileStorageConfigurationDO = baseFileStorageConfigurationDO;
+    }
 
-        return TransactionUtil.exec(() -> {
+    /**
+     * 获取：新的文件名
+     */
+    @NotNull
+    public static String getNewFileName(String fileType, String newFileNameTemp) {
 
-            // 通用保存：文件信息到数据库
-            BaseFileDO baseFileDO =
-                saveCommonBaseFile(bo, fileType, originalFilename, newFileName, objectName, finalBucketName,
-                    finalBaseFileStorageConfigurationDO);
+        String newFileName;
 
-            if (consumer != null) {
+        if (StrUtil.isBlank(newFileNameTemp)) {
 
-                consumer.accept(baseFileDO);
+            newFileName = IdUtil.simpleUUID() + "." + fileType; // 新的文件名
 
-            }
+        } else {
 
-            return baseFileDO.getId();
+            newFileName = newFileNameTemp;
 
-        });
+        }
+
+        return newFileName;
+
+    }
+
+    /**
+     * 获取：IBaseFileStorage
+     */
+    @NotNull
+    public static IBaseFileStorage getIbaseFileStorage(BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+
+        Integer storageType = baseFileStorageConfigurationDO.getType();
+
+        IBaseFileStorage iBaseFileStorage = BASE_FILE_STORAGE_MAP.get(storageType);
+
+        if (iBaseFileStorage == null) {
+
+            R.error("操作失败：文件存储方式未找到", storageType);
+
+        }
+
+        return iBaseFileStorage;
 
     }
 
@@ -330,7 +419,24 @@ public class BaseFileUtil {
      * 通用保存：文件信息到数据库
      */
     @NotNull
-    public static BaseFileDO saveCommonBaseFile(BaseFileUploadBO bo, String fileType, String originalFilename,
+    public static BaseFileDO saveBaseFile(BaseFileUploadBO bo, String fileType, String originalFilename,
+        String newFileName, String objectName, String bucketName,
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+
+        // 获取：BaseFileDO对象
+        BaseFileDO baseFileDO = getBaseFileDO(bo, fileType, originalFilename, newFileName, objectName, bucketName,
+            baseFileStorageConfigurationDO);
+
+        baseFileService.save(baseFileDO);
+
+        return baseFileDO;
+
+    }
+
+    /**
+     * 获取：BaseFileDO对象
+     */
+    private static @NotNull BaseFileDO getBaseFileDO(BaseFileUploadBO bo, String fileType, String originalFilename,
         String newFileName, String objectName, String bucketName,
         BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
 
@@ -378,8 +484,6 @@ public class BaseFileUtil {
 
         baseFileDO.setPidPathStr(pidPathStr);
 
-        baseFileService.save(baseFileDO);
-
         return baseFileDO;
 
     }
@@ -423,7 +527,7 @@ public class BaseFileUtil {
 
         Long fileSize = dto.getFileSize();
 
-        int chunkSize = LogFilter.baseProperties.getFileChunkSize();
+        Long chunkSize = LogFilter.baseProperties.getFileChunkSize();
 
         // 分片总个数
         int chunkTotal =
@@ -460,7 +564,10 @@ public class BaseFileUtil {
 
             baseFileTransferService.save(baseFileTransferDO);
 
-        }, null, bo.getUserId().toString(), false);
+            // 设置文件权限
+            saveFileAuth(bo.getUserId(), baseFileDO);
+
+        }, null, bo.getUserId().toString(), false, true, null, null);
 
         BaseFileUploadChunkPreVO baseFileUploadChunkPreVO = new BaseFileUploadChunkPreVO();
 
@@ -470,6 +577,141 @@ public class BaseFileUtil {
         baseFileUploadChunkPreVO.setTransferId(transferId);
 
         return baseFileUploadChunkPreVO;
+
+    }
+
+    /**
+     * 上传分片文件：公有和私有
+     */
+    public static String uploadChunk(BaseFileUploadChunkDTO dto, Long userId) {
+
+        BaseFileTransferDO baseFileTransferDO = baseFileTransferService.infoById(new NotNullId(userId));
+
+        if (baseFileTransferDO == null) {
+            R.error("操作失败：传输信息不存在，请重新上传", dto.getTransferId());
+        }
+
+        boolean overChunkSizeFlag = dto.getFile().getSize() > baseFileTransferDO.getChunkSize();
+
+        if (overChunkSizeFlag) {
+            R.errorMsg("操作失败：分片大小超过：【" + DataSizeUtil.format(baseFileTransferDO.getChunkSize()) + "】");
+        }
+
+        boolean overChunkTotalFlag = dto.getChunkNum() > baseFileTransferDO.getChunkTotal();
+
+        if (overChunkTotalFlag) {
+            R.errorMsg("操作失败：分片编号超过：【" + baseFileTransferDO.getChunkTotal() + "】");
+        }
+
+        BaseFileDO baseFileDO =
+            baseFileService.lambdaQuery().eq(TempEntity::getId, baseFileTransferDO.getFileId()).one();
+
+        if (baseFileDO == null) {
+
+            baseFileTransferService.deleteByIdSet(new NotEmptyIdSet(CollUtil.newHashSet(dto.getTransferId())));
+
+            R.error("操作失败：请重新上传", baseFileTransferDO.getFileId());
+
+        }
+
+        return RedissonUtil.doLock(
+            BaseRedisKeyEnum.PRE_TRANSFER_CHUNK_NUM + ":" + baseFileTransferDO.getId() + ":" + dto.getChunkNum(),
+            () -> {
+
+                boolean exists = baseFileTransferChunkService.lambdaQuery()
+                    .eq(BaseFileTransferChunkDO::getTransferId, baseFileTransferDO.getId())
+                    .eq(BaseFileTransferChunkDO::getChunkNum, dto.getChunkNum()).exists();
+
+                if (exists) {
+                    R.errorMsg("操作失败：该分片编号已经上传过：【" + dto.getChunkNum() + "】");
+                }
+
+                String fileType = "chunk." + dto.getChunkNum();
+
+                String chunkFileName = baseFileTransferDO.getNewFileName() + "." + fileType;
+
+                // 获取：存储方式的配置
+                BaseFileStorageConfigurationDO baseFileStorageConfigurationDO =
+                    getBaseFileStorageConfigurationDO(null, null);
+
+                // 获取：存储接口对象
+                IBaseFileStorage iBaseFileStorage = getIbaseFileStorage(baseFileStorageConfigurationDO);
+
+                // 获取：uri
+                String objectName =
+                    getObjectName(userId.toString(), dto.getUploadType().getFolderName(), chunkFileName);
+
+                // 获取：桶名
+                String bucketName = getBucketName(dto.getUploadType(), baseFileStorageConfigurationDO);
+
+                BaseFileUploadChunkBO baseFileUploadChunkBO = new BaseFileUploadChunkBO();
+
+                baseFileUploadChunkBO.setUploadId(dto.getTransferId().toString());
+                baseFileUploadChunkBO.setPartNumber(dto.getChunkNum());
+
+                // 执行：文件上传
+                BaseFileUploadChunkVO baseFileUploadChunkVO =
+                    iBaseFileStorage.uploadChunk(bucketName, objectName, dto.getFile(), baseFileStorageConfigurationDO,
+                        baseFileUploadChunkBO);
+
+                // 获取：BaseFileTransferChunkDO对象
+                BaseFileTransferChunkDO baseFileTransferChunkDO =
+                    getBaseFileTransferChunkDO(dto, baseFileTransferDO, baseFileDO, objectName, chunkFileName,
+                        baseFileUploadChunkVO);
+
+                baseFileTransferChunkService.save(baseFileTransferChunkDO);
+
+                return TempBizCodeEnum.OK;
+
+            });
+
+    }
+
+    /**
+     * 获取：BaseFileTransferChunkDO对象
+     */
+    @NotNull
+    private static BaseFileTransferChunkDO getBaseFileTransferChunkDO(BaseFileUploadChunkDTO dto,
+        BaseFileTransferDO baseFileTransferDO, BaseFileDO baseFileDO, String objectName, String chunkFileName,
+        BaseFileUploadChunkVO baseFileUploadChunkVO) {
+
+        Integer chunkNum = dto.getChunkNum();
+
+        Long chunkSize = baseFileTransferDO.getChunkSize();
+
+        long fileSize = dto.getFile().getSize();
+
+        long chunkBeginNum = chunkSize * (chunkNum - 1);
+
+        long chunkEndNum = chunkBeginNum + fileSize - 1;
+
+        BaseFileTransferChunkDO baseFileTransferChunkDO = new BaseFileTransferChunkDO();
+
+        baseFileTransferChunkDO.setTransferId(baseFileTransferDO.getId());
+        baseFileTransferChunkDO.setUserId(baseFileTransferDO.getUserId());
+        baseFileTransferChunkDO.setFileId(baseFileTransferDO.getFileId());
+        baseFileTransferChunkDO.setChunkBeginNum(chunkBeginNum);
+        baseFileTransferChunkDO.setChunkEndNum(chunkEndNum);
+        baseFileTransferChunkDO.setChunkSize(
+            baseFileTransferChunkDO.getChunkEndNum() - baseFileTransferChunkDO.getChunkBeginNum() + 1);
+        baseFileTransferChunkDO.setChunkNum(chunkNum);
+        baseFileTransferChunkDO.setCurrentSize(fileSize);
+        baseFileTransferChunkDO.setBucketName(baseFileDO.getBucketName());
+        baseFileTransferChunkDO.setUri(objectName);
+        baseFileTransferChunkDO.setStorageConfigurationId(baseFileDO.getStorageConfigurationId());
+        baseFileTransferChunkDO.setStorageType(baseFileDO.getStorageType());
+        baseFileTransferChunkDO.setShowFileName(chunkFileName);
+        baseFileTransferChunkDO.setRefData("");
+        baseFileTransferChunkDO.setEnableFlag(true);
+        baseFileTransferChunkDO.setRemark("");
+
+        if (BaseFileStorageTypeEnum.ALI_YUN.getCode() == baseFileDO.getStorageType()) {
+
+            baseFileTransferChunkDO.setRefData(JSONUtil.toJsonStr(baseFileUploadChunkVO.getPartEtag()));
+
+        }
+
+        return baseFileTransferChunkDO;
 
     }
 
@@ -923,7 +1165,8 @@ public class BaseFileUtil {
             bo.setUserId(userId);
 
             // 通用：上传处理
-            return BaseFileUtil.uploadCommonHandle(bo, fileType, null, null, null, bo.getUserId().toString(), true);
+            return BaseFileUtil.uploadCommonHandle(bo, fileType, null, null, null, bo.getUserId().toString(), true,
+                true, null, null);
 
         } finally {
 

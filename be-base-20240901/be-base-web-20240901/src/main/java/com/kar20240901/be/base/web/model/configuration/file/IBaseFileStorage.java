@@ -4,6 +4,7 @@ import com.kar20240901.be.base.web.model.bo.file.BaseFileComposeBO;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadChunkBO;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
 import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileStorageType;
+import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkVO;
 import java.io.InputStream;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +26,7 @@ public interface IBaseFileStorage {
     /**
      * 分片上传文件 备注：objectName 相同会被覆盖掉
      */
-    void uploadChunk(String bucketName, String objectName, MultipartFile file,
+    BaseFileUploadChunkVO uploadChunk(String bucketName, String objectName, MultipartFile file,
         @NotNull BaseFileStorageConfigurationDO baseFileStorageConfigurationDO,
         BaseFileUploadChunkBO baseFileUploadChunkBO);
 

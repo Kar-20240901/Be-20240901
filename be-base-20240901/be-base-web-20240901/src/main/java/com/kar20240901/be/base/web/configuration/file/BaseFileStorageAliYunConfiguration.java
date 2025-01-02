@@ -5,6 +5,7 @@ import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadChunkBO;
 import com.kar20240901.be.base.web.model.configuration.file.IBaseFileStorage;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
 import com.kar20240901.be.base.web.model.enums.file.BaseFileStorageTypeEnum;
+import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkVO;
 import com.kar20240901.be.base.web.util.file.BaseFileAliYunUtil;
 import java.io.InputStream;
 import java.util.Set;
@@ -30,10 +31,10 @@ public class BaseFileStorageAliYunConfiguration implements IBaseFileStorage {
     }
 
     @Override
-    public void uploadChunk(String bucketName, String objectName, MultipartFile file,
+    public BaseFileUploadChunkVO uploadChunk(String bucketName, String objectName, MultipartFile file,
         @NotNull BaseFileStorageConfigurationDO baseFileStorageConfigurationDO,
         BaseFileUploadChunkBO baseFileUploadChunkBO) {
-        BaseFileAliYunUtil.uploadChunk(bucketName, objectName, file, baseFileStorageConfigurationDO,
+        return BaseFileAliYunUtil.uploadChunk(bucketName, objectName, file, baseFileStorageConfigurationDO,
             baseFileUploadChunkBO);
     }
 
