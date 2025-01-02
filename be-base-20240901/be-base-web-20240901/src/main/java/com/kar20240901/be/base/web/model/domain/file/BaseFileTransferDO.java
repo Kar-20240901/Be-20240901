@@ -50,4 +50,16 @@ public class BaseFileTransferDO extends TempEntity {
     @Schema(description = "总分片个数")
     private Integer chunkTotal;
 
+    @Schema(description = "冗余字段：桶名，例如：be-bucket")
+    private String bucketName;
+
+    @Schema(description = "冗余字段：存储文件配置主键 id")
+    private Long storageConfigurationId;
+
+    @Schema(description = "冗余字段：存放文件的服务器类型：101 阿里云oss 201 minio")
+    private Integer storageType;
+
+    @Schema(description = "冗余字段：文件完整路径（包含文件类型，不包含请求端点），例如：avatar/uuid.xxx")
+    private String uri;
+
 }

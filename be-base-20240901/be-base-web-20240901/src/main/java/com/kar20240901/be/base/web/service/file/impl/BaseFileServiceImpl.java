@@ -137,7 +137,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
     @Override
     public String uploadChunkCompose(BaseFileUploadChunkComposeDTO dto) {
 
-        return TempBizCodeEnum.OK;
+        return BaseFileUtil.uploadChunkCompose(dto.getTransferId());
 
     }
 
@@ -504,6 +504,8 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         baseFileDO.setFileSize(TempConstant.ZERO);
 
         baseFileDO.setRefId(TempConstant.NEGATIVE_ONE);
+
+        baseFileDO.setUploadFlag(false);
 
         baseFileDO.setEnableFlag(true);
 

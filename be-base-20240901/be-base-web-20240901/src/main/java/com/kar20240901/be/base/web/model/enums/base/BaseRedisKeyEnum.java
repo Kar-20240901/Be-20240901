@@ -8,7 +8,9 @@ import com.kar20240901.be.base.web.model.interfaces.base.IRedisKey;
 public enum BaseRedisKeyEnum implements IRedisKey {
 
     // 【PRE_】开头 ↓
-    PRE_TRANSFER_CHUNK_NUM, // 传输分片编号锁，锁：【传输id + 传输分片编号】，目的：防止重复上传
+    PRE_FILE_TRANSFER, // 传输锁，锁：【传输id】，目的：防止重复合并
+
+    PRE_FILE_TRANSFER_CHUNK_NUM, // 传输分片编号锁，锁：【传输id + 传输分片编号】，目的：防止重复上传
 
     PRE_USER_WALLET_WITHDRAW_LOG, // 用户钱包-提现记录锁，锁：【提现记录主键 id】
 

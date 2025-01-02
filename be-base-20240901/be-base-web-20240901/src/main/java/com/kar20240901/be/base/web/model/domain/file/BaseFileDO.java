@@ -1,7 +1,9 @@
 package com.kar20240901.be.base.web.model.domain.file;
 
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityTree;
 import com.kar20240901.be.base.web.model.enums.file.BaseFileTypeEnum;
@@ -17,6 +19,10 @@ import lombok.EqualsAndHashCode;
 @Data
 @Schema(description = "主表：文件表")
 public class BaseFileDO extends TempEntityTree<BaseFileDO> {
+
+    @TableId(type = IdType.INPUT)
+    @Schema(description = "主键 id")
+    private Long id;
 
     @Schema(description = "归属者用户主键 id（拥有全部权限）")
     private Long belongId;
@@ -101,5 +107,8 @@ public class BaseFileDO extends TempEntityTree<BaseFileDO> {
         insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER, select = false)
     @Schema(description = "文件夹大小")
     private Long folderSize;
+
+    @Schema(description = "是否还在上传中，目的：无法操作")
+    private Boolean uploadFlag;
 
 }
