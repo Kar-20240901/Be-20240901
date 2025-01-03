@@ -40,6 +40,7 @@ import com.kar20240901.be.base.web.model.enums.file.BaseFileTypeEnum;
 import com.kar20240901.be.base.web.model.enums.file.BaseFileUploadTypeEnum;
 import com.kar20240901.be.base.web.model.vo.base.LongObjectMapVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
+import com.kar20240901.be.base.web.model.vo.file.BaseFilePageSelfVO;
 import com.kar20240901.be.base.web.model.vo.file.BaseFilePrivateDownloadVO;
 import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkPreVO;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
@@ -266,7 +267,8 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
      * 分页排序查询
      */
     @Override
-    public Page<BaseFileDO> myPage(BaseFilePageDTO dto, boolean folderSizeFlag, boolean pidPathStrFlag) {
+    public BaseFilePageSelfVO myPage(BaseFilePageDTO dto, boolean folderSizeFlag, boolean pidPathStrFlag,
+        boolean treeFlag) {
 
         if (BooleanUtil.isTrue(dto.getGlobalFlag())) {
 
@@ -277,6 +279,8 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
             dto.setPid(TempConstant.TOP_PID);
 
         }
+
+        BaseFilePageSelfVO baseFilePageSelfVO = new BaseFilePageSelfVO();
 
         if (BooleanUtil.isTrue(dto.getBackUpFlag())) {
 
@@ -296,6 +300,12 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
                 }
 
+                baseFilePageSelfVO.setBackUpPid(dto.getPid());
+
+            } else {
+
+                baseFilePageSelfVO.setBackUpPid(TempConstant.TOP_PID);
+
             }
 
         }
@@ -312,48 +322,59 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
             .eq(dto.getPid() != null, BaseFileDO::getPid, dto.getPid()) //
             .eq(dto.getType() != null, BaseFileDO::getType, dto.getType()) //
             .eq(BaseFileDO::getUploadType, BaseFileUploadTypeEnum.FILE_SYSTEM) //
-            .select(true, getMyPageSelectList(folderSizeFlag, pidPathStrFlag))
-            .page(dto.createTimeDescDefaultOrderPage());
+            .select(true, getMyPageSelectList(folderSizeFlag, treeFlag)).page(dto.createTimeDescDefaultOrderPage());
 
         // 后续处理
-        myPageSuf(page);
+        myPageSuf(dto.getPid(), pidPathStrFlag, baseFilePageSelfVO);
 
-        return page;
+        baseFilePageSelfVO.setRecords(page.getRecords());
+
+        return baseFilePageSelfVO;
 
     }
 
     /**
      * 后续处理
      */
-    private void myPageSuf(Page<BaseFileDO> page) {
+    private void myPageSuf(Long pid, boolean pidPathStrFlag, BaseFilePageSelfVO baseFilePageSelfVO) {
 
-        List<BaseFileDO> recordList = page.getRecords();
-
-        if (recordList.size() == 0) {
+        if (!pidPathStrFlag) {
             return;
         }
 
-        BaseFileDO baseFileDO = recordList.get(0);
+        if (pid == null || TempConstant.TOP_PID.equals(pid)) {
 
-        String pidPathStr = baseFileDO.getPidPathStr();
+            baseFilePageSelfVO.setPathList(CollUtil.newArrayList(BaseConstant.TOP_FOLDER_NAME));
 
-        if (StrUtil.isBlank(pidPathStr)) {
+            baseFilePageSelfVO.setPidList(CollUtil.newArrayList(TempConstant.TOP_PID));
+
             return;
-        }
-
-        for (int i = 0; i < recordList.size(); i++) {
-
-            recordList.get(i).setPidPathStr(null); // 只保留第一个元素的 pidPathStr
 
         }
 
-        List<String> pidStrList = StrUtil.splitTrim(pidPathStr, SeparatorUtil.VERTICAL_LINE_SEPARATOR);
+        BaseFileDO baseFileDO = lambdaQuery().eq(BaseFileDO::getId, pid)
+            .select(BaseFileDO::getPidPathStr, BaseFileDO::getId, BaseFileDO::getShowFileName).one();
+
+        if (baseFileDO == null) {
+
+            baseFilePageSelfVO.setPathList(CollUtil.newArrayList(BaseConstant.TOP_FOLDER_NAME));
+
+            baseFilePageSelfVO.setPidList(CollUtil.newArrayList(TempConstant.TOP_PID));
+
+            baseFilePageSelfVO.setRecords(new ArrayList<>());
+
+            return;
+
+        }
+
+        List<String> pidStrList = StrUtil.splitTrim(baseFileDO.getPidPathStr(), SeparatorUtil.VERTICAL_LINE_SEPARATOR);
 
         if (pidStrList.size() == 1 && pidStrList.get(0).equals(TempConstant.TOP_PID.toString())) {
 
-            baseFileDO.setPathList(CollUtil.newArrayList(BaseConstant.TOP_FOLDER_NAME));
+            baseFilePageSelfVO.setPathList(
+                CollUtil.newArrayList(BaseConstant.TOP_FOLDER_NAME, baseFileDO.getShowFileName()));
 
-            baseFileDO.setPidList(CollUtil.newArrayList(TempConstant.TOP_PID));
+            baseFilePageSelfVO.setPidList(CollUtil.newArrayList(TempConstant.TOP_PID, baseFileDO.getId()));
 
             return;
 
@@ -384,10 +405,13 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         }
 
-        // 只给第一个元素赋值
-        baseFileDO.setPathList(pathList);
+        pathList.add(baseFileDO.getShowFileName());
 
-        baseFileDO.setPidList(pidList);
+        pidList.add(baseFileDO.getId());
+
+        baseFilePageSelfVO.setPathList(pathList);
+
+        baseFilePageSelfVO.setPidList(pidList);
 
     }
 
@@ -395,10 +419,14 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
      * 获取：需要查询的字段
      *
      * @param folderSizeFlag 是否增加：文件夹大小的查询字段
-     * @param pidPathStrFlag 是否增加：文件路径字符串
      */
-    private static ArrayList<SFunction<BaseFileDO, ?>> getMyPageSelectList(boolean folderSizeFlag,
-        boolean pidPathStrFlag) {
+    private static ArrayList<SFunction<BaseFileDO, ?>> getMyPageSelectList(boolean folderSizeFlag, boolean treeFlag) {
+
+        if (treeFlag) {
+
+            return CollUtil.newArrayList(TempEntity::getId, BaseFileDO::getPid, BaseFileDO::getShowFileName);
+
+        }
 
         ArrayList<SFunction<BaseFileDO, ?>> arrayList =
             CollUtil.newArrayList(TempEntity::getId, TempEntityNoId::getCreateTime, BaseFileDO::getBelongId,
@@ -410,12 +438,6 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         }
 
-        if (pidPathStrFlag) {
-
-            arrayList.add(BaseFileDO::getPidPathStr);
-
-        }
-
         return arrayList;
 
     }
@@ -424,7 +446,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
      * 分页排序查询-自我
      */
     @Override
-    public Page<BaseFileDO> myPageSelf(BaseFilePageSelfDTO dto) {
+    public BaseFilePageSelfVO myPageSelf(BaseFilePageSelfDTO dto) {
 
         BaseFilePageDTO baseFilePageDTO = BeanUtil.copyProperties(dto, BaseFilePageDTO.class);
 
@@ -433,7 +455,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         baseFilePageDTO.setBelongId(currentUserId); // 设置为：当前用户
 
         // 执行
-        return myPage(baseFilePageDTO, true, true);
+        return myPage(baseFilePageDTO, true, true, false);
 
     }
 
@@ -452,7 +474,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         MyThreadUtil.execute(() -> {
 
-            Page<BaseFileDO> page = lambdaQuery().select(true, getMyPageSelectList(false, false))
+            Page<BaseFileDO> page = lambdaQuery().select(true, getMyPageSelectList(false, true))
                 .eq(BaseFileDO::getUploadType, BaseFileUploadTypeEnum.FILE_SYSTEM)
                 .page(dto.createTimeDescDefaultOrderPage());
 
@@ -461,7 +483,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         }, countDownLatch);
 
         // 根据条件进行筛选，得到符合条件的数据，然后再逆向生成整棵树，并返回这个树结构
-        List<BaseFileDO> baseFileDoList = myPage(dto, false, false).getRecords();
+        List<BaseFileDO> baseFileDoList = myPage(dto, false, false, true).getRecords();
 
         countDownLatch.await();
 
@@ -541,6 +563,8 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         Long userId = MyUserUtil.getCurrentUserId();
 
         BaseFileDO baseFileDO = new BaseFileDO();
+
+        baseFileDO.setId(IdGeneratorUtil.nextId());
 
         baseFileDO.setBelongId(userId);
 
@@ -678,7 +702,15 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
             String oldNewFileName = item.getNewFileName();
 
-            item.setNewFileName(IdUtil.simpleUUID() + "." + item.getFileExtName());
+            if (StrUtil.isBlank(item.getFileExtName())) {
+
+                item.setNewFileName(IdUtil.simpleUUID());
+
+            } else {
+
+                item.setNewFileName(IdUtil.simpleUUID() + "." + item.getFileExtName());
+
+            }
 
             String uri = item.getUri();
 

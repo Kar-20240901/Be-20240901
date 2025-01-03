@@ -1,6 +1,5 @@
 package com.kar20240901.be.base.web.service.file;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
@@ -16,6 +15,7 @@ import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadChunkDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadChunkPreDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadDTO;
 import com.kar20240901.be.base.web.model.vo.base.LongObjectMapVO;
+import com.kar20240901.be.base.web.model.vo.file.BaseFilePageSelfVO;
 import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkPreVO;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -37,9 +37,9 @@ public interface BaseFileService extends IService<BaseFileDO> {
 
     LongObjectMapVO<String> getPublicUrl(NotEmptyIdSet notEmptyIdSet);
 
-    Page<BaseFileDO> myPage(BaseFilePageDTO dto, boolean folderSizeFlag, boolean pidPathStrFlag);
+    BaseFilePageSelfVO myPage(BaseFilePageDTO dto, boolean folderSizeFlag, boolean pidPathStrFlag, boolean treeFlag);
 
-    Page<BaseFileDO> myPageSelf(BaseFilePageSelfDTO dto);
+    BaseFilePageSelfVO myPageSelf(BaseFilePageSelfDTO dto);
 
     List<BaseFileDO> tree(BaseFilePageDTO dto);
 

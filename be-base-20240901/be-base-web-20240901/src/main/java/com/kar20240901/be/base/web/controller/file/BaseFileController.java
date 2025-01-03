@@ -1,6 +1,5 @@
 package com.kar20240901.be.base.web.controller.file;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
@@ -16,6 +15,7 @@ import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadChunkPreDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadDTO;
 import com.kar20240901.be.base.web.model.vo.base.LongObjectMapVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
+import com.kar20240901.be.base.web.model.vo.file.BaseFilePageSelfVO;
 import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkPreVO;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -85,13 +85,13 @@ public class BaseFileController {
     @Operation(summary = "分页排序查询")
     @PostMapping("/page")
     @PreAuthorize("hasAuthority('baseFile:page')")
-    public R<Page<BaseFileDO>> myPage(@RequestBody @Valid BaseFilePageDTO dto) {
-        return R.okData(baseService.myPage(dto, true, true));
+    public R<BaseFilePageSelfVO> myPage(@RequestBody @Valid BaseFilePageDTO dto) {
+        return R.okData(baseService.myPage(dto, true, true, false));
     }
 
     @Operation(summary = "分页排序查询-自我")
     @PostMapping("/page/self")
-    public R<Page<BaseFileDO>> myPageSelf(@RequestBody @Valid BaseFilePageSelfDTO dto) {
+    public R<BaseFilePageSelfVO> myPageSelf(@RequestBody @Valid BaseFilePageSelfDTO dto) {
         return R.okData(baseService.myPageSelf(dto));
     }
 
