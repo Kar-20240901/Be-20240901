@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -64,8 +65,9 @@ public class BaseFileController {
 
     @Operation(summary = "下载文件：私有")
     @PostMapping("/privateDownload")
-    public void privateDownload(@RequestBody @Valid NotNullId notNullId, HttpServletResponse response) {
-        baseService.privateDownload(notNullId, response);
+    public void privateDownload(@RequestBody @Valid NotNullId notNullId, HttpServletResponse response,
+        HttpServletRequest request) {
+        baseService.privateDownload(notNullId, response, request);
     }
 
     @Operation(summary = "批量删除文件：公有和私有，文件和文件夹")

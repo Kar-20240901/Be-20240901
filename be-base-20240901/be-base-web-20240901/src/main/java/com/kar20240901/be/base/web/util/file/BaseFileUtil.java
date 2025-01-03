@@ -6,6 +6,7 @@ import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.io.file.FileNameUtil;
 import cn.hutool.core.io.unit.DataSizeUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
@@ -20,6 +21,7 @@ import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.file.BaseFileStorageConfigurationMapper;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileComposeBO;
+import com.kar20240901.be.base.web.model.bo.file.BaseFilePrivateDownloadBO;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadBO;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadChunkBO;
 import com.kar20240901.be.base.web.model.configuration.file.IBaseFileRemove;
@@ -48,6 +50,7 @@ import com.kar20240901.be.base.web.model.enums.file.BaseFileUploadTypeEnum;
 import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileStorageType;
 import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileUploadType;
 import com.kar20240901.be.base.web.model.vo.base.R;
+import com.kar20240901.be.base.web.model.vo.file.BaseFilePrivateDownloadVO;
 import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkPreVO;
 import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkVO;
 import com.kar20240901.be.base.web.service.file.BaseFileAuthService;
@@ -795,27 +798,8 @@ public class BaseFileUtil {
 
             });
 
-            // 验证文件签名
-            InputStream inputStream =
-                iBaseFileStorage.download(baseFileTransferDO.getBucketName(), baseFileTransferDO.getUri(),
-                    baseFileStorageConfigurationDO);
-
-            byte[] bytes = IoUtil.readBytes(inputStream);
-
-            String fileSignCheck = MD5.create().digestHex(bytes);
-
-            IoUtil.close(inputStream);
-
-            if (!fileSignCheck.equals(baseFileTransferDO.getFileSign())) {
-
-                // 更新传输状态
-                baseFileTransferService.lambdaUpdate().eq(BaseFileTransferDO::getId, transferId)
-                    .set(BaseFileTransferDO::getStatus, BaseFileTransferStatusEnum.TRANSFER_CANCEL)
-                    .set(TempEntityNoIdSuper::getUpdateTime, date).update();
-
-                R.error("操作失败：文件签名不匹配，请重新上传", transferId);
-
-            }
+            // 验证：文件签名
+            checkFileSign(transferId, iBaseFileStorage, baseFileTransferDO, baseFileStorageConfigurationDO, date);
 
             // 更新传输状态
             baseFileTransferService.lambdaUpdate().eq(BaseFileTransferDO::getId, transferId)
@@ -829,6 +813,37 @@ public class BaseFileUtil {
             return TempBizCodeEnum.OK;
 
         });
+
+    }
+
+    /**
+     * 验证：文件签名
+     */
+    public static void checkFileSign(Long transferId, IBaseFileStorage iBaseFileStorage,
+        BaseFileTransferDO baseFileTransferDO, BaseFileStorageConfigurationDO baseFileStorageConfigurationDO,
+        Date date) {
+
+        // 验证文件签名
+        InputStream inputStream =
+            iBaseFileStorage.download(baseFileTransferDO.getBucketName(), baseFileTransferDO.getUri(),
+                baseFileStorageConfigurationDO, null);
+
+        byte[] bytes = IoUtil.readBytes(inputStream);
+
+        String fileSignCheck = MD5.create().digestHex(bytes);
+
+        IoUtil.close(inputStream);
+
+        if (!fileSignCheck.equals(baseFileTransferDO.getFileSign())) {
+
+            // 更新传输状态
+            baseFileTransferService.lambdaUpdate().eq(BaseFileTransferDO::getId, transferId)
+                .set(BaseFileTransferDO::getStatus, BaseFileTransferStatusEnum.TRANSFER_CANCEL)
+                .set(TempEntityNoIdSuper::getUpdateTime, date).update();
+
+            R.error("操作失败：文件签名不匹配，请重新上传", transferId);
+
+        }
 
     }
 
@@ -897,9 +912,11 @@ public class BaseFileUtil {
      * 下载文件：私有
      */
     @SneakyThrows
-    @Nullable
-    public static InputStream privateDownload(long fileId, @Nullable CallBack<String> fileNameCallBack) {
+    public static BaseFilePrivateDownloadVO privateDownload(BaseFilePrivateDownloadBO baseFilePrivateDownloadBO) {
 
+        Long fileId = baseFilePrivateDownloadBO.getFileId();
+
+        // 获取：BaseFileDO对象
         BaseFileDO baseFileDO = getPrivateDownloadBaseFile(fileId);
 
         if (BaseFileTypeEnum.FOLDER.equals(baseFileDO.getType())) {
@@ -930,7 +947,7 @@ public class BaseFileUtil {
 
         if (iBaseFileStorage == null) {
 
-            R.error("操作失败：文件存储位置不存在", baseFileDO.getStorageType());
+            R.error("操作失败：文件存储接口不存在", baseFileDO.getStorageType());
 
         }
 
@@ -946,20 +963,71 @@ public class BaseFileUtil {
 
         }
 
-        if (fileNameCallBack != null) {
+        // 设置：文件对象
+        baseFilePrivateDownloadBO.setBaseFileDO(baseFileDO);
 
-            fileNameCallBack.setValue(baseFileDO.getOriginFileName());
+        // 执行下载
+        InputStream inputStream =
+            iBaseFileStorage.download(baseFileDO.getBucketName(), baseFileDO.getUri(), baseFileStorageConfigurationDO,
+                baseFilePrivateDownloadBO);
 
-        }
+        BaseFilePrivateDownloadVO baseFilePrivateDownloadVO = new BaseFilePrivateDownloadVO();
 
-        return iBaseFileStorage.download(baseFileDO.getBucketName(), baseFileDO.getUri(),
-            baseFileStorageConfigurationDO);
+        baseFilePrivateDownloadVO.setInputStream(inputStream);
+
+        baseFilePrivateDownloadVO.setFileName(baseFileDO.getShowFileName());
+
+        // 处理：BaseFilePrivateDownloadVO对象
+        handleBaseFilePrivateDownloadVO(baseFilePrivateDownloadBO, baseFileDO, baseFilePrivateDownloadVO);
+
+        return baseFilePrivateDownloadVO;
 
     }
 
+    /**
+     * 处理：BaseFilePrivateDownloadVO对象
+     */
+    private static void handleBaseFilePrivateDownloadVO(BaseFilePrivateDownloadBO baseFilePrivateDownloadBO,
+        BaseFileDO baseFileDO, BaseFilePrivateDownloadVO baseFilePrivateDownloadVO) {
+
+        if (baseFilePrivateDownloadBO.getPre() != null && baseFilePrivateDownloadBO.getSuf() != null) {
+
+            StrBuilder strBuilder = StrBuilder.create();
+
+            strBuilder.append("bytes ").append(baseFilePrivateDownloadBO.getPre()).append("-")
+                .append(baseFilePrivateDownloadBO.getSuf()).append("/").append(baseFileDO.getFileSize());
+
+            baseFilePrivateDownloadVO.setContentRangeHeader(strBuilder.toString());
+
+        } else if (baseFilePrivateDownloadBO.getPre() != null) {
+
+            StrBuilder strBuilder = StrBuilder.create();
+
+            strBuilder.append("bytes ").append(baseFilePrivateDownloadBO.getPre()).append("-")
+                .append(baseFileDO.getFileSize()).append("/").append(baseFileDO.getFileSize());
+
+            baseFilePrivateDownloadVO.setContentRangeHeader(strBuilder.toString());
+
+        } else if (baseFilePrivateDownloadBO.getSuf() != null) {
+
+            StrBuilder strBuilder = StrBuilder.create();
+
+            strBuilder.append("bytes ").append(baseFileDO.getFileSize() - baseFilePrivateDownloadBO.getSuf())
+                .append("-").append(baseFileDO.getFileSize()).append("/").append(baseFileDO.getFileSize());
+
+            baseFilePrivateDownloadVO.setContentRangeHeader(strBuilder.toString());
+
+        }
+
+    }
+
+    /**
+     * 获取：BaseFileDO对象
+     */
     @NotNull
     private static BaseFileDO getPrivateDownloadBaseFile(long fileId) {
 
+        // 获取：查询对象
         BaseFileDO baseFileDO = getBaseFileBaseLambdaQuery().eq(TempEntity::getId, fileId).one();
 
         if (baseFileDO == null) {
@@ -970,13 +1038,12 @@ public class BaseFileUtil {
 
     }
 
+    /**
+     * 获取：查询对象
+     */
     private static LambdaQueryChainWrapper<BaseFileDO> getBaseFileBaseLambdaQuery() {
 
-        return baseFileService.lambdaQuery()
-            .select(BaseFileDO::getBucketName, BaseFileDO::getNewFileName, BaseFileDO::getPublicFlag,
-                BaseFileDO::getStorageType, BaseFileDO::getType, TempEntity::getId, BaseFileDO::getUri,
-                BaseFileDO::getStorageConfigurationId, BaseFileDO::getBelongId, BaseFileDO::getOriginFileName)
-            .eq(TempEntityNoId::getEnableFlag, true);
+        return baseFileService.lambdaQuery().eq(TempEntityNoId::getEnableFlag, true);
 
     }
 

@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.configuration.file;
 
 import com.kar20240901.be.base.web.model.bo.file.BaseFileComposeBO;
+import com.kar20240901.be.base.web.model.bo.file.BaseFilePrivateDownloadBO;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadChunkBO;
 import com.kar20240901.be.base.web.model.configuration.file.IBaseFileStorage;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
@@ -10,6 +11,7 @@ import com.kar20240901.be.base.web.util.file.BaseFileMinioUtil;
 import java.io.InputStream;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,8 +41,10 @@ public class BaseFileStorageMinioConfiguration implements IBaseFileStorage {
 
     @Override
     public InputStream download(String bucketName, String objectName,
-        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
-        return BaseFileMinioUtil.download(bucketName, objectName, baseFileStorageConfigurationDO);
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO,
+        @Nullable BaseFilePrivateDownloadBO baseFilePrivateDownloadBO) {
+        return BaseFileMinioUtil.download(bucketName, objectName, baseFileStorageConfigurationDO,
+            baseFilePrivateDownloadBO);
     }
 
     @Override

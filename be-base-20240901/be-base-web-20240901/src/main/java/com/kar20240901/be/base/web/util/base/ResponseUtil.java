@@ -115,6 +115,26 @@ public class ResponseUtil {
     }
 
     /**
+     * 支持范围下载
+     */
+    @SneakyThrows
+    public static void acceptRangeDownload(HttpServletResponse response) {
+
+        response.setHeader("Accept-Ranges", "bytes");
+
+    }
+
+    /**
+     * 范围下载
+     */
+    @SneakyThrows
+    public static void rangeDownload(HttpServletResponse response) {
+
+        response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+
+    }
+
+    /**
      * 把流复制给 response，然后返回给调用者
      */
     @SneakyThrows

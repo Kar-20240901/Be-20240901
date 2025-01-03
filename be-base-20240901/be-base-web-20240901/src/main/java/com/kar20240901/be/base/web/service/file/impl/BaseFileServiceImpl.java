@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -14,6 +15,7 @@ import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.file.BaseFileAuthMapper;
 import com.kar20240901.be.base.web.mapper.file.BaseFileMapper;
 import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
+import com.kar20240901.be.base.web.model.bo.file.BaseFilePrivateDownloadBO;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadBO;
 import com.kar20240901.be.base.web.model.constant.base.BaseConstant;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
@@ -38,6 +40,7 @@ import com.kar20240901.be.base.web.model.enums.file.BaseFileTypeEnum;
 import com.kar20240901.be.base.web.model.enums.file.BaseFileUploadTypeEnum;
 import com.kar20240901.be.base.web.model.vo.base.LongObjectMapVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
+import com.kar20240901.be.base.web.model.vo.file.BaseFilePrivateDownloadVO;
 import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkPreVO;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.util.base.CallBack;
@@ -57,6 +60,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -146,20 +150,86 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
      */
     @SneakyThrows
     @Override
-    public void privateDownload(NotNullId notNullId, HttpServletResponse response) {
+    public void privateDownload(NotNullId notNullId, HttpServletResponse response, HttpServletRequest request) {
 
-        CallBack<String> fileNameCallBack = new CallBack<>();
+        BaseFilePrivateDownloadBO baseFilePrivateDownloadBO = new BaseFilePrivateDownloadBO();
 
-        InputStream inputStream = BaseFileUtil.privateDownload(notNullId.getId(), fileNameCallBack);
+        baseFilePrivateDownloadBO.setFileId(notNullId.getId());
+
+        // 处理 baseFilePrivateDownloadBO对象
+        handleBaseFilePrivateDownloadBO(request, baseFilePrivateDownloadBO);
+
+        // 执行：下载
+        BaseFilePrivateDownloadVO baseFilePrivateDownloadVO = BaseFileUtil.privateDownload(baseFilePrivateDownloadBO);
+
+        InputStream inputStream = baseFilePrivateDownloadVO.getInputStream();
 
         if (inputStream == null) {
             R.errorMsg("操作失败：文件流获取失败");
         }
 
-        ResponseUtil.getOutputStream(response, fileNameCallBack.getValue());
+        // 支持范围下载
+        ResponseUtil.acceptRangeDownload(response);
+
+        if (StrUtil.isNotBlank(baseFilePrivateDownloadVO.getContentRangeHeader())) {
+
+            // 设置：响应码
+            ResponseUtil.rangeDownload(response);
+
+            response.setHeader("Content-Range", baseFilePrivateDownloadVO.getContentRangeHeader());
+
+        }
+
+        // 设置：文件名
+        ResponseUtil.getOutputStream(response, baseFilePrivateDownloadVO.getFileName());
 
         // 推送
         ResponseUtil.flush(response, inputStream);
+
+    }
+
+    /**
+     * 处理 baseFilePrivateDownloadBO对象
+     */
+    private static void handleBaseFilePrivateDownloadBO(HttpServletRequest request,
+        BaseFilePrivateDownloadBO baseFilePrivateDownloadBO) {
+
+        String rangeStr = request.getHeader("Range");
+
+        rangeStr = StrUtil.trim(rangeStr);
+
+        if (StrUtil.isBlank(rangeStr)) {
+            return;
+        }
+
+        String str = rangeStr.replace("bytes=", "");
+
+        List<String> groupList = StrUtil.split(str, ",");
+
+        // 暂时只支持下载一段
+        String range = groupList.get(0);
+
+        List<String> splitList = StrUtil.split(range, "-");
+
+        if (splitList.size() != 2) {
+            return;
+        }
+
+        String pre = splitList.get(0);
+
+        if (NumberUtil.isNumber(pre)) {
+
+            baseFilePrivateDownloadBO.setPre(Long.parseLong(pre));
+
+        }
+
+        String suf = splitList.get(1);
+
+        if (NumberUtil.isNumber(suf)) {
+
+            baseFilePrivateDownloadBO.setSuf(Long.parseLong(suf));
+
+        }
 
     }
 

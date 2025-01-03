@@ -12,6 +12,7 @@ import com.aliyun.oss.model.PartETag;
 import com.aliyun.oss.model.UploadPartRequest;
 import com.aliyun.oss.model.UploadPartResult;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileComposeBO;
+import com.kar20240901.be.base.web.model.bo.file.BaseFilePrivateDownloadBO;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadChunkBO;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
 import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkVO;
@@ -86,14 +87,36 @@ public class BaseFileAliYunUtil {
      * 下载文件
      */
     @SneakyThrows
-    @Nullable
     public static InputStream download(String bucketName, String objectName,
-        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO,
+        @Nullable BaseFilePrivateDownloadBO baseFilePrivateDownloadBO) {
 
         OSS oss = new OSSClientBuilder().build(baseFileStorageConfigurationDO.getUploadEndpoint(),
             baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey());
 
         GetObjectRequest getObjectRequest = new GetObjectRequest(bucketName, objectName);
+
+        if (baseFilePrivateDownloadBO != null) {
+
+            Long pre = baseFilePrivateDownloadBO.getPre();
+
+            Long suf = baseFilePrivateDownloadBO.getSuf();
+
+            if (pre != null && suf != null) {
+
+                getObjectRequest.setRange(pre, suf);
+
+            } else if (pre != null) {
+
+                getObjectRequest.setRange(pre, -1);
+
+            } else if (suf != null) {
+
+                getObjectRequest.setRange(-1, suf);
+
+            }
+
+        }
 
         return oss.getObject(getObjectRequest).getObjectContent();
 

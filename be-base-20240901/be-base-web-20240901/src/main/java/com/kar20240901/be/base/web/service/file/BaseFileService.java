@@ -18,6 +18,7 @@ import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadDTO;
 import com.kar20240901.be.base.web.model.vo.base.LongObjectMapVO;
 import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkPreVO;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public interface BaseFileService extends IService<BaseFileDO> {
@@ -30,7 +31,7 @@ public interface BaseFileService extends IService<BaseFileDO> {
 
     String uploadChunkCompose(BaseFileUploadChunkComposeDTO dto);
 
-    void privateDownload(NotNullId notNullId, HttpServletResponse response);
+    void privateDownload(NotNullId notNullId, HttpServletResponse response, HttpServletRequest request);
 
     String removeByFileIdSet(NotEmptyIdSet notEmptyIdSet, boolean checkBelongFlag);
 

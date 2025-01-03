@@ -5,6 +5,7 @@ import cn.hutool.core.io.IoUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileComposeBO;
+import com.kar20240901.be.base.web.model.bo.file.BaseFilePrivateDownloadBO;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
 import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkVO;
 import io.minio.ComposeObjectArgs;
@@ -12,6 +13,7 @@ import io.minio.ComposeSource;
 import io.minio.CopyObjectArgs;
 import io.minio.CopySource;
 import io.minio.GetObjectArgs;
+import io.minio.GetObjectArgs.Builder;
 import io.minio.MinioClient;
 import io.minio.ObjectWriteArgs;
 import io.minio.PutObjectArgs;
@@ -62,15 +64,44 @@ public class BaseFileMinioUtil {
      * 下载文件
      */
     @SneakyThrows
-    @Nullable
     public static InputStream download(String bucketName, String objectName,
-        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO,
+        @Nullable BaseFilePrivateDownloadBO baseFilePrivateDownloadBO) {
 
         MinioClient minioClient = MinioClient.builder().endpoint(baseFileStorageConfigurationDO.getUploadEndpoint())
             .credentials(baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey())
             .build();
 
-        return minioClient.getObject(GetObjectArgs.builder().bucket(bucketName).object(objectName).build());
+        Builder builder = GetObjectArgs.builder().bucket(bucketName).object(objectName);
+
+        if (baseFilePrivateDownloadBO != null) {
+
+            Long pre = baseFilePrivateDownloadBO.getPre();
+
+            Long suf = baseFilePrivateDownloadBO.getSuf();
+
+            if (pre != null && suf != null) {
+
+                builder.offset(pre);
+
+                builder.length(suf);
+
+            } else if (pre != null) {
+
+                builder.offset(pre);
+
+            } else if (suf != null) {
+
+                Long fileSize = baseFilePrivateDownloadBO.getBaseFileDO().getFileSize();
+
+                builder.offset(fileSize - suf);
+                builder.length(suf);
+
+            }
+
+        }
+
+        return minioClient.getObject(builder.build());
 
     }
 

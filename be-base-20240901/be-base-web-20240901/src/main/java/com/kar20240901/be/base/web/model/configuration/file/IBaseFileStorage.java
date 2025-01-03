@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.model.configuration.file;
 
 import com.kar20240901.be.base.web.model.bo.file.BaseFileComposeBO;
+import com.kar20240901.be.base.web.model.bo.file.BaseFilePrivateDownloadBO;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadChunkBO;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
 import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileStorageType;
@@ -8,6 +9,7 @@ import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkVO;
 import java.io.InputStream;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface IBaseFileStorage {
@@ -34,7 +36,8 @@ public interface IBaseFileStorage {
      * 下载文件
      */
     InputStream download(String bucketName, String objectName,
-        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO);
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO,
+        @Nullable BaseFilePrivateDownloadBO baseFilePrivateDownloadBO);
 
     /**
      * 复制文件
