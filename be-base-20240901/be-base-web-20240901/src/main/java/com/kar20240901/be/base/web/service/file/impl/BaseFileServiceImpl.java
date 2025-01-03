@@ -44,6 +44,7 @@ import com.kar20240901.be.base.web.model.vo.file.BaseFilePrivateDownloadVO;
 import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkPreVO;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.util.base.CallBack;
+import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyStrUtil;
 import com.kar20240901.be.base.web.util.base.MyThreadUtil;
@@ -689,7 +690,9 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
             item.setUri(newUri);
 
-            item.setId(null);
+            Long id = IdGeneratorUtil.nextId();
+
+            item.setId(id);
             item.setCreateId(null);
             item.setCreateTime(null);
             item.setUpdateId(null);

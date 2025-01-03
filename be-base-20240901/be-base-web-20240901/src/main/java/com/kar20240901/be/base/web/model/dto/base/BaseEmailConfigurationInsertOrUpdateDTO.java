@@ -10,7 +10,6 @@ import lombok.Data;
 @Data
 public class BaseEmailConfigurationInsertOrUpdateDTO {
 
-    @NotBlank
     @Schema(description = "正文前缀")
     private String contentPre;
 
