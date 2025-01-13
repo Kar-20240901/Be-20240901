@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class BaseFileUploadChunkPreDTO extends BaseFileUploadDTO {
+public class BaseFileUploadFileSystemChunkPreDTO extends BaseFileUploadDTO {
 
     @NotBlank
     @Schema(description = "文件名")

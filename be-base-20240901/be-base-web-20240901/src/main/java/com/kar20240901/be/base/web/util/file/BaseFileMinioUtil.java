@@ -7,7 +7,7 @@ import cn.hutool.json.JSONUtil;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileComposeBO;
 import com.kar20240901.be.base.web.model.bo.file.BaseFilePrivateDownloadBO;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
-import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkVO;
+import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadFileSystemChunkVO;
 import io.minio.ComposeObjectArgs;
 import io.minio.ComposeSource;
 import io.minio.CopyObjectArgs;
@@ -42,7 +42,7 @@ public class BaseFileMinioUtil {
      * 上传文件 备注：objectName 相同会被覆盖掉
      */
     @SneakyThrows
-    public static BaseFileUploadChunkVO upload(String bucketName, String objectName, MultipartFile file,
+    public static BaseFileUploadFileSystemChunkVO upload(String bucketName, String objectName, MultipartFile file,
         BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
 
         InputStream inputStream = file.getInputStream();
@@ -56,7 +56,7 @@ public class BaseFileMinioUtil {
 
         IoUtil.close(inputStream);
 
-        return new BaseFileUploadChunkVO();
+        return new BaseFileUploadFileSystemChunkVO();
 
     }
 

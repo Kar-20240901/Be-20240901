@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-public class BaseFileUploadChunkVO {
+public class BaseFileUploadFileSystemChunkVO {
 
     @Schema(description = "阿里分片上传返回值")
     private PartETag partEtag;

@@ -9,14 +9,17 @@ import com.kar20240901.be.base.web.model.dto.file.BaseFileMoveSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUpdateSelfDTO;
-import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadChunkComposeDTO;
-import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadChunkDTO;
-import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadChunkPreDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadFileSystemChunkComposeDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadFileSystemChunkDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadFileSystemChunkPreDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadFileSystemDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadFileSystemPreDTO;
 import com.kar20240901.be.base.web.model.vo.base.LongObjectMapVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.file.BaseFilePageSelfVO;
-import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkPreVO;
+import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadFileSystemChunkPreVO;
+import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadFileSystemPreVO;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -45,22 +48,36 @@ public class BaseFileController {
         return R.okData(baseService.upload(dto));
     }
 
-    @Operation(summary = "上传分片文件-准备工作：公有和私有")
-    @PostMapping("/upload/chunk/pre")
-    public R<BaseFileUploadChunkPreVO> uploadChunkPre(@RequestBody @Valid BaseFileUploadChunkPreDTO dto) {
-        return R.okData(baseService.uploadChunkPre(dto));
+    @Operation(summary = "文件系统上传文件-准备工作：公有和私有")
+    @PostMapping("/upload/fileSystem/pre")
+    public R<BaseFileUploadFileSystemPreVO> uploadFileSystemPre(
+        @RequestBody @Valid BaseFileUploadFileSystemPreDTO dto) {
+        return R.okData(baseService.uploadFileSystemPre(dto));
     }
 
-    @Operation(summary = "上传分片文件：公有和私有")
-    @PostMapping("/upload/chunk")
-    public R<String> uploadChunk(BaseFileUploadChunkDTO dto) {
-        return R.okMsg(baseService.uploadChunk(dto));
+    @Operation(summary = "文件系统上传文件：公有和私有")
+    @PostMapping("/upload/fileSystem")
+    public R<Long> uploadFileSystem(BaseFileUploadFileSystemDTO dto) {
+        return R.okData(baseService.uploadFileSystem(dto));
     }
 
-    @Operation(summary = "上传分片文件-合并：公有和私有")
-    @PostMapping("/upload/chunk/compose")
-    public R<String> uploadChunkCompose(@RequestBody @Valid BaseFileUploadChunkComposeDTO dto) {
-        return R.okMsg(baseService.uploadChunkCompose(dto));
+    @Operation(summary = "文件系统上传分片文件-准备工作：公有和私有")
+    @PostMapping("/upload/fileSystem/chunk/pre")
+    public R<BaseFileUploadFileSystemChunkPreVO> uploadFileSystemChunkPre(
+        @RequestBody @Valid BaseFileUploadFileSystemChunkPreDTO dto) {
+        return R.okData(baseService.uploadFileSystemChunkPre(dto));
+    }
+
+    @Operation(summary = "文件系统上传分片文件：公有和私有")
+    @PostMapping("/upload/fileSystem/chunk")
+    public R<String> uploadFileSystemChunk(BaseFileUploadFileSystemChunkDTO dto) {
+        return R.okMsg(baseService.uploadFileSystemChunk(dto));
+    }
+
+    @Operation(summary = "文件系统上传分片文件-合并：公有和私有")
+    @PostMapping("/upload/fileSystem/chunk/compose")
+    public R<String> uploadFileSystemChunkCompose(@RequestBody @Valid BaseFileUploadFileSystemChunkComposeDTO dto) {
+        return R.okMsg(baseService.uploadFileSystemChunkCompose(dto));
     }
 
     @Operation(summary = "下载文件：私有")

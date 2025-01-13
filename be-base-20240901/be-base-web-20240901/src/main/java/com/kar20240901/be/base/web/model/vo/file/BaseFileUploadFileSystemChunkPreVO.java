@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-public class BaseFileUploadChunkPreVO {
+public class BaseFileUploadFileSystemChunkPreVO {
 
     @Schema(description = "文件主键id")
     private Long fileId;

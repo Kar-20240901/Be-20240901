@@ -31,10 +31,12 @@ import com.kar20240901.be.base.web.model.dto.file.BaseFileMoveSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUpdateSelfDTO;
-import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadChunkComposeDTO;
-import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadChunkDTO;
-import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadChunkPreDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadFileSystemChunkComposeDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadFileSystemChunkDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadFileSystemChunkPreDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadFileSystemDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadFileSystemPreDTO;
 import com.kar20240901.be.base.web.model.enums.file.BaseFileStorageTypeEnum;
 import com.kar20240901.be.base.web.model.enums.file.BaseFileTypeEnum;
 import com.kar20240901.be.base.web.model.enums.file.BaseFileUploadTypeEnum;
@@ -42,7 +44,8 @@ import com.kar20240901.be.base.web.model.vo.base.LongObjectMapVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.file.BaseFilePageSelfVO;
 import com.kar20240901.be.base.web.model.vo.file.BaseFilePrivateDownloadVO;
-import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkPreVO;
+import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadFileSystemChunkPreVO;
+import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadFileSystemPreVO;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.util.base.CallBack;
 import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
@@ -111,39 +114,66 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
     }
 
     /**
-     * 上传分片文件-准备工作：公有和私有
+     * 文件系统上传文件-准备工作：公有和私有
      */
     @Override
-    public BaseFileUploadChunkPreVO uploadChunkPre(BaseFileUploadChunkPreDTO dto) {
+    public BaseFileUploadFileSystemPreVO uploadFileSystemPre(BaseFileUploadFileSystemPreDTO dto) {
 
         dto.setFile(MultipartFileUtil.getByFileNameAndFileSize(dto.getFileName(), dto.getFileSize()));
 
         // 获取：BaseFileUploadBO对象
         BaseFileUploadBO baseFileUploadBO = getBaseFileUploadBoByDTO(dto);
 
-        return BaseFileUtil.uploadChunkPre(dto, baseFileUploadBO);
+        return BaseFileUtil.uploadFileSystemPre(dto, baseFileUploadBO);
 
     }
 
     /**
-     * 上传分片文件：公有和私有
+     * 文件系统上传文件：公有和私有
      */
     @Override
-    public String uploadChunk(BaseFileUploadChunkDTO dto) {
+    public Long uploadFileSystem(BaseFileUploadFileSystemDTO dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        return BaseFileUtil.uploadChunk(dto, currentUserId);
+        return BaseFileUtil.uploadFileSystem(dto, currentUserId);
 
     }
 
     /**
-     * 上传分片文件-合并：公有和私有
+     * 文件系统上传分片文件-准备工作：公有和私有
      */
     @Override
-    public String uploadChunkCompose(BaseFileUploadChunkComposeDTO dto) {
+    public BaseFileUploadFileSystemChunkPreVO uploadFileSystemChunkPre(BaseFileUploadFileSystemChunkPreDTO dto) {
 
-        return BaseFileUtil.uploadChunkCompose(dto.getTransferId());
+        dto.setFile(MultipartFileUtil.getByFileNameAndFileSize(dto.getFileName(), dto.getFileSize()));
+
+        // 获取：BaseFileUploadBO对象
+        BaseFileUploadBO baseFileUploadBO = getBaseFileUploadBoByDTO(dto);
+
+        return BaseFileUtil.uploadFileSystemChunkPre(dto, baseFileUploadBO);
+
+    }
+
+    /**
+     * 文件系统上传分片文件：公有和私有
+     */
+    @Override
+    public String uploadFileSystemChunk(BaseFileUploadFileSystemChunkDTO dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        return BaseFileUtil.uploadFileSystemChunk(dto, currentUserId);
+
+    }
+
+    /**
+     * 文件系统上传分片文件-合并：公有和私有
+     */
+    @Override
+    public String uploadFileSystemChunkCompose(BaseFileUploadFileSystemChunkComposeDTO dto) {
+
+        return BaseFileUtil.uploadFileSystemChunkCompose(dto.getTransferId());
 
     }
 

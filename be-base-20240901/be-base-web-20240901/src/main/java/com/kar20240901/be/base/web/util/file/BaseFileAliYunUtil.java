@@ -15,7 +15,7 @@ import com.kar20240901.be.base.web.model.bo.file.BaseFileComposeBO;
 import com.kar20240901.be.base.web.model.bo.file.BaseFilePrivateDownloadBO;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadChunkBO;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
-import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkVO;
+import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadFileSystemChunkVO;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +53,7 @@ public class BaseFileAliYunUtil {
      * 分片上传文件 备注：objectName 相同会被覆盖掉
      */
     @SneakyThrows
-    public static BaseFileUploadChunkVO uploadChunk(String bucketName, String objectName, MultipartFile file,
+    public static BaseFileUploadFileSystemChunkVO uploadChunk(String bucketName, String objectName, MultipartFile file,
         BaseFileStorageConfigurationDO baseFileStorageConfigurationDO, BaseFileUploadChunkBO baseFileUploadChunkBO) {
 
         InputStream inputStream = file.getInputStream();
@@ -75,11 +75,11 @@ public class BaseFileAliYunUtil {
 
         UploadPartResult uploadPartResult = oss.uploadPart(uploadPartRequest);
 
-        BaseFileUploadChunkVO baseFileUploadChunkVO = new BaseFileUploadChunkVO();
+        BaseFileUploadFileSystemChunkVO baseFileUploadFileSystemChunkVO = new BaseFileUploadFileSystemChunkVO();
 
-        baseFileUploadChunkVO.setPartEtag(uploadPartResult.getPartETag());
+        baseFileUploadFileSystemChunkVO.setPartEtag(uploadPartResult.getPartETag());
 
-        return baseFileUploadChunkVO;
+        return baseFileUploadFileSystemChunkVO;
 
     }
 

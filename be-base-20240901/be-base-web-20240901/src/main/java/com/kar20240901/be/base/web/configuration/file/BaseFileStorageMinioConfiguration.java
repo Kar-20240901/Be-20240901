@@ -6,7 +6,7 @@ import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadChunkBO;
 import com.kar20240901.be.base.web.model.configuration.file.IBaseFileStorage;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
 import com.kar20240901.be.base.web.model.enums.file.BaseFileStorageTypeEnum;
-import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkVO;
+import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadFileSystemChunkVO;
 import com.kar20240901.be.base.web.util.file.BaseFileMinioUtil;
 import java.io.InputStream;
 import java.util.Set;
@@ -33,7 +33,7 @@ public class BaseFileStorageMinioConfiguration implements IBaseFileStorage {
     }
 
     @Override
-    public BaseFileUploadChunkVO uploadChunk(String bucketName, String objectName, MultipartFile file,
+    public BaseFileUploadFileSystemChunkVO uploadChunk(String bucketName, String objectName, MultipartFile file,
         @NotNull BaseFileStorageConfigurationDO baseFileStorageConfigurationDO,
         BaseFileUploadChunkBO baseFileUploadChunkBO) {
         return BaseFileMinioUtil.upload(bucketName, objectName, file, baseFileStorageConfigurationDO);

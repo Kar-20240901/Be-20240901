@@ -10,13 +10,16 @@ import com.kar20240901.be.base.web.model.dto.file.BaseFileMoveSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUpdateSelfDTO;
-import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadChunkComposeDTO;
-import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadChunkDTO;
-import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadChunkPreDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadFileSystemChunkComposeDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadFileSystemChunkDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadFileSystemChunkPreDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadFileSystemDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadFileSystemPreDTO;
 import com.kar20240901.be.base.web.model.vo.base.LongObjectMapVO;
 import com.kar20240901.be.base.web.model.vo.file.BaseFilePageSelfVO;
-import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadChunkPreVO;
+import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadFileSystemChunkPreVO;
+import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadFileSystemPreVO;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,11 +28,15 @@ public interface BaseFileService extends IService<BaseFileDO> {
 
     Long upload(BaseFileUploadDTO dto);
 
-    BaseFileUploadChunkPreVO uploadChunkPre(BaseFileUploadChunkPreDTO dto);
+    BaseFileUploadFileSystemPreVO uploadFileSystemPre(BaseFileUploadFileSystemPreDTO dto);
 
-    String uploadChunk(BaseFileUploadChunkDTO dto);
+    Long uploadFileSystem(BaseFileUploadFileSystemDTO dto);
 
-    String uploadChunkCompose(BaseFileUploadChunkComposeDTO dto);
+    BaseFileUploadFileSystemChunkPreVO uploadFileSystemChunkPre(BaseFileUploadFileSystemChunkPreDTO dto);
+
+    String uploadFileSystemChunk(BaseFileUploadFileSystemChunkDTO dto);
+
+    String uploadFileSystemChunkCompose(BaseFileUploadFileSystemChunkComposeDTO dto);
 
     void privateDownload(NotNullId notNullId, HttpServletResponse response, HttpServletRequest request);
 
