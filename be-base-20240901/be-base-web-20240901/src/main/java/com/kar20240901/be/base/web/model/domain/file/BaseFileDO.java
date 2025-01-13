@@ -93,7 +93,7 @@ public class BaseFileDO extends TempEntityTree<BaseFileDO> {
     private Long refId;
 
     @TableField(
-        value = "(CASE WHEN type = 101 THEN NULL WHEN type = 201 THEN (SELECT SUM(file_size) FROM base_file subA WHERE subA.pid_path_str LIKE CONCAT('%|', base_file.id, '|%')) ELSE 0 END)",
+        value = "(CASE WHEN type = 101 THEN NULL WHEN type = 201 THEN (SELECT SUM(COALESCE(file_size,0)) FROM base_file subA WHERE subA.pid_path_str LIKE CONCAT('%|', base_file.id, '|%')) ELSE NULL END)",
         insertStrategy = FieldStrategy.NEVER, updateStrategy = FieldStrategy.NEVER, select = false)
     @Schema(description = "文件夹大小")
     private Long folderSize;
