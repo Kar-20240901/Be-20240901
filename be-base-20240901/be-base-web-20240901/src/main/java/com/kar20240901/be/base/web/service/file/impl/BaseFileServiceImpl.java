@@ -352,7 +352,8 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
             .eq(dto.getPid() != null, BaseFileDO::getPid, dto.getPid()) //
             .eq(dto.getType() != null, BaseFileDO::getType, dto.getType()) //
             .eq(BaseFileDO::getUploadType, BaseFileUploadTypeEnum.FILE_SYSTEM) //
-            .select(true, getMyPageSelectList(folderSizeFlag, treeFlag)).page(dto.createTimeDescDefaultOrderPage());
+            .select(true, getMyPageSelectList(folderSizeFlag, treeFlag, true))
+            .page(dto.createTimeDescDefaultOrderPage());
 
         // 后续处理
         myPageSuf(dto.getPid(), pidPathStrFlag, baseFilePageSelfVO);
@@ -450,7 +451,8 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
      *
      * @param folderSizeFlag 是否增加：文件夹大小的查询字段
      */
-    private static ArrayList<SFunction<BaseFileDO, ?>> getMyPageSelectList(boolean folderSizeFlag, boolean treeFlag) {
+    private static ArrayList<SFunction<BaseFileDO, ?>> getMyPageSelectList(boolean folderSizeFlag, boolean treeFlag,
+        boolean uploadFlag) {
 
         if (treeFlag) {
 
@@ -465,6 +467,12 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         if (folderSizeFlag) {
 
             arrayList.add(BaseFileDO::getFolderSize);
+
+        }
+
+        if (uploadFlag) {
+
+            arrayList.add(BaseFileDO::getUploadFlag);
 
         }
 
@@ -504,7 +512,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         MyThreadUtil.execute(() -> {
 
-            Page<BaseFileDO> page = lambdaQuery().select(true, getMyPageSelectList(false, true))
+            Page<BaseFileDO> page = lambdaQuery().select(true, getMyPageSelectList(false, true, false))
                 .eq(BaseFileDO::getUploadType, BaseFileUploadTypeEnum.FILE_SYSTEM)
                 .page(dto.createTimeDescDefaultOrderPage());
 

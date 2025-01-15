@@ -697,7 +697,7 @@ public class BaseFileUtil {
             }
 
             // 获取：uuid文件名
-            String newFileName = getNewFileName(FileUtil.extName(dto.getFile().getOriginalFilename()), null);
+            String newFileName = baseFileDO.getNewFileName();
 
             // 获取：存储方式的配置
             BaseFileStorageConfigurationDO baseFileStorageConfigurationDO =
