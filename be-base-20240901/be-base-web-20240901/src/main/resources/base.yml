@@ -8,4 +8,3 @@ notLogTopicSet:
   - com.kar20240901.be.base.web.mapper.request.BaseRequestInfoMapper.insert
   - com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper.updateById
   - com.kar20240901.be.base.web.mapper.socket.BaseSocketRefUserMapper.insert
-  - com.kar20240901.be.base.web.mapper.wallet.BaseUserWalletMapper.selectList

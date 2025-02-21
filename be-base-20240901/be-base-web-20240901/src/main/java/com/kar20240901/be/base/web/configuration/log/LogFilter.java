@@ -6,6 +6,7 @@ import ch.qos.logback.core.spi.FilterReply;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.io.watch.WatchMonitor;
 import cn.hutool.core.io.watch.Watcher;
 import cn.hutool.json.JSONUtil;
@@ -27,6 +28,7 @@ public class LogFilter extends Filter<ILoggingEvent> {
 
         try {
 
+            // 初始化 baseProperties
             initBaseProperties();
 
         } catch (Exception e) {
@@ -37,10 +39,15 @@ public class LogFilter extends Filter<ILoggingEvent> {
 
     }
 
+    /**
+     * 初始化 baseProperties
+     */
     private static void initBaseProperties() {
 
-        File file = FileUtil.touch("/home/conf/base.yml");
+        // 获取：文件对象
+        File file = getFile();
 
+        // 处理
         handle(file, "初始化");
 
         WatchMonitor.createAll(file, new Watcher() {
@@ -78,6 +85,33 @@ public class LogFilter extends Filter<ILoggingEvent> {
     }
 
     /**
+     * 获取：文件对象
+     */
+    private static File getFile() {
+
+        File file = FileUtil.newFile("/home/conf/base.yml");
+
+        if (FileUtil.exist(file)) {
+
+            return file;
+
+        }
+
+        String userDirStr = System.getProperty("user.dir");// 例如：D:\GitHub\Be-20240901
+
+        File newFile = FileUtil.newFile(userDirStr + "/conf/base.yml");
+
+        if (FileUtil.exist(newFile)) {
+
+            file = newFile;
+
+        }
+
+        return file;
+
+    }
+
+    /**
      * 处理
      */
     private static synchronized void handle(File file, String type) {
@@ -95,6 +129,14 @@ public class LogFilter extends Filter<ILoggingEvent> {
                 e.printStackTrace();
 
             }
+
+        } else {
+
+            str = ResourceUtil.readUtf8Str("base.yml");
+
+            FileUtil.touch(file);
+
+            FileUtil.writeUtf8String(str, file);
 
         }
 
