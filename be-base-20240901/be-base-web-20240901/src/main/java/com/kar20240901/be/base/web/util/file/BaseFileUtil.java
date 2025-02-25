@@ -198,7 +198,7 @@ public class BaseFileUtil {
         baseFileTransferDO.setFileSize(baseFileDO.getFileSize());
         baseFileTransferDO.setStatus(BaseFileTransferStatusEnum.TRANSFER_IN);
         baseFileTransferDO.setFileSign("");
-        baseFileTransferDO.setChunkSize(0L);
+        baseFileTransferDO.setChunkSize(0);
         baseFileTransferDO.setChunkTotal(0);
 
         baseFileTransferDO.setBucketName(baseFileDO.getBucketName());
@@ -590,7 +590,7 @@ public class BaseFileUtil {
 
         Long fileSize = dto.getFileSize();
 
-        Long chunkSize = LogFilter.baseProperties.getFileChunkSize();
+        Integer chunkSize = LogFilter.baseProperties.getFileChunkSize();
 
         // 分片总个数
         int chunkTotal =
@@ -635,7 +635,7 @@ public class BaseFileUtil {
      * 存储传输信息
      */
     private static void saveBaseFileTransferForUploadChunkPre(BaseFileUploadFileSystemChunkPreDTO dto,
-        BaseFileUploadBO bo, BaseFileDO baseFileDO, Long transferId, Long chunkSize, int chunkTotal) {
+        BaseFileUploadBO bo, BaseFileDO baseFileDO, Long transferId, Integer chunkSize, int chunkTotal) {
 
         BaseFileTransferDO baseFileTransferDO = new BaseFileTransferDO();
 
@@ -828,11 +828,11 @@ public class BaseFileUtil {
 
         Integer chunkNum = dto.getChunkNum();
 
-        Long chunkSize = baseFileTransferDO.getChunkSize();
+        Integer chunkSize = baseFileTransferDO.getChunkSize();
 
         long fileSize = dto.getFile().getSize();
 
-        long chunkBeginNum = chunkSize * (chunkNum - 1);
+        long chunkBeginNum = (long)chunkSize * (chunkNum - 1);
 
         long chunkEndNum = chunkBeginNum + fileSize - 1;
 

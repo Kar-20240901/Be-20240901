@@ -506,6 +506,8 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         dto.setPageSize(-1); // 不分页
 
+        dto.setGlobalFlag(true); // 防止只查询顶层
+
         CountDownLatch countDownLatch = ThreadUtil.newCountDownLatch(1);
 
         CallBack<List<BaseFileDO>> allListCallBack = new CallBack<>();

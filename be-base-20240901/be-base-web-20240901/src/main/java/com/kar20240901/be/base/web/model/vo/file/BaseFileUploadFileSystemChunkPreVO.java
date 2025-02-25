@@ -10,7 +10,7 @@ public class BaseFileUploadFileSystemChunkPreVO {
     private Long fileId;
 
     @Schema(description = "每个分片的大小")
-    private Long chunkSize;
+    private Integer chunkSize;
 
     @Schema(description = "总分片个数")
     private Integer chunkTotal;
