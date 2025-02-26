@@ -946,6 +946,10 @@ public class BaseFileUtil {
             // 验证：文件签名
             checkFileSign(transferId, iBaseFileStorage, baseFileTransferDO, baseFileStorageConfigurationDO, date);
 
+            // 删除分片文件
+            iBaseFileStorage.remove(baseFileTransferDO.getBucketName(),
+                new HashSet<>(baseFileComposeBO.getObjectNameList()), baseFileStorageConfigurationDO);
+
             // 更新传输状态
             baseFileTransferService.lambdaUpdate().eq(BaseFileTransferDO::getId, transferId)
                 .set(BaseFileTransferDO::getStatus, BaseFileTransferStatusEnum.COMPOSE_COMPLETE)
@@ -995,8 +999,8 @@ public class BaseFileUtil {
     /**
      * 获取：BaseFileComposeBO对象
      */
-    private static BaseFileComposeBO getBaseFileComposeBO(Long transferId,
-        BaseFileTransferDO baseFileTransferDO, List<BaseFileTransferChunkDO> baseFileTransferChunkDOList) {
+    private static BaseFileComposeBO getBaseFileComposeBO(Long transferId, BaseFileTransferDO baseFileTransferDO,
+        List<BaseFileTransferChunkDO> baseFileTransferChunkDOList) {
 
         BaseFileComposeBO baseFileComposeBO = new BaseFileComposeBO();
 
