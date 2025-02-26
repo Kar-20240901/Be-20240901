@@ -76,6 +76,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -230,6 +231,33 @@ public class BaseFileUtil {
         baseFileAuthDO.setRemark("");
 
         baseFileAuthService.save(baseFileAuthDO);
+
+    }
+
+    /**
+     * 设置文件权限
+     */
+    public static void saveBatchFileAuth(Long userId, Collection<Long> fileIdColl) {
+
+        List<BaseFileAuthDO> baseFileAuthDoList = new ArrayList<>();
+
+        for (Long item : fileIdColl) {
+
+            BaseFileAuthDO baseFileAuthDO = new BaseFileAuthDO();
+
+            baseFileAuthDO.setFileId(item);
+            baseFileAuthDO.setUserId(userId);
+            baseFileAuthDO.setReadFlag(true);
+            baseFileAuthDO.setWriteFlag(true);
+            baseFileAuthDO.setEnableFlag(true);
+
+            baseFileAuthDO.setRemark("");
+
+            baseFileAuthDoList.add(baseFileAuthDO);
+
+        }
+
+        baseFileAuthService.saveBatch(baseFileAuthDoList);
 
     }
 

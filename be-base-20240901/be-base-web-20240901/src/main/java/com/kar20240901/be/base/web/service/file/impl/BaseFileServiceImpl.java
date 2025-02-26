@@ -652,6 +652,9 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         save(baseFileDO);
 
+        // 设置权限
+        BaseFileUtil.saveFileAuth(userId, baseFileDO);
+
         return TempBizCodeEnum.OK;
 
     }
@@ -720,19 +723,28 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
                     .eq(BaseFileAuthDO::getWriteFlag, true).exists();
 
             if (!exists) {
-                return TempBizCodeEnum.OK;
+                R.error(TempBizCodeEnum.INSUFFICIENT_PERMISSIONS);
+            }
+
+            Long count =
+                ChainWrappers.lambdaQueryChain(baseFileAuthMapper).in(BaseFileAuthDO::getFileId, dto.getIdSet())
+                    .eq(BaseFileAuthDO::getReadFlag, true).eq(BaseFileAuthDO::getUserId, currentUserId).count();
+
+            if (count != dto.getIdSet().size()) {
+                R.error(TempBizCodeEnum.INSUFFICIENT_PERMISSIONS);
             }
 
         }
 
-        List<BaseFileDO> baseFileDoList = lambdaQuery().in(TempEntity::getId, dto.getIdSet())
-            .eq(!MyUserUtil.getCurrentUserAdminFlag(currentUserId), BaseFileDO::getBelongId, currentUserId).list();
+        List<BaseFileDO> baseFileDoList = lambdaQuery().in(TempEntity::getId, dto.getIdSet()).list();
 
         if (CollUtil.isEmpty(baseFileDoList)) {
             return TempBizCodeEnum.OK;
         }
 
         String pidPathStr = BaseFileUtil.getPidPathStr(dto.getPid());
+
+        List<Long> fileIdList = new ArrayList<>();
 
         for (BaseFileDO item : baseFileDoList) {
 
@@ -770,12 +782,17 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
             item.setUpdateId(null);
             item.setUpdateTime(null);
 
+            fileIdList.add(id);
+
         }
 
         // 复制文件
         BaseFileUtil.copyBaseFileStorage(baseFileDoList);
 
         saveBatch(baseFileDoList);
+
+        // 设置权限
+        BaseFileUtil.saveBatchFileAuth(currentUserId, fileIdList);
 
         return TempBizCodeEnum.OK;
 
