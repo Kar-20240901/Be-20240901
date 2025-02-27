@@ -101,7 +101,4 @@ public class BaseFileDO extends TempEntityTree<BaseFileDO> {
     @Schema(description = "是否还在上传中，目的：无法操作")
     private Boolean uploadFlag;
 
-    @Schema(description = "关联的文件主键 id")
-    private Long refFileId;
-
 }
