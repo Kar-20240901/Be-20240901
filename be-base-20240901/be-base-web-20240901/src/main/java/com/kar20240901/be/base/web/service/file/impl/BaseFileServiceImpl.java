@@ -20,6 +20,7 @@ import com.kar20240901.be.base.web.model.constant.base.BaseConstant;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
+import com.kar20240901.be.base.web.model.domain.base.TempEntityNoIdSuper;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
@@ -61,6 +62,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
@@ -735,6 +737,15 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
             return TempBizCodeEnum.OK;
         }
 
+        Set<Long> fileIdSet = baseFileDoList.stream().map(BaseFileDO::getId).collect(Collectors.toSet());
+
+        List<Long> folderIdList =
+            baseFileDoList.stream().filter(it -> BaseFileTypeEnum.FOLDER.equals(it.getType())).map(BaseFileDO::getId)
+                .collect(Collectors.toList());
+
+        // 深度查找-复制
+        copyDeepFind(folderIdList, fileIdSet, baseFileDoList);
+
         String pidPathStr = BaseFileUtil.getPidPathStr(dto.getPid());
 
         List<Long> fileIdList = new ArrayList<>();
@@ -788,6 +799,40 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         BaseFileUtil.saveBatchFileAuth(currentUserId, fileIdList);
 
         return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 深度查找-复制
+     */
+    private void copyDeepFind(List<Long> folderIdList, Set<Long> fileIdSet, List<BaseFileDO> baseFileDoList) {
+        if (CollUtil.isEmpty(folderIdList)) {
+            return;
+        }
+
+        for (Long item : folderIdList) {
+
+            List<BaseFileDO> tempBaseFileDoList =
+                lambdaQuery().like(BaseFileDO::getPid, SeparatorUtil.verticalLine(item))
+                    .orderByDesc(TempEntityNoIdSuper::getCreateTime).list();
+
+            if (CollUtil.isEmpty(tempBaseFileDoList)) {
+                continue;
+            }
+
+            for (BaseFileDO subItem : tempBaseFileDoList) {
+
+                if (!fileIdSet.contains(subItem.getId())) {
+
+                    fileIdSet.add(subItem.getId());
+
+                    baseFileDoList.add(subItem);
+
+                }
+
+            }
+
+        }
 
     }
 

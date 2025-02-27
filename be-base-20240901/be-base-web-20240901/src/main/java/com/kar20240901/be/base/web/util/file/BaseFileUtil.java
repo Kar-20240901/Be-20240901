@@ -1399,7 +1399,7 @@ public class BaseFileUtil {
 
         }
 
-        // 递归查找：folder下面的文件和文件夹
+        // 深度查找：folder下面的文件和文件夹
         for (BaseFileDO folder : folderList) {
 
             deepFindFolderAndFile(folder, removeFileIdSet, fileList);
@@ -1442,12 +1442,13 @@ public class BaseFileUtil {
     }
 
     /**
-     * 递归查找：folder下面的文件和文件夹
+     * 深度查找：folder下面的文件和文件夹
      */
     private static void deepFindFolderAndFile(BaseFileDO folder, Set<Long> removeFileIdSet, List<BaseFileDO> fileList) {
 
         List<BaseFileDO> baseFileDoList =
-            getRemoveLambdaQueryChainWrapper().eq(BaseFileDO::getPid, folder.getId()).list();
+            getRemoveLambdaQueryChainWrapper().like(BaseFileDO::getPid, SeparatorUtil.verticalLine(folder.getId()))
+                .list();
 
         if (CollUtil.isEmpty(baseFileDoList)) {
             return;
@@ -1463,11 +1464,7 @@ public class BaseFileUtil {
 
             }
 
-            if (BaseFileTypeEnum.FOLDER.equals(item.getType())) {
-
-                deepFindFolderAndFile(item, removeFileIdSet, fileList);
-
-            } else {
+            if (BaseFileTypeEnum.FILE.equals(item.getType())) {
 
                 if (!contains) {
 
