@@ -10,7 +10,6 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.file.BaseFileAuthMapper;
 import com.kar20240901.be.base.web.mapper.file.BaseFileMapper;
@@ -21,7 +20,6 @@ import com.kar20240901.be.base.web.model.constant.base.BaseConstant;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
-import com.kar20240901.be.base.web.model.domain.file.BaseFileAuthDO;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
@@ -60,6 +58,7 @@ import com.kar20240901.be.base.web.util.file.BaseFileUtil;
 import com.kar20240901.be.base.web.util.file.MultipartFileUtil;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -119,6 +118,9 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
     @Override
     public BaseFileUploadFileSystemPreVO uploadFileSystemPre(BaseFileUploadFileSystemPreDTO dto) {
 
+        // 检查权限
+        BaseFileUtil.checkAuth(CollUtil.newArrayList(dto.getPid()), null, 2);
+
         dto.setFile(MultipartFileUtil.getByFileNameAndFileSize(dto.getFileName(), dto.getFileSize()));
 
         // 获取：BaseFileUploadBO对象
@@ -145,6 +147,9 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
      */
     @Override
     public BaseFileUploadFileSystemChunkPreVO uploadFileSystemChunkPre(BaseFileUploadFileSystemChunkPreDTO dto) {
+
+        // 检查权限
+        BaseFileUtil.checkAuth(CollUtil.newArrayList(dto.getPid()), null, 2);
 
         dto.setFile(MultipartFileUtil.getByFileNameAndFileSize(dto.getFileName(), dto.getFileSize()));
 
@@ -461,8 +466,8 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         }
 
         ArrayList<SFunction<BaseFileDO, ?>> arrayList =
-            CollUtil.newArrayList(TempEntity::getId, TempEntityNoId::getCreateTime, BaseFileDO::getBelongId,
-                BaseFileDO::getFileSize, BaseFileDO::getShowFileName, BaseFileDO::getPid, BaseFileDO::getType);
+            CollUtil.newArrayList(TempEntity::getId, TempEntityNoId::getCreateTime, BaseFileDO::getFileSize,
+                BaseFileDO::getShowFileName, BaseFileDO::getPid, BaseFileDO::getType);
 
         if (folderSizeFlag) {
 
@@ -602,6 +607,11 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         Long userId = MyUserUtil.getCurrentUserId();
 
+        Long pid = MyEntityUtil.getNotNullPid(dto.getPid());
+
+        // 检查权限
+        BaseFileUtil.checkAuth(CollUtil.newArrayList(pid), userId, 2);
+
         BaseFileDO baseFileDO = new BaseFileDO();
 
         baseFileDO.setId(IdGeneratorUtil.nextId());
@@ -626,8 +636,6 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         baseFileDO.setStorageType(BaseFileStorageTypeEnum.EMPTY.getCode());
 
-        Long pid = MyEntityUtil.getNotNullPid(dto.getPid());
-
         baseFileDO.setPid(pid);
 
         baseFileDO.setType(BaseFileTypeEnum.FOLDER);
@@ -650,6 +658,10 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         baseFileDO.setPidPathStr(pidPathStr);
 
+        baseFileDO.setCreateId(userId);
+
+        baseFileDO.setUpdateId(userId);
+
         save(baseFileDO);
 
         // 设置权限
@@ -667,9 +679,11 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        lambdaUpdate().in(TempEntity::getId, dto.getIdSet())
-            .eq(!MyUserUtil.getCurrentUserAdminFlag(currentUserId), BaseFileDO::getBelongId, currentUserId)
-            .set(BaseFileDO::getShowFileName, dto.getFileName()).update();
+        // 检查权限
+        BaseFileUtil.checkAuth(dto.getIdSet(), currentUserId, 2);
+
+        lambdaUpdate().in(TempEntity::getId, dto.getIdSet()).set(BaseFileDO::getShowFileName, dto.getFileName())
+            .update();
 
         return TempBizCodeEnum.OK;
 
@@ -683,24 +697,17 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        if (!MyUserUtil.getCurrentUserAdminFlag(currentUserId)) {
+        HashSet<Long> idSet = new HashSet<>(dto.getIdSet());
 
-            boolean exists =
-                ChainWrappers.lambdaQueryChain(baseFileAuthMapper).eq(BaseFileAuthDO::getUserId, currentUserId)
-                    .eq(!TempConstant.TOP_PID.equals(dto.getPid()), BaseFileAuthDO::getFileId, dto.getPid())
-                    .eq(BaseFileAuthDO::getWriteFlag, true).exists();
+        idSet.add(dto.getPid());
 
-            if (!exists) {
-                return TempBizCodeEnum.OK;
-            }
-
-        }
+        // 检查权限
+        BaseFileUtil.checkAuth(idSet, currentUserId, 2);
 
         String pidPathStr = BaseFileUtil.getPidPathStr(dto.getPid());
 
-        lambdaUpdate().in(TempEntity::getId, dto.getIdSet())
-            .eq(!MyUserUtil.getCurrentUserAdminFlag(currentUserId), BaseFileDO::getBelongId, currentUserId)
-            .set(BaseFileDO::getPid, dto.getPid()).set(BaseFileDO::getPidPathStr, pidPathStr).update();
+        lambdaUpdate().in(TempEntity::getId, dto.getIdSet()).set(BaseFileDO::getPid, dto.getPid())
+            .set(BaseFileDO::getPidPathStr, pidPathStr).update();
 
         return TempBizCodeEnum.OK;
 
@@ -715,26 +722,12 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        if (!MyUserUtil.getCurrentUserAdminFlag(currentUserId)) {
+        HashSet<Long> idSet = new HashSet<>(dto.getIdSet());
 
-            boolean exists =
-                ChainWrappers.lambdaQueryChain(baseFileAuthMapper).eq(BaseFileAuthDO::getUserId, currentUserId)
-                    .eq(!TempConstant.TOP_PID.equals(dto.getPid()), BaseFileAuthDO::getFileId, dto.getPid())
-                    .eq(BaseFileAuthDO::getWriteFlag, true).exists();
+        idSet.add(dto.getPid());
 
-            if (!exists) {
-                R.error(TempBizCodeEnum.INSUFFICIENT_PERMISSIONS);
-            }
-
-            Long count =
-                ChainWrappers.lambdaQueryChain(baseFileAuthMapper).in(BaseFileAuthDO::getFileId, dto.getIdSet())
-                    .eq(BaseFileAuthDO::getReadFlag, true).eq(BaseFileAuthDO::getUserId, currentUserId).count();
-
-            if (count != dto.getIdSet().size()) {
-                R.error(TempBizCodeEnum.INSUFFICIENT_PERMISSIONS);
-            }
-
-        }
+        // 检查权限
+        BaseFileUtil.checkAuth(idSet, currentUserId, 2);
 
         List<BaseFileDO> baseFileDoList = lambdaQuery().in(TempEntity::getId, dto.getIdSet()).list();
 

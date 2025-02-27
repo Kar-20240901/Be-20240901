@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 @Data
 public class BaseFilePageDTO extends BaseFilePageSelfDTO {
 
-    @Schema(description = "归属者用户主键 id（拥有全部权限）")
+    @Schema(description = "归属者用户主键 id，只用于删除操作")
     private Long belongId;
 
 }

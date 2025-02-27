@@ -23,7 +23,7 @@ public class BaseFileDO extends TempEntityTree<BaseFileDO> {
     @Schema(description = "主键 id")
     private Long id;
 
-    @Schema(description = "归属者用户主键 id（拥有全部权限）")
+    @Schema(description = "归属者用户主键 id，只用于删除操作")
     private Long belongId;
 
     @Schema(description = "桶名，例如：be-bucket")
@@ -100,5 +100,8 @@ public class BaseFileDO extends TempEntityTree<BaseFileDO> {
 
     @Schema(description = "是否还在上传中，目的：无法操作")
     private Boolean uploadFlag;
+
+    @Schema(description = "关联的文件主键 id")
+    private Long refFileId;
 
 }

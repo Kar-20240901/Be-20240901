@@ -537,6 +537,10 @@ public class BaseFileUtil {
 
         baseFileDO.setUploadFlag(false);
 
+        baseFileDO.setCreateId(bo.getUserId());
+
+        baseFileDO.setUpdateId(bo.getUserId());
+
         return baseFileDO;
 
     }
@@ -1086,6 +1090,62 @@ public class BaseFileUtil {
     }
 
     /**
+     * 检查权限
+     *
+     * @param checkType 1 读权限 2 写权限（默认）
+     */
+    public static void checkAuth(@Nullable Collection<Long> fileIdColl, @Nullable Long userId,
+        @Nullable Integer checkType) {
+
+        if (CollUtil.isEmpty(fileIdColl)) {
+            return;
+        }
+
+        CollUtil.removeNull(fileIdColl);
+
+        CollUtil.removeAny(fileIdColl, TempConstant.TOP_PID);
+
+        if (CollUtil.isEmpty(fileIdColl)) {
+            return;
+        }
+
+        if (userId == null) {
+
+            userId = MyUserUtil.getCurrentUserId();
+
+        }
+
+        if (MyUserUtil.getCurrentUserAdminFlag(userId)) {
+            return;
+        }
+
+        LambdaQueryChainWrapper<BaseFileAuthDO> lambdaQueryChainWrapper =
+            baseFileAuthService.lambdaQuery().eq(BaseFileAuthDO::getUserId, userId)
+                .in(BaseFileAuthDO::getFileId, fileIdColl).eq(TempEntityNoId::getEnableFlag, true);
+
+        checkType = MyEntityUtil.getNotNullInt(checkType, 2);
+
+        if (checkType == 1) {
+
+            lambdaQueryChainWrapper.eq(BaseFileAuthDO::getReadFlag, true);
+
+        } else {
+
+            lambdaQueryChainWrapper.eq(BaseFileAuthDO::getWriteFlag, true);
+
+        }
+
+        boolean exists = lambdaQueryChainWrapper.exists();
+
+        if (!exists) {
+
+            R.error(TempBizCodeEnum.INSUFFICIENT_PERMISSIONS);
+
+        }
+
+    }
+
+    /**
      * 下载文件：私有
      */
     @SneakyThrows
@@ -1102,21 +1162,8 @@ public class BaseFileUtil {
 
         if (BooleanUtil.isFalse(baseFileDO.getPublicFlag())) { // 如果：不是公开下载
 
-            Long currentUserId = MyUserUtil.getCurrentUserId();
-
-            // 检查：是否是该文件的拥有者
-            if (!currentUserId.equals(baseFileDO.getBelongId()) && !MyUserUtil.getCurrentUserAdminFlag(currentUserId)) {
-
-                // 检查：是否有可读权限
-                boolean exists = baseFileAuthService.lambdaQuery().eq(BaseFileAuthDO::getFileId, fileId)
-                    .eq(BaseFileAuthDO::getUserId, currentUserId).eq(BaseFileAuthDO::getReadFlag, true)
-                    .eq(TempEntityNoId::getEnableFlag, true).exists();
-
-                if (BooleanUtil.isFalse(exists)) {
-                    R.error(TempBizCodeEnum.INSUFFICIENT_PERMISSIONS);
-                }
-
-            }
+            // 检查权限
+            BaseFileUtil.checkAuth(CollUtil.newArrayList(fileId), null, 1);
 
         }
 
