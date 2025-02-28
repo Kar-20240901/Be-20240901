@@ -813,7 +813,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         for (Long item : folderIdList) {
 
             List<BaseFileDO> tempBaseFileDoList =
-                lambdaQuery().like(BaseFileDO::getPid, SeparatorUtil.verticalLine(item))
+                lambdaQuery().like(BaseFileDO::getPidPathStr, SeparatorUtil.verticalLine(item))
                     .orderByDesc(TempEntityNoIdSuper::getCreateTime).list();
 
             if (CollUtil.isEmpty(tempBaseFileDoList)) {

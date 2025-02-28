@@ -1446,8 +1446,8 @@ public class BaseFileUtil {
      */
     private static void deepFindFolderAndFile(BaseFileDO folder, Set<Long> removeFileIdSet, List<BaseFileDO> fileList) {
 
-        List<BaseFileDO> baseFileDoList =
-            getRemoveLambdaQueryChainWrapper().like(BaseFileDO::getPid, SeparatorUtil.verticalLine(folder.getId()))
+        List<BaseFileDO> baseFileDoList = getRemoveLambdaQueryChainWrapper().like(BaseFileDO::getPidPathStr,
+                SeparatorUtil.verticalLine(folder.getId()))
                 .list();
 
         if (CollUtil.isEmpty(baseFileDoList)) {
