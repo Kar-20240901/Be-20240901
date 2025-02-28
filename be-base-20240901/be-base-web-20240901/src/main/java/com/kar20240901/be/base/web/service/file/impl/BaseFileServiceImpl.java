@@ -2,6 +2,8 @@ package com.kar20240901.be.base.web.service.file.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.IdUtil;
@@ -724,12 +726,11 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        HashSet<Long> idSet = new HashSet<>(dto.getIdSet());
-
-        idSet.add(dto.getPid());
+        // 检查权限
+        BaseFileUtil.checkAuth(CollUtil.newArrayList(dto.getPid()), currentUserId, 2);
 
         // 检查权限
-        BaseFileUtil.checkAuth(idSet, currentUserId, 2);
+        BaseFileUtil.checkAuth(dto.getIdSet(), currentUserId, 1);
 
         List<BaseFileDO> baseFileDoList = lambdaQuery().in(TempEntity::getId, dto.getIdSet()).list();
 
@@ -743,18 +744,33 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
             baseFileDoList.stream().filter(it -> BaseFileTypeEnum.FOLDER.equals(it.getType())).map(BaseFileDO::getId)
                 .collect(Collectors.toList());
 
+        // 深度查询的文件 id集合
+        Set<Long> deepFindFileIdSet = new HashSet<>();
+
         // 深度查找-复制
-        copyDeepFind(folderIdList, fileIdSet, baseFileDoList);
+        copyDeepFind(folderIdList, fileIdSet, baseFileDoList, deepFindFileIdSet);
 
         String pidPathStr = BaseFileUtil.getPidPathStr(dto.getPid());
 
         List<Long> fileIdList = new ArrayList<>();
 
+        // id映射
+        Map<Long, Long> idMap = MapUtil.newHashMap(baseFileDoList.size());
+
         for (BaseFileDO item : baseFileDoList) {
 
-            item.setPid(dto.getPid());
+            Long oldId = item.getId();
 
-            item.setPidPathStr(pidPathStr);
+            Long newId = IdGeneratorUtil.nextId();
+
+            idMap.put(oldId, newId);
+
+        }
+
+        for (BaseFileDO item : baseFileDoList) {
+
+            // 处理：pid和 pidPathStr
+            handlePidAndPidPathStr(dto, item, deepFindFileIdSet, idMap, pidPathStr);
 
             String oldNewFileName = item.getNewFileName();
 
@@ -778,15 +794,15 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
             item.setUri(newUri);
 
-            Long id = IdGeneratorUtil.nextId();
+            Long newId = idMap.get(item.getId());
 
-            item.setId(id);
+            item.setId(newId);
             item.setCreateId(null);
             item.setCreateTime(null);
             item.setUpdateId(null);
             item.setUpdateTime(null);
 
-            fileIdList.add(id);
+            fileIdList.add(newId);
 
         }
 
@@ -803,9 +819,51 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
     }
 
     /**
+     * 处理：pid和 pidPathStr
+     */
+    private static void handlePidAndPidPathStr(BaseFileCopySelfDTO dto, BaseFileDO item, Set<Long> deepFindFileIdSet,
+        Map<Long, Long> idMap, String pidPathStr) {
+
+        if (deepFindFileIdSet.contains(item.getId())) {
+
+            Long oldPid = item.getPid();
+
+            Long newPid = idMap.get(oldPid);
+
+            List<String> splitList = StrUtil.splitTrim(item.getPidPathStr(), SeparatorUtil.VERTICAL_LINE_SEPARATOR);
+
+            item.setPid(newPid);
+
+            StrBuilder strBuilder = StrUtil.strBuilder();
+
+            for (String subItem : splitList) {
+
+                long pathOldPid = NumberUtil.parseLong(subItem);
+
+                Long pathNewPid = idMap.getOrDefault(pathOldPid, pathOldPid);
+
+                strBuilder.append(SeparatorUtil.verticalLine(pathNewPid));
+
+            }
+
+            item.setPidPathStr(strBuilder.toString());
+
+        } else {
+
+            item.setPid(dto.getPid());
+
+            item.setPidPathStr(pidPathStr);
+
+        }
+
+    }
+
+    /**
      * 深度查找-复制
      */
-    private void copyDeepFind(List<Long> folderIdList, Set<Long> fileIdSet, List<BaseFileDO> baseFileDoList) {
+    private void copyDeepFind(List<Long> folderIdList, Set<Long> fileIdSet, List<BaseFileDO> baseFileDoList,
+        Set<Long> deepFindFileIdSet) {
+
         if (CollUtil.isEmpty(folderIdList)) {
             return;
         }
@@ -825,6 +883,8 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
                 if (!fileIdSet.contains(subItem.getId())) {
 
                     fileIdSet.add(subItem.getId());
+
+                    deepFindFileIdSet.add(subItem.getId());
 
                     baseFileDoList.add(subItem);
 
