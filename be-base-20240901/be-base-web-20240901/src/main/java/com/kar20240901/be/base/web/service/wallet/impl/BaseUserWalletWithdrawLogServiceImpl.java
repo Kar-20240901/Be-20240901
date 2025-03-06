@@ -431,8 +431,6 @@ public class BaseUserWalletWithdrawLogServiceImpl
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        Set<Long> idSet = CollUtil.newHashSet(notNullIdAndStringValue.getId());
-
         return RedissonUtil.doLock(
             BaseRedisKeyEnum.PRE_USER_WALLET_WITHDRAW_LOG.name() + ":" + notNullIdAndStringValue.getId(), () -> {
 

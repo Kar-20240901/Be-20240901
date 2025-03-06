@@ -708,16 +708,32 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         String pidPathStr = BaseFileUtil.getPidPathStr(dto.getPid());
 
-        List<String> pidList = StrUtil.splitTrim(pidPathStr, SeparatorUtil.VERTICAL_LINE_SEPARATOR);
+        List<Long> pidList =
+            StrUtil.splitTrim(pidPathStr, SeparatorUtil.VERTICAL_LINE_SEPARATOR).stream().map(NumberUtil::parseLong)
+                .collect(Collectors.toList());
 
-        if (CollUtil.containsAny(pidList, dto.getIdSet())) {
+        if (dto.getIdSet().contains(dto.getPid()) || CollUtil.containsAny(pidList, dto.getIdSet())) {
 
             R.error(TempBizCodeEnum.ILLEGAL_REQUEST);
 
         }
 
+        List<BaseFileDO> baseFileDOList =
+            lambdaQuery().in(BaseFileDO::getId, dto.getIdSet()).select(BaseFileDO::getId, BaseFileDO::getPidPathStr)
+                .list();
+
         lambdaUpdate().in(TempEntity::getId, dto.getIdSet()).set(BaseFileDO::getPid, dto.getPid())
             .set(BaseFileDO::getPidPathStr, pidPathStr).update();
+
+        for (BaseFileDO item : baseFileDOList) {
+
+            String pidStr = item.getPidPathStr() + SeparatorUtil.verticalLine(item.getId());
+
+            lambdaUpdate().setSql("pid_path_str = CONCAT('" + pidPathStr + SeparatorUtil.verticalLine(item.getId())
+                    + "', SUBSTRING(pid_path_str, " + (pidStr.length() + 1) + "))")
+                .likeRight(BaseFileDO::getPidPathStr, pidStr).update();
+
+        }
 
         return TempBizCodeEnum.OK;
 
