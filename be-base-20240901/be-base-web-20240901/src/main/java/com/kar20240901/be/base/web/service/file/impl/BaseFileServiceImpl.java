@@ -13,7 +13,6 @@ import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
-import com.kar20240901.be.base.web.mapper.file.BaseFileAuthMapper;
 import com.kar20240901.be.base.web.mapper.file.BaseFileMapper;
 import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.bo.file.BaseFilePrivateDownloadBO;
@@ -67,17 +66,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO> implements BaseFileService {
-
-    @Resource
-    BaseFileAuthMapper baseFileAuthMapper;
 
     /**
      * 上传文件：公有和私有
@@ -697,6 +694,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
      * 移动：文件和文件夹-自我
      */
     @Override
+    @MyTransactional
     public String moveSelf(BaseFileMoveSelfDTO dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
@@ -709,6 +707,14 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         BaseFileUtil.checkAuth(idSet, currentUserId, 2);
 
         String pidPathStr = BaseFileUtil.getPidPathStr(dto.getPid());
+
+        List<String> pidList = StrUtil.splitTrim(pidPathStr, SeparatorUtil.VERTICAL_LINE_SEPARATOR);
+
+        if (CollUtil.containsAny(pidList, dto.getIdSet())) {
+
+            R.error(TempBizCodeEnum.ILLEGAL_REQUEST);
+
+        }
 
         lambdaUpdate().in(TempEntity::getId, dto.getIdSet()).set(BaseFileDO::getPid, dto.getPid())
             .set(BaseFileDO::getPidPathStr, pidPathStr).update();
@@ -767,10 +773,12 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         }
 
+        Set<Long> folderIdSet = new HashSet<>(folderIdList);
+
         for (BaseFileDO item : baseFileDoList) {
 
             // 处理：pid和 pidPathStr
-            handlePidAndPidPathStr(dto, item, deepFindFileIdSet, idMap, pidPathStr);
+            handlePidAndPidPathStr(dto, item, deepFindFileIdSet, idMap, pidPathStr, folderIdSet);
 
             String oldNewFileName = item.getNewFileName();
 
@@ -822,7 +830,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
      * 处理：pid和 pidPathStr
      */
     private static void handlePidAndPidPathStr(BaseFileCopySelfDTO dto, BaseFileDO item, Set<Long> deepFindFileIdSet,
-        Map<Long, Long> idMap, String pidPathStr) {
+        Map<Long, Long> idMap, String pidPathStr, Set<Long> folderIdList) {
 
         if (deepFindFileIdSet.contains(item.getId())) {
 
@@ -830,19 +838,33 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
             Long newPid = idMap.get(oldPid);
 
-            List<String> splitList = StrUtil.splitTrim(item.getPidPathStr(), SeparatorUtil.VERTICAL_LINE_SEPARATOR);
-
             item.setPid(newPid);
 
+            List<String> splitList = StrUtil.splitTrim(item.getPidPathStr(), SeparatorUtil.VERTICAL_LINE_SEPARATOR);
+
             StrBuilder strBuilder = StrUtil.strBuilder();
+
+            boolean findFlag = false;
 
             for (String subItem : splitList) {
 
                 long pathOldPid = NumberUtil.parseLong(subItem);
 
-                Long pathNewPid = idMap.getOrDefault(pathOldPid, pathOldPid);
+                if (folderIdList.contains(pathOldPid)) {
 
-                strBuilder.append(SeparatorUtil.verticalLine(pathNewPid));
+                    strBuilder.append(pidPathStr);
+
+                    findFlag = true;
+
+                }
+
+                if (findFlag) {
+
+                    Long pathNewPid = idMap.getOrDefault(pathOldPid, pathOldPid);
+
+                    strBuilder.append(SeparatorUtil.verticalLine(pathNewPid));
+
+                }
 
             }
 
