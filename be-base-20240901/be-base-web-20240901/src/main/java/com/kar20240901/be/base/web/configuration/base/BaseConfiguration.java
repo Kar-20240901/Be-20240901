@@ -3,6 +3,7 @@ package com.kar20240901.be.base.web.configuration.base;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.net.NetUtil;
 import cn.hutool.http.HttpGlobalConfig;
+import com.kar20240901.be.base.web.configuration.socket.NettyWebSocketProperties;
 import java.util.concurrent.ThreadPoolExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
@@ -40,8 +41,11 @@ public class BaseConfiguration implements ApplicationRunner {
 
     public static final String MAC_ADDRESS = NetUtil.getLocalMacAddress(); // mac地址
 
+    public static NettyWebSocketProperties nettyWebSocketProperties;
+
     public BaseConfiguration(@Value("${spring.application.name:applicationName}") String applicationName,
-        @Value("${server.port:8080}") int port, @Value("${spring.profiles.active:prod}") String profilesActive) {
+        @Value("${server.port:8080}") int port, @Value("${spring.profiles.active:prod}") String profilesActive,
+        NettyWebSocketProperties nettyWebSocketProperties) {
 
         BaseConfiguration.applicationName = applicationName;
         BaseConfiguration.port = port;
@@ -49,6 +53,8 @@ public class BaseConfiguration implements ApplicationRunner {
 
         // 设置：http超时时间，默认：30分钟
         HttpGlobalConfig.setTimeout(30 * 60 * 1000);
+
+        BaseConfiguration.nettyWebSocketProperties = nettyWebSocketProperties;
 
     }
 
@@ -151,8 +157,8 @@ public class BaseConfiguration implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
 
-        log.info("服务已启动，耗时：{}，地址：http://localhost：{}",
-            DateUtil.formatBetween(System.currentTimeMillis() - START_TIME), port);
+        log.info("服务已启动，耗时：{}，地址：http://{}：{}",
+            DateUtil.formatBetween(System.currentTimeMillis() - START_TIME), nettyWebSocketProperties.getHost(), port);
 
     }
 
