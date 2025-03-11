@@ -26,10 +26,10 @@
   </properties>
 
   <modules>
-    <module>be-base-generate-20240901</module>
     <module>be-base-api-20240901</module>
     <module>be-base-model-20240901</module>
     <module>be-base-web-20240901</module>
+    <module>be-base-generate-20240901</module>
   </modules>
 
   <dependencyManagement>
