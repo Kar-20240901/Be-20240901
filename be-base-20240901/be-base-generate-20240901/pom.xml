@@ -15,6 +15,12 @@
 
   <dependencies>
 
+    <!-- ssh，sftp -->
+    <dependency>
+      <groupId>com.jcraft</groupId>
+      <artifactId>jsch</artifactId>
+    </dependency>
+
     <!-- be-base-web-20240901 -->
     <dependency>
       <groupId>${kar.groupId}</groupId>

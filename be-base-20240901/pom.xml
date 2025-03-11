@@ -35,6 +35,13 @@
   <dependencyManagement>
     <dependencies>
 
+      <!-- ssh，sftp -->
+      <dependency>
+        <groupId>com.jcraft</groupId>
+        <artifactId>jsch</artifactId>
+        <version>0.1.55</version>
+      </dependency>
+
       <!-- 微信支付，获取最新版本号：https://github.com/wechatpay-apiv3/wechatpay-java -->
       <dependency>
         <groupId>com.github.wechatpay-apiv3</groupId>
