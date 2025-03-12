@@ -170,7 +170,7 @@ public class SocketUtil {
 
         baseSocketDO.setScheme(MyEntityUtil.getNotNullStr(baseSocketBaseProperties.getScheme()));
         baseSocketDO.setHost(MyEntityUtil.getNotNullStr(baseSocketBaseProperties.getHost()));
-        baseSocketDO.setPort(port);
+        baseSocketDO.setPort(MyEntityUtil.getNotNullInt(baseSocketBaseProperties.getPort(), port));
         baseSocketDO.setPath(MyEntityUtil.getNotNullStr(baseSocketBaseProperties.getPath()));
         baseSocketDO.setType(baseSocketTypeEnum);
 
@@ -197,7 +197,7 @@ public class SocketUtil {
         baseSocketRefUserService.lambdaUpdate()
             .in(CollUtil.isNotEmpty(socketIdSet), BaseSocketRefUserDO::getSocketId, socketIdSet)
             .or(i -> i.eq(BaseSocketRefUserDO::getMacAddress, BaseConfiguration.MAC_ADDRESS)
-                .eq(BaseSocketRefUserDO::getPort, port)).remove();
+                .eq(BaseSocketRefUserDO::getPort, baseSocketDO.getPort())).remove();
 
         baseSocketService.save(baseSocketDO);
 

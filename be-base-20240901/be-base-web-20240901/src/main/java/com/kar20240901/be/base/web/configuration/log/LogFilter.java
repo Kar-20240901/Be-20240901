@@ -144,6 +144,8 @@ public class LogFilter extends Filter<ILoggingEvent> {
 
         BeanUtil.copyProperties(basePropertiesTemp, baseProperties);
 
+        System.out.println("类型：" + type + "，值：" + JSONUtil.toJsonStr(baseProperties));
+
         log.info("【{}】baseProperties：{}", type, JSONUtil.toJsonStr(baseProperties));
 
     }

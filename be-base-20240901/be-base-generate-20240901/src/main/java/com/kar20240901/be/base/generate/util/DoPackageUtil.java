@@ -11,6 +11,7 @@ import cn.hutool.extra.ssh.JschUtil;
 import cn.hutool.extra.ssh.Sftp;
 import com.jcraft.jsch.Session;
 import java.io.File;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 import lombok.Data;
@@ -30,7 +31,7 @@ public class DoPackageUtil {
 
     private String privateKeyPath = "/home/key/key1.pem";
 
-    private String viteRemotePath = "/mydata/vue/h5";
+    private String viteRemotePath = "/mydata/fe/fe-20240901/html";
 
     /**
      * 备注：最后不要加 /
@@ -274,7 +275,9 @@ public class DoPackageUtil {
 
             String configFileName = "config.js";
 
-            for (String item : sftp.ls(getViteRemotePath())) {
+            List<String> lsList = sftp.ls(getViteRemotePath());
+
+            for (String item : lsList) {
 
                 if (configFileName.equals(item)) {
                     continue; // 不做处理

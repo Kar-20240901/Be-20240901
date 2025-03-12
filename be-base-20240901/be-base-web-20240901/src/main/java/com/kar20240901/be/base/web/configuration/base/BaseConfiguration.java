@@ -157,7 +157,7 @@ public class BaseConfiguration implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
 
-        log.info("服务已启动，耗时：{}，地址：http://{}：{}",
+        log.info("服务已启动，耗时：{}，地址：http://{}:{}",
             DateUtil.formatBetween(System.currentTimeMillis() - START_TIME), nettyWebSocketProperties.getHost(), port);
 
     }

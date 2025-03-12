@@ -3,10 +3,12 @@ package com.kar20240901.be.base.web.server;
 import com.kar20240901.be.base.web.configuration.base.BaseConfiguration;
 import com.kar20240901.be.base.web.configuration.socket.NettyWebSocketProperties;
 import com.kar20240901.be.base.web.mapper.socket.BaseSocketRefUserMapper;
+import com.kar20240901.be.base.web.model.configuration.socket.BaseSocketBaseProperties;
 import com.kar20240901.be.base.web.model.configuration.socket.NettyWebSocketBeanPostProcessor;
 import com.kar20240901.be.base.web.model.enums.socket.BaseSocketTypeEnum;
 import com.kar20240901.be.base.web.service.socket.BaseSocketService;
 import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
+import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyThreadUtil;
 import com.kar20240901.be.base.web.util.socket.SocketUtil;
 import io.netty.bootstrap.ServerBootstrap;
@@ -88,6 +90,13 @@ public class NettyWebSocketServer {
         NettyWebSocketServer.socketUtil = socketUtil;
     }
 
+    private static BaseSocketBaseProperties baseSocketBaseProperties;
+
+    @Resource
+    public void setBaseSocketBaseProperties(BaseSocketBaseProperties baseSocketBaseProperties) {
+        NettyWebSocketServer.baseSocketBaseProperties = baseSocketBaseProperties;
+    }
+
     public static Long baseSocketServerId = null; // 备注：启动完成之后，这个属性才有值
 
     private static ChannelFuture channelFuture = null; // 备注：启动完成之后，这个属性才有值
@@ -118,7 +127,7 @@ public class NettyWebSocketServer {
 
         // 关闭 socket
         SocketUtil.closeSocket(channelFuture, parentGroup, childGroup, baseSocketServerId,
-            NettyWebSocketServerHandler.USER_ID_CHANNEL_MAP, "NettyWebSocket", disableFlag, getPort());
+            NettyWebSocketServerHandler.USER_ID_CHANNEL_MAP, "NettyWebSocket", disableFlag, getConnectPort());
 
         channelFuture = null;
         parentGroup = null;
@@ -146,9 +155,21 @@ public class NettyWebSocketServer {
 
     }
 
-    public static int getPort() {
+    /**
+     * 实际启动占用的端口
+     */
+    public static int getRealPort() {
 
         return BaseConfiguration.port + 1;
+
+    }
+
+    /**
+     * 连接时使用的端口，默认为启动占用的端口
+     */
+    public static int getConnectPort() {
+
+        return MyEntityUtil.getNotNullInt(baseSocketBaseProperties.getPort(), getRealPort());
 
     }
 
@@ -162,7 +183,7 @@ public class NettyWebSocketServer {
             return;
         }
 
-        int port = getPort();
+        int port = getRealPort();
 
         parentGroup = new NioEventLoopGroup(nettyWebSocketProperties.getParentSize());
 
@@ -205,7 +226,7 @@ public class NettyWebSocketServer {
         channelFuture = serverBootstrap.bind().sync(); // 服务器同步创建绑定
 
         baseSocketServerId =
-            SocketUtil.getBaseSocketServerId(port, nettyWebSocketProperties, BaseSocketTypeEnum.WEB_SOCKET);
+            SocketUtil.getBaseSocketServerId(getConnectPort(), nettyWebSocketProperties, BaseSocketTypeEnum.WEB_SOCKET);
 
         log.info("NettyWebSocket 启动完成：端口：{}，总接口个数：{}个", port,
             NettyWebSocketBeanPostProcessor.getMappingMapSize());
