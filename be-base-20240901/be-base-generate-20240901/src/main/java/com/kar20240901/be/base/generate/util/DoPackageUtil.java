@@ -188,6 +188,8 @@ public class DoPackageUtil {
     public void doBePackage(String projectPath, Supplier<Session> sessionSupplier, CountDownLatch countDownLatch,
         Date date) {
 
+        Session session = sessionSupplier.get();
+
         try {
 
             log.info("后端打包 ↓");
@@ -226,7 +228,10 @@ public class DoPackageUtil {
             timeNumber = System.currentTimeMillis();
 
             // 拆分文件
-            List<File> partFileList = splitFile(file.getPath(), 2 * 1024 * 1024);
+            List<File> partFileList = splitFile(file.getPath(), 50 * 1024 * 1024);
+
+            // 移除分片文件
+            JschUtil.exec(session, getSpringRemoteRemovePartFileCmd(), CharsetUtil.CHARSET_UTF_8);
 
             CountDownLatch subCountDownLatch = ThreadUtil.newCountDownLatch(partFileList.size());
 
@@ -246,9 +251,9 @@ public class DoPackageUtil {
 
                             ThreadUtil.safeSleep(2000);
 
-                            Session session = sessionSupplier.get();
+                            Session partSession = sessionSupplier.get();
 
-                            ChannelSftp channelSftp = JschUtil.openSftp(session);
+                            ChannelSftp channelSftp = JschUtil.openSftp(partSession);
 
                             channelSftp.put(item.getPath(), getSpringRemotePath());
 
@@ -284,8 +289,6 @@ public class DoPackageUtil {
             log.info("启动后端 ↓");
 
             timeNumber = System.currentTimeMillis();
-
-            Session session = sessionSupplier.get();
 
             Consumer<Session> beRemoteRestartConsumer = getBeRemoteRestartConsumer();
 
@@ -393,9 +396,41 @@ public class DoPackageUtil {
     public void doFePackage(String projectPath, Supplier<Session> sessionSupplier, CountDownLatch countDownLatch,
         Date date) {
 
-        Session session = sessionSupplier.get();
+        Session session = null;
 
-        Sftp sftp = JschUtil.createSftp(session);
+        Sftp sftp = null;
+
+        int retries = 0;
+
+        while (retries < 5) {
+
+            try {
+
+                ThreadUtil.safeSleep(2000);
+
+                session = sessionSupplier.get();
+
+                sftp = JschUtil.createSftp(session);
+
+                retries = 5;
+
+            } catch (Exception e) {
+
+                retries = retries + 1;
+
+                ThreadUtil.safeSleep(1000);
+
+            }
+
+        }
+
+        if (session == null || sftp == null) {
+
+            log.info("前端打包上传失败：获取连接失败");
+
+            return;
+
+        }
 
         try {
 
