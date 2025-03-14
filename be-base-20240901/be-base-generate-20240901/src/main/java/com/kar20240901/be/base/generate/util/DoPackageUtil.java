@@ -11,6 +11,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
 import cn.hutool.extra.ssh.JschUtil;
 import cn.hutool.extra.ssh.Sftp;
+import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.Session;
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import lombok.Data;
@@ -224,29 +226,49 @@ public class DoPackageUtil {
             timeNumber = System.currentTimeMillis();
 
             // 拆分文件
-            List<File> partFileList = splitFile(file.getPath(), 10 * 1024 * 1024);
+            List<File> partFileList = splitFile(file.getPath(), 2 * 1024 * 1024);
 
             CountDownLatch subCountDownLatch = ThreadUtil.newCountDownLatch(partFileList.size());
+
+            AtomicInteger atomicInteger = new AtomicInteger(0);
 
             for (File item : partFileList) {
 
                 new Thread(() -> {
 
-                    try {
+                    int retries = 0;
 
-                        Session session = sessionSupplier.get();
+                    int index = atomicInteger.getAndAdd(1);
 
-                        Sftp sftp = JschUtil.createSftp(session);
+                    while (retries < 5) {
 
-                        sftp.put(item.getPath(), getSpringRemotePath());
+                        try {
 
-                        JschUtil.close(sftp.getClient());
+                            ThreadUtil.safeSleep(2000);
 
-                    } finally {
+                            Session session = sessionSupplier.get();
 
-                        subCountDownLatch.countDown();
+                            ChannelSftp channelSftp = JschUtil.openSftp(session);
+
+                            channelSftp.put(item.getPath(), getSpringRemotePath());
+
+                            log.info("后端打包上传：{}", index);
+
+                            retries = 5;
+
+                        } catch (Exception e) {
+
+                            retries = retries + 1;
+
+                            ThreadUtil.safeSleep(1000);
+
+                            log.info("后端打包上传：{}，重试：{}", index, retries);
+
+                        }
 
                     }
+
+                    subCountDownLatch.countDown();
 
                 }).start();
 
@@ -263,9 +285,9 @@ public class DoPackageUtil {
 
             timeNumber = System.currentTimeMillis();
 
-            Consumer<Session> beRemoteRestartConsumer = getBeRemoteRestartConsumer();
-
             Session session = sessionSupplier.get();
+
+            Consumer<Session> beRemoteRestartConsumer = getBeRemoteRestartConsumer();
 
             if (beRemoteRestartConsumer != null) {
 
@@ -468,7 +490,6 @@ public class DoPackageUtil {
         } finally {
 
             countDownLatch.countDown();
-            JschUtil.close(sftp.getClient());
 
         }
 
