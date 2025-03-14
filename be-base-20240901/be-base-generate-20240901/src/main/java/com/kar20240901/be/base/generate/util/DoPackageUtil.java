@@ -14,8 +14,8 @@ import cn.hutool.extra.ssh.Sftp;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.Session;
 import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -340,49 +340,36 @@ public class DoPackageUtil {
     /**
      * 拆分文件
      */
+    @SneakyThrows
     public static List<File> splitFile(String filePath, int chunkSize) {
 
-        File sourceFile = FileUtil.file(filePath);
-
-        if (!sourceFile.exists()) {
-            throw new RuntimeException("源文件不存在！");
-        }
-
-        long fileLength = sourceFile.length();
-
-        int partCount = (int)(fileLength / chunkSize);
-
-        if (fileLength % chunkSize != 0) {
-            partCount++;
-        }
+        File file = new File(filePath);
 
         List<File> partFileList = new ArrayList<>();
 
-        try (RandomAccessFile raf = new RandomAccessFile(sourceFile, "r")) {
+        try (FileInputStream fis = new FileInputStream(file)) {
 
-            for (int i = 0; i < partCount; i++) {
+            byte[] buffer = new byte[chunkSize];
 
-                byte[] buffer = new byte[chunkSize];
+            int partNumber = 0;
 
-                int readSize = raf.read(buffer);
+            int bytesRead;
 
-                if (readSize == -1) {
-                    break;
+            while ((bytesRead = fis.read(buffer)) != -1) {
+
+                String partFileName = filePath + ".part." + partNumber;
+
+                try (FileOutputStream fos = new FileOutputStream(partFileName)) {
+
+                    fos.write(buffer, 0, bytesRead);
+
+                    partFileList.add(new File(partFileName));
+
                 }
 
-                String partFileName = filePath + ".part." + i;
-
-                File partFile = FileUtil.file(partFileName);
-
-                FileUtil.writeBytes(buffer, partFile);
-
-                partFileList.add(partFile);
+                partNumber++;
 
             }
-
-        } catch (IOException e) {
-
-            throw new RuntimeException("拆分文件时出错", e);
 
         }
 
