@@ -7,13 +7,20 @@ import cn.hutool.core.io.unit.DataSizeUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.RuntimeUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.ZipUtil;
 import cn.hutool.extra.ssh.JschUtil;
 import cn.hutool.extra.ssh.Sftp;
 import com.jcraft.jsch.Session;
 import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +38,11 @@ public class DoPackageUtil {
 
     private String privateKeyPath = "/home/key/key1.pem";
 
-    private String viteRemotePath = "/mydata/fe/fe-20240901/html";
+    private String feRemotePath = "/mydata/fe/fe-20240901/html";
+
+    private String feZipRemotePath = "/mydata/fe/fe-20240901/html-zip";
+
+    private String feRemoteUnzipTempCmd = "unzip -o /mydata/fe/fe-20240901/html-zip/{} -d " + feRemotePath;
 
     /**
      * 备注：最后不要加 /
@@ -39,6 +50,14 @@ public class DoPackageUtil {
     private String springRemotePath = "/mydata/springboot";
 
     private String springRemoteStopCmd = "docker stop be-base-web-node-1";
+
+    private String springRemoteRenameTempCmd =
+        "mv /mydata/springboot/be-base-web-20240901-2024.9.1.jar /mydata/springboot/be-base-web-20240901-2024.9.1.jar.bak{}";
+
+    private String springRemoteMergeCmd =
+        "cat /mydata/springboot/be-base-web-20240901-2024.9.1.jar.part.* > /mydata/springboot/be-base-web-20240901-2024.9.1.jar";
+
+    private String springRemoteRemovePartFileCmd = "rm /mydata/springboot/be-base-web-20240901-2024.9.1.jar.part.*";
 
     private String springRemoteRestartCmd = "docker restart be-base-web-node-1";
 
@@ -49,6 +68,8 @@ public class DoPackageUtil {
     private String beName = "Be-20240901/be-base-20240901";
 
     private String beJarName = "be-base-web-20240901-2024.9.1.jar";
+
+    private String beJarPartName = "be-base-web-20240901-2024.9.1.jar.part.{}";
 
     private String beStartFolderName = "be-base-web-20240901";
 
@@ -102,20 +123,36 @@ public class DoPackageUtil {
         int threadCount;
 
         if (number == 2 || number == 3) {
+
             threadCount = 1;
+
         } else {
+
             threadCount = 2;
+
         }
 
-        Session session = JschUtil.getSession(getHost(), 22, getUser(), getPrivateKeyPath(), null);
+        List<Session> sessionList = new ArrayList<>();
+
+        Supplier<Session> sessionSupplier = () -> {
+
+            Session session = JschUtil.getSession(getHost(), 22, getUser(), getPrivateKeyPath(), null);
+
+            sessionList.add(session);
+
+            return session;
+
+        };
 
         CountDownLatch countDownLatch = ThreadUtil.newCountDownLatch(threadCount);
+
+        Date date = new Date();
 
         if (number == 1 || number == 2) {
 
             new Thread(() -> {
 
-                doBePackage(getProjectPath(), session, countDownLatch);
+                doBePackage(getProjectPath(), sessionSupplier, countDownLatch, date);
 
             }).start();
 
@@ -125,7 +162,7 @@ public class DoPackageUtil {
 
             new Thread(() -> {
 
-                doFePackage(getProjectPath(), session, countDownLatch);
+                doFePackage(getProjectPath(), sessionSupplier, countDownLatch, date);
 
             }).start();
 
@@ -133,7 +170,11 @@ public class DoPackageUtil {
 
         countDownLatch.await();
 
-        JschUtil.close(session);
+        for (Session item : sessionList) {
+
+            JschUtil.close(item);
+
+        }
 
         System.exit(0);
 
@@ -142,9 +183,8 @@ public class DoPackageUtil {
     /**
      * 后端打包
      */
-    public void doBePackage(String projectPath, Session session, CountDownLatch countDownLatch) {
-
-        Sftp sftp = JschUtil.createSftp(session);
+    public void doBePackage(String projectPath, Supplier<Session> sessionSupplier, CountDownLatch countDownLatch,
+        Date date) {
 
         try {
 
@@ -181,12 +221,38 @@ public class DoPackageUtil {
 
             log.info("后端打包上传 ↓ 大小：" + DataSizeUtil.format(FileUtil.size(file)));
 
-            // 先停止，再上传文件
-            JschUtil.exec(session, getSpringRemoteStopCmd(), CharsetUtil.CHARSET_UTF_8);
-
             timeNumber = System.currentTimeMillis();
 
-            sftp.put(jarPath, getSpringRemotePath());
+            // 拆分文件
+            List<File> partFileList = splitFile(file.getPath(), 10 * 1024 * 1024);
+
+            CountDownLatch subCountDownLatch = ThreadUtil.newCountDownLatch(partFileList.size());
+
+            for (File item : partFileList) {
+
+                new Thread(() -> {
+
+                    try {
+
+                        Session session = sessionSupplier.get();
+
+                        Sftp sftp = JschUtil.createSftp(session);
+
+                        sftp.put(item.getPath(), getSpringRemotePath());
+
+                        JschUtil.close(sftp.getClient());
+
+                    } finally {
+
+                        subCountDownLatch.countDown();
+
+                    }
+
+                }).start();
+
+            }
+
+            subCountDownLatch.await();
 
             timeNumber = System.currentTimeMillis() - timeNumber;
             timeStr = DateUtil.formatBetween(timeNumber);
@@ -199,6 +265,8 @@ public class DoPackageUtil {
 
             Consumer<Session> beRemoteRestartConsumer = getBeRemoteRestartConsumer();
 
+            Session session = sessionSupplier.get();
+
             if (beRemoteRestartConsumer != null) {
 
                 // 执行：重启之前的操作
@@ -206,6 +274,20 @@ public class DoPackageUtil {
 
             }
 
+            // 先停止，再合并文件
+            JschUtil.exec(session, getSpringRemoteStopCmd(), CharsetUtil.CHARSET_UTF_8);
+
+            // 修改旧文件名
+            JschUtil.exec(session, StrUtil.format(getSpringRemoteRenameTempCmd(), date.getTime()),
+                CharsetUtil.CHARSET_UTF_8);
+
+            // 合并文件
+            JschUtil.exec(session, getSpringRemoteMergeCmd(), CharsetUtil.CHARSET_UTF_8);
+
+            // 移除分片文件
+            JschUtil.exec(session, getSpringRemoteRemovePartFileCmd(), CharsetUtil.CHARSET_UTF_8);
+
+            // 重启服务
             JschUtil.exec(session, getSpringRemoteRestartCmd(), CharsetUtil.CHARSET_UTF_8);
 
             timeNumber = System.currentTimeMillis() - timeNumber;
@@ -225,16 +307,71 @@ public class DoPackageUtil {
         } finally {
 
             countDownLatch.countDown();
-            JschUtil.close(sftp.getClient());
 
         }
 
     }
 
     /**
+     * 拆分文件
+     */
+    public static List<File> splitFile(String filePath, int chunkSize) {
+
+        File sourceFile = FileUtil.file(filePath);
+
+        if (!sourceFile.exists()) {
+            throw new RuntimeException("源文件不存在！");
+        }
+
+        long fileLength = sourceFile.length();
+
+        int partCount = (int)(fileLength / chunkSize);
+
+        if (fileLength % chunkSize != 0) {
+            partCount++;
+        }
+
+        List<File> partFileList = new ArrayList<>();
+
+        try (RandomAccessFile raf = new RandomAccessFile(sourceFile, "r")) {
+
+            for (int i = 0; i < partCount; i++) {
+
+                byte[] buffer = new byte[chunkSize];
+
+                int readSize = raf.read(buffer);
+
+                if (readSize == -1) {
+                    break;
+                }
+
+                String partFileName = filePath + ".part." + i;
+
+                File partFile = FileUtil.file(partFileName);
+
+                FileUtil.writeBytes(buffer, partFile);
+
+                partFileList.add(partFile);
+
+            }
+
+        } catch (IOException e) {
+
+            throw new RuntimeException("拆分文件时出错", e);
+
+        }
+
+        return partFileList;
+
+    }
+
+    /**
      * 前端打包
      */
-    public void doFePackage(String projectPath, Session session, CountDownLatch countDownLatch) {
+    public void doFePackage(String projectPath, Supplier<Session> sessionSupplier, CountDownLatch countDownLatch,
+        Date date) {
+
+        Session session = sessionSupplier.get();
 
         Sftp sftp = JschUtil.createSftp(session);
 
@@ -275,7 +412,20 @@ public class DoPackageUtil {
 
             String configFileName = "config.js";
 
-            List<String> lsList = sftp.ls(getViteRemotePath());
+            // 移除该文件，目的：不覆盖服务器上的文件
+            FileUtil.del(file.getPath() + "/" + configFileName);
+
+            // 压缩文件
+            File zipFileTemp = ZipUtil.zip(file);
+
+            File zipFile = FileUtil.newFile(file.getPath() + "/" + file.getName() + "." + date.getTime() + ".zip");
+
+            FileUtil.move(zipFileTemp, zipFile, true);
+
+            // 上传压缩文件
+            sftp.put(zipFile.getPath(), getFeZipRemotePath());
+
+            List<String> lsList = sftp.ls(getFeRemotePath());
 
             for (String item : lsList) {
 
@@ -283,7 +433,7 @@ public class DoPackageUtil {
                     continue; // 不做处理
                 }
 
-                String fullFileName = getViteRemotePath() + "/" + item;
+                String fullFileName = getFeRemotePath() + "/" + item;
 
                 if (sftp.isDir(fullFileName)) {
 
@@ -297,10 +447,9 @@ public class DoPackageUtil {
 
             }
 
-            // 移除该文件，目的：不覆盖服务器上的文件
-            FileUtil.del(file.getPath() + "/" + configFileName);
-
-            sftp.syncUpload(file, getViteRemotePath());
+            // 解压压缩文件
+            JschUtil.exec(session, StrUtil.format(getFeRemoteUnzipTempCmd(), zipFile.getName()),
+                CharsetUtil.CHARSET_UTF_8);
 
             timeNumber = System.currentTimeMillis() - timeNumber;
             timeStr = DateUtil.formatBetween(timeNumber);
