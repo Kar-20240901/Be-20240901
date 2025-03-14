@@ -116,19 +116,11 @@ public class LogFilter extends Filter<ILoggingEvent> {
      */
     private static synchronized void handle(File file, String type) {
 
-        String str = "";
+        String str;
 
         if (file.exists()) {
 
-            try {
-
-                str = FileUtil.readUtf8String(file);
-
-            } catch (Exception e) {
-
-                e.printStackTrace();
-
-            }
+            str = FileUtil.readUtf8String(file);
 
         } else {
 
@@ -144,7 +136,8 @@ public class LogFilter extends Filter<ILoggingEvent> {
 
         BeanUtil.copyProperties(basePropertiesTemp, baseProperties);
 
-        System.out.println("类型：" + type + "，值：" + JSONUtil.toJsonStr(baseProperties));
+        System.out.println(
+            "文件路径：" + file.getPath() + "，类型：" + type + "，值：" + JSONUtil.toJsonStr(baseProperties));
 
         log.info("【{}】baseProperties：{}", type, JSONUtil.toJsonStr(baseProperties));
 
