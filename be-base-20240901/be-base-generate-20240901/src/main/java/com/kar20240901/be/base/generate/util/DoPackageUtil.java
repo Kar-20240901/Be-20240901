@@ -136,7 +136,7 @@ public class DoPackageUtil {
 
         Supplier<Session> sessionSupplier = () -> {
 
-            Session session = JschUtil.getSession(getHost(), 22, getUser(), getPrivateKeyPath(), null);
+            Session session = JschUtil.openSession(getHost(), 22, getUser(), getPrivateKeyPath(), null);
 
             sessionList.add(session);
 
