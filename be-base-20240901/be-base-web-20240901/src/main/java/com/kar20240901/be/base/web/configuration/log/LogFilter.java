@@ -50,7 +50,7 @@ public class LogFilter extends Filter<ILoggingEvent> {
         // 处理
         handle(file, "初始化");
 
-        WatchMonitor.createAll(file, new Watcher() {
+        WatchMonitor.createAll(file.getParentFile(), new Watcher() {
 
             @Override
             public void onCreate(WatchEvent<?> event, Path currentPath) {
