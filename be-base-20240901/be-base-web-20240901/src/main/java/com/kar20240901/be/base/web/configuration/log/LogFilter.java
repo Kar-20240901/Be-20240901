@@ -7,18 +7,15 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
-import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.io.watch.WatchMonitor;
+import cn.hutool.core.io.watch.Watcher;
 import cn.hutool.json.JSONUtil;
 import com.kar20240901.be.base.web.model.constant.log.LogTopicConstant;
 import com.kar20240901.be.base.web.properties.log.BaseProperties;
 import com.kar20240901.be.base.web.util.base.MyTryUtil;
 import java.io.File;
-import java.nio.file.FileSystems;
-import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.Path;
 import java.nio.file.WatchEvent;
-import java.nio.file.WatchEvent.Kind;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.yaml.snakeyaml.Yaml;
@@ -55,50 +52,38 @@ public class LogFilter extends Filter<ILoggingEvent> {
         // 处理
         handle(file, "初始化");
 
-        WatchService watchService = FileSystems.getDefault().newWatchService();
+        // 备注：docker挂载时，必须挂载目录，才会正确的监听
+        WatchMonitor.createAll(file.getParentFile(), new Watcher() {
 
-        file.getParentFile().toPath()
-            .register(watchService, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_CREATE,
-                StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.OVERFLOW);
+            @Override
+            public void onCreate(WatchEvent<?> event, Path currentPath) {
 
-        ThreadUtil.schedule(ThreadUtil.createScheduledExecutor(1), () -> {
-
-            WatchKey key = watchService.poll();
-
-            if (null == key) {
-                return;
-            }
-
-            for (WatchEvent<?> event : key.pollEvents()) {
-
-                Kind<?> kind = event.kind();
-
-                String name = kind.name();
-
-                if (name.equals(StandardWatchEventKinds.ENTRY_CREATE.name())) {
-
-                    MyTryUtil.tryCatch(() -> handle(file, "创建"));
-
-                } else if (name.equals(StandardWatchEventKinds.ENTRY_MODIFY.name())) {
-
-                    MyTryUtil.tryCatch(() -> handle(file, "修改"));
-
-                } else if (name.equals(StandardWatchEventKinds.ENTRY_DELETE.name())) {
-
-                    MyTryUtil.tryCatch(() -> handle(file, "删除"));
-
-                } else if (name.equals(StandardWatchEventKinds.OVERFLOW.name())) {
-
-                    MyTryUtil.tryCatch(() -> handle(file, "覆盖"));
-
-                }
-
-                // 每次的到新的事件后，需要重置监听池
-                key.reset();
+                MyTryUtil.tryCatch(() -> handle(file, "创建"));
 
             }
 
-        }, 10000, 10000, true);
+            @Override
+            public void onModify(WatchEvent<?> event, Path currentPath) {
+
+                MyTryUtil.tryCatch(() -> handle(file, "修改"));
+
+            }
+
+            @Override
+            public void onDelete(WatchEvent<?> event, Path currentPath) {
+
+                MyTryUtil.tryCatch(() -> handle(file, "删除"));
+
+            }
+
+            @Override
+            public void onOverflow(WatchEvent<?> event, Path currentPath) {
+
+                MyTryUtil.tryCatch(() -> handle(file, "覆盖"));
+
+            }
+
+        }).start();
 
     }
 
@@ -153,9 +138,6 @@ public class LogFilter extends Filter<ILoggingEvent> {
         BaseProperties basePropertiesTemp = new Yaml().loadAs(str, BaseProperties.class);
 
         BeanUtil.copyProperties(basePropertiesTemp, baseProperties);
-
-        System.out.println(
-            "文件路径：" + file.getPath() + "，类型：" + type + "，值：" + JSONUtil.toJsonStr(baseProperties));
 
         log.info("【{}】baseProperties：{}", type, JSONUtil.toJsonStr(baseProperties));
 
