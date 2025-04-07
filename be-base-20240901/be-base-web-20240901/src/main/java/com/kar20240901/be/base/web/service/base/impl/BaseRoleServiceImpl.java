@@ -356,9 +356,9 @@ public class BaseRoleServiceImpl extends ServiceImpl<BaseRoleMapper, BaseRoleDO>
 
         removeByIds(notEmptyIdSet.getIdSet());
 
-        deleteAuthCache(null); // 删除权限缓存
+        deleteAuthCache(userIdSet); // 删除权限缓存
 
-        deleteMenuCache(null); // 删除菜单缓存
+        deleteMenuCache(userIdSet); // 删除菜单缓存
 
         return TempBizCodeEnum.OK;
 
