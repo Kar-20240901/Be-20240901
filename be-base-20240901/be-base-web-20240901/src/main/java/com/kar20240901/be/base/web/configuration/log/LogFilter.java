@@ -16,6 +16,7 @@ import com.kar20240901.be.base.web.util.base.MyTryUtil;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.yaml.snakeyaml.Yaml;
 
@@ -42,6 +43,7 @@ public class LogFilter extends Filter<ILoggingEvent> {
     /**
      * 初始化 baseProperties
      */
+    @SneakyThrows
     private static void initBaseProperties() {
 
         // 获取：文件对象
@@ -50,6 +52,7 @@ public class LogFilter extends Filter<ILoggingEvent> {
         // 处理
         handle(file, "初始化");
 
+        // 备注：docker挂载时，必须挂载目录，才会正确的监听
         WatchMonitor.createAll(file.getParentFile(), new Watcher() {
 
             @Override
@@ -135,9 +138,6 @@ public class LogFilter extends Filter<ILoggingEvent> {
         BaseProperties basePropertiesTemp = new Yaml().loadAs(str, BaseProperties.class);
 
         BeanUtil.copyProperties(basePropertiesTemp, baseProperties);
-
-        System.out.println(
-            "文件路径：" + file.getPath() + "，类型：" + type + "，值：" + JSONUtil.toJsonStr(baseProperties));
 
         log.info("【{}】baseProperties：{}", type, JSONUtil.toJsonStr(baseProperties));
 
