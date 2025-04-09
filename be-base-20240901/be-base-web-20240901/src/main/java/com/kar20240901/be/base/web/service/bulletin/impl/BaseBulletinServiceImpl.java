@@ -2,6 +2,8 @@ package com.kar20240901.be.base.web.service.bulletin.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
@@ -35,8 +37,10 @@ import com.kar20240901.be.base.web.util.kafka.TempKafkaUtil;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Set;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -45,6 +49,29 @@ public class BaseBulletinServiceImpl extends ServiceImpl<BaseBulletinMapper, Bas
 
     @Resource
     BaseBulletinReadTimeRefUserMapper baseBulletinReadTimeRefUserMapper;
+
+    /**
+     * 定时任务，通知有新公告
+     */
+    @PreDestroy
+    @Scheduled(fixedDelay = 5000)
+    public void scheduledSava() {
+
+        Date date = new Date();
+
+        DateTime beginTime = DateUtil.offsetSecond(date, -10);
+
+        Long count = lambdaQuery().ge(BaseBulletinDO::getPublishTime, beginTime).eq(TempEntityNoId::getEnableFlag, true)
+            .eq(BaseBulletinDO::getStatus, BaseBulletinStatusEnum.PUBLICITY).count();
+
+        if (count <= 0) {
+            return;
+        }
+
+        // 发送：刷新公告信息
+        sendRefreshBulletin(null);
+
+    }
 
     /**
      * 新增/修改
