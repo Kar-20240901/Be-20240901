@@ -75,6 +75,12 @@ public class BaseBulletinController {
         return R.okData(baseService.userSelfPage(dto));
     }
 
+    @PostMapping("/userSelfInfoById")
+    @Operation(summary = "当前用户查看公告详情")
+    public R<BaseBulletinDO> userSelfInfoById(@RequestBody @Valid NotNullId notNullId) {
+        return R.okData(baseService.userSelfInfoById(notNullId));
+    }
+
     @PostMapping("/userSelfCount")
     @Operation(summary = "当前用户可以查看的公告总数")
     public R<Long> userSelfCount() {

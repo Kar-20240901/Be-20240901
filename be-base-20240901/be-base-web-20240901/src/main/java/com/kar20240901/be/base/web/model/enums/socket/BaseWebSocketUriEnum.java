@@ -18,6 +18,8 @@ public enum BaseWebSocketUriEnum implements IWebSocketUri {
 
     BASE_SOCKET_REF_USER_CHANGE_CONSOLE_FLAG_BY_ID_SET("/base/socketRefUser/changeConsoleFlagByIdSet"), // 打开/关闭 控制台
 
+    BASE_REFRESH_BULLETIN("/base/bulletin/refresh"), // 刷新公告
+
     ;
 
     private final String uri;

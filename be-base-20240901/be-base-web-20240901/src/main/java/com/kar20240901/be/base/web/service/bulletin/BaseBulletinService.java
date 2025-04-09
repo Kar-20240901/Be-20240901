@@ -25,6 +25,8 @@ public interface BaseBulletinService extends IService<BaseBulletinDO> {
 
     Page<BaseBulletinDO> userSelfPage(BaseBulletinUserSelfPageDTO dto);
 
+    BaseBulletinDO userSelfInfoById(NotNullId notNullId);
+
     Long userSelfCount();
 
     String userSelfUpdateReadTime();

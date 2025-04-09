@@ -18,6 +18,7 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,10 +48,23 @@ public class WebSocketUtil {
             return;
         }
 
+        if (bo.getWebSocketMessageDTO() == null) {
+            return;
+        }
+
         Set<Long> userIdSet = bo.getUserIdSet();
 
-        if (CollUtil.isEmpty(userIdSet) || bo.getWebSocketMessageDTO() == null) {
+        // 给所有在线的用户发送
+        if (userIdSet == null) {
+
+            // 再包一层：防止遍历的时候，集合被修改
+            userIdSet = new HashSet<>(NettyWebSocketServerHandler.USER_ID_CHANNEL_MAP.keySet());
+
+        } else if (userIdSet.isEmpty()) {
+
+            // 不发送
             return;
+
         }
 
         String jsonStr = objectMapper.writeValueAsString(bo.getWebSocketMessageDTO());
