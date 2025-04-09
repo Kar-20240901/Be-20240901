@@ -55,7 +55,7 @@ public class BaseBulletinServiceImpl extends ServiceImpl<BaseBulletinMapper, Bas
      */
     @PreDestroy
     @Scheduled(fixedDelay = 5000)
-    public void scheduledSava() {
+    public void scheduledRefreshBulletin() {
 
         Date date = new Date();
 
