@@ -121,13 +121,17 @@ public class MybatisSqlLoggerInterceptor implements Interceptor {
 
             String pre = "";
 
+            String formatStr = "\033[31m{}\033[0m";
+
             if (slowFlag) {
 
                 pre = "慢";
 
+                formatStr = "\033[33m{}\033[0m";
+
             }
 
-            log.info("{}sql，耗时：{}ms，类型：【{}】{}\n\033[0;31m{}\033[0m", pre, timeNumber, sqlCommandType.toString(),
+            log.info("{}sql，耗时：{}ms，类型：【{}】{}\n" + formatStr, pre, timeNumber, sqlCommandType.toString(),
                 sqlIdCallBack.getValue(), sqlCallBack.getValue());
 
         }
