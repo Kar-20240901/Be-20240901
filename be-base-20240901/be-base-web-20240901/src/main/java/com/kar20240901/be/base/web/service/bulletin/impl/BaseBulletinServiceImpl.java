@@ -88,7 +88,6 @@ public class BaseBulletinServiceImpl extends ServiceImpl<BaseBulletinMapper, Bas
 
         BaseBulletinDO baseBulletinDO = new BaseBulletinDO();
 
-        baseBulletinDO.setType(dto.getType());
         baseBulletinDO.setContent(dto.getContent());
         baseBulletinDO.setTitle(dto.getTitle());
         baseBulletinDO.setPublishTime(dto.getPublishTime());
@@ -119,7 +118,6 @@ public class BaseBulletinServiceImpl extends ServiceImpl<BaseBulletinMapper, Bas
 
         return lambdaQuery().like(StrUtil.isNotBlank(dto.getTitle()), BaseBulletinDO::getTitle, dto.getTitle())
             .like(StrUtil.isNotBlank(dto.getContent()), BaseBulletinDO::getContent, dto.getContent())
-            .eq(dto.getType() != null, BaseBulletinDO::getType, dto.getType())
             .le(dto.getPtEndTime() != null, BaseBulletinDO::getPublishTime, dto.getPtEndTime())
             .ge(dto.getPtBeginTime() != null, BaseBulletinDO::getPublishTime, dto.getPtBeginTime())
             .eq(dto.getEnableFlag() != null, TempEntityNoId::getEnableFlag, dto.getEnableFlag())
@@ -132,8 +130,7 @@ public class BaseBulletinServiceImpl extends ServiceImpl<BaseBulletinMapper, Bas
      */
     private static ArrayList<SFunction<BaseBulletinDO, ?>> getMyPageSelectList() {
 
-        return CollUtil.newArrayList(TempEntity::getId, BaseBulletinDO::getTitle, BaseBulletinDO::getPublishTime,
-            BaseBulletinDO::getType);
+        return CollUtil.newArrayList(TempEntity::getId, BaseBulletinDO::getTitle, BaseBulletinDO::getPublishTime);
 
     }
 
@@ -251,7 +248,7 @@ public class BaseBulletinServiceImpl extends ServiceImpl<BaseBulletinMapper, Bas
         return lambdaQuery().eq(TempEntity::getId, notNullId.getId()).le(BaseBulletinDO::getPublishTime, date)
             .eq(BaseBulletinDO::getStatus, BaseBulletinStatusEnum.PUBLICITY).eq(TempEntityNoId::getEnableFlag, true)
             .select(TempEntity::getId, BaseBulletinDO::getTitle, BaseBulletinDO::getPublishTime,
-                BaseBulletinDO::getType, BaseBulletinDO::getContent).one();
+                BaseBulletinDO::getContent).one();
 
     }
 

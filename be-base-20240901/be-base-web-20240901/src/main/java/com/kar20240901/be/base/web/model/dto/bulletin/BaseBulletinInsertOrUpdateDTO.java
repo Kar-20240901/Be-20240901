@@ -13,10 +13,6 @@ import lombok.EqualsAndHashCode;
 @Data
 public class BaseBulletinInsertOrUpdateDTO extends TempInsertOrUpdateDTO {
 
-    @NotNull
-    @Schema(description = "公告类型（字典值）")
-    private Integer type;
-
     @NotBlank
     @Schema(description = "公告内容（富文本）")
     private String content;

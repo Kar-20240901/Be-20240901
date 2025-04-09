@@ -14,9 +14,6 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "主表：公告表")
 public class BaseBulletinDO extends TempEntity {
 
-    @Schema(description = "公告类型（字典值）")
-    private Integer type;
-
     @Schema(description = "公告内容（富文本）")
     private String content;
 

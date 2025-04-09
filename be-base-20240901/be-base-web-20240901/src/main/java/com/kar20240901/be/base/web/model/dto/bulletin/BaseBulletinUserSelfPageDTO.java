@@ -10,9 +10,6 @@ import lombok.EqualsAndHashCode;
 @Data
 public class BaseBulletinUserSelfPageDTO extends MyPageDTO {
 
-    @Schema(description = "公告类型（字典值）")
-    private Integer type;
-
     @Schema(description = "公告内容（富文本）")
     private String content;
 
