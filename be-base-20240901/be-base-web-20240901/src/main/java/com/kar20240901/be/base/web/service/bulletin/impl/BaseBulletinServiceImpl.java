@@ -79,6 +79,10 @@ public class BaseBulletinServiceImpl extends ServiceImpl<BaseBulletinMapper, Bas
     @Override
     public String insertOrUpdate(BaseBulletinInsertOrUpdateDTO dto) {
 
+        if (dto.getPublishTime().compareTo(new Date()) < 0) {
+            R.errorMsg("操作失败：发布时间不能晚于当前时间");
+        }
+
         if (dto.getId() == null) {
 
             doInsertOrUpdate(dto);
@@ -122,6 +126,8 @@ public class BaseBulletinServiceImpl extends ServiceImpl<BaseBulletinMapper, Bas
         baseBulletinDO.setId(dto.getId());
         baseBulletinDO.setEnableFlag(dto.getEnableFlag());
 
+        baseBulletinDO.setRemark("");
+
         saveOrUpdate(baseBulletinDO);
 
     }
@@ -140,6 +146,14 @@ public class BaseBulletinServiceImpl extends ServiceImpl<BaseBulletinMapper, Bas
         if (userSelfFlag && dto.getPageSize() == 1) {
 
             myPageSelectList.add(BaseBulletinDO::getContent);
+
+        }
+
+        if (!userSelfFlag) {
+
+            myPageSelectList.add(BaseBulletinDO::getStatus);
+
+            myPageSelectList.add(BaseBulletinDO::getEnableFlag);
 
         }
 
@@ -200,10 +214,14 @@ public class BaseBulletinServiceImpl extends ServiceImpl<BaseBulletinMapper, Bas
 
         RedissonUtil.doMultiLock(BaseRedisKeyEnum.PRE_BULLETIN_ID + ":", notEmptyIdSet.getIdSet(), () -> {
 
-            lambdaUpdate().in(TempEntity::getId, notEmptyIdSet.getIdSet())
+            boolean update = lambdaUpdate().in(TempEntity::getId, notEmptyIdSet.getIdSet())
                 .eq(BaseBulletinDO::getStatus, BaseBulletinStatusEnum.DRAFT).ge(BaseBulletinDO::getPublishTime, date)
                 .set(BaseBulletinDO::getStatus, BaseBulletinStatusEnum.PUBLICITY)
                 .set(BaseBulletinDO::getUpdateTime, date).set(TempEntityNoIdSuper::getUpdateId, currentUserId).update();
+
+            if (notEmptyIdSet.getIdSet().size() == 1 && !update) {
+                R.errorMsg("操作失败：发布失败");
+            }
 
         });
 
@@ -223,10 +241,14 @@ public class BaseBulletinServiceImpl extends ServiceImpl<BaseBulletinMapper, Bas
 
         RedissonUtil.doMultiLock(BaseRedisKeyEnum.PRE_BULLETIN_ID + ":", notEmptyIdSet.getIdSet(), () -> {
 
-            lambdaUpdate().in(TempEntity::getId, notEmptyIdSet.getIdSet())
+            boolean update = lambdaUpdate().in(TempEntity::getId, notEmptyIdSet.getIdSet())
                 .eq(BaseBulletinDO::getStatus, BaseBulletinStatusEnum.PUBLICITY)
                 .ge(BaseBulletinDO::getPublishTime, date).set(BaseBulletinDO::getStatus, BaseBulletinStatusEnum.DRAFT)
                 .set(BaseBulletinDO::getUpdateTime, date).set(TempEntityNoIdSuper::getUpdateId, currentUserId).update();
+
+            if (notEmptyIdSet.getIdSet().size() == 1 && !update) {
+                R.errorMsg("操作失败：撤回失败");
+            }
 
         });
 
