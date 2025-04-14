@@ -58,15 +58,15 @@ public class BaseBulletinController {
     @Operation(summary = "发布")
     @PostMapping("/publish")
     @PreAuthorize("hasAuthority('baseBulletin:insertOrUpdate')")
-    public R<String> publish(@RequestBody @Valid NotEmptyIdSet notEmptyIdSet) {
-        return R.okMsg(baseService.publish(notEmptyIdSet));
+    public R<String> publish(@RequestBody @Valid NotNullId notNullId) {
+        return R.okMsg(baseService.publish(notNullId));
     }
 
     @Operation(summary = "撤回")
     @PostMapping("/revoke")
     @PreAuthorize("hasAuthority('baseBulletin:insertOrUpdate')")
-    public R<String> revoke(@RequestBody @Valid NotEmptyIdSet notEmptyIdSet) {
-        return R.okMsg(baseService.revoke(notEmptyIdSet));
+    public R<String> revoke(@RequestBody @Valid NotNullId notNullId) {
+        return R.okMsg(baseService.revoke(notNullId));
     }
 
     @PostMapping("/userSelfPage")

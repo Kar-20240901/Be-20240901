@@ -206,22 +206,44 @@ public class BaseBulletinServiceImpl extends ServiceImpl<BaseBulletinMapper, Bas
      * 发布
      */
     @Override
-    public String publish(NotEmptyIdSet notEmptyIdSet) {
+    public String publish(NotNullId notNullId) {
 
         Date date = new Date();
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        RedissonUtil.doMultiLock(BaseRedisKeyEnum.PRE_BULLETIN_ID + ":", notEmptyIdSet.getIdSet(), () -> {
+        Long id = notNullId.getId();
 
-            boolean update = lambdaUpdate().in(TempEntity::getId, notEmptyIdSet.getIdSet())
-                .eq(BaseBulletinDO::getStatus, BaseBulletinStatusEnum.DRAFT).ge(BaseBulletinDO::getPublishTime, date)
+        RedissonUtil.doLock(BaseRedisKeyEnum.PRE_BULLETIN_ID + ":" + id, () -> {
+
+            BaseBulletinDO baseBulletinDO = lambdaQuery().eq(TempEntity::getId, id).one();
+
+            if (baseBulletinDO == null) {
+                R.errorMsg("发布失败：公告不存在");
+            }
+
+            Boolean enableFlag = baseBulletinDO.getEnableFlag();
+
+            if (!BooleanUtil.isTrue(enableFlag)) {
+                R.errorMsg("发布失败：公告已被禁用");
+            }
+
+            BaseBulletinStatusEnum baseBulletinStatusEnum = baseBulletinDO.getStatus();
+
+            if (!BaseBulletinStatusEnum.DRAFT.equals(baseBulletinStatusEnum)) {
+                R.errorMsg("发布失败：公告不是草稿状态");
+            }
+
+            Date publishTime = baseBulletinDO.getPublishTime();
+
+            if (date.compareTo(publishTime) > 0) {
+                R.errorMsg("发布失败：发布时间小于当前时间");
+            }
+
+            lambdaUpdate().eq(TempEntity::getId, id).eq(BaseBulletinDO::getStatus, BaseBulletinStatusEnum.DRAFT)
+                .ge(BaseBulletinDO::getPublishTime, date)
                 .set(BaseBulletinDO::getStatus, BaseBulletinStatusEnum.PUBLICITY)
                 .set(BaseBulletinDO::getUpdateTime, date).set(TempEntityNoIdSuper::getUpdateId, currentUserId).update();
-
-            if (notEmptyIdSet.getIdSet().size() == 1 && !update) {
-                R.errorMsg("操作失败：发布失败");
-            }
 
         });
 
@@ -233,22 +255,43 @@ public class BaseBulletinServiceImpl extends ServiceImpl<BaseBulletinMapper, Bas
      * 撤回
      */
     @Override
-    public String revoke(NotEmptyIdSet notEmptyIdSet) {
+    public String revoke(NotNullId notNullId) {
 
         Date date = new Date();
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        RedissonUtil.doMultiLock(BaseRedisKeyEnum.PRE_BULLETIN_ID + ":", notEmptyIdSet.getIdSet(), () -> {
+        Long id = notNullId.getId();
 
-            boolean update = lambdaUpdate().in(TempEntity::getId, notEmptyIdSet.getIdSet())
-                .eq(BaseBulletinDO::getStatus, BaseBulletinStatusEnum.PUBLICITY)
+        RedissonUtil.doLock(BaseRedisKeyEnum.PRE_BULLETIN_ID + ":" + id, () -> {
+
+            BaseBulletinDO baseBulletinDO = lambdaQuery().eq(TempEntity::getId, id).one();
+
+            if (baseBulletinDO == null) {
+                R.errorMsg("撤回失败：公告不存在");
+            }
+
+            Boolean enableFlag = baseBulletinDO.getEnableFlag();
+
+            if (!BooleanUtil.isTrue(enableFlag)) {
+                R.errorMsg("撤回失败：公告已被禁用");
+            }
+
+            BaseBulletinStatusEnum baseBulletinStatusEnum = baseBulletinDO.getStatus();
+
+            if (!BaseBulletinStatusEnum.PUBLICITY.equals(baseBulletinStatusEnum)) {
+                R.errorMsg("撤回失败：公告不是公示状态");
+            }
+
+            Date publishTime = baseBulletinDO.getPublishTime();
+
+            if (date.compareTo(publishTime) > 0) {
+                R.errorMsg("撤回失败：发布时间小于当前时间");
+            }
+
+            lambdaUpdate().eq(TempEntity::getId, id).eq(BaseBulletinDO::getStatus, BaseBulletinStatusEnum.PUBLICITY)
                 .ge(BaseBulletinDO::getPublishTime, date).set(BaseBulletinDO::getStatus, BaseBulletinStatusEnum.DRAFT)
                 .set(BaseBulletinDO::getUpdateTime, date).set(TempEntityNoIdSuper::getUpdateId, currentUserId).update();
-
-            if (notEmptyIdSet.getIdSet().size() == 1 && !update) {
-                R.errorMsg("操作失败：撤回失败");
-            }
 
         });
 

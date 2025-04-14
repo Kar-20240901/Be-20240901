@@ -19,9 +19,9 @@ public interface BaseBulletinService extends IService<BaseBulletinDO> {
 
     String deleteByIdSet(NotEmptyIdSet notEmptyIdSet);
 
-    String publish(NotEmptyIdSet notEmptyIdSet);
+    String publish(NotNullId notNullId);
 
-    String revoke(NotEmptyIdSet notEmptyIdSet);
+    String revoke(NotNullId notNullId);
 
     Page<BaseBulletinDO> userSelfPage(BaseBulletinUserSelfPageDTO dto);
 
