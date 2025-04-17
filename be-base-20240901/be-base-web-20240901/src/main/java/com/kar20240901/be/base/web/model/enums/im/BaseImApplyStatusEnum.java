@@ -18,8 +18,6 @@ public enum BaseImApplyStatusEnum {
 
     REJECTED(301), // 已拒绝
 
-    BLOCKED(401), // 已被拉黑，单独
-
     ;
 
     @EnumValue

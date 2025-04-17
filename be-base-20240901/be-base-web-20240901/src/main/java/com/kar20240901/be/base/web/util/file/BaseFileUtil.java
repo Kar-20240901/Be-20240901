@@ -20,6 +20,7 @@ import com.kar20240901.be.base.web.configuration.log.LogFilter;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.file.BaseFileStorageConfigurationMapper;
+import com.kar20240901.be.base.web.mapper.im.BaseImGroupMapper;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileComposeBO;
 import com.kar20240901.be.base.web.model.bo.file.BaseFilePrivateDownloadBO;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadBO;
@@ -37,6 +38,7 @@ import com.kar20240901.be.base.web.model.domain.file.BaseFileDO;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileTransferChunkDO;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileTransferDO;
+import com.kar20240901.be.base.web.model.domain.im.BaseImGroupDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadFileSystemChunkDTO;
@@ -101,6 +103,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class BaseFileUtil {
 
     private static BaseFileService baseFileService;
+
     private static BaseFileAuthService baseFileAuthService;
 
     private static BaseUserInfoMapper baseUserInfoMapper;
@@ -151,6 +154,13 @@ public class BaseFileUtil {
         BaseFileUtil.baseFileTransferChunkService = baseFileTransferChunkService;
     }
 
+    private static BaseImGroupMapper baseImGroupMapper;
+
+    @Resource
+    public void setBaseImGroupMapper(BaseImGroupMapper baseImGroupMapper) {
+        BaseFileUtil.baseImGroupMapper = baseImGroupMapper;
+    }
+
     /**
      * 上传文件：公有和私有 备注：objectName 相同的，会被覆盖掉
      *
@@ -175,6 +185,27 @@ public class BaseFileUtil {
 
                     ChainWrappers.lambdaUpdateChain(baseUserInfoMapper).eq(TempUserInfoDO::getId, bo.getUserId())
                         .set(TempUserInfoDO::getAvatarFileId, baseFileDO.getId()).update();
+
+                }, null, bo.getUserId().toString(), true, true, null, null);
+
+        } else if (BaseFileUploadTypeEnum.IM_GROUP_AVATAR.equals(bo.getUploadType())) {
+
+            // 如果是：im群组头像
+            BaseImGroupDO baseImGroupDO =
+                ChainWrappers.lambdaQueryChain(baseImGroupMapper).eq(BaseImGroupDO::getId, bo.getRefId())
+                    .eq(BaseImGroupDO::getBelongId, bo.getUserId()).one();
+
+            if (baseImGroupDO == null) {
+                R.error(TempBizCodeEnum.INSUFFICIENT_PERMISSIONS);
+            }
+
+            // 通用：上传处理
+            resultBaseFileId = uploadCommonHandle(bo, fileType, null,
+
+                (baseFileDO) -> {
+
+                    ChainWrappers.lambdaUpdateChain(baseImGroupMapper).eq(BaseImGroupDO::getId, bo.getRefId())
+                        .set(BaseImGroupDO::getAvatarFileId, baseFileDO.getId()).update();
 
                 }, null, bo.getUserId().toString(), true, true, null, null);
 
@@ -1447,8 +1478,7 @@ public class BaseFileUtil {
     private static void deepFindFolderAndFile(BaseFileDO folder, Set<Long> removeFileIdSet, List<BaseFileDO> fileList) {
 
         List<BaseFileDO> baseFileDoList = getRemoveLambdaQueryChainWrapper().like(BaseFileDO::getPidPathStr,
-                SeparatorUtil.verticalLine(folder.getId()))
-                .list();
+            SeparatorUtil.verticalLine(folder.getId())).list();
 
         if (CollUtil.isEmpty(baseFileDoList)) {
             return;

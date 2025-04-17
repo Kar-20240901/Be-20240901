@@ -9,6 +9,6 @@ public interface BasePayService extends IService<BasePayDO> {
 
     BasePayTradeStatusEnum payTradeStatusById(NotNullId notNullId);
 
-    BasePayTradeStatusEnum payTradeStatusByIdOther(NotNullId notNullId);
+    BasePayTradeStatusEnum payTradeStatusByIdThird(NotNullId notNullId);
 
 }

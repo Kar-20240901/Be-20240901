@@ -18,7 +18,7 @@ import com.kar20240901.be.base.web.mapper.base.BasePostRefUserMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseRoleRefUserMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseUserMapper;
-import com.kar20240901.be.base.web.mapper.otherapp.BaseOtherAppMapper;
+import com.kar20240901.be.base.web.mapper.thirdapp.BaseThirdAppMapper;
 import com.kar20240901.be.base.web.model.bo.base.BaseQrCodeSceneBindBO;
 import com.kar20240901.be.base.web.model.configuration.base.IUserSignConfiguration;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
@@ -30,11 +30,11 @@ import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
 import com.kar20240901.be.base.web.model.domain.base.TempUserDO;
 import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
-import com.kar20240901.be.base.web.model.domain.otherapp.BaseOtherAppDO;
+import com.kar20240901.be.base.web.model.domain.thirdapp.BaseThirdAppDO;
 import com.kar20240901.be.base.web.model.enums.base.BaseRedisKeyEnum;
 import com.kar20240901.be.base.web.model.enums.base.BaseRequestCategoryEnum;
 import com.kar20240901.be.base.web.model.enums.base.TempRedisKeyEnum;
-import com.kar20240901.be.base.web.model.enums.otherapp.BaseOtherAppTypeEnum;
+import com.kar20240901.be.base.web.model.enums.thirdapp.BaseThirdAppTypeEnum;
 import com.kar20240901.be.base.web.model.interfaces.base.IBaseQrCodeSceneType;
 import com.kar20240901.be.base.web.model.interfaces.base.IBizCode;
 import com.kar20240901.be.base.web.model.interfaces.base.IRedisKey;
@@ -44,7 +44,7 @@ import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.base.SignInVO;
 import com.kar20240901.be.base.web.properties.base.BaseSecurityProperties;
 import com.kar20240901.be.base.web.service.base.impl.BaseRoleServiceImpl;
-import com.kar20240901.be.base.web.util.otherapp.WxUtil;
+import com.kar20240901.be.base.web.util.thirdapp.WxUtil;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -99,11 +99,11 @@ public class SignUtil {
         SignUtil.baseRoleRefUserMapper = baseRoleRefUserMapper;
     }
 
-    private static BaseOtherAppMapper baseOtherAppMapper;
+    private static BaseThirdAppMapper baseThirdAppMapper;
 
     @Resource
-    public void setBaseOtherAppMapper(BaseOtherAppMapper baseOtherAppMapper) {
-        SignUtil.baseOtherAppMapper = baseOtherAppMapper;
+    public void setBaseThirdAppMapper(BaseThirdAppMapper baseThirdAppMapper) {
+        SignUtil.baseThirdAppMapper = baseThirdAppMapper;
     }
 
     @Nullable
@@ -1308,9 +1308,9 @@ public class SignUtil {
     public static GetQrCodeVO getQrCodeUrlWx(boolean getQrCodeUrlFlag, IBaseQrCodeSceneType iBaseQrCodeSceneType) {
 
         // 执行
-        return getQrCodeUrl(getQrCodeUrlFlag, BaseOtherAppTypeEnum.WX_OFFICIAL_ACCOUNT.getCode(), baseOtherAppDO -> {
+        return getQrCodeUrl(getQrCodeUrlFlag, BaseThirdAppTypeEnum.WX_OFFICIAL.getCode(), baseThirdAppDO -> {
 
-            String accessToken = WxUtil.getAccessToken(baseOtherAppDO.getAppId());
+            String accessToken = WxUtil.getAccessToken(baseThirdAppDO.getAppId());
 
             Long qrCodeId = IdGeneratorUtil.nextId();
 
@@ -1328,16 +1328,16 @@ public class SignUtil {
      */
     @SneakyThrows
     @Nullable
-    public static GetQrCodeVO getQrCodeUrl(boolean getQrCodeUrlFlag, @Nullable Integer otherAppType,
-        Func1<BaseOtherAppDO, GetQrCodeVO> func1,
-        @Nullable Consumer<LambdaQueryChainWrapper<BaseOtherAppDO>> lambdaQueryChainWrapperConsumer) {
+    public static GetQrCodeVO getQrCodeUrl(boolean getQrCodeUrlFlag, @Nullable Integer thirdAppType,
+        Func1<BaseThirdAppDO, GetQrCodeVO> func1,
+        @Nullable Consumer<LambdaQueryChainWrapper<BaseThirdAppDO>> lambdaQueryChainWrapperConsumer) {
 
-        if (otherAppType == null) {
-            otherAppType = BaseOtherAppTypeEnum.WX_OFFICIAL_ACCOUNT.getCode();
+        if (thirdAppType == null) {
+            thirdAppType = BaseThirdAppTypeEnum.WX_OFFICIAL.getCode();
         }
 
-        LambdaQueryChainWrapper<BaseOtherAppDO> lambdaQueryChainWrapper =
-            ChainWrappers.lambdaQueryChain(baseOtherAppMapper).eq(BaseOtherAppDO::getType, otherAppType)
+        LambdaQueryChainWrapper<BaseThirdAppDO> lambdaQueryChainWrapper =
+            ChainWrappers.lambdaQueryChain(baseThirdAppMapper).eq(BaseThirdAppDO::getType, thirdAppType)
                 .eq(TempEntityNoId::getEnableFlag, true);
 
         if (lambdaQueryChainWrapperConsumer != null) {
@@ -1346,8 +1346,8 @@ public class SignUtil {
 
         }
 
-        Page<BaseOtherAppDO> page =
-            lambdaQueryChainWrapper.select(BaseOtherAppDO::getAppId).page(MyPageUtil.getLimit1Page());
+        Page<BaseThirdAppDO> page =
+            lambdaQueryChainWrapper.select(BaseThirdAppDO::getAppId).page(MyPageUtil.getLimit1Page());
 
         if (CollUtil.isEmpty(page.getRecords())) {
             return null;
@@ -1357,9 +1357,9 @@ public class SignUtil {
             return new GetQrCodeVO(); // 这里回复一个对象，然后前端可以根据这个值，和前面的 null值进行判断，是否要进一步获取二维码地址，原因：二维码地址获取速度慢
         }
 
-        BaseOtherAppDO baseOtherAppDO = page.getRecords().get(0);
+        BaseThirdAppDO baseThirdAppDO = page.getRecords().get(0);
 
-        return func1.call(baseOtherAppDO);
+        return func1.call(baseThirdAppDO);
 
     }
 

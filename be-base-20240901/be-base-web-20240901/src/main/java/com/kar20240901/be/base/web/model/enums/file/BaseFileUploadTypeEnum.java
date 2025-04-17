@@ -27,6 +27,9 @@ public enum BaseFileUploadTypeEnum implements IBaseFileUploadType {
     // 头像
     AVATAR(101, "avatar", CollUtil.newHashSet("jpeg", "png", "jpg"), 1024 * 1024 * 2, true), //
 
+    // im群组头像
+    IM_GROUP_AVATAR(102, "im-group-avatar", CollUtil.newHashSet("jpeg", "png", "jpg"), 1024 * 1024 * 2, true), //
+
     // excel
     EXCEL(201, "excel", CollUtil.newHashSet("xlsx"), 1024 * 1024 * 2, false), //
 

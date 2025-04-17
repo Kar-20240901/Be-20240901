@@ -10,11 +10,9 @@ public enum BaseRedisKeyEnum implements IRedisKey {
     // 【PRE_】开头 ↓
     // im 相关 ↓
 
-    PRE_BASE_IM_APPLY_PRIVATE_CHAT, // 即时通讯申请锁，锁：【用户主键 id + 目标用户主键 id】，最小的 userId会在前面
+    PRE_IM_APPLY_FRIEND, // im好友申请锁，锁：【用户主键 id + 申请目标用户主键 id】
 
-    PRE_BASE_IM_SESSION_REF_USER, // 即时通讯会话关联用户锁，目的：往会话里面添加用户时，防止重复添加，锁：【sessionId + 用户主键 id】
-
-    PRE_BASE_IM_SESSION_CUSTOMER, // 即时通讯客服会话锁，目的：创建会话时，防止重复添加，锁：【用户主键 id】
+    PRE_IM_SESSION_REF_USER, // im会话关联用户锁，目的：往会话里面添加用户时，防止重复添加，锁：【sessionId + 用户主键 id】
 
     // im 相关 ↑
 
@@ -30,7 +28,7 @@ public enum BaseRedisKeyEnum implements IRedisKey {
 
     PRE_PAY, // 支付锁，锁：【支付主键 id】
 
-    PRE_OTHER_APP_TYPE_AND_APP_ID, // 第三方应用，类型code 和 appid锁，目的：同一个类型下的 appId不能重复，锁：【类型code 和 appid】
+    PRE_THIRD_APP_TYPE_AND_APP_ID, // 第三方应用，类型code 和 appid锁，目的：同一个类型下的 appId不能重复，锁：【类型code 和 appid】
 
     PRE_SIGN_CONFIGURATION, // 用户登录注册相关配置锁
 

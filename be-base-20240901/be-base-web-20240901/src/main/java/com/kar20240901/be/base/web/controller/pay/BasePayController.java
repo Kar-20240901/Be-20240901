@@ -28,9 +28,9 @@ public class BasePayController {
     }
 
     @Operation(summary = "通过主键id，查看支付状态-第三方支付平台")
-    @PostMapping("/payTradeStatusById/other")
-    public R<BasePayTradeStatusEnum> payTradeStatusByIdOther(@RequestBody @Valid NotNullId notNullId) {
-        return R.okData(baseService.payTradeStatusByIdOther(notNullId));
+    @PostMapping("/payTradeStatusById/third")
+    public R<BasePayTradeStatusEnum> payTradeStatusByIdThird(@RequestBody @Valid NotNullId notNullId) {
+        return R.okData(baseService.payTradeStatusByIdThird(notNullId));
     }
 
 }

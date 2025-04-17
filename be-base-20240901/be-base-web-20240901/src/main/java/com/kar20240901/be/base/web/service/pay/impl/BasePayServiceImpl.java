@@ -37,7 +37,7 @@ public class BasePayServiceImpl extends ServiceImpl<BasePayMapper, BasePayDO> im
      * 通过主键id，查看支付状态-第三方支付平台
      */
     @Override
-    public BasePayTradeStatusEnum payTradeStatusByIdOther(NotNullId notNullId) {
+    public BasePayTradeStatusEnum payTradeStatusByIdThird(NotNullId notNullId) {
 
         // 查询：第三方的支付状态
         return PayUtil.query(notNullId.getId().toString());
