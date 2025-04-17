@@ -8,6 +8,16 @@ import com.kar20240901.be.base.web.model.interfaces.base.IRedisKey;
 public enum BaseRedisKeyEnum implements IRedisKey {
 
     // 【PRE_】开头 ↓
+    // im 相关 ↓
+
+    PRE_BASE_IM_APPLY_PRIVATE_CHAT, // 即时通讯申请锁，锁：【用户主键 id + 目标用户主键 id】，最小的 userId会在前面
+
+    PRE_BASE_IM_SESSION_REF_USER, // 即时通讯会话关联用户锁，目的：往会话里面添加用户时，防止重复添加，锁：【sessionId + 用户主键 id】
+
+    PRE_BASE_IM_SESSION_CUSTOMER, // 即时通讯客服会话锁，目的：创建会话时，防止重复添加，锁：【用户主键 id】
+
+    // im 相关 ↑
+
     PRE_BULLETIN_ID, // 公告锁，锁：【公告id】，目的：防止状态异常
 
     PRE_FILE_TRANSFER, // 传输锁，锁：【传输id】，目的：防止重复合并

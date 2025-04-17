@@ -8,7 +8,7 @@ import com.kar20240901.be.base.web.model.constant.base.OperationDescriptionConst
 import com.kar20240901.be.base.web.model.domain.request.BaseRequestDO;
 import com.kar20240901.be.base.web.model.domain.request.BaseRequestInfoDO;
 import com.kar20240901.be.base.web.model.dto.socket.WebSocketMessageDTO;
-import com.kar20240901.be.base.web.server.NettyWebSocketServerHandler;
+import com.kar20240901.be.base.web.socket.NettyWebSocketServerHandler;
 import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
 import com.kar20240901.be.base.web.util.base.Ip2RegionUtil;
 import com.kar20240901.be.base.web.util.base.MyUserInfoUtil;

@@ -1,4 +1,4 @@
-package com.kar20240901.be.base.web.server;
+package com.kar20240901.be.base.web.socket;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;

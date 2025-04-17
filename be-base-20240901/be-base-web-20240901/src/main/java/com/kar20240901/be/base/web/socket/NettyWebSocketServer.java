@@ -1,4 +1,4 @@
-package com.kar20240901.be.base.web.server;
+package com.kar20240901.be.base.web.socket;
 
 import com.kar20240901.be.base.web.configuration.base.BaseConfiguration;
 import com.kar20240901.be.base.web.configuration.socket.NettyWebSocketProperties;
