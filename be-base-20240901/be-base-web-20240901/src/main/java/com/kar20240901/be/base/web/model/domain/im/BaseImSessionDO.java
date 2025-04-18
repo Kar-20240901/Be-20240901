@@ -11,7 +11,7 @@ import lombok.Data;
 @Schema(description = "主表：会话表")
 public class BaseImSessionDO {
 
-    @TableId(type = IdType.ASSIGN_ID)
+    @TableId(type = IdType.INPUT)
     @Schema(description = "会话主键 id")
     private Long id;
 

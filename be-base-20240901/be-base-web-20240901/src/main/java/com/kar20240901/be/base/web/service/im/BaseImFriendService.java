@@ -5,6 +5,6 @@ import com.kar20240901.be.base.web.model.domain.im.BaseImFriendDO;
 
 public interface BaseImFriendService extends IService<BaseImFriendDO> {
 
-    Long addFriend(Long sourceUserId, Long targetUserId);
+    void addFriend(Long sourceUserId, Long targetUserId, Long sessionId);
 
 }

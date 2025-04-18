@@ -5,7 +5,6 @@ import com.kar20240901.be.base.web.mapper.im.BaseImFriendMapper;
 import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.domain.im.BaseImFriendDO;
 import com.kar20240901.be.base.web.service.im.BaseImFriendService;
-import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
 import java.util.Date;
 import org.springframework.stereotype.Service;
 
@@ -20,11 +19,9 @@ public class BaseImFriendServiceImpl extends ServiceImpl<BaseImFriendMapper, Bas
      */
     @MyTransactional
     @Override
-    public Long addFriend(Long userId1, Long userId2) {
+    public void addFriend(Long userId1, Long userId2, Long sessionId) {
 
         Date date = new Date();
-
-        Long sessionId = IdGeneratorUtil.nextId();
 
         BaseImFriendDO baseImFriendDo1 = new BaseImFriendDO();
 
@@ -43,8 +40,6 @@ public class BaseImFriendServiceImpl extends ServiceImpl<BaseImFriendMapper, Bas
         baseImFriendDo2.setSessionId(sessionId);
 
         save(baseImFriendDo2);
-
-        return sessionId;
 
     }
 

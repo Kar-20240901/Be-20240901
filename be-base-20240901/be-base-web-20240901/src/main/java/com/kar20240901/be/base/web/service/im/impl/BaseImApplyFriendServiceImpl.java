@@ -32,6 +32,7 @@ import com.kar20240901.be.base.web.service.im.BaseImApplyFriendService;
 import com.kar20240901.be.base.web.service.im.BaseImFriendService;
 import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
 import com.kar20240901.be.base.web.service.im.BaseImSessionService;
+import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import com.kar20240901.be.base.web.util.base.RedissonUtil;
@@ -160,6 +161,7 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
                 baseImApplyFriendDO.setUserId(userId);
                 baseImApplyFriendDO.setTargetUserId(dto.getId());
                 baseImApplyFriendDO.setStatus(BaseImApplyStatusEnum.APPLYING);
+                baseImApplyFriendDO.setSessionId(TempConstant.NEGATIVE_ONE);
 
             } else {
 
@@ -250,6 +252,16 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
             baseImApplyFriendDO.setStatus(BaseImApplyStatusEnum.PASSED);
 
+            Long sessionId = baseImApplyFriendDO.getSessionId();
+
+            if (sessionId.equals(TempConstant.NEGATIVE_ONE)) {
+
+                sessionId = IdGeneratorUtil.nextId();
+
+            }
+
+            baseImApplyFriendDO.setSessionId(sessionId);
+
             // 更新数据
             updateById(baseImApplyFriendDO);
 
@@ -259,8 +271,8 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
                 .set(BaseImApplyFriendExtraDO::getHiddenFlag, false).update();
 
             // 创建好友
-            Long sessionId =
-                baseImFriendService.addFriend(baseImApplyFriendDO.getUserId(), baseImApplyFriendDO.getTargetUserId());
+            baseImFriendService.addFriend(baseImApplyFriendDO.getUserId(), baseImApplyFriendDO.getTargetUserId(),
+                sessionId);
 
             // 创建会话
             baseImSessionService.addSession(sessionId, baseImApplyFriendDO.getId(), BaseImTypeEnum.FRIEND);
@@ -312,6 +324,28 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
                 .set(BaseImApplyFriendExtraDO::getHiddenFlag, false).update();
 
         });
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 隐藏
+     */
+    @Override
+    public String hidden(NotNullId dto) {
+
+        Long userId = MyUserUtil.getCurrentUserId();
+
+        boolean exists = lambdaQuery().and(i -> i.eq(BaseImApplyFriendDO::getTargetUserId, userId)
+                .or(o -> o.eq(BaseImApplyFriendDO::getUserId, userId))).eq(BaseImApplyFriendDO::getId, dto.getId())
+            .exists();
+
+        if (!exists) {
+            R.error(TempBizCodeEnum.ILLEGAL_REQUEST);
+        }
+
+        baseImApplyFriendExtraMapper.insertOrUpdateHiddenFlag(dto.getId(), userId, true);
 
         return TempBizCodeEnum.OK;
 

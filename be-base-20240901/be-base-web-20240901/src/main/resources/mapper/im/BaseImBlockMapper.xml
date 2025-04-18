@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kar20240901.be.base.web.mapper.im.BaseImBlockMapper">
+
+  <select id="groupPage"
+    resultType="com.kar20240901.be.base.web.model.vo.im.BaseImBlockGroupPageVO">
+    SELECT a.user_id, a.create_time, b.nickname, b.avatar_file_id
+    FROM base_im_block a
+           LEFT JOIN base_user_info b ON b.id = a.user_id
+    WHERE a.source_id = #{dto.groupId}
+      AND a.source_type = #{dto.sourceType}
+  </select>
+
+</mapper>

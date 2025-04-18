@@ -41,4 +41,7 @@ public class BaseImApplyFriendDO {
     @Schema(description = "修改时间")
     private Date updateTime;
 
+    @Schema(description = "会话主键 id，未通过时为：-1，通过了则赋值，并且后续不变")
+    private Long sessionId;
+
 }

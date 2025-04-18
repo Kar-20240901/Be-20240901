@@ -25,7 +25,7 @@ public class BaseImFriendDO {
     @Schema(description = "归属者主键 id")
     private Long belongId;
 
-    @Schema(description = "好友主键 id")
+    @Schema(description = "好友用户主键 id")
     private Long friendId;
 
     @Schema(description = "会话主键 id")

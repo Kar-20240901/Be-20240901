@@ -58,4 +58,10 @@ public class BaseImApplyFriendController {
         return R.okMsg(baseService.reject(dto));
     }
 
+    @Operation(summary = "隐藏")
+    @PostMapping("/hidden")
+    public R<String> hidden(@RequestBody @Valid NotNullId dto) {
+        return R.okMsg(baseService.hidden(dto));
+    }
+
 }

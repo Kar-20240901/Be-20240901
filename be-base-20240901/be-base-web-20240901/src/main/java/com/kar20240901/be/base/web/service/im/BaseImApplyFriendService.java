@@ -23,4 +23,6 @@ public interface BaseImApplyFriendService extends IService<BaseImApplyFriendDO> 
 
     String reject(BaseImApplyFriendRejectDTO dto);
 
+    String hidden(NotNullId dto);
+
 }
