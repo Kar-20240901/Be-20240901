@@ -2,17 +2,23 @@ package com.kar20240901.be.base.web.service.im.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
+import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper;
 import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionRefUserDO;
+import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserPageDTO;
 import com.kar20240901.be.base.web.model.enums.im.BaseImTypeEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
+import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserPageVO;
 import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
+import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -82,6 +88,36 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDo2.setTargetType(BaseImTypeEnum.FRIEND.getCode());
 
         save(baseImSessionRefUserDo2);
+
+    }
+
+    /**
+     * 分页排序查询
+     */
+    @Override
+    public Page<BaseImSessionRefUserPageVO> myPage(BaseImSessionRefUserPageDTO dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        Page<BaseImSessionRefUserPageVO> resPage = baseMapper.myPage(dto.pageOrder(), dto);
+
+        return null;
+
+    }
+
+    /**
+     * 隐藏
+     */
+    @Override
+    public String hidden(NotNullId dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        lambdaUpdate().eq(BaseImSessionRefUserDO::getUserId, currentUserId)
+            .eq(BaseImSessionRefUserDO::getSessionId, dto.getId()).set(BaseImSessionRefUserDO::getShowFlag, false)
+            .update();
+
+        return TempBizCodeEnum.OK;
 
     }
 

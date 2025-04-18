@@ -36,6 +36,9 @@ public class BaseImSessionRefUserDO {
     @Schema(description = "冗余字段：头像 fileId（文件主键 id）")
     private Long avatarFileId;
 
+    @Schema(description = "冗余字段：头像 url")
+    private String avatarUrl;
+
     @Schema(description = "目标 id，可以查询到好友用户主键 id，或者群组主键 id")
     private Long targetId;
 

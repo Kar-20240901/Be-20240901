@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper">
+  <select id="myPage"
+          resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserPageVO">
+    SELECT a.session_id,
+           a.name,
+           a.avatar_url,
+           (SELECT COUNT(*)
+            FROM base_im_session_content b
+            WHERE b.session_id = a.session_id
+              AND b.create_ts <![CDATA[>]]> a.last_open_ts) AS unReadCount
+    FROM base_im_session_ref_user a
+    WHERE a.show_flag = TRUE
+  </select>
+</mapper>

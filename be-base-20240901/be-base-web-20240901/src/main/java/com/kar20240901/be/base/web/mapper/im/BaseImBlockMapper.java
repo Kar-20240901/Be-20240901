@@ -11,6 +11,7 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface BaseImBlockMapper extends BaseMapper<BaseImBlockDO> {
 
-    Page<BaseImBlockGroupPageVO> groupPage(@Param("page") Page<Object> page, @Param("dto") BaseImBlockGroupPageDTO dto);
+    Page<BaseImBlockGroupPageVO> groupPage(@Param("page") Page<BaseImBlockGroupPageVO> page,
+        @Param("dto") BaseImBlockGroupPageDTO dto);
 
 }
