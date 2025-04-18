@@ -25,12 +25,21 @@ public class BaseImSessionRefUserDO {
     private Long lastOpenTs;
 
     @Schema(description = "是否显示")
-    private Integer showFlag;
+    private Boolean showFlag;
 
     @Schema(description = "显示的会话名")
     private String name;
 
     @Schema(description = "最后一次接受到消息时的时间戳，默认为：-1，备注：该字段用于：排序")
     private Long lastReceiveTs;
+
+    @Schema(description = "冗余字段：头像 fileId（文件主键 id）")
+    private Long avatarFileId;
+
+    @Schema(description = "目标 id，可以查询到好友用户主键 id，或者群组主键 id")
+    private Long targetId;
+
+    @Schema(description = "目标类型：101 好友 201 群组")
+    private Integer targetType;
 
 }

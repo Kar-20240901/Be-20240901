@@ -5,4 +5,6 @@ import com.kar20240901.be.base.web.model.domain.im.BaseImSessionRefUserDO;
 
 public interface BaseImSessionRefUserService extends IService<BaseImSessionRefUserDO> {
 
+    void addSessionRefUserForFriend(Long sessionId, Long userId1, Long userId2);
+
 }

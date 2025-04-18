@@ -29,6 +29,9 @@ public class BaseImApplyGroupDO {
     @Schema(description = "是否显示在申请列表")
     private Boolean showFlag;
 
+    @Schema(description = "目标是否显示在申请列表")
+    private Boolean targetShowFlag;
+
     @Schema(description = "拒绝理由")
     private String rejectReason;
 

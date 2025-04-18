@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kar20240901.be.base.web.mapper.im.BaseImApplyFriendMapper">
+  <select id="myPage" resultType="com.kar20240901.be.base.web.model.vo.im.BaseImApplyFriendPageVO">
+    SELECT a.id,a.apply_content,a.apply_time,a.status,c.nickname,c.avatar_file_id
+
+    FROM base_im_apply_friend a
+
+    LEFT JOIN base_im_apply_friend_extra b
+    ON b.apply_friend_id = a.id AND b.user_id = #{currentUserId}
+
+    LEFT JOIN base_user_info c ON c.id = ( IF(a.user_id = #{currentUserId}, target_user_id,
+    a.user_id)
+    )
+
+    WHERE (b.hidden_flag IS NULL OR b.hidden_flag = FALSE)
+
+    AND (a.user_id = #{currentUserId} OR a.target_user_id = #{currentUserId})
+
+    <if test="dto.nickname != null and dto.nickname != ''">
+      AND a.xxx LIKE CONCAT('%', #{dto.nickname}, '%')
+    </if>
+
+    <if test="dto.applyContent != null and dto.applyContent != ''">
+      AND a.apply_content LIKE CONCAT('%', #{dto.applyContent}, '%')
+    </if>
+
+    ORDER BY a.apply_time DESC
+  </select>
+</mapper>

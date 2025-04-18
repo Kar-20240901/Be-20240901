@@ -13,9 +13,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum BaseImTypeEnum implements IBaseImType {
 
-    FRIEND(101), // 私聊
+    FRIEND(101), // 好友
 
-    GROUP(201), // 群聊
+    GROUP(201), // 群组
 
     ;
 

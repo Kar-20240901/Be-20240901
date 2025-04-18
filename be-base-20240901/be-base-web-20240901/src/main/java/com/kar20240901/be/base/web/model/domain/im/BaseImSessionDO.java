@@ -15,13 +15,10 @@ public class BaseImSessionDO {
     @Schema(description = "会话主键 id")
     private Long id;
 
-    @Schema(description = "来源 id，目的：删除好友/群组之后，还可以恢复之前的会话内容")
-    private Long sourceId;
+    @Schema(description = "来源申请 id，目的：删除好友/群组之后，还可以恢复之前的会话内容")
+    private Long sourceApplyId;
 
-    @Schema(description = "来源类型：101 好友 201 群组")
-    private Integer sourceType;
-
-    @Schema(description = "冗余字段：头像 fileId（文件主键 id）")
-    private Long avatarFileId;
+    @Schema(description = "来源申请类型：101 好友 201 群组")
+    private Integer sourceApplyType;
 
 }
