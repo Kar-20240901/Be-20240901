@@ -24,4 +24,8 @@ public interface BaseImSessionRefUserService extends IService<BaseImSessionRefUs
 
     String hidden(NotNullId dto);
 
+    String updateLastOpenTs(NotNullId dto);
+
+    String updateAvatarAndNickname(NotEmptyIdSet dto);
+
 }

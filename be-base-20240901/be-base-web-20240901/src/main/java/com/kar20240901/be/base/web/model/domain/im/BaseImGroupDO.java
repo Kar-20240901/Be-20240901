@@ -22,7 +22,7 @@ public class BaseImGroupDO extends TempEntityNoIdSuper {
     private Long belongId;
 
     @Schema(description = "群组名称")
-    private Long name;
+    private String name;
 
     @Schema(description = "头像 fileId（文件主键 id）")
     private Long avatarFileId;

@@ -12,7 +12,7 @@ public class BaseImSessionRefUserPageVO extends BaseImSessionRefUserQueryLastCon
     private Long sessionId;
 
     @Schema(description = "显示的会话名，一定有值")
-    private String name;
+    private String sessionName;
 
     @Schema(description = "冗余字段：头像 url，一定有值")
     private Long avatarUrl;

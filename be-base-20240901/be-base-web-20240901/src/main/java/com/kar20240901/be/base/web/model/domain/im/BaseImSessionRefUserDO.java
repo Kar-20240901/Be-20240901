@@ -39,4 +39,7 @@ public class BaseImSessionRefUserDO {
     @Schema(description = "目标类型：101 好友 201 群组")
     private Integer targetType;
 
+    @Schema(description = "来源昵称")
+    private String targetName;
+
 }

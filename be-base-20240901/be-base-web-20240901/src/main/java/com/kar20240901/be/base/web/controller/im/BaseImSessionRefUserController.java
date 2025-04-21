@@ -53,4 +53,16 @@ public class BaseImSessionRefUserController {
         return R.okMsg(baseService.hidden(dto));
     }
 
+    @Operation(summary = "更新最后一次打开会话的时间")
+    @PostMapping("/updateLastOpenTs")
+    public R<String> updateLastOpenTs(@RequestBody @Valid NotNullId dto) {
+        return R.okMsg(baseService.updateLastOpenTs(dto));
+    }
+
+    @Operation(summary = "更新头像和昵称")
+    @PostMapping("/updateAvatarAndNickname")
+    public R<String> updateAvatarAndNickname(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okMsg(baseService.updateAvatarAndNickname(dto));
+    }
+
 }

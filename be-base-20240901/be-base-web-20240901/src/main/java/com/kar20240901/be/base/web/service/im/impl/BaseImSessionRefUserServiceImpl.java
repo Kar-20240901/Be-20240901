@@ -9,10 +9,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
+import com.kar20240901.be.base.web.mapper.im.BaseImGroupMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionContentRefUserMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper;
 import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
+import com.kar20240901.be.base.web.model.domain.im.BaseImGroupDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionRefUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
@@ -27,7 +29,9 @@ import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyPageUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,6 +51,9 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
     @Resource
     BaseImSessionContentRefUserMapper baseImSessionContentRefUserMapper;
+
+    @Resource
+    BaseImGroupMapper baseImGroupMapper;
 
     /**
      * 创建会话关联用户：好友
@@ -94,11 +101,12 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDo1.setUserId(userId1);
         baseImSessionRefUserDo1.setLastOpenTs(date.getTime());
         baseImSessionRefUserDo1.setShowFlag(true);
-        baseImSessionRefUserDo1.setName(tempUserInfoDo2.getNickname());
+        baseImSessionRefUserDo1.setName("");
         baseImSessionRefUserDo1.setAvatarUrl(
             MyEntityUtil.getNotNullStr(publicUrlMap.get(tempUserInfoDo2.getAvatarFileId())));
         baseImSessionRefUserDo1.setTargetId(userId2);
         baseImSessionRefUserDo1.setTargetType(BaseImTypeEnum.FRIEND.getCode());
+        baseImSessionRefUserDo1.setTargetName(tempUserInfoDo2.getNickname());
 
         saveOrUpdate(baseImSessionRefUserDo1);
 
@@ -108,10 +116,11 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDo2.setUserId(userId2);
         baseImSessionRefUserDo2.setLastOpenTs(date.getTime());
         baseImSessionRefUserDo2.setShowFlag(true);
-        baseImSessionRefUserDo2.setName(tempUserInfoDo1.getNickname());
+        baseImSessionRefUserDo2.setName("");
         baseImSessionRefUserDo2.setAvatarUrl(publicUrlMap.get(tempUserInfoDo1.getAvatarFileId()));
         baseImSessionRefUserDo2.setTargetId(userId1);
         baseImSessionRefUserDo2.setTargetType(BaseImTypeEnum.FRIEND.getCode());
+        baseImSessionRefUserDo1.setTargetName(tempUserInfoDo1.getNickname());
 
         saveOrUpdate(baseImSessionRefUserDo2);
 
@@ -253,6 +262,152 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         lambdaUpdate().eq(BaseImSessionRefUserDO::getUserId, currentUserId)
             .eq(BaseImSessionRefUserDO::getSessionId, dto.getId()).set(BaseImSessionRefUserDO::getShowFlag, false)
             .update();
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 更新最后一次打开会话的时间
+     */
+    @Override
+    public String updateLastOpenTs(NotNullId dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        lambdaUpdate().eq(BaseImSessionRefUserDO::getUserId, currentUserId)
+            .eq(BaseImSessionRefUserDO::getSessionId, dto.getId())
+            .set(BaseImSessionRefUserDO::getLastOpenTs, new Date()).set(BaseImSessionRefUserDO::getShowFlag, true);
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 更新头像和昵称
+     */
+    @Override
+    @MyTransactional
+    public String updateAvatarAndNickname(NotEmptyIdSet dto) {
+
+        Set<Long> sessionIdSet = dto.getIdSet();
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        List<BaseImSessionRefUserDO> baseImSessionRefUserDoList =
+            lambdaQuery().in(BaseImSessionRefUserDO::getSessionId, sessionIdSet)
+                .eq(BaseImSessionRefUserDO::getUserId, currentUserId)
+                .select(BaseImSessionRefUserDO::getId, BaseImSessionRefUserDO::getTargetId,
+                    BaseImSessionRefUserDO::getTargetType).list();
+
+        if (CollUtil.isEmpty(baseImSessionRefUserDoList)) {
+
+            return TempBizCodeEnum.OK;
+
+        }
+
+        List<Long> friendIdList = new ArrayList<>();
+
+        List<Long> groupIdList = new ArrayList<>();
+
+        for (BaseImSessionRefUserDO item : baseImSessionRefUserDoList) {
+
+            if (BaseImTypeEnum.FRIEND.getCode() == item.getTargetType()) {
+
+                friendIdList.add(item.getTargetId());
+
+            } else if (BaseImTypeEnum.GROUP.getCode() == item.getTargetType()) {
+
+                groupIdList.add(item.getTargetId());
+
+            }
+
+        }
+
+        Map<Long, TempUserInfoDO> userInfoDoMap = MapUtil.newHashMap();
+
+        Map<Long, BaseImGroupDO> groupDoMap = MapUtil.newHashMap();
+
+        Set<Long> avatarSet = new HashSet<>();
+
+        if (CollUtil.isNotEmpty(friendIdList)) {
+
+            List<TempUserInfoDO> tempUserInfoDoList =
+                ChainWrappers.lambdaQueryChain(baseUserInfoMapper).in(TempUserInfoDO::getId, friendIdList)
+                    .select(TempUserInfoDO::getId, TempUserInfoDO::getNickname, TempUserInfoDO::getAvatarFileId).list();
+
+            for (TempUserInfoDO item : tempUserInfoDoList) {
+
+                userInfoDoMap.put(item.getId(), item);
+
+                avatarSet.add(item.getAvatarFileId());
+
+            }
+
+        }
+
+        if (CollUtil.isNotEmpty(groupIdList)) {
+
+            List<BaseImGroupDO> baseImGroupDoList =
+                ChainWrappers.lambdaQueryChain(baseImGroupMapper).in(BaseImGroupDO::getId, groupIdList)
+                    .select(BaseImGroupDO::getId, BaseImGroupDO::getName, BaseImGroupDO::getAvatarFileId).list();
+
+            for (BaseImGroupDO item : baseImGroupDoList) {
+
+                groupDoMap.put(item.getId(), item);
+
+                avatarSet.add(item.getAvatarFileId());
+
+            }
+
+        }
+
+        List<BaseImSessionRefUserDO> updateList = new ArrayList<>();
+
+        Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(avatarSet)).getMap();
+
+        // 组合数据
+        for (BaseImSessionRefUserDO item : baseImSessionRefUserDoList) {
+
+            BaseImSessionRefUserDO baseImSessionRefUserDO = new BaseImSessionRefUserDO();
+
+            baseImSessionRefUserDO.setId(item.getId());
+
+            Long targetId = item.getTargetId();
+
+            if (BaseImTypeEnum.FRIEND.getCode() == item.getTargetType()) {
+
+                TempUserInfoDO tempUserInfoDO = userInfoDoMap.get(item.getTargetId());
+
+                if (tempUserInfoDO == null) {
+                    continue;
+                }
+
+                baseImSessionRefUserDO.setAvatarUrl(
+                    MyEntityUtil.getNotNullStr(publicUrlMap.get(tempUserInfoDO.getAvatarFileId())));
+
+                baseImSessionRefUserDO.setTargetName(MyEntityUtil.getNotNullStr(tempUserInfoDO.getNickname()));
+
+            } else if (BaseImTypeEnum.GROUP.getCode() == item.getTargetType()) {
+
+                BaseImGroupDO baseImGroupDO = groupDoMap.get(item.getTargetId());
+
+                if (baseImGroupDO == null) {
+                    continue;
+                }
+
+                baseImSessionRefUserDO.setAvatarUrl(
+                    MyEntityUtil.getNotNullStr(publicUrlMap.get(baseImGroupDO.getAvatarFileId())));
+
+                baseImSessionRefUserDO.setTargetName(baseImGroupDO.getName());
+
+            }
+
+            updateList.add(baseImSessionRefUserDO);
+
+        }
+
+        updateBatchById(updateList);
 
         return TempBizCodeEnum.OK;
 

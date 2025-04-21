@@ -5,7 +5,7 @@
   <select id="myPage"
           resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserPageVO">
     SELECT a.session_id,
-    a.name,
+    IF(a.name = '', a.target_name, a.name) AS sessionName,
     a.avatar_url,
     a.target_id,
     a.target_type
@@ -35,7 +35,8 @@
     </if>
 
     <if test="dto.searchKey != null and dto.searchKey != ''">
-      AND a.name LIKE CONCAT('%', #{dto.searchKey}, '%')
+      AND (a.name LIKE CONCAT('%', #{dto.searchKey}, '%') OR a.target_name LIKE CONCAT('%',
+      #{dto.searchKey}, '%'))
     </if>
 
     ORDER BY b.last_receive_ts DESC
