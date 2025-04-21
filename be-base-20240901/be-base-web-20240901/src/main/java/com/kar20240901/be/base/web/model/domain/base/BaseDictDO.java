@@ -27,7 +27,6 @@ public class BaseDictDO extends TempEntity {
     @Schema(description = "字典项 value（数字 123...）备注：字典为 -1")
     private Integer value;
 
-    @TableField(fill = FieldFill.INSERT)
     @Schema(description = "排序号（值越大越前面，默认为 0）")
     private Integer orderNo;
 

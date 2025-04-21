@@ -38,10 +38,14 @@ public class BaseImSessionContentDO {
     @Schema(description = "内容类型")
     private Integer type;
 
-    @Schema(description = "创建时间的时间戳")
+    @Schema(description = "创建时间的时间戳，UTC+8")
     private Long createTs;
 
     @Schema(description = "引用的内容主键 id，不引用时为 -1")
     private Long refId;
+
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "排序号（值越大越前面，默认为 0）")
+    private Integer orderNo;
 
 }

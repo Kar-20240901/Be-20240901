@@ -21,7 +21,7 @@ public class BaseImSessionRefUserDO {
     @Schema(description = "用户主键 id")
     private Long userId;
 
-    @Schema(description = "我最后一次打开该会话的时间戳")
+    @Schema(description = "我最后一次打开该会话的时间戳，UTC+8")
     private Long lastOpenTs;
 
     @Schema(description = "是否显示")
@@ -29,9 +29,6 @@ public class BaseImSessionRefUserDO {
 
     @Schema(description = "显示的会话名")
     private String name;
-
-    @Schema(description = "冗余字段：头像 fileId（文件主键 id）")
-    private Long avatarFileId;
 
     @Schema(description = "冗余字段：头像 url")
     private String avatarUrl;

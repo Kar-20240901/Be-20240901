@@ -1,13 +1,16 @@
 package com.kar20240901.be.base.web.controller.im;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserPageDTO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserPageVO;
+import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO;
 import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Map;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +30,13 @@ public class BaseImSessionRefUserController {
     @PostMapping("/myPage")
     public R<Page<BaseImSessionRefUserPageVO>> myPage(@RequestBody @Valid BaseImSessionRefUserPageDTO dto) {
         return R.okData(baseService.myPage(dto));
+    }
+
+    @Operation(summary = "查询最新消息和未读消息数量")
+    @PostMapping("/queryLastContentMap")
+    public R<Map<Long, BaseImSessionRefUserQueryLastContentVO>> queryLastContentMap(
+        @RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okData(baseService.queryLastContentMap(dto));
     }
 
     @Operation(summary = "隐藏")

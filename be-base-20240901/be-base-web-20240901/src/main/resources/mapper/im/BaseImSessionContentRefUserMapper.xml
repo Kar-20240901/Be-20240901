@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kar20240901.be.base.web.mapper.im.BaseImSessionContentRefUserMapper">
+
+  <select id="queryLastContent"
+    resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO">
+    SELECT
+    a.session_id,
+    SUBSTRING(b.content, 1, 16) AS lastContent,
+    b.create_time AS lastContentCreateTime,
+    b.type AS lastContentType
+
+    FROM base_im_session_content_ref_user a
+
+    LEFT JOIN base_im_session_content b ON b.id = a.content_id
+
+    WHERE a.user_id = #{currentUserId}
+
+    AND a.show_flag = TRUE
+
+    AND b.enable_flag = TRUE
+
+    <if test="dto.sessionIdList != null and dto.sessionIdList.size != 0">
+      AND a.session_id IN
+      <foreach collection="dto.sessionIdList" separator="," open="(" close=")" item="item">
+        #{item}
+      </foreach>
+    </if>
+
+    ORDER BY b.create_ts DESC, b.order_no DESC
+  </select>
+</mapper>

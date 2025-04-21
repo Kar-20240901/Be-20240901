@@ -2,25 +2,33 @@ package com.kar20240901.be.base.web.service.im.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
+import com.kar20240901.be.base.web.mapper.im.BaseImSessionContentRefUserMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper;
 import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionRefUserDO;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserPageDTO;
 import com.kar20240901.be.base.web.model.enums.im.BaseImTypeEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserPageVO;
+import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO;
+import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
+import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -31,6 +39,12 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
     @Resource
     BaseUserInfoMapper baseUserInfoMapper;
+
+    @Resource
+    BaseFileService baseFileService;
+
+    @Resource
+    BaseImSessionContentRefUserMapper baseImSessionContentRefUserMapper;
 
     /**
      * 创建会话关联用户：好友
@@ -60,6 +74,9 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
         TempUserInfoDO tempUserInfoDo2 = userInfoMap.get(userId2);
 
+        Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(
+            CollUtil.newHashSet(tempUserInfoDo1.getAvatarFileId(), tempUserInfoDo2.getAvatarFileId()))).getMap();
+
         BaseImSessionRefUserDO baseImSessionRefUserDo1 = new BaseImSessionRefUserDO();
 
         baseImSessionRefUserDo1.setSessionId(sessionId);
@@ -67,7 +84,8 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDo1.setLastOpenTs(date.getTime());
         baseImSessionRefUserDo1.setShowFlag(true);
         baseImSessionRefUserDo1.setName(tempUserInfoDo2.getNickname());
-        baseImSessionRefUserDo1.setAvatarFileId(tempUserInfoDo2.getAvatarFileId());
+        baseImSessionRefUserDo1.setAvatarUrl(
+            MyEntityUtil.getNotNullStr(publicUrlMap.get(tempUserInfoDo2.getAvatarFileId())));
         baseImSessionRefUserDo1.setTargetId(userId2);
         baseImSessionRefUserDo1.setTargetType(BaseImTypeEnum.FRIEND.getCode());
 
@@ -80,8 +98,8 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDo2.setLastOpenTs(date.getTime());
         baseImSessionRefUserDo2.setShowFlag(true);
         baseImSessionRefUserDo2.setName(tempUserInfoDo1.getNickname());
-        baseImSessionRefUserDo2.setAvatarFileId(tempUserInfoDo1.getAvatarFileId());
-        baseImSessionRefUserDo2.setTargetId(userId2);
+        baseImSessionRefUserDo2.setAvatarUrl(publicUrlMap.get(tempUserInfoDo1.getAvatarFileId()));
+        baseImSessionRefUserDo2.setTargetId(userId1);
         baseImSessionRefUserDo2.setTargetType(BaseImTypeEnum.FRIEND.getCode());
 
         save(baseImSessionRefUserDo2);
@@ -96,9 +114,79 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        Page<BaseImSessionRefUserPageVO> resPage = baseMapper.myPage(dto.pageOrder(), dto);
+        Page<BaseImSessionRefUserPageVO> resPage = baseMapper.myPage(dto.pageOrder(), dto, currentUserId);
 
-        return null;
+        if (!BooleanUtil.isTrue(dto.getQueryContentFlag())) {
+            return resPage;
+        }
+
+        Set<Long> sessionIdSet =
+            resPage.getRecords().stream().map(BaseImSessionRefUserPageVO::getSessionId).collect(Collectors.toSet());
+
+        Map<Long, BaseImSessionRefUserQueryLastContentVO> map = queryLastContentMap(new NotEmptyIdSet(sessionIdSet));
+
+        for (BaseImSessionRefUserPageVO item : resPage.getRecords()) {
+
+            BaseImSessionRefUserQueryLastContentVO baseImSessionRefUserQueryLastContentVO =
+                map.get(item.getSessionId());
+
+            if (baseImSessionRefUserQueryLastContentVO == null) {
+                continue;
+            }
+
+            item.setLastContent(baseImSessionRefUserQueryLastContentVO.getLastContent());
+
+            item.setLastContentType(baseImSessionRefUserQueryLastContentVO.getLastContentType());
+
+            item.setLastContentCreateTime(baseImSessionRefUserQueryLastContentVO.getLastContentCreateTime());
+
+            item.setUnReadCount(baseImSessionRefUserQueryLastContentVO.getUnReadCount());
+
+        }
+
+        return resPage;
+
+    }
+
+    /**
+     * 查询最新消息和未读消息数量
+     */
+    @Override
+    public Map<Long, BaseImSessionRefUserQueryLastContentVO> queryLastContentMap(NotEmptyIdSet dto) {
+
+        Set<Long> sessionIdSet = dto.getIdSet();
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        List<BaseImSessionRefUserDO> baseImSessionRefUserDoList =
+            lambdaQuery().in(BaseImSessionRefUserDO::getId, sessionIdSet)
+                .eq(BaseImSessionRefUserDO::getUserId, currentUserId).select(BaseImSessionRefUserDO::getSessionId)
+                .list();
+
+        List<Long> sessionIdList =
+            baseImSessionRefUserDoList.stream().map(BaseImSessionRefUserDO::getSessionId).collect(Collectors.toList());
+
+        if (CollUtil.isNotEmpty(sessionIdList)) {
+            return MapUtil.newHashMap();
+        }
+
+        Map<Long, Integer> sessionIdUnReadCountMap = baseMapper.queryUnReadCount(sessionIdList, currentUserId);
+
+        List<BaseImSessionRefUserQueryLastContentVO> baseImSessionRefUserQueryLastContentVoList =
+            baseImSessionContentRefUserMapper.queryLastContent(sessionIdList, currentUserId);
+
+        Map<Long, BaseImSessionRefUserQueryLastContentVO> resMap =
+            MapUtil.newHashMap(baseImSessionRefUserQueryLastContentVoList.size());
+
+        for (BaseImSessionRefUserQueryLastContentVO item : baseImSessionRefUserQueryLastContentVoList) {
+
+            item.setUnReadCount(sessionIdUnReadCountMap.getOrDefault(item.getSessionId(), 0));
+
+            resMap.put(item.getSessionId(), item);
+
+        }
+
+        return resMap;
 
     }
 

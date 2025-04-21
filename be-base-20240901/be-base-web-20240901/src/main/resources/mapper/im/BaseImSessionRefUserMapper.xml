@@ -7,13 +7,30 @@
     SELECT a.session_id,
            a.name,
            a.avatar_url,
-           (SELECT COUNT(*)
-            FROM base_im_session_content b
-            WHERE b.session_id = a.session_id
-              AND b.create_ts <![CDATA[>]]> a.last_open_ts) AS unReadCount
+           a.target_id,
+           a.target_type
+
     FROM base_im_session_ref_user a
+
            LEFT JOIN base_im_session b ON b.id = a.session_id
+
     WHERE a.show_flag = TRUE
+
+      AND a.user_id = #{currentUserId}
+
     ORDER BY b.last_receive_ts DESC
+  </select>
+
+  <select id="queryUnReadCount" resultType="java.util.Map">
+    SELECT a.session_id, LEAST(99, COUNT(*)) AS unReadCount
+
+    FROM base_im_session_ref_user a
+           LEFT JOIN base_im_session_content b ON b.session_id = a.session_id
+
+    WHERE a.user_id = #{currentUserId}
+      AND b.enable_flag = TRUE
+      AND b.create_ts <![CDATA[>]]> a.last_open_ts
+
+    GROUP BY a.session_id
   </select>
 </mapper>
