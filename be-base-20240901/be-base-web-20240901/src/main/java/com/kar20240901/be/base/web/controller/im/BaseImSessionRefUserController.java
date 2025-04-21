@@ -3,6 +3,7 @@ package com.kar20240901.be.base.web.controller.im;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserPageDTO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserPageVO;
@@ -10,6 +11,7 @@ import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastCont
 import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -30,6 +32,12 @@ public class BaseImSessionRefUserController {
     @PostMapping("/myPage")
     public R<Page<BaseImSessionRefUserPageVO>> myPage(@RequestBody @Valid BaseImSessionRefUserPageDTO dto) {
         return R.okData(baseService.myPage(dto));
+    }
+
+    @Operation(summary = "滚动加载")
+    @PostMapping("/scroll")
+    public R<List<BaseImSessionRefUserPageVO>> scroll(@RequestBody @Valid ScrollListDTO dto) {
+        return R.okData(baseService.scroll(dto));
     }
 
     @Operation(summary = "查询最新消息和未读消息数量")

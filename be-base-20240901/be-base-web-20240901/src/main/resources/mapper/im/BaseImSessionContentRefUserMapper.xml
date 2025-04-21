@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.kar20240901.be.base.web.mapper.im.BaseImSessionContentRefUserMapper">
-
   <select id="queryLastContent"
     resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO">
     SELECT
@@ -26,6 +25,42 @@
       <foreach collection="dto.sessionIdList" separator="," open="(" close=")" item="item">
         #{item}
       </foreach>
+    </if>
+
+    ORDER BY b.create_ts DESC, b.order_no DESC
+  </select>
+
+  <select id="myPage"
+    resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionContentRefUserPageVO">
+    SELECT b.id, b.create_ts, b.type, b.create_time, b.content, b.create_id, b.ref_id
+
+    FROM base_im_session_content_ref_user a
+    LEFT JOIN base_im_session_content b ON b.id = a.content_id
+
+    WHERE a.user_id = #{currentUserId}
+
+    AND a.show_flag = TRUE
+
+    AND b.enable_flag = TRUE
+
+    <if test="dto.content != null and dto.content != ''">
+      AND b.content LIKE CONCAT('%', #{dto.content}, '%')
+    </if>
+
+    <if test="dto.contentId != null">
+      <choose>
+        <when test="dto.backwardFlag == null">
+          AND b.create_id = #{dto.contentId}
+        </when>
+
+        <when test="dto.backwardFlag">
+          AND a.create_id <![CDATA[>]]> #{dto.contentId}
+        </when>
+
+        <otherwise>
+          AND a.create_id <![CDATA[<]]> #{dto.contentId}
+        </otherwise>
+      </choose>
     </if>
 
     ORDER BY b.create_ts DESC, b.order_no DESC

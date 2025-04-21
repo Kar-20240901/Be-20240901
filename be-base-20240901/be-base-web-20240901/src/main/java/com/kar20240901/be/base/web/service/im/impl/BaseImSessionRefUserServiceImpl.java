@@ -16,6 +16,7 @@ import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionRefUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserPageDTO;
 import com.kar20240901.be.base.web.model.enums.im.BaseImTypeEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
@@ -24,6 +25,7 @@ import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastCont
 import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
+import com.kar20240901.be.base.web.util.base.MyPageUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import java.util.Date;
 import java.util.List;
@@ -154,6 +156,47 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         }
 
         return resPage;
+
+    }
+
+    /**
+     * 滚动加载
+     */
+    @Override
+    public List<BaseImSessionRefUserPageVO> scroll(ScrollListDTO dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        Long sessionId = dto.getId();
+
+        boolean backwardFlag = BooleanUtil.isTrue(dto.getBackwardFlag());
+
+        if (sessionId == null) {
+
+            if (backwardFlag) { // 最小的 id
+
+                sessionId = Long.MIN_VALUE;
+
+            } else { // 最大的 id
+
+                sessionId = Long.MAX_VALUE;
+
+            }
+
+        }
+
+        BaseImSessionRefUserPageDTO pageDTO = new BaseImSessionRefUserPageDTO();
+
+        pageDTO.setSessionId(sessionId);
+
+        pageDTO.setBackwardFlag(backwardFlag);
+
+        pageDTO.setSearchKey(dto.getSearchKey());
+
+        Page<BaseImSessionRefUserPageVO> resPage =
+            baseMapper.myPage(MyPageUtil.getScrollPage(dto.getPageSize()), pageDTO, currentUserId);
+
+        return resPage.getRecords();
 
     }
 

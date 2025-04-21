@@ -5,18 +5,38 @@
   <select id="myPage"
           resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserPageVO">
     SELECT a.session_id,
-           a.name,
-           a.avatar_url,
-           a.target_id,
-           a.target_type
+    a.name,
+    a.avatar_url,
+    a.target_id,
+    a.target_type
 
     FROM base_im_session_ref_user a
 
-           LEFT JOIN base_im_session b ON b.id = a.session_id
+    LEFT JOIN base_im_session b ON b.id = a.session_id
 
     WHERE a.show_flag = TRUE
 
-      AND a.user_id = #{currentUserId}
+    AND a.user_id = #{currentUserId}
+
+    <if test="dto.sessionId != null">
+      <choose>
+        <when test="dto.backwardFlag == null">
+          AND a.session_id = #{dto.sessionId}
+        </when>
+
+        <when test="dto.backwardFlag">
+          AND a.session_id <![CDATA[>]]> #{dto.sessionId}
+        </when>
+
+        <otherwise>
+          AND a.session_id <![CDATA[<]]> #{dto.sessionId}
+        </otherwise>
+      </choose>
+    </if>
+
+    <if test="dto.searchKey != null and dto.searchKey != ''">
+      AND a.name LIKE CONCAT('%', #{dto.searchKey}, '%')
+    </if>
 
     ORDER BY b.last_receive_ts DESC
   </select>
