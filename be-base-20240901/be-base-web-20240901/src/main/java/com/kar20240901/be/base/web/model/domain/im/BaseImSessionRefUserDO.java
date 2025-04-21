@@ -30,9 +30,6 @@ public class BaseImSessionRefUserDO {
     @Schema(description = "显示的会话名")
     private String name;
 
-    @Schema(description = "最后一次接受到消息时的时间戳，默认为：-1，备注：该字段用于：排序")
-    private Long lastReceiveTs;
-
     @Schema(description = "冗余字段：头像 fileId（文件主键 id）")
     private Long avatarFileId;
 

@@ -9,7 +9,6 @@ import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper;
 import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
-import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionRefUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
@@ -68,7 +67,6 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDo1.setLastOpenTs(date.getTime());
         baseImSessionRefUserDo1.setShowFlag(true);
         baseImSessionRefUserDo1.setName(tempUserInfoDo2.getNickname());
-        baseImSessionRefUserDo1.setLastReceiveTs(TempConstant.NEGATIVE_ONE);
         baseImSessionRefUserDo1.setAvatarFileId(tempUserInfoDo2.getAvatarFileId());
         baseImSessionRefUserDo1.setTargetId(userId2);
         baseImSessionRefUserDo1.setTargetType(BaseImTypeEnum.FRIEND.getCode());
@@ -82,7 +80,6 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDo2.setLastOpenTs(date.getTime());
         baseImSessionRefUserDo2.setShowFlag(true);
         baseImSessionRefUserDo2.setName(tempUserInfoDo1.getNickname());
-        baseImSessionRefUserDo2.setLastReceiveTs(TempConstant.NEGATIVE_ONE);
         baseImSessionRefUserDo2.setAvatarFileId(tempUserInfoDo1.getAvatarFileId());
         baseImSessionRefUserDo2.setTargetId(userId2);
         baseImSessionRefUserDo2.setTargetType(BaseImTypeEnum.FRIEND.getCode());

@@ -12,6 +12,8 @@
             WHERE b.session_id = a.session_id
               AND b.create_ts <![CDATA[>]]> a.last_open_ts) AS unReadCount
     FROM base_im_session_ref_user a
+           LEFT JOIN base_im_session b ON b.id = a.session_id
     WHERE a.show_flag = TRUE
+    ORDER BY b.last_receive_ts DESC
   </select>
 </mapper>
