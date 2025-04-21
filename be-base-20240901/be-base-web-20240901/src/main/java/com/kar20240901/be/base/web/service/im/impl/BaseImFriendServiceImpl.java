@@ -1,9 +1,11 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.im.BaseImFriendMapper;
 import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.domain.im.BaseImFriendDO;
+import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.service.im.BaseImFriendService;
 import java.util.Date;
 import org.springframework.stereotype.Service;
@@ -40,6 +42,16 @@ public class BaseImFriendServiceImpl extends ServiceImpl<BaseImFriendMapper, Bas
         baseImFriendDo2.setSessionId(sessionId);
 
         save(baseImFriendDo2);
+
+    }
+
+    /**
+     * 删除好友
+     */
+    @Override
+    public String remove(NotNullId dto) {
+
+        return TempBizCodeEnum.OK;
 
     }
 

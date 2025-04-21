@@ -254,7 +254,10 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
             Long sessionId = baseImApplyFriendDO.getSessionId();
 
-            if (sessionId.equals(TempConstant.NEGATIVE_ONE)) {
+            // 防止会话记录丢失，则采用历史的会话主键 id
+            boolean addFlag = sessionId.equals(TempConstant.NEGATIVE_ONE);
+
+            if (addFlag) {
 
                 sessionId = IdGeneratorUtil.nextId();
 
@@ -274,12 +277,16 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
             baseImFriendService.addFriend(baseImApplyFriendDO.getUserId(), baseImApplyFriendDO.getTargetUserId(),
                 sessionId);
 
-            // 创建会话
-            baseImSessionService.addSession(sessionId, baseImApplyFriendDO.getId(), BaseImTypeEnum.FRIEND);
+            if (addFlag) {
+
+                // 创建会话
+                baseImSessionService.addOrUpdateSession(sessionId, baseImApplyFriendDO.getId(), BaseImTypeEnum.FRIEND);
+
+            }
 
             // 创建会话关联用户
-            baseImSessionRefUserService.addSessionRefUserForFriend(sessionId, baseImApplyFriendDO.getUserId(),
-                baseImApplyFriendDO.getTargetUserId());
+            baseImSessionRefUserService.addOrUpdateSessionRefUserForFriend(sessionId, baseImApplyFriendDO.getUserId(),
+                baseImApplyFriendDO.getTargetUserId(), addFlag);
 
         });
 

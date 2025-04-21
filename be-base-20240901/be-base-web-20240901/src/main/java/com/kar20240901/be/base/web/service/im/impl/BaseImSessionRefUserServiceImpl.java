@@ -51,7 +51,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
      */
     @Override
     @MyTransactional
-    public void addSessionRefUserForFriend(Long sessionId, Long userId1, Long userId2) {
+    public void addOrUpdateSessionRefUserForFriend(Long sessionId, Long userId1, Long userId2, boolean addFlag) {
 
         Assert.notNull(sessionId);
         Assert.notNull(userId1);
@@ -63,6 +63,15 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
         if (tempUserInfoDOList.size() != 2) {
             R.error("操作失败：用户信息不存在，请重新申请", CollUtil.newArrayList(userId1, userId2));
+        }
+
+        if (addFlag) {
+
+            lambdaUpdate().eq(BaseImSessionRefUserDO::getSessionId, sessionId)
+                .set(BaseImSessionRefUserDO::getShowFlag, true).update();
+
+            return;
+
         }
 
         Map<Long, TempUserInfoDO> userInfoMap =
@@ -89,7 +98,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDo1.setTargetId(userId2);
         baseImSessionRefUserDo1.setTargetType(BaseImTypeEnum.FRIEND.getCode());
 
-        save(baseImSessionRefUserDo1);
+        saveOrUpdate(baseImSessionRefUserDo1);
 
         BaseImSessionRefUserDO baseImSessionRefUserDo2 = new BaseImSessionRefUserDO();
 
@@ -102,7 +111,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDo2.setTargetId(userId1);
         baseImSessionRefUserDo2.setTargetType(BaseImTypeEnum.FRIEND.getCode());
 
-        save(baseImSessionRefUserDo2);
+        saveOrUpdate(baseImSessionRefUserDo2);
 
     }
 

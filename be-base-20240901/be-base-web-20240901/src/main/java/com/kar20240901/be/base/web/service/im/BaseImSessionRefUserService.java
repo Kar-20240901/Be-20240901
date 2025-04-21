@@ -12,7 +12,7 @@ import java.util.Map;
 
 public interface BaseImSessionRefUserService extends IService<BaseImSessionRefUserDO> {
 
-    void addSessionRefUserForFriend(Long sessionId, Long userId1, Long userId2);
+    void addOrUpdateSessionRefUserForFriend(Long sessionId, Long userId1, Long userId2, boolean addFlag);
 
     Page<BaseImSessionRefUserPageVO> myPage(BaseImSessionRefUserPageDTO dto);
 

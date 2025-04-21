@@ -17,7 +17,7 @@ public class BaseImSessionServiceImpl extends ServiceImpl<BaseImSessionMapper, B
      * 新增会话
      */
     @Override
-    public void addSession(Long sessionId, Long sourceApplyId, IBaseImType iBaseImType) {
+    public void addOrUpdateSession(Long sessionId, Long sourceApplyId, IBaseImType iBaseImType) {
 
         Assert.notNull(sessionId);
 
