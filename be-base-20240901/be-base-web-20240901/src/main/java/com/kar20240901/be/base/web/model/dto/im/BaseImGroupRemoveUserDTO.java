@@ -5,7 +5,7 @@ import javax.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class BaseImGroupRemoveDTO {
+public class BaseImGroupRemoveUserDTO {
 
     @NotNull
     @Schema(description = "群组主键 id")

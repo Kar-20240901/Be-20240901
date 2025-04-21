@@ -73,6 +73,7 @@ import com.kar20240901.be.base.web.util.base.RedissonUtil;
 import com.kar20240901.be.base.web.util.base.SeparatorUtil;
 import com.kar20240901.be.base.web.util.base.TransactionUtil;
 import com.kar20240901.be.base.web.util.base.VoidFunc3;
+import com.kar20240901.be.base.web.util.im.BaseImGroupUtil;
 import java.io.File;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -191,13 +192,8 @@ public class BaseFileUtil {
         } else if (BaseFileUploadTypeEnum.IM_GROUP_AVATAR.equals(bo.getUploadType())) {
 
             // 如果是：im群组头像
-            BaseImGroupDO baseImGroupDO =
-                ChainWrappers.lambdaQueryChain(baseImGroupMapper).eq(BaseImGroupDO::getId, bo.getRefId())
-                    .eq(BaseImGroupDO::getBelongId, bo.getUserId()).one();
-
-            if (baseImGroupDO == null) {
-                R.error(TempBizCodeEnum.INSUFFICIENT_PERMISSIONS);
-            }
+            // 检查：是否有权限
+            BaseImGroupUtil.checkGroupAuth(bo.getRefId());
 
             // 通用：上传处理
             resultBaseFileId = uploadCommonHandle(bo, fileType, null,
