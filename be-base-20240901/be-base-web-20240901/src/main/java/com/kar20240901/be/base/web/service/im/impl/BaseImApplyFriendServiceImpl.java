@@ -15,6 +15,7 @@ import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImApplyFriendDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImApplyFriendExtraDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
+import com.kar20240901.be.base.web.model.domain.im.BaseImFriendDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyFriendPageDTO;
@@ -129,7 +130,7 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
     @MyTransactional
     public String send(BaseImApplyFriendSendDTO dto) {
 
-        Long userId = MyUserUtil.getCurrentUserId();
+        Long currentUserId = MyUserUtil.getCurrentUserId();
 
         boolean exists =
             ChainWrappers.lambdaQueryChain(baseUserInfoMapper).eq(TempUserInfoDO::getId, dto.getId()).exists();
@@ -140,25 +141,25 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
         boolean existsBlock =
             ChainWrappers.lambdaQueryChain(baseImBlockMapper).eq(BaseImBlockDO::getUserId, dto.getId())
-                .eq(BaseImBlockDO::getSourceId, userId).eq(BaseImBlockDO::getSourceType, BaseImTypeEnum.FRIEND)
+                .eq(BaseImBlockDO::getSourceId, currentUserId).eq(BaseImBlockDO::getSourceType, BaseImTypeEnum.FRIEND)
                 .exists();
 
         if (existsBlock) {
             R.error("操作失败：您已被对方拉黑，无法添加", dto.getId());
         }
 
-        String lockKey = BaseRedisKeyEnum.PRE_IM_APPLY_FRIEND + ":" + userId + ":" + dto.getId();
+        String lockKey = BaseRedisKeyEnum.PRE_IM_APPLY_FRIEND + ":" + currentUserId + ":" + dto.getId();
 
         RedissonUtil.doLock(lockKey, () -> {
 
-            BaseImApplyFriendDO baseImApplyFriendDO = lambdaQuery().eq(BaseImApplyFriendDO::getUserId, userId)
+            BaseImApplyFriendDO baseImApplyFriendDO = lambdaQuery().eq(BaseImApplyFriendDO::getUserId, currentUserId)
                 .eq(BaseImApplyFriendDO::getTargetUserId, dto.getId()).one();
 
             if (baseImApplyFriendDO == null) {
 
                 baseImApplyFriendDO = new BaseImApplyFriendDO();
 
-                baseImApplyFriendDO.setUserId(userId);
+                baseImApplyFriendDO.setUserId(currentUserId);
                 baseImApplyFriendDO.setTargetUserId(dto.getId());
                 baseImApplyFriendDO.setStatus(BaseImApplyStatusEnum.APPLYING);
                 baseImApplyFriendDO.setSessionId(TempConstant.NEGATIVE_ONE);
@@ -167,9 +168,19 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
                 BaseImApplyStatusEnum baseImApplyStatusEnum = baseImApplyFriendDO.getStatus();
 
-                // 如果已经通过了，则不进行任何处理
                 if (BaseImApplyStatusEnum.PASSED.equals(baseImApplyStatusEnum)) {
-                    R.error("操作失败：对方已经是您的好友了", dto.getId());
+
+                    // 查询：是否存在于好友列表里面
+                    boolean existsFriend =
+                        baseImFriendService.lambdaQuery().eq(BaseImFriendDO::getBelongId, currentUserId)
+                            .eq(BaseImFriendDO::getFriendId, dto.getId()).exists();
+
+                    if (existsFriend) {
+
+                        R.error("操作失败：对方已经是您的好友了", dto.getId());
+
+                    }
+
                 }
 
                 // 显示好友申请
@@ -274,13 +285,13 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
                 .set(BaseImApplyFriendExtraDO::getHiddenFlag, false).update();
 
             // 创建好友
-            baseImFriendService.addFriend(baseImApplyFriendDO.getUserId(), baseImApplyFriendDO.getTargetUserId(),
-                sessionId);
+            baseImFriendService.addOrUpdateFriend(baseImApplyFriendDO.getUserId(),
+                baseImApplyFriendDO.getTargetUserId(), sessionId, addFlag);
 
             if (addFlag) {
 
                 // 创建会话
-                baseImSessionService.addOrUpdateSession(sessionId, baseImApplyFriendDO.getId(), BaseImTypeEnum.FRIEND);
+                baseImSessionService.addSession(sessionId, baseImApplyFriendDO.getId(), BaseImTypeEnum.FRIEND);
 
             }
 

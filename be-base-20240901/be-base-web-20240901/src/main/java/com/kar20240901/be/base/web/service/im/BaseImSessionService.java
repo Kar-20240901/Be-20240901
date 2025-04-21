@@ -6,6 +6,6 @@ import com.kar20240901.be.base.web.model.interfaces.im.IBaseImType;
 
 public interface BaseImSessionService extends IService<BaseImSessionDO> {
 
-    void addOrUpdateSession(Long sessionId, Long sourceApplyId, IBaseImType iBaseImType);
+    void addSession(Long sessionId, Long sourceApplyId, IBaseImType iBaseImType);
 
 }

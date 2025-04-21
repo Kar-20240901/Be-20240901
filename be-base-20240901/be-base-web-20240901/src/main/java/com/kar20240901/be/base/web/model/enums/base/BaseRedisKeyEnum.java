@@ -10,8 +10,6 @@ public enum BaseRedisKeyEnum implements IRedisKey {
     // 【PRE_】开头 ↓
     // im 相关 ↓
 
-    PRE_IM_SESSION_REF_USER, // im会话关联用户锁，目的：往会话里面添加用户时，防止重复添加，锁：【sessionId + 用户主键 id】
-
     PRE_IM_APPLY_GROUP_ID, // im群组申请锁，锁：【群组申请主键 id】
 
     PRE_IM_APPLY_GROUP, // im群组申请锁，锁：【用户主键 id + 申请目标群组主键 id】
