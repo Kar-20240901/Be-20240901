@@ -21,9 +21,9 @@ public class BaseImFriendController {
     BaseImFriendService baseService;
 
     @Operation(summary = "删除好友")
-    @PostMapping("/remove")
-    public R<String> remove(@RequestBody @Valid NotNullId dto) {
-        return R.okMsg(baseService.remove(dto));
+    @PostMapping("/removeFriend")
+    public R<String> removeFriend(@RequestBody @Valid NotNullId dto) {
+        return R.okMsg(baseService.removeFriend(dto));
     }
 
 }

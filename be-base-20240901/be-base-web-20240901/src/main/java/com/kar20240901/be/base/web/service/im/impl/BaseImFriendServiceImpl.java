@@ -74,7 +74,7 @@ public class BaseImFriendServiceImpl extends ServiceImpl<BaseImFriendMapper, Bas
      * 删除好友
      */
     @Override
-    public String remove(NotNullId dto) {
+    public String removeFriend(NotNullId dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 

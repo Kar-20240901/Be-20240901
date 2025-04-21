@@ -8,6 +8,6 @@ public interface BaseImFriendService extends IService<BaseImFriendDO> {
 
     void addOrUpdateFriend(Long sourceUserId, Long targetUserId, Long sessionId, boolean addFlag);
 
-    String remove(NotNullId dto);
+    String removeFriend(NotNullId dto);
 
 }
