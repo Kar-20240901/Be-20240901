@@ -18,6 +18,8 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
     @Override
     public String insertTxt(BaseImSessionContentInsertTxtDTO dto) {
 
+        // 检查：是否
+
         return TempBizCodeEnum.OK;
 
     }
