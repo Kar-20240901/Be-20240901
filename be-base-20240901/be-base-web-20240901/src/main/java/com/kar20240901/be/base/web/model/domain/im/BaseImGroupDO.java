@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
 @Schema(description = "主表：群组表")
 public class BaseImGroupDO extends TempEntityNoIdSuper {
 
-    @TableId(type = IdType.ASSIGN_ID)
+    @TableId(type = IdType.INPUT)
     @Schema(description = "主键 id")
     private Long id;
 

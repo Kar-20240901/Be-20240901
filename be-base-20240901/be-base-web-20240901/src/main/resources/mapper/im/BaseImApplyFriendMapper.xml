@@ -19,13 +19,18 @@
     AND (a.user_id = #{currentUserId} OR a.target_user_id = #{currentUserId})
 
     <if test="dto.nickname != null and dto.nickname != ''">
-      AND a.xxx LIKE CONCAT('%', #{dto.nickname}, '%')
+      AND c.nickname LIKE CONCAT('%', #{dto.nickname}, '%')
     </if>
 
     <if test="dto.applyContent != null and dto.applyContent != ''">
       AND a.apply_content LIKE CONCAT('%', #{dto.applyContent}, '%')
     </if>
 
-    ORDER BY a.apply_time DESC
+    <if test="dto.searchKey != null and dto.searchKey != ''">
+      AND (c.nickname LIKE CONCAT('%', #{dto.searchKey}, '%') OR a.apply_content LIKE CONCAT('%',
+      #{dto.searchKey}, '%'))
+    </if>
+
+    ORDER BY a.update_time DESC
   </select>
 </mapper>

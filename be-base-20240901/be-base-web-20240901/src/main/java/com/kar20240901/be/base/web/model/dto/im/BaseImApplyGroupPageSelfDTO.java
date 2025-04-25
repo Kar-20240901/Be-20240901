@@ -7,10 +7,10 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class BaseImApplyFriendPageDTO extends MyPageDTO {
+public class BaseImApplyGroupPageSelfDTO extends MyPageDTO {
 
-    @Schema(description = "用户昵称")
-    private String nickname;
+    @Schema(description = "群组名")
+    private String groupName;
 
     @Schema(description = "申请内容")
     private String applyContent;

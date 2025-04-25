@@ -4,16 +4,15 @@ import com.kar20240901.be.base.web.model.dto.base.MyPageDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.jetbrains.annotations.NotNull;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class BaseImApplyFriendPageDTO extends MyPageDTO {
+public class BaseImApplyGroupPageGroupDTO extends MyPageDTO {
 
-    @Schema(description = "用户昵称")
-    private String nickname;
-
-    @Schema(description = "申请内容")
-    private String applyContent;
+    @NotNull
+    @Schema(description = "群组主键 id")
+    private Long groupId;
 
     @Schema(description = "搜索关键字")
     private String searchKey;

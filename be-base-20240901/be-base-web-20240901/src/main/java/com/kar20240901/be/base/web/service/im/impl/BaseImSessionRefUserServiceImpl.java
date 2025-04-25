@@ -127,6 +127,46 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
     }
 
     /**
+     * 创建会话关联用户：群组
+     */
+    @Override
+    public void addOrUpdateSessionRefUserForGroup(Long sessionId, Long groupId, Long userId) {
+
+        Assert.notNull(sessionId);
+        Assert.notNull(groupId);
+        Assert.notNull(userId);
+
+        BaseImGroupDO baseImGroupDO =
+            ChainWrappers.lambdaQueryChain(baseImGroupMapper).eq(BaseImGroupDO::getId, groupId).one();
+
+        if (baseImGroupDO == null) {
+            R.error("操作失败：群组信息不存在", groupId);
+        }
+
+        Date date = new Date();
+
+        Map<Long, String> publicUrlMap =
+            baseFileService.getPublicUrl(new NotEmptyIdSet(CollUtil.newHashSet(baseImGroupDO.getAvatarFileId())))
+                .getMap();
+
+        BaseImSessionRefUserDO baseImSessionRefUserDO = new BaseImSessionRefUserDO();
+
+        baseImSessionRefUserDO.setSessionId(sessionId);
+        baseImSessionRefUserDO.setUserId(userId);
+        baseImSessionRefUserDO.setLastOpenTs(date.getTime());
+        baseImSessionRefUserDO.setShowFlag(true);
+        baseImSessionRefUserDO.setName("");
+        baseImSessionRefUserDO.setAvatarUrl(
+            MyEntityUtil.getNotNullStr(publicUrlMap.get(baseImGroupDO.getAvatarFileId())));
+        baseImSessionRefUserDO.setTargetId(groupId);
+        baseImSessionRefUserDO.setTargetType(BaseImTypeEnum.GROUP.getCode());
+        baseImSessionRefUserDO.setTargetName(baseImGroupDO.getName());
+
+        saveOrUpdate(baseImSessionRefUserDO);
+
+    }
+
+    /**
      * 分页排序查询
      */
     @Override

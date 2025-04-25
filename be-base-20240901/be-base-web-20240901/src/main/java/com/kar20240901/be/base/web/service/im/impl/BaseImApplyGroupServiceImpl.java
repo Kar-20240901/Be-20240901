@@ -5,19 +5,38 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
+import com.kar20240901.be.base.web.mapper.im.BaseImApplyGroupExtraMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImApplyGroupMapper;
+import com.kar20240901.be.base.web.mapper.im.BaseImBlockMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImGroupMapper;
+import com.kar20240901.be.base.web.mapper.im.BaseImGroupRefUserMapper;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.im.BaseImApplyGroupDO;
+import com.kar20240901.be.base.web.model.domain.im.BaseImApplyGroupExtraDO;
+import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupDO;
+import com.kar20240901.be.base.web.model.domain.im.BaseImGroupRefUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
+import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyFriendSearchApplyGroupDTO;
-import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupInsertOrUpdateDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupPageGroupDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupPageSelfDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupRejectDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupSendDTO;
+import com.kar20240901.be.base.web.model.enums.base.BaseRedisKeyEnum;
+import com.kar20240901.be.base.web.model.enums.im.BaseImApplyStatusEnum;
+import com.kar20240901.be.base.web.model.enums.im.BaseImTypeEnum;
+import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.im.BaseImApplyFriendSearchApplyGroupVO;
+import com.kar20240901.be.base.web.model.vo.im.BaseImApplyGroupPageGroupVO;
+import com.kar20240901.be.base.web.model.vo.im.BaseImApplyGroupPageSelfVO;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.service.im.BaseImApplyGroupService;
+import com.kar20240901.be.base.web.util.base.MyUserUtil;
+import com.kar20240901.be.base.web.util.base.RedissonUtil;
+import com.kar20240901.be.base.web.util.im.BaseImGroupUtil;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +53,15 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
 
     @Resource
     BaseFileService baseFileService;
+
+    @Resource
+    BaseImBlockMapper baseImBlockMapper;
+
+    @Resource
+    BaseImGroupRefUserMapper baseImGroupRefUserMapper;
+
+    @Resource
+    BaseImApplyGroupExtraMapper baseImApplyGroupExtraMapper;
 
     /**
      * 搜索要添加的群组
@@ -78,6 +106,8 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
 
             baseImApplyFriendSearchApplyGroupVO.setAvatarUrl(avatarUrl);
 
+            list.add(baseImApplyFriendSearchApplyGroupVO);
+
         }
 
         resPage.setTotal(page.getTotal());
@@ -89,20 +119,182 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
     }
 
     /**
-     * 新增/修改
+     * 发送入群申请
      */
     @Override
-    public String insertOrUpdate(BaseImApplyGroupInsertOrUpdateDTO dto) {
+    public String send(BaseImApplyGroupSendDTO dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        BaseImGroupDO baseImGroupDO =
+            ChainWrappers.lambdaQueryChain(baseImGroupMapper).eq(BaseImGroupDO::getId, dto.getId())
+                .select(BaseImGroupDO::getSessionId).one();
+
+        if (baseImGroupDO == null) {
+            R.error("操作失败：该群组不存在", dto.getId());
+        }
+
+        boolean existsBlock =
+            ChainWrappers.lambdaQueryChain(baseImBlockMapper).eq(BaseImBlockDO::getUserId, currentUserId)
+                .eq(BaseImBlockDO::getSourceId, dto.getId()).eq(BaseImBlockDO::getSourceType, BaseImTypeEnum.GROUP)
+                .exists();
+
+        if (existsBlock) {
+            R.error("操作失败：您已被群组拉黑，无法添加", dto.getId());
+        }
+
+        String lockKey = BaseRedisKeyEnum.PRE_IM_APPLY_GROUP + ":" + currentUserId + ":" + dto.getId();
+
+        RedissonUtil.doLock(lockKey, () -> {
+
+            BaseImApplyGroupDO baseImApplyGroupDO = lambdaQuery().eq(BaseImApplyGroupDO::getUserId, currentUserId)
+                .eq(BaseImApplyGroupDO::getTargetGroupId, dto.getId()).one();
+
+            if (baseImApplyGroupDO == null) {
+
+                baseImApplyGroupDO = new BaseImApplyGroupDO();
+
+                baseImApplyGroupDO.setUserId(currentUserId);
+                baseImApplyGroupDO.setTargetGroupId(dto.getId());
+                baseImApplyGroupDO.setStatus(BaseImApplyStatusEnum.APPLYING);
+                baseImApplyGroupDO.setSessionId(baseImGroupDO.getSessionId());
+
+            } else {
+
+                BaseImApplyStatusEnum baseImApplyStatusEnum = baseImApplyGroupDO.getStatus();
+
+                if (BaseImApplyStatusEnum.PASSED.equals(baseImApplyStatusEnum)) {
+
+                    // 查询：是否存在于群友列表里面
+                    boolean existsGroup = ChainWrappers.lambdaQueryChain(baseImGroupRefUserMapper)
+                        .eq(BaseImGroupRefUserDO::getUserId, currentUserId)
+                        .eq(BaseImGroupRefUserDO::getGroupId, dto.getId()).exists();
+
+                    if (existsGroup) {
+
+                        R.error("操作失败：您已经在群里了", dto.getId());
+
+                    }
+
+                }
+
+                // 显示好友申请
+                ChainWrappers.lambdaUpdateChain(baseImApplyGroupExtraMapper)
+                    .eq(BaseImApplyGroupExtraDO::getApplyGroupId, baseImApplyGroupDO.getId())
+                    .set(BaseImApplyGroupExtraDO::getHiddenFlag, false).update();
+
+            }
+
+            baseImApplyGroupDO.setRejectReason("");
+            baseImApplyGroupDO.setApplyTime(new Date());
+            baseImApplyGroupDO.setApplyContent(dto.getApplyContent());
+
+            saveOrUpdate(baseImApplyGroupDO);
+
+        });
+
+        // 通知：您有新的入群申请
 
         return TempBizCodeEnum.OK;
 
     }
 
     /**
-     * 发送入群申请
+     * 分页排序查询
      */
     @Override
-    public String send(BaseImApplyGroupSendDTO dto) {
+    public Page<BaseImApplyGroupPageSelfVO> myPageSelf(BaseImApplyGroupPageSelfDTO dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        Page<BaseImApplyGroupPageSelfVO> page = baseMapper.myPageSelf(dto.pageOrder(), dto, currentUserId);
+
+        Set<Long> avatarFileIdSet =
+            page.getRecords().stream().map(BaseImApplyGroupPageSelfVO::getAvatarFileId).collect(Collectors.toSet());
+
+        Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(avatarFileIdSet)).getMap();
+
+        for (BaseImApplyGroupPageSelfVO item : page.getRecords()) {
+
+            String avatarUrl = publicUrlMap.get(item.getAvatarFileId());
+
+            item.setAvatarFileId(null);
+
+            item.setAvatarUrl(avatarUrl);
+
+        }
+
+        return page;
+
+    }
+
+    /**
+     * 分页排序查询-群组的入群申请
+     */
+    @Override
+    public Page<BaseImApplyGroupPageGroupVO> myPageGroup(BaseImApplyGroupPageGroupDTO dto) {
+
+        // 检查：是否有权限
+        BaseImGroupUtil.checkGroupAuth(dto.getGroupId());
+
+        Page<BaseImApplyGroupPageGroupVO> page = baseMapper.myPageGroup(dto.pageOrder(), dto);
+
+        Set<Long> avatarFileIdSet =
+            page.getRecords().stream().map(BaseImApplyGroupPageGroupVO::getAvatarFileId).collect(Collectors.toSet());
+
+        Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(avatarFileIdSet)).getMap();
+
+        for (BaseImApplyGroupPageGroupVO item : page.getRecords()) {
+
+            String avatarUrl = publicUrlMap.get(item.getAvatarFileId());
+
+            item.setAvatarFileId(null);
+
+            item.setAvatarUrl(avatarUrl);
+
+        }
+
+        return page;
+
+    }
+
+    /**
+     * 同意
+     */
+    @Override
+    public String agree(NotNullId dto) {
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 拒绝
+     */
+    @Override
+    public String reject(BaseImApplyGroupRejectDTO dto) {
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 隐藏
+     */
+    @Override
+    public String hidden(NotNullId dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        boolean exists =
+            lambdaQuery().eq(BaseImApplyGroupDO::getUserId, currentUserId).eq(BaseImApplyGroupDO::getId, dto.getId())
+                .exists();
+
+        if (!exists) {
+            R.error(TempBizCodeEnum.ILLEGAL_REQUEST);
+        }
+
+        baseImApplyGroupExtraMapper.insertOrUpdateHiddenFlag(dto.getId(), currentUserId, true);
 
         return TempBizCodeEnum.OK;
 

@@ -16,6 +16,8 @@ public interface BaseImSessionRefUserService extends IService<BaseImSessionRefUs
 
     void addOrUpdateSessionRefUserForFriend(Long sessionId, Long userId1, Long userId2, boolean addFlag);
 
+    void addOrUpdateSessionRefUserForGroup(Long sessionId, Long groupId, Long userId);
+
     Page<BaseImSessionRefUserPageVO> myPage(BaseImSessionRefUserPageDTO dto);
 
     List<BaseImSessionRefUserPageVO> scroll(ScrollListDTO dto);

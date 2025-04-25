@@ -219,8 +219,6 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
         Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(avatarFileIdSet)).getMap();
 
-        Page<BaseImApplyFriendPageVO> resPage = new Page<>();
-
         for (BaseImApplyFriendPageVO item : page.getRecords()) {
 
             String avatarUrl = publicUrlMap.get(item.getAvatarFileId());
@@ -231,7 +229,7 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
         }
 
-        return resPage;
+        return page;
 
     }
 

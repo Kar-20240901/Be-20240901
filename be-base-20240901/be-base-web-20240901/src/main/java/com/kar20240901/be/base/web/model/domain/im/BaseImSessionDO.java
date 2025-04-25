@@ -15,7 +15,8 @@ public class BaseImSessionDO {
     @Schema(description = "会话主键 id")
     private Long id;
 
-    @Schema(description = "来源申请 id，目的：删除好友/群组之后，还可以恢复之前的会话内容")
+    @Schema(
+        description = "来源申请 id，目的：删除好友/群组之后，还可以恢复之前的会话内容，备注：群组不支持会话内容恢复，所以群组该值为 -1")
     private Long sourceApplyId;
 
     @Schema(description = "来源申请类型：101 好友 201 群组")

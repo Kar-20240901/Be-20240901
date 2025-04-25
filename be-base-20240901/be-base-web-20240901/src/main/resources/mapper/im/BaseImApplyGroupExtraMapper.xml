@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kar20240901.be.base.web.mapper.im.BaseImApplyGroupExtraMapper">
+  <insert id="insertOrUpdateHiddenFlag">
+    INSERT INTO base_im_apply_group_extra (apply_group_id, user_id, hidden_flag)
+    VALUES (#{applyGroupId}, #{userId}, #{hiddenFlag})
+    ON DUPLICATE KEY UPDATE hidden_flag = VALUES(hidden_flag);
+  </insert>
+</mapper>
