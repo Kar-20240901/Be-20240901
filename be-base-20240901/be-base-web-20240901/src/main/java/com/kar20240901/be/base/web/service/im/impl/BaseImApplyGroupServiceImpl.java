@@ -10,6 +10,7 @@ import com.kar20240901.be.base.web.mapper.im.BaseImApplyGroupMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImBlockMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImGroupMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImGroupRefUserMapper;
+import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.im.BaseImApplyGroupDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImApplyGroupExtraDO;
@@ -32,6 +33,9 @@ import com.kar20240901.be.base.web.model.vo.im.BaseImApplyGroupPageGroupVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImApplyGroupPageSelfVO;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.service.im.BaseImApplyGroupService;
+import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
+import com.kar20240901.be.base.web.service.im.BaseImSessionService;
+import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import com.kar20240901.be.base.web.util.base.RedissonUtil;
 import com.kar20240901.be.base.web.util.im.BaseImGroupUtil;
@@ -62,6 +66,12 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
 
     @Resource
     BaseImApplyGroupExtraMapper baseImApplyGroupExtraMapper;
+
+    @Resource
+    BaseImSessionService baseImSessionService;
+
+    @Resource
+    BaseImSessionRefUserService baseImSessionRefUserService;
 
     /**
      * 搜索要添加的群组
@@ -262,7 +272,45 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
      * 同意
      */
     @Override
+    @MyTransactional
     public String agree(NotNullId dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        String lockKey = BaseRedisKeyEnum.PRE_IM_APPLY_GROUP_ID + ":" + dto.getId();
+
+        RedissonUtil.doLock(lockKey, () -> {
+
+            BaseImApplyGroupDO baseImApplyGroupDO = lambdaQuery().eq(BaseImApplyGroupDO::getId, dto.getId()).one();
+
+            if (baseImApplyGroupDO == null) {
+                R.error("操作失败：入群申请不存在", dto.getId());
+            }
+
+            // 检查：是否有权限
+            BaseImGroupUtil.checkGroupAuth(baseImApplyGroupDO.getTargetGroupId());
+
+            if (!BaseImApplyStatusEnum.APPLYING.equals(baseImApplyGroupDO.getStatus())) {
+                R.error("操作失败：该入群申请状态已发生改变，请刷新再试", dto.getId());
+            }
+
+            baseImApplyGroupDO.setRejectReason("");
+
+            baseImApplyGroupDO.setStatus(BaseImApplyStatusEnum.PASSED);
+
+            // 更新数据
+            updateById(baseImApplyGroupDO);
+
+            // 显示入群申请
+            ChainWrappers.lambdaUpdateChain(baseImApplyGroupExtraMapper)
+                .eq(BaseImApplyGroupExtraDO::getApplyGroupId, baseImApplyGroupDO.getId())
+                .set(BaseImApplyGroupExtraDO::getHiddenFlag, false).update();
+
+            // 创建会话关联用户
+            baseImSessionRefUserService.addOrUpdateSessionRefUserForGroup(baseImApplyGroupDO.getSessionId(),
+                baseImApplyGroupDO.getId(), currentUserId);
+
+        });
 
         return TempBizCodeEnum.OK;
 
@@ -272,7 +320,41 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
      * 拒绝
      */
     @Override
+    @MyTransactional
     public String reject(BaseImApplyGroupRejectDTO dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        String lockKey = BaseRedisKeyEnum.PRE_IM_APPLY_GROUP_ID + ":" + dto.getId();
+
+        RedissonUtil.doLock(lockKey, () -> {
+
+            BaseImApplyGroupDO baseImApplyGroupDO = lambdaQuery().eq(BaseImApplyGroupDO::getId, dto.getId()).one();
+
+            if (baseImApplyGroupDO == null) {
+                R.error("操作失败：入群申请不存在", dto.getId());
+            }
+
+            // 检查：是否有权限
+            BaseImGroupUtil.checkGroupAuth(baseImApplyGroupDO.getTargetGroupId());
+
+            if (!BaseImApplyStatusEnum.APPLYING.equals(baseImApplyGroupDO.getStatus())) {
+                R.error("操作失败：该入群申请状态已发生改变，请刷新再试", dto.getId());
+            }
+
+            baseImApplyGroupDO.setRejectReason(MyEntityUtil.getNotNullStr(dto.getRejectReason()));
+
+            baseImApplyGroupDO.setStatus(BaseImApplyStatusEnum.REJECTED);
+
+            // 更新数据
+            updateById(baseImApplyGroupDO);
+
+            // 显示入群申请
+            ChainWrappers.lambdaUpdateChain(baseImApplyGroupExtraMapper)
+                .eq(BaseImApplyGroupExtraDO::getApplyGroupId, baseImApplyGroupDO.getId())
+                .set(BaseImApplyGroupExtraDO::getHiddenFlag, false).update();
+
+        });
 
         return TempBizCodeEnum.OK;
 

@@ -240,14 +240,15 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
     @MyTransactional
     public String agree(NotNullId dto) {
 
-        Long userId = MyUserUtil.getCurrentUserId();
+        Long currentUserId = MyUserUtil.getCurrentUserId();
 
         String lockKey = BaseRedisKeyEnum.PRE_IM_APPLY_FRIEND_ID + ":" + dto.getId();
 
         RedissonUtil.doLock(lockKey, () -> {
 
-            BaseImApplyFriendDO baseImApplyFriendDO = lambdaQuery().eq(BaseImApplyFriendDO::getTargetUserId, userId)
-                .eq(BaseImApplyFriendDO::getId, dto.getId()).one();
+            BaseImApplyFriendDO baseImApplyFriendDO =
+                lambdaQuery().eq(BaseImApplyFriendDO::getTargetUserId, currentUserId)
+                    .eq(BaseImApplyFriendDO::getId, dto.getId()).one();
 
             if (baseImApplyFriendDO == null) {
                 R.error("操作失败：好友申请不存在", dto.getId());
@@ -310,13 +311,14 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
     @MyTransactional
     public String reject(BaseImApplyFriendRejectDTO dto) {
 
-        Long userId = MyUserUtil.getCurrentUserId();
+        Long currentUserId = MyUserUtil.getCurrentUserId();
 
         String lockKey = BaseRedisKeyEnum.PRE_IM_APPLY_FRIEND_ID + ":" + dto.getId();
 
         RedissonUtil.doLock(lockKey, () -> {
 
-            BaseImApplyFriendDO baseImApplyFriendDO = lambdaQuery().eq(BaseImApplyFriendDO::getTargetUserId, userId)
+            BaseImApplyFriendDO baseImApplyFriendDO =
+                lambdaQuery().eq(BaseImApplyFriendDO::getTargetUserId, currentUserId)
                 .eq(BaseImApplyFriendDO::getId, dto.getId()).one();
 
             if (baseImApplyFriendDO == null) {
