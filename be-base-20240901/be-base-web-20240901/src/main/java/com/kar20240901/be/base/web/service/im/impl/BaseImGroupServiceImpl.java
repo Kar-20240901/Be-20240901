@@ -123,7 +123,8 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        Page<BaseImGroupPageVO> page = baseMapper.myPage(dto.createTimeDescDefaultOrderPage(), dto, currentUserId);
+        Page<BaseImGroupPageVO> page =
+            baseMapper.myPage(dto.fieldDescDefaultOrderPage("a.create_time", true), dto, currentUserId);
 
         Set<Long> avatarFileIdSet =
             page.getRecords().stream().map(BaseImGroupPageVO::getAvatarFileId).collect(Collectors.toSet());
@@ -138,7 +139,7 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
 
         }
 
-        return null;
+        return page;
 
     }
 
