@@ -11,6 +11,7 @@ public class BaseImSessionContentInsertTxtDTO {
     @Schema(description = "会话主键 id")
     private Long sessionId;
 
+    @NotNull
     @Schema(description = "文字内容")
     private String txt;
 

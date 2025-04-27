@@ -33,8 +33,8 @@ import com.kar20240901.be.base.web.model.vo.im.BaseImApplyGroupPageGroupVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImApplyGroupPageSelfVO;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.service.im.BaseImApplyGroupService;
+import com.kar20240901.be.base.web.service.im.BaseImGroupRefUserService;
 import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
-import com.kar20240901.be.base.web.service.im.BaseImSessionService;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import com.kar20240901.be.base.web.util.base.RedissonUtil;
@@ -68,10 +68,10 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
     BaseImApplyGroupExtraMapper baseImApplyGroupExtraMapper;
 
     @Resource
-    BaseImSessionService baseImSessionService;
+    BaseImSessionRefUserService baseImSessionRefUserService;
 
     @Resource
-    BaseImSessionRefUserService baseImSessionRefUserService;
+    BaseImGroupRefUserService baseImGroupRefUserService;
 
     /**
      * 搜索要添加的群组
@@ -310,6 +310,10 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
             baseImSessionRefUserService.addOrUpdateSessionRefUserForGroup(baseImApplyGroupDO.getSessionId(),
                 baseImApplyGroupDO.getId(), currentUserId);
 
+            // 添加群员
+            baseImGroupRefUserService.addUser(baseImApplyGroupDO.getSessionId(), baseImApplyGroupDO.getId(),
+                currentUserId);
+
         });
 
         return TempBizCodeEnum.OK;
@@ -322,8 +326,6 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
     @Override
     @MyTransactional
     public String reject(BaseImApplyGroupRejectDTO dto) {
-
-        Long currentUserId = MyUserUtil.getCurrentUserId();
 
         String lockKey = BaseRedisKeyEnum.PRE_IM_APPLY_GROUP_ID + ":" + dto.getId();
 

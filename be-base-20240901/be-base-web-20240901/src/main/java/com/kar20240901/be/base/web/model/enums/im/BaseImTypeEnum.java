@@ -3,6 +3,8 @@ package com.kar20240901.be.base.web.model.enums.im;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.kar20240901.be.base.web.model.interfaces.im.IBaseImType;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -22,5 +24,17 @@ public enum BaseImTypeEnum implements IBaseImType {
     @EnumValue
     @JsonValue
     private final int code; // 类型编码
+
+    public static final Map<Integer, BaseImTypeEnum> MAP = new HashMap<>();
+
+    static {
+
+        for (BaseImTypeEnum item : values()) {
+
+            MAP.put(item.code, item);
+
+        }
+
+    }
 
 }

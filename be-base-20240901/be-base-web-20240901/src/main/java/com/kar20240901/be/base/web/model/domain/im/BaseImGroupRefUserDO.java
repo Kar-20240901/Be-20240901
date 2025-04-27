@@ -25,6 +25,9 @@ public class BaseImGroupRefUserDO extends TempEntityNoIdSuper {
     private Long userId;
 
     @Schema(description = "我在群组的昵称")
-    private String groupNickname;
+    private String myNickname;
+
+    @Schema(description = "是否禁言")
+    private Boolean muteFlag;
 
 }

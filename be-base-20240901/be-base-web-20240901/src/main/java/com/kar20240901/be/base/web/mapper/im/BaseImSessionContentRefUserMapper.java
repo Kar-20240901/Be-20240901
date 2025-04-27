@@ -14,7 +14,7 @@ import org.apache.ibatis.annotations.Param;
 public interface BaseImSessionContentRefUserMapper extends BaseMapper<BaseImSessionContentRefUserDO> {
 
     List<BaseImSessionRefUserQueryLastContentVO> queryLastContent(@Param("sessionIdList") List<Long> sessionIdList,
-        Long currentUserId);
+        @Param("currentUserId") Long currentUserId);
 
     Page<BaseImSessionContentRefUserPageVO> myPage(@Param("page") Page<BaseImSessionContentRefUserPageVO> page,
         @Param("dto") BaseImSessionContentRefUserPageDTO dto, @Param("currentUserId") Long currentUserId);

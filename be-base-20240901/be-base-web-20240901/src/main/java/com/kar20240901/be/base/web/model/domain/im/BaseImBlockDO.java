@@ -32,10 +32,10 @@ public class BaseImBlockDO {
     @Schema(description = "会话主键 id，默认为 -1")
     private Long sessionId;
 
-    @Schema(description = "来源 id")
+    @Schema(description = "拉黑该用户的来源 id")
     private Long sourceId;
 
-    @Schema(description = "来源类型：101 好友 201 群组")
+    @Schema(description = "拉黑该用户来源的类型：101 好友 201 群组")
     private Integer sourceType;
 
 }

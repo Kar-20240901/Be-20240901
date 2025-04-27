@@ -19,6 +19,7 @@ import com.kar20240901.be.base.web.model.dto.im.BaseImGroupInsertOrUpdateDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRemoveUserDTO;
 import com.kar20240901.be.base.web.model.enums.im.BaseImTypeEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
+import com.kar20240901.be.base.web.service.im.BaseImGroupRefUserService;
 import com.kar20240901.be.base.web.service.im.BaseImGroupService;
 import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
 import com.kar20240901.be.base.web.service.im.BaseImSessionService;
@@ -46,6 +47,9 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
 
     @Resource
     BaseImSessionRefUserService baseImSessionRefUserService;
+
+    @Resource
+    BaseImGroupRefUserService baseImGroupRefUserService;
 
     /**
      * 新增/修改
@@ -75,6 +79,9 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
 
             // 创建会话关联用户
             baseImSessionRefUserService.addOrUpdateSessionRefUserForGroup(sessionId, groupId, currentUserId);
+
+            // 添加群员
+            baseImGroupRefUserService.addUser(sessionId, groupId, currentUserId);
 
         } else {
 
