@@ -19,6 +19,8 @@ import com.kar20240901.be.base.web.model.domain.im.BaseImSessionRefUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserAddNotDisturbDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserDeleteNotDisturbDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserPageDTO;
 import com.kar20240901.be.base.web.model.enums.im.BaseImTypeEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
@@ -107,6 +109,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDo1.setTargetId(userId2);
         baseImSessionRefUserDo1.setTargetType(BaseImTypeEnum.FRIEND.getCode());
         baseImSessionRefUserDo1.setTargetName(tempUserInfoDo2.getNickname());
+        baseImSessionRefUserDo1.setNotDisturbFlag(false);
 
         saveOrUpdate(baseImSessionRefUserDo1);
 
@@ -121,6 +124,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDo2.setTargetId(userId1);
         baseImSessionRefUserDo2.setTargetType(BaseImTypeEnum.FRIEND.getCode());
         baseImSessionRefUserDo1.setTargetName(tempUserInfoDo1.getNickname());
+        baseImSessionRefUserDo2.setNotDisturbFlag(false);
 
         saveOrUpdate(baseImSessionRefUserDo2);
 
@@ -161,6 +165,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDO.setTargetId(groupId);
         baseImSessionRefUserDO.setTargetType(BaseImTypeEnum.GROUP.getCode());
         baseImSessionRefUserDO.setTargetName(baseImGroupDO.getName());
+        baseImSessionRefUserDO.setNotDisturbFlag(false);
 
         saveOrUpdate(baseImSessionRefUserDO);
 
@@ -413,8 +418,6 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
             baseImSessionRefUserDO.setId(item.getId());
 
-            Long targetId = item.getTargetId();
-
             if (BaseImTypeEnum.FRIEND.getCode() == item.getTargetType()) {
 
                 TempUserInfoDO tempUserInfoDO = userInfoDoMap.get(item.getTargetId());
@@ -448,6 +451,38 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         }
 
         updateBatchById(updateList);
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 新增免打扰
+     */
+    @Override
+    public String addNotDisturb(BaseImSessionRefUserAddNotDisturbDTO dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        lambdaUpdate().eq(BaseImSessionRefUserDO::getSessionId, dto.getSessionId())
+            .eq(BaseImSessionRefUserDO::getUserId, currentUserId).set(BaseImSessionRefUserDO::getNotDisturbFlag, true)
+            .update();
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 删除免打扰
+     */
+    @Override
+    public String deleteNotDisturb(BaseImSessionRefUserDeleteNotDisturbDTO dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        lambdaUpdate().eq(BaseImSessionRefUserDO::getSessionId, dto.getSessionId())
+            .eq(BaseImSessionRefUserDO::getUserId, currentUserId).set(BaseImSessionRefUserDO::getNotDisturbFlag, false)
+            .update();
 
         return TempBizCodeEnum.OK;
 

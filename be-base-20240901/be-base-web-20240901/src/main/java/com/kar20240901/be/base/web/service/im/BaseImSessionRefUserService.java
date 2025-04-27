@@ -6,6 +6,8 @@ import com.kar20240901.be.base.web.model.domain.im.BaseImSessionRefUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserAddNotDisturbDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserDeleteNotDisturbDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserPageDTO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserPageVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO;
@@ -29,5 +31,9 @@ public interface BaseImSessionRefUserService extends IService<BaseImSessionRefUs
     String updateLastOpenTs(NotNullId dto);
 
     String updateAvatarAndNickname(NotEmptyIdSet dto);
+
+    String addNotDisturb(BaseImSessionRefUserAddNotDisturbDTO dto);
+
+    String deleteNotDisturb(BaseImSessionRefUserDeleteNotDisturbDTO dto);
 
 }

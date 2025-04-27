@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserAddNotDisturbDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserDeleteNotDisturbDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserPageDTO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserPageVO;
@@ -63,6 +65,18 @@ public class BaseImSessionRefUserController {
     @PostMapping("/updateAvatarAndNickname")
     public R<String> updateAvatarAndNickname(@RequestBody @Valid NotEmptyIdSet dto) {
         return R.okMsg(baseService.updateAvatarAndNickname(dto));
+    }
+
+    @Operation(summary = "新增免打扰")
+    @PostMapping("/addNotDisturb")
+    public R<String> addNotDisturb(@RequestBody @Valid BaseImSessionRefUserAddNotDisturbDTO dto) {
+        return R.okMsg(baseService.addNotDisturb(dto));
+    }
+
+    @Operation(summary = "删除免打扰")
+    @PostMapping("/deleteNotDisturb")
+    public R<String> deleteNotDisturb(@RequestBody @Valid BaseImSessionRefUserDeleteNotDisturbDTO dto) {
+        return R.okMsg(baseService.deleteNotDisturb(dto));
     }
 
 }

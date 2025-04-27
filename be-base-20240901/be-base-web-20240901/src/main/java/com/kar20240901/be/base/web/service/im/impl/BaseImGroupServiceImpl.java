@@ -62,6 +62,8 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
+        baseImGroupDO.setName(dto.getName());
+
         if (dto.getId() == null) {
 
             Long groupId = IdGeneratorUtil.nextId();
@@ -72,7 +74,11 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
 
             Long sessionId = IdGeneratorUtil.nextId();
 
+            baseImGroupDO.setAvatarFileId(TempConstant.NEGATIVE_ONE);
+
             baseImGroupDO.setSessionId(sessionId);
+
+            save(baseImGroupDO);
 
             // 创建会话
             baseImSessionService.addSession(sessionId, TempConstant.NEGATIVE_ONE, BaseImTypeEnum.GROUP);
@@ -89,16 +95,6 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
             BaseImGroupUtil.checkGroupAuth(dto.getId());
 
             baseImGroupDO.setId(dto.getId());
-
-        }
-
-        baseImGroupDO.setName(dto.getName());
-
-        if (dto.getId() == null) {
-
-            save(baseImGroupDO);
-
-        } else {
 
             updateById(baseImGroupDO);
 
