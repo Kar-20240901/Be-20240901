@@ -17,6 +17,8 @@ public enum BaseImSessionContentTypeEnum implements IBaseImSessionContentType {
 
     IMAGE(201), // 图片
 
+    FILE(301), // 文件
+
     ;
 
     @EnumValue

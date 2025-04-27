@@ -15,6 +15,7 @@ public class BaseImSessionContentInsertTxtDTO {
     @Schema(description = "文字内容")
     private String txt;
 
+    @NotNull
     @Schema(description = "创建时间的时间戳，UTC+8")
     private Long createTs;
 

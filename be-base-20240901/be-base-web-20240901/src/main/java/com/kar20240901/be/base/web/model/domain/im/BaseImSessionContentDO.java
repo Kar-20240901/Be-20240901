@@ -27,7 +27,7 @@ public class BaseImSessionContentDO {
     private Date createTime;
 
     @Schema(description = "是否启用，用于撤回功能")
-    private Integer enableFlag;
+    private Boolean enableFlag;
 
     @Schema(description = "会话主键 id")
     private Long sessionId;

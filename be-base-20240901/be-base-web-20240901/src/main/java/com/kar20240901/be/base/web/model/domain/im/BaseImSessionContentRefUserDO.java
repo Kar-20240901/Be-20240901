@@ -25,6 +25,6 @@ public class BaseImSessionContentRefUserDO {
     private Long userId;
 
     @Schema(description = "是否显示在：用户消息中")
-    private Integer showFlag;
+    private Boolean showFlag;
 
 }

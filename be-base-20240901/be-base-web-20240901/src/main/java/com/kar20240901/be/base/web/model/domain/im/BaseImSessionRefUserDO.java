@@ -42,4 +42,7 @@ public class BaseImSessionRefUserDO {
     @Schema(description = "来源昵称")
     private String targetName;
 
+    @Schema(description = "是否免打扰")
+    private Boolean notDisturbFlag;
+
 }
