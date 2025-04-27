@@ -91,7 +91,7 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
             ChainWrappers.lambdaQueryChain(baseUserInfoMapper).eq(userId != null, TempUserInfoDO::getId, userId)
                 .like(StrUtil.isNotBlank(nickname), TempUserInfoDO::getNickname, nickname)
                 .select(TempUserInfoDO::getId, TempUserInfoDO::getNickname, TempUserInfoDO::getAvatarFileId)
-                .page(dto.createTimeDescDefaultOrderPage(true));
+                .page(dto.fieldDescDefaultOrderPage("lastActiveTime", true));
 
         Set<Long> avatarFileIdSet = page.getRecords().stream().map(TempUserInfoDO::getAvatarFileId)
             .filter(it -> it != TempConstant.NEGATIVE_ONE).collect(Collectors.toSet());
@@ -112,6 +112,8 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
             String avatarUrl = publicUrlMap.get(item.getAvatarFileId());
 
             baseImApplyFriendSearchApplyFriendVO.setAvatarUrl(avatarUrl);
+
+            list.add(baseImApplyFriendSearchApplyFriendVO);
 
         }
 
@@ -319,7 +321,7 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
             BaseImApplyFriendDO baseImApplyFriendDO =
                 lambdaQuery().eq(BaseImApplyFriendDO::getTargetUserId, currentUserId)
-                .eq(BaseImApplyFriendDO::getId, dto.getId()).one();
+                    .eq(BaseImApplyFriendDO::getId, dto.getId()).one();
 
             if (baseImApplyFriendDO == null) {
                 R.error("操作失败：好友申请不存在", dto.getId());

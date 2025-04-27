@@ -173,6 +173,22 @@ public class MyPageDTO {
     }
 
     /**
+     * 分页属性拷贝-增加：任意字段 倒序排序
+     */
+    @NotNull
+    public <T> Page<T> fieldDescDefaultOrderPage(String fieldName, boolean toUnderlineFlag) {
+
+        Page<T> page = pageOrder(toUnderlineFlag);
+
+        if (orderEmpty()) {
+            page.orders().add(fieldOrderItem(fieldName, toUnderlineFlag));
+        }
+
+        return page;
+
+    }
+
+    /**
      * 获取：默认的创建时间排序
      */
     @NotNull
@@ -211,6 +227,22 @@ public class MyPageDTO {
     public static OrderItem idOrderItem() {
 
         return OrderItem.desc("id");
+
+    }
+
+    /**
+     * 获取：任意字段倒序排序
+     */
+    @NotNull
+    public static OrderItem fieldOrderItem(String fieldName, boolean toUnderlineFlag) {
+
+        if (toUnderlineFlag) {
+
+            return OrderItem.desc(StrUtil.toUnderlineCase(fieldName));
+
+        }
+
+        return OrderItem.desc(fieldName);
 
     }
 
