@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kar20240901.be.base.web.mapper.im.BaseImGroupMapper">
+  <select id="myPage" resultType="com.kar20240901.be.base.web.model.vo.im.BaseImGroupPageVO">
+    SELECT IF(a.group_nickname = '', b.name, a.group_nickname) AS groupName,
+           a.group_id,
+           b.avatar_file_id
+    FROM base_im_group_ref_user a
+           LEFT JOIN base_im_group b ON b.id = a.group_id
+    WHERE a.user_id = #{currentUserId}
+  </select>
+</mapper>

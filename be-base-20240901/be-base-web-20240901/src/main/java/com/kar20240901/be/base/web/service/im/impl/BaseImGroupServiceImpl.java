@@ -1,5 +1,6 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
@@ -13,12 +14,16 @@ import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupRefUserDO;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupChangeBelongIdDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupInsertOrUpdateDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImGroupPageDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRemoveUserDTO;
 import com.kar20240901.be.base.web.model.enums.im.BaseImTypeEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
+import com.kar20240901.be.base.web.model.vo.im.BaseImGroupPageVO;
+import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.service.im.BaseImGroupRefUserService;
 import com.kar20240901.be.base.web.service.im.BaseImGroupService;
 import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
@@ -26,6 +31,9 @@ import com.kar20240901.be.base.web.service.im.BaseImSessionService;
 import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import com.kar20240901.be.base.web.util.im.BaseImGroupUtil;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -50,6 +58,9 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
 
     @Resource
     BaseImGroupRefUserService baseImGroupRefUserService;
+
+    @Resource
+    BaseFileService baseFileService;
 
     /**
      * 新增/修改
@@ -101,6 +112,33 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
         }
 
         return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 分页排序查询
+     */
+    @Override
+    public Page<BaseImGroupPageVO> myPage(BaseImGroupPageDTO dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        Page<BaseImGroupPageVO> page = baseMapper.myPage(dto.createTimeDescDefaultOrderPage(), dto, currentUserId);
+
+        Set<Long> avatarFileIdSet =
+            page.getRecords().stream().map(BaseImGroupPageVO::getAvatarFileId).collect(Collectors.toSet());
+
+        Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(avatarFileIdSet)).getMap();
+
+        for (BaseImGroupPageVO item : page.getRecords()) {
+
+            item.setAvatarUrl(publicUrlMap.get(item.getAvatarFileId()));
+
+            item.setAvatarFileId(null);
+
+        }
+
+        return null;
 
     }
 
