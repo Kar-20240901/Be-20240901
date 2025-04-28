@@ -43,7 +43,7 @@
   </select>
 
   <select id="queryUnReadCount" resultType="java.util.Map">
-    SELECT a.session_id, LEAST(99, COUNT(*)) AS unReadCount
+    SELECT a.session_id AS sessionId, LEAST(99, COUNT(*)) AS unReadCount
 
     FROM base_im_session_ref_user a
            LEFT JOIN base_im_session_content b ON b.session_id = a.session_id

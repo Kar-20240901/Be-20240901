@@ -31,7 +31,7 @@ public class BaseImSessionRefUserController {
     BaseImSessionRefUserService baseService;
 
     @Operation(summary = "分页排序查询")
-    @PostMapping("/myPage")
+    @PostMapping("/page")
     public R<Page<BaseImSessionRefUserPageVO>> myPage(@RequestBody @Valid BaseImSessionRefUserPageDTO dto) {
         return R.okData(baseService.myPage(dto));
     }
