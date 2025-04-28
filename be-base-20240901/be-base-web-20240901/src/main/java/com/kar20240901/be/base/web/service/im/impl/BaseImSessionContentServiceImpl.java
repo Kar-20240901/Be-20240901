@@ -9,6 +9,7 @@ import com.kar20240901.be.base.web.mapper.im.BaseImFriendMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImGroupRefUserMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionContentMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper;
+import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImFriendDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupRefUserDO;
@@ -54,6 +55,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
      * 新增文字消息
      */
     @Override
+    @MyTransactional
     public String insertTxt(BaseImSessionContentInsertTxtDTO dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
@@ -100,7 +102,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
     /**
      * 执行：发送消息
      */
-    private void doInsertTxt(BaseImSessionContentInsertTxtDTO dto, Long sessionId) {
+    public void doInsertTxt(BaseImSessionContentInsertTxtDTO dto, Long sessionId) {
 
         BaseImSessionContentDO baseImSessionContentDO = new BaseImSessionContentDO();
 

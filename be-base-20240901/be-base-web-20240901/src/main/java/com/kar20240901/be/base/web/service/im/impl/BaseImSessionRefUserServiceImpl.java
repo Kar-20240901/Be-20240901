@@ -147,6 +147,22 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
             R.error("操作失败：群组信息不存在", groupId);
         }
 
+        BaseImSessionRefUserDO baseImSessionRefUserDoTemp =
+            lambdaQuery().eq(BaseImSessionRefUserDO::getSessionId, sessionId)
+                .eq(BaseImSessionRefUserDO::getTargetId, groupId)
+                .eq(BaseImSessionRefUserDO::getTargetType, BaseImTypeEnum.GROUP)
+                .eq(BaseImSessionRefUserDO::getUserId, userId).select(BaseImSessionRefUserDO::getId).one();
+
+        if (baseImSessionRefUserDoTemp != null) {
+
+            baseImSessionRefUserDoTemp.setShowFlag(true);
+
+            updateById(baseImSessionRefUserDoTemp);
+
+            return;
+
+        }
+
         Date date = new Date();
 
         Map<Long, String> publicUrlMap =
@@ -167,7 +183,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDO.setTargetName(baseImGroupDO.getName());
         baseImSessionRefUserDO.setNotDisturbFlag(false);
 
-        saveOrUpdate(baseImSessionRefUserDO);
+        save(baseImSessionRefUserDO);
 
     }
 

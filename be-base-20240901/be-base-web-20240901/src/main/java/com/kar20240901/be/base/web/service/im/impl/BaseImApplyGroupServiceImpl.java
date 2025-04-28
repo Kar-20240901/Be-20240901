@@ -132,6 +132,7 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
      * 发送入群申请
      */
     @Override
+    @MyTransactional
     public String send(BaseImApplyGroupSendDTO dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
@@ -166,7 +167,6 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
 
                 baseImApplyGroupDO.setUserId(currentUserId);
                 baseImApplyGroupDO.setTargetGroupId(dto.getId());
-                baseImApplyGroupDO.setStatus(BaseImApplyStatusEnum.APPLYING);
                 baseImApplyGroupDO.setSessionId(baseImGroupDO.getSessionId());
 
             } else {
@@ -195,6 +195,7 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
 
             }
 
+            baseImApplyGroupDO.setStatus(BaseImApplyStatusEnum.APPLYING);
             baseImApplyGroupDO.setRejectReason("");
             baseImApplyGroupDO.setApplyTime(new Date());
             baseImApplyGroupDO.setApplyContent(dto.getApplyContent());
@@ -275,8 +276,6 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
     @MyTransactional
     public String agree(NotNullId dto) {
 
-        Long currentUserId = MyUserUtil.getCurrentUserId();
-
         String lockKey = BaseRedisKeyEnum.PRE_IM_APPLY_GROUP_ID + ":" + dto.getId();
 
         RedissonUtil.doLock(lockKey, () -> {
@@ -308,11 +307,11 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
 
             // 创建会话关联用户
             baseImSessionRefUserService.addOrUpdateSessionRefUserForGroup(baseImApplyGroupDO.getSessionId(),
-                baseImApplyGroupDO.getId(), currentUserId);
+                baseImApplyGroupDO.getTargetGroupId(), baseImApplyGroupDO.getUserId());
 
             // 添加群员
-            baseImGroupRefUserService.addUser(baseImApplyGroupDO.getSessionId(), baseImApplyGroupDO.getId(),
-                currentUserId);
+            baseImGroupRefUserService.addUser(baseImApplyGroupDO.getSessionId(), baseImApplyGroupDO.getTargetGroupId(),
+                baseImApplyGroupDO.getUserId());
 
         });
 

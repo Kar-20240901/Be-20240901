@@ -1,7 +1,6 @@
 package com.kar20240901.be.base.web.model.vo.im;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.Date;
 import lombok.Data;
 
 @Data
@@ -12,9 +11,6 @@ public class BaseImSessionContentRefUserPageVO {
 
     @Schema(description = "创建人id")
     private Long createId;
-
-    @Schema(description = "创建时间")
-    private Date createTime;
 
     @Schema(description = "会话内容")
     private String content;

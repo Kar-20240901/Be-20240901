@@ -32,7 +32,7 @@
 
   <select id="myPage"
     resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionContentRefUserPageVO">
-    SELECT b.id, b.create_ts, b.type, b.create_time, b.content, b.create_id, b.ref_id
+    SELECT b.id, b.create_ts, b.type, b.content, b.create_id, b.ref_id
 
     FROM base_im_session_content_ref_user a
     LEFT JOIN base_im_session_content b ON b.id = a.content_id

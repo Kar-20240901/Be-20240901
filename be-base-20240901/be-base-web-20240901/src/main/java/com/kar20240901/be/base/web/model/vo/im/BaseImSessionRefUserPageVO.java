@@ -15,7 +15,7 @@ public class BaseImSessionRefUserPageVO extends BaseImSessionRefUserQueryLastCon
     private String sessionName;
 
     @Schema(description = "冗余字段：头像 url，一定有值")
-    private Long avatarUrl;
+    private String avatarUrl;
 
     @Schema(description = "目标 id，可以查询到好友用户主键 id，或者群组主键 id，一定有值")
     private Long targetId;

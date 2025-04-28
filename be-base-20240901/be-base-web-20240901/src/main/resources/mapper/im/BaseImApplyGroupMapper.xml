@@ -2,7 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.kar20240901.be.base.web.mapper.im.BaseImApplyGroupMapper">
-  <select id="myPageSelf" resultType="com.kar20240901.be.base.web.model.vo.im.BaseImApplyGroupPageSelfVO">
+  <select id="myPageSelf"
+    resultType="com.kar20240901.be.base.web.model.vo.im.BaseImApplyGroupPageSelfVO">
     SELECT a.id,a.apply_content,a.apply_time,a.status,c.name AS groupName,c.avatar_file_id
 
     FROM base_im_apply_group a
@@ -33,7 +34,7 @@
   </select>
 
   <select id="myPageGroup"
-          resultType="com.kar20240901.be.base.web.model.vo.im.BaseImApplyGroupPageGroupVO">
+    resultType="com.kar20240901.be.base.web.model.vo.im.BaseImApplyGroupPageGroupVO">
     SELECT a.id,a.apply_content,a.apply_time,a.status,b.nickname,b.avatar_file_id
 
     FROM base_im_apply_group a
@@ -41,6 +42,8 @@
     LEFT JOIN base_user_info b ON b.id = a.user_id
 
     WHERE a.target_group_id = #{dto.groupId}
+
+    AND b.id IS NOT NULL
 
     <if test="dto.searchKey != null and dto.searchKey != ''">
       AND (b.nickname LIKE CONCAT('%', #{dto.searchKey}, '%') OR a.apply_content LIKE CONCAT('%',
