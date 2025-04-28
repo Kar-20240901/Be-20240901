@@ -167,7 +167,6 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
                 baseImApplyFriendDO.setUserId(currentUserId);
                 baseImApplyFriendDO.setTargetUserId(dto.getId());
-                baseImApplyFriendDO.setStatus(BaseImApplyStatusEnum.APPLYING);
                 baseImApplyFriendDO.setSessionId(TempConstant.NEGATIVE_ONE);
 
             } else {
@@ -196,6 +195,7 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
             }
 
+            baseImApplyFriendDO.setStatus(BaseImApplyStatusEnum.APPLYING);
             baseImApplyFriendDO.setRejectReason("");
             baseImApplyFriendDO.setApplyTime(new Date());
             baseImApplyFriendDO.setApplyContent(dto.getApplyContent());

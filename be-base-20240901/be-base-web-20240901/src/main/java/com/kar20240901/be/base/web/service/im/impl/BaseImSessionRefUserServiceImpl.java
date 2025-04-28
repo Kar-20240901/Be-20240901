@@ -76,7 +76,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
             R.error("操作失败：用户信息不存在，请重新申请", CollUtil.newArrayList(userId1, userId2));
         }
 
-        if (addFlag) {
+        if (!addFlag) {
 
             lambdaUpdate().eq(BaseImSessionRefUserDO::getSessionId, sessionId)
                 .set(BaseImSessionRefUserDO::getShowFlag, true).update();
@@ -111,7 +111,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDo1.setTargetName(tempUserInfoDo2.getNickname());
         baseImSessionRefUserDo1.setNotDisturbFlag(false);
 
-        saveOrUpdate(baseImSessionRefUserDo1);
+        save(baseImSessionRefUserDo1);
 
         BaseImSessionRefUserDO baseImSessionRefUserDo2 = new BaseImSessionRefUserDO();
 
@@ -120,13 +120,14 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDo2.setLastOpenTs(date.getTime());
         baseImSessionRefUserDo2.setShowFlag(true);
         baseImSessionRefUserDo2.setName("");
-        baseImSessionRefUserDo2.setAvatarUrl(publicUrlMap.get(tempUserInfoDo1.getAvatarFileId()));
+        baseImSessionRefUserDo2.setAvatarUrl(
+            MyEntityUtil.getNotNullStr(publicUrlMap.get(tempUserInfoDo1.getAvatarFileId())));
         baseImSessionRefUserDo2.setTargetId(userId1);
         baseImSessionRefUserDo2.setTargetType(BaseImTypeEnum.FRIEND.getCode());
-        baseImSessionRefUserDo1.setTargetName(tempUserInfoDo1.getNickname());
+        baseImSessionRefUserDo2.setTargetName(tempUserInfoDo1.getNickname());
         baseImSessionRefUserDo2.setNotDisturbFlag(false);
 
-        saveOrUpdate(baseImSessionRefUserDo2);
+        save(baseImSessionRefUserDo2);
 
     }
 
