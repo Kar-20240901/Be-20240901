@@ -276,7 +276,12 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
             return MapUtil.newHashMap();
         }
 
-        Map<Long, Integer> sessionIdUnReadCountMap = baseMapper.queryUnReadCount(sessionIdList, currentUserId);
+        List<BaseImSessionRefUserQueryLastContentVO> unReadCountList =
+            baseMapper.queryUnReadCount(sessionIdList, currentUserId);
+
+        Map<Long, Integer> sessionIdUnReadCountMap = unReadCountList.stream().collect(
+            Collectors.toMap(BaseImSessionRefUserQueryLastContentVO::getSessionId,
+                BaseImSessionRefUserQueryLastContentVO::getUnReadCount));
 
         List<BaseImSessionRefUserQueryLastContentVO> baseImSessionRefUserQueryLastContentVoList =
             baseImSessionContentRefUserMapper.queryLastContent(sessionIdList, currentUserId);

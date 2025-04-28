@@ -42,7 +42,7 @@
     ORDER BY b.last_receive_ts DESC
   </select>
 
-  <select id="queryUnReadCount" resultType="java.util.Map">
+  <select id="queryUnReadCount" resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO">
     SELECT a.session_id AS sessionId, LEAST(99, COUNT(*)) AS unReadCount
 
     FROM base_im_session_ref_user a
