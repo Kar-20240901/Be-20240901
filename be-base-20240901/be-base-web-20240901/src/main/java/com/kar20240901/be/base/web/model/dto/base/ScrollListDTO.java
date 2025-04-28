@@ -23,4 +23,7 @@ public class ScrollListDTO {
     @Schema(description = "搜索内容")
     private String searchKey;
 
+    @Schema(description = "关联其他主键 id")
+    private Long refId;
+
 }

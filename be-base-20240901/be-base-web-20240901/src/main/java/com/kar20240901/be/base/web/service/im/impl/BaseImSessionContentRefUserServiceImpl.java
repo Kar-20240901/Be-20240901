@@ -1,5 +1,6 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -37,6 +38,8 @@ public class BaseImSessionContentRefUserServiceImpl
     @Override
     public List<BaseImSessionContentRefUserPageVO> scroll(ScrollListDTO dto) {
 
+        Assert.notNull(dto.getRefId());
+
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
         Long contentId = dto.getId();
@@ -64,6 +67,8 @@ public class BaseImSessionContentRefUserServiceImpl
         pageDTO.setContentId(contentId);
 
         pageDTO.setContent(dto.getSearchKey());
+
+        pageDTO.setSessionId(dto.getRefId());
 
         return baseMapper.myPage(MyPageUtil.getScrollPage(dto.getPageSize()), pageDTO, currentUserId).getRecords();
 
