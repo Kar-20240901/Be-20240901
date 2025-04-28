@@ -43,7 +43,7 @@
 
     AND b.enable_flag = TRUE
 
-    AND a.session_id = {dto.sessionId}
+    AND a.session_id = #{dto.sessionId}
 
     <if test="dto.content != null and dto.content != ''">
       AND b.content LIKE CONCAT('%', #{dto.content}, '%')
@@ -52,15 +52,15 @@
     <if test="dto.contentId != null">
       <choose>
         <when test="dto.backwardFlag == null">
-          AND b.create_id = #{dto.contentId}
+          AND a.content_id = #{dto.contentId}
         </when>
 
         <when test="dto.backwardFlag">
-          AND a.create_id <![CDATA[>]]> #{dto.contentId}
+          AND a.content_id <![CDATA[>]]> #{dto.contentId}
         </when>
 
         <otherwise>
-          AND a.create_id <![CDATA[<]]> #{dto.contentId}
+          AND a.content_id <![CDATA[<]]> #{dto.contentId}
         </otherwise>
       </choose>
     </if>

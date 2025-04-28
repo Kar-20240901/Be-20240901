@@ -134,6 +134,10 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
+        if (dto.getId().equals(currentUserId)) {
+            R.error("操作失败：不能给自己发送好友申请", dto.getId());
+        }
+
         boolean exists =
             ChainWrappers.lambdaQueryChain(baseUserInfoMapper).eq(TempUserInfoDO::getId, dto.getId()).exists();
 

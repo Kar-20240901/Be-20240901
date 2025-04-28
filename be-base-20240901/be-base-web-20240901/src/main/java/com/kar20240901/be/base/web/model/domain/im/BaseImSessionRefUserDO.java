@@ -27,7 +27,7 @@ public class BaseImSessionRefUserDO {
     @Schema(description = "是否显示")
     private Boolean showFlag;
 
-    @Schema(description = "显示的会话名")
+    @Schema(description = "我对会话显示的自定义名，默认为空")
     private String name;
 
     @Schema(description = "冗余字段：头像 url")

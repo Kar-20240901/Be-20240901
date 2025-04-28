@@ -16,6 +16,8 @@
 
     WHERE (b.hidden_flag IS NULL OR b.hidden_flag = FALSE)
 
+    AND c.id IS NOT NULL
+
     AND (a.user_id = #{currentUserId} OR a.target_user_id = #{currentUserId})
 
     <if test="dto.nickname != null and dto.nickname != ''">

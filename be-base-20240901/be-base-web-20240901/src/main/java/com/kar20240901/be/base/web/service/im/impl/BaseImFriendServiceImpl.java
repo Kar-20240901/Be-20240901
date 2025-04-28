@@ -1,23 +1,34 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.im.BaseImFriendMapper;
 import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.domain.im.BaseImFriendDO;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.im.BaseImFriendPageDTO;
+import com.kar20240901.be.base.web.model.enums.im.BaseImTypeEnum;
+import com.kar20240901.be.base.web.model.vo.im.BaseImFriendPageVO;
+import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.service.im.BaseImFriendService;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
 public class BaseImFriendServiceImpl extends ServiceImpl<BaseImFriendMapper, BaseImFriendDO>
     implements BaseImFriendService {
+
+    @Resource
+    BaseFileService baseFileService;
 
     /**
      * 添加好友
@@ -67,6 +78,34 @@ public class BaseImFriendServiceImpl extends ServiceImpl<BaseImFriendMapper, Bas
             save(baseImFriendDo2);
 
         }
+
+    }
+
+    /**
+     * 分页排序查询
+     */
+    @Override
+    public Page<BaseImFriendPageVO> myPage(BaseImFriendPageDTO dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        Page<BaseImFriendPageVO> page = baseMapper.myPage(dto.createTimeDescDefaultOrderPage(), dto, currentUserId,
+            BaseImTypeEnum.FRIEND.getCode());
+
+        Set<Long> avatatFileIdSet =
+            page.getRecords().stream().map(BaseImFriendPageVO::getAvatarFileId).collect(Collectors.toSet());
+
+        Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(avatatFileIdSet)).getMap();
+
+        for (BaseImFriendPageVO item : page.getRecords()) {
+
+            item.setAvatarUrl(publicUrlMap.get(item.getAvatarFileId()));
+
+            item.setAvatarFileId(null);
+
+        }
+
+        return page;
 
     }
 
