@@ -29,12 +29,12 @@ public class BaseLiveRoomDataDO {
     private Long createTs;
 
     @Schema(description = "数据")
-    private Byte[] data;
+    private byte[] data;
 
     @Schema(description = "创建者用户主键 id")
     private Long createId;
 
-    @Schema(description = "时间，单位：毫秒")
-    private Integer ms;
+    @Schema(description = "媒体类型")
+    private String mediaType;
 
 }

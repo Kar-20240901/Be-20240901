@@ -36,10 +36,6 @@ public class BaseLiveRoomDataServiceImpl extends ServiceImpl<BaseLiveRoomDataMap
     @Override
     public String addData(BaseLiveRoomDataAddDataDTO dto, ChannelDataBO channelDataBO) {
 
-        if (dto.getMs() <= 0) {
-            R.error("操作失败：数据不合法", dto.getMs());
-        }
-
         long currentTimeMillis = System.currentTimeMillis();
 
         if (dto.getCreateTs() > currentTimeMillis) {
@@ -72,7 +68,7 @@ public class BaseLiveRoomDataServiceImpl extends ServiceImpl<BaseLiveRoomDataMap
         baseLiveRoomDataDO.setCreateTs(dto.getCreateTs());
         baseLiveRoomDataDO.setData(dto.getData());
         baseLiveRoomDataDO.setCreateId(channelDataBO.getUserId());
-        baseLiveRoomDataDO.setMs(dto.getMs());
+        baseLiveRoomDataDO.setMediaType(dto.getMediaType());
 
         save(baseLiveRoomDataDO);
 

@@ -39,4 +39,6 @@ public interface LogTopicConstant {
 
     String THIRD_APP_WX_WORK = PRE_BE + "third-app-wx-work"; // 三方应用-企业微信相关
 
+    String FFMPEG = PRE_BE + "ffmpeg"; // ffmpeg相关
+
 }

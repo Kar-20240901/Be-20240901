@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.model.dto.live;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -17,10 +18,10 @@ public class BaseLiveRoomDataAddDataDTO {
 
     @NotNull
     @Schema(description = "数据")
-    private Byte[] data;
+    private byte[] data;
 
-    @NotNull
-    @Schema(description = "时间，单位：毫秒")
-    private Integer ms;
+    @NotBlank
+    @Schema(description = "媒体类型")
+    private String mediaType;
 
 }
