@@ -15,6 +15,11 @@
 
   <dependencies>
 
+    <dependency>
+      <groupId>ws.schild</groupId>
+      <artifactId>jave-all-deps</artifactId>
+    </dependency>
+
     <!-- 微信支付，获取最新版本号：https://github.com/wechatpay-apiv3/wechatpay-java -->
     <dependency>
       <groupId>com.github.wechatpay-apiv3</groupId>

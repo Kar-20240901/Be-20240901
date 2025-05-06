@@ -20,6 +20,8 @@ public enum BaseWebSocketUriEnum implements IWebSocketUri {
 
     BASE_REFRESH_BULLETIN("/base/bulletin/refresh"), // 刷新公告
 
+    BASE_LIVE_ROOM_NEW_DATA("/base/live/room/newData"), // 实时房间有新的数据
+
     ;
 
     private final String uri;

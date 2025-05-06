@@ -17,6 +17,10 @@ public class BaseLiveRoomDataAddDataDTO {
 
     @NotNull
     @Schema(description = "数据")
-    private byte[] data;
+    private Byte[] data;
+
+    @NotNull
+    @Schema(description = "时间，单位：毫秒")
+    private Integer ms;
 
 }

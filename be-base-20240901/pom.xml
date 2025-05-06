@@ -35,6 +35,45 @@
   <dependencyManagement>
     <dependencies>
 
+      <!-- ffmpeg -->
+      <dependency>
+        <groupId>ws.schild</groupId>
+        <artifactId>jave-all-deps</artifactId>
+        <version>3.5.0</version>
+        <exclusions>
+          <!-- 排除 windows 32位系统 -->
+          <exclusion>
+            <groupId>ws.schild</groupId>
+            <artifactId>jave-nativebin-win32</artifactId>
+          </exclusion>
+          <!-- 排除 linux 32位系统 -->
+          <exclusion>
+            <groupId>ws.schild</groupId>
+            <artifactId>jave-nativebin-linux32</artifactId>
+          </exclusion>
+          <!-- 排除 linux 32位系统-arm架构 -->
+          <exclusion>
+            <groupId>ws.schild</groupId>
+            <artifactId>jave-nativebin-linux-arm32</artifactId>
+          </exclusion>
+          <!-- 排除 linux 64位系统-arm架构 -->
+          <exclusion>
+            <groupId>ws.schild</groupId>
+            <artifactId>jave-nativebin-linux-arm64</artifactId>
+          </exclusion>
+          <!-- 排除 mac系统 -->
+          <exclusion>
+            <groupId>ws.schild</groupId>
+            <artifactId>jave-nativebin-osx64</artifactId>
+          </exclusion>
+          <!-- 排除 mac系统 -->
+          <exclusion>
+            <groupId>ws.schild</groupId>
+            <artifactId>jave-nativebin-osxm1</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
       <!-- ssh，sftp -->
       <dependency>
         <groupId>com.jcraft</groupId>
@@ -53,7 +92,7 @@
       <dependency>
         <groupId>com.alipay.sdk</groupId>
         <artifactId>alipay-sdk-java</artifactId>
-        <version>4.38.170.ALL</version>
+        <version>4.40.186.ALL</version>
       </dependency>
 
       <!-- minio文件系统 -->
