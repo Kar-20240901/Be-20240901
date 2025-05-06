@@ -8,6 +8,7 @@ import com.kar20240901.be.base.web.model.interfaces.base.IRedisKey;
 public enum BaseRedisKeyEnum implements IRedisKey {
 
     // 【PRE_】开头 ↓
+
     // im 相关 ↓
 
     PRE_IM_APPLY_GROUP_ID, // im群组申请锁，锁：【群组申请主键 id】

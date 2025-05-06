@@ -1,4 +1,4 @@
-package com.kar20240901.be.base.web.model.domain.im;
+package com.kar20240901.be.base.web.model.domain.live;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

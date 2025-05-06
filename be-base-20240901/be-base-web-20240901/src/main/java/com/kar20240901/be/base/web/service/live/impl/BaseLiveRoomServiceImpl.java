@@ -3,9 +3,13 @@ package com.kar20240901.be.base.web.service.live.impl;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.live.BaseLiveRoomMapper;
-import com.kar20240901.be.base.web.model.domain.im.BaseLiveRoomDO;
+import com.kar20240901.be.base.web.mapper.live.BaseLiveRoomUserMapper;
+import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
+import com.kar20240901.be.base.web.model.domain.live.BaseLiveRoomDO;
+import com.kar20240901.be.base.web.model.domain.live.BaseLiveRoomUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.live.BaseLiveRoomInsertOrUpdateDTO;
@@ -14,11 +18,15 @@ import com.kar20240901.be.base.web.service.live.BaseLiveRoomService;
 import com.kar20240901.be.base.web.util.base.CodeUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import java.util.Set;
+import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
 public class BaseLiveRoomServiceImpl extends ServiceImpl<BaseLiveRoomMapper, BaseLiveRoomDO>
     implements BaseLiveRoomService {
+
+    @Resource
+    BaseLiveRoomUserMapper baseLiveRoomUserMapper;
 
     /**
      * 新增/修改
@@ -68,6 +76,7 @@ public class BaseLiveRoomServiceImpl extends ServiceImpl<BaseLiveRoomMapper, Bas
      * 批量删除
      */
     @Override
+    @MyTransactional
     public String deleteByIdSet(NotEmptyIdSet dto) {
 
         Set<Long> idSet = dto.getIdSet();
@@ -79,6 +88,9 @@ public class BaseLiveRoomServiceImpl extends ServiceImpl<BaseLiveRoomMapper, Bas
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
         lambdaUpdate().eq(BaseLiveRoomDO::getBelongId, currentUserId).in(BaseLiveRoomDO::getId, idSet).remove();
+
+        ChainWrappers.lambdaUpdateChain(baseLiveRoomUserMapper).in(BaseLiveRoomUserDO::getRoomId, dto.getIdSet())
+            .remove();
 
         return TempBizCodeEnum.OK;
 

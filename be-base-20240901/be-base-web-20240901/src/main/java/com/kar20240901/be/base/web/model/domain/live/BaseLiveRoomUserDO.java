@@ -1,9 +1,12 @@
-package com.kar20240901.be.base.web.model.domain.im;
+package com.kar20240901.be.base.web.model.domain.live;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Date;
 import lombok.Data;
 
 @TableName(value = "base_live_room_user")
@@ -22,6 +25,10 @@ public class BaseLiveRoomUserDO {
     private Long userId;
 
     @Schema(description = "套接字关联用户主键 id")
-    private Long socketRefUser;
+    private Long socketRefUserId;
+
+    @TableField(fill = FieldFill.INSERT)
+    @Schema(description = "创建时间")
+    private Date createTime;
 
 }

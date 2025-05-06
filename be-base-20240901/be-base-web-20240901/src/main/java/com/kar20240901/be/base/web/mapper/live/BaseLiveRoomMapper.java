@@ -2,7 +2,7 @@ package com.kar20240901.be.base.web.mapper.live;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.kar20240901.be.base.web.model.domain.im.BaseLiveRoomDO;
+import com.kar20240901.be.base.web.model.domain.live.BaseLiveRoomDO;
 import com.kar20240901.be.base.web.model.dto.live.BaseLiveRoomPageDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

@@ -3,28 +3,37 @@ package com.kar20240901.be.base.web.service.live.impl;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.live.BaseLiveRoomMapper;
-import com.kar20240901.be.base.web.model.domain.im.BaseLiveRoomDO;
+import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
+import com.kar20240901.be.base.web.model.domain.live.BaseLiveRoomDO;
+import com.kar20240901.be.base.web.model.domain.live.BaseLiveRoomUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.live.BaseLiveRoomSelfInsertOrUpdateDTO;
 import com.kar20240901.be.base.web.model.dto.live.BaseLiveRoomSelfPageDTO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.live.BaseLiveRoomSelfService;
+import com.kar20240901.be.base.web.service.live.BaseLiveRoomUserService;
 import com.kar20240901.be.base.web.util.base.CodeUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import java.util.Set;
+import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
 public class BaseLiveRoomSelfServiceImpl extends ServiceImpl<BaseLiveRoomMapper, BaseLiveRoomDO>
     implements BaseLiveRoomSelfService {
 
+    @Resource
+    BaseLiveRoomUserService baseLiveRoomUserService;
+
     /**
      * 新增/修改
      */
     @Override
+    @MyTransactional
     public String insertOrUpdate(BaseLiveRoomSelfInsertOrUpdateDTO dto) {
 
         Long id = dto.getId();
@@ -40,6 +49,8 @@ public class BaseLiveRoomSelfServiceImpl extends ServiceImpl<BaseLiveRoomMapper,
             baseLiveRoomDO.setCode(CodeUtil.getCode());
 
             save(baseLiveRoomDO);
+
+            baseLiveRoomUserService.addUser(baseLiveRoomDO.getId(), currentUserId);
 
         } else {
 
@@ -100,6 +111,9 @@ public class BaseLiveRoomSelfServiceImpl extends ServiceImpl<BaseLiveRoomMapper,
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
         lambdaUpdate().eq(BaseLiveRoomDO::getBelongId, currentUserId).in(BaseLiveRoomDO::getId, idSet).remove();
+
+        ChainWrappers.lambdaUpdateChain(baseLiveRoomUserMapper).in(BaseLiveRoomUserDO::getRoomId, dto.getIdSet())
+            .remove();
 
         return TempBizCodeEnum.OK;
 

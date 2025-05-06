@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.kar20240901.be.base.web.mapper.live.BaseLiveRoomMapper">
-  <select id="myPage" resultType="com.kar20240901.be.base.web.model.domain.im.BaseLiveRoomDO">
+  <select id="myPage" resultType="com.kar20240901.be.base.web.model.domain.live.BaseLiveRoomDO">
     SELECT a.id, a.name, a.belong_id, a.create_time, a.code, b.nickname AS belongNickname
     FROM base_live_room a
     LEFT JOIN base_user_info b ON b.id = a.belong_id
