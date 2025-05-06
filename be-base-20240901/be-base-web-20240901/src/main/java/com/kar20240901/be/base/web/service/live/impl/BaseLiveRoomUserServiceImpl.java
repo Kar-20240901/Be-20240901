@@ -35,17 +35,21 @@ public class BaseLiveRoomUserServiceImpl extends ServiceImpl<BaseLiveRoomUserMap
 
         BaseLiveRoomDO baseLiveRoomDO =
             ChainWrappers.lambdaQueryChain(baseLiveRoomMapper).eq(BaseLiveRoomDO::getId, dto.getId())
-                .select(BaseLiveRoomDO::getCode).one();
+                .select(BaseLiveRoomDO::getCode, BaseLiveRoomDO::getBelongId).one();
 
         if (baseLiveRoomDO == null) {
             R.error("操作失败：该房间不存在", dto.getId());
         }
 
-        if (StrUtil.isNotBlank(dto.getCode())) {
+        if (!currentUserId.equals(baseLiveRoomDO.getBelongId())) {
 
-            // 如果验证码不匹配
-            if (baseLiveRoomDO.getCode().equalsIgnoreCase(dto.getCode()) == false) {
-                R.error("操作失败：房间验证码错误", dto.getCode());
+            if (StrUtil.isNotBlank(baseLiveRoomDO.getCode())) {
+
+                // 如果验证码不匹配
+                if (baseLiveRoomDO.getCode().equalsIgnoreCase(dto.getCode()) == false) {
+                    R.error("操作失败：房间验证码错误", dto.getCode());
+                }
+
             }
 
         }
