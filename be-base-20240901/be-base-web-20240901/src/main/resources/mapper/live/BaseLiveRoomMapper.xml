@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kar20240901.be.base.web.mapper.live.BaseLiveRoomMapper">
+  <select id="myPage" resultType="com.kar20240901.be.base.web.model.domain.im.BaseLiveRoomDO">
+    SELECT a.id, a.name, a.belong_id, a.create_time,b.nickname AS belongNickname
+    FROM base_live_room a
+    LEFT JOIN base_user_info b ON b.id = a.belong_id
+    WHERE b.id IS NOT NULL
+    <if test="dto.name != null and dto.name != ''">
+      AND a.name LIKE CONCAT('%', #{dto.name}, '%')
+    </if>
+    <if test="dto.belongId != null">
+      AND a.belong_id = #{dto.belongId}
+    </if>
+  </select>
+</mapper>
