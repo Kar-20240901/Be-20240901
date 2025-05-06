@@ -49,4 +49,10 @@ public class BaseLiveRoomSelfController {
         return R.okMsg(baseService.deleteByIdSet(dto));
     }
 
+    @Operation(summary = "刷新验证码")
+    @PostMapping("/refreshCode")
+    public R<String> refreshCode(@RequestBody @Valid NotNullId dto) {
+        return R.okMsg(baseService.refreshCode(dto));
+    }
+
 }

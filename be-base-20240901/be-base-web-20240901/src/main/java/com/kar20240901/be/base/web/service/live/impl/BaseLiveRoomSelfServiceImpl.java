@@ -12,6 +12,7 @@ import com.kar20240901.be.base.web.model.dto.live.BaseLiveRoomSelfInsertOrUpdate
 import com.kar20240901.be.base.web.model.dto.live.BaseLiveRoomSelfPageDTO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.live.BaseLiveRoomSelfService;
+import com.kar20240901.be.base.web.util.base.CodeUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import java.util.Set;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,7 @@ public class BaseLiveRoomSelfServiceImpl extends ServiceImpl<BaseLiveRoomMapper,
 
             baseLiveRoomDO.setBelongId(currentUserId);
             baseLiveRoomDO.setName(dto.getName());
+            baseLiveRoomDO.setCode(CodeUtil.getCode());
 
             save(baseLiveRoomDO);
 
@@ -98,6 +100,28 @@ public class BaseLiveRoomSelfServiceImpl extends ServiceImpl<BaseLiveRoomMapper,
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
         lambdaUpdate().eq(BaseLiveRoomDO::getBelongId, currentUserId).in(BaseLiveRoomDO::getId, idSet).remove();
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 刷新验证码
+     */
+    @Override
+    public String refreshCode(NotNullId dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        boolean exists =
+            lambdaQuery().eq(BaseLiveRoomDO::getBelongId, currentUserId).eq(BaseLiveRoomDO::getId, dto.getId())
+                .exists();
+
+        if (!exists) {
+            R.error(TempBizCodeEnum.ILLEGAL_REQUEST);
+        }
+
+        lambdaUpdate().eq(BaseLiveRoomDO::getId, dto.getId()).set(BaseLiveRoomDO::getCode, CodeUtil.getCode()).update();
 
         return TempBizCodeEnum.OK;
 

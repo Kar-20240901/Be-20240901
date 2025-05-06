@@ -28,6 +28,9 @@ public class BaseLiveRoomDO {
     @Schema(description = "创建时间")
     private Date createTime;
 
+    @Schema(description = "房间验证码")
+    private String code;
+
     @TableField(exist = false)
     @Schema(description = "归属用户昵称")
     private Date belongNickname;

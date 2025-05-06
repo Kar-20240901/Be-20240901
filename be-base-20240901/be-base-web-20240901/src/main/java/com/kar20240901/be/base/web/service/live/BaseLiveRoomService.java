@@ -18,4 +18,6 @@ public interface BaseLiveRoomService extends IService<BaseLiveRoomDO> {
 
     String deleteByIdSet(NotEmptyIdSet dto);
 
+    String refreshCode(NotNullId dto);
+
 }
