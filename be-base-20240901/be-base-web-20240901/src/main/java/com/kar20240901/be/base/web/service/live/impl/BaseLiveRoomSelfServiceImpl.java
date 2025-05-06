@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.live.BaseLiveRoomMapper;
+import com.kar20240901.be.base.web.mapper.live.BaseLiveRoomUserMapper;
 import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.domain.live.BaseLiveRoomDO;
 import com.kar20240901.be.base.web.model.domain.live.BaseLiveRoomUserDO;
@@ -15,7 +16,6 @@ import com.kar20240901.be.base.web.model.dto.live.BaseLiveRoomSelfInsertOrUpdate
 import com.kar20240901.be.base.web.model.dto.live.BaseLiveRoomSelfPageDTO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.live.BaseLiveRoomSelfService;
-import com.kar20240901.be.base.web.service.live.BaseLiveRoomUserService;
 import com.kar20240901.be.base.web.util.base.CodeUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import java.util.Set;
@@ -27,7 +27,7 @@ public class BaseLiveRoomSelfServiceImpl extends ServiceImpl<BaseLiveRoomMapper,
     implements BaseLiveRoomSelfService {
 
     @Resource
-    BaseLiveRoomUserService baseLiveRoomUserService;
+    BaseLiveRoomUserMapper baseLiveRoomUserMapper;
 
     /**
      * 新增/修改
@@ -49,8 +49,6 @@ public class BaseLiveRoomSelfServiceImpl extends ServiceImpl<BaseLiveRoomMapper,
             baseLiveRoomDO.setCode(CodeUtil.getCode());
 
             save(baseLiveRoomDO);
-
-            baseLiveRoomUserService.addUser(baseLiveRoomDO.getId(), currentUserId);
 
         } else {
 
