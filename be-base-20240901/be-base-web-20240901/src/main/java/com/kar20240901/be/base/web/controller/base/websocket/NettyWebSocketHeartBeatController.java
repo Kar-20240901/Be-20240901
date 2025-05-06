@@ -1,4 +1,4 @@
-package com.kar20240901.be.base.web.controller.websocket;
+package com.kar20240901.be.base.web.controller.base.websocket;
 
 import com.kar20240901.be.base.web.model.annotation.base.NettyWebSocketController;
 import com.kar20240901.be.base.web.model.vo.base.R;
