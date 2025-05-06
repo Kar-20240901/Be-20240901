@@ -16,6 +16,7 @@ import cn.hutool.json.JSONUtil;
 import com.kar20240901.be.base.web.configuration.socket.NettyWebSocketProperties;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.exception.TempException;
+import com.kar20240901.be.base.web.model.bo.socket.ChannelDataBO;
 import com.kar20240901.be.base.web.model.configuration.socket.NettyWebSocketBeanPostProcessor;
 import com.kar20240901.be.base.web.model.constant.base.OperationDescriptionConstant;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
@@ -362,7 +363,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
         CallBack<VoidFunc0> validVoidFunc0CallBack = new CallBack<>();
 
         // 获取：方法的参数数组
-        Object[] args = getMethodArgs(method, dto, validVoidFunc0CallBack);
+        Object[] args = getMethodArgs(method, dto, validVoidFunc0CallBack, channel);
 
         // 执行
         doHandleTextWebSocketFrame(channel, mappingValue, method, args, uri, text, costMs, validVoidFunc0CallBack);
@@ -439,7 +440,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
      * 获取：方法的参数数组
      */
     private static Object[] getMethodArgs(Method method, WebSocketMessageDTO<?> dto,
-        CallBack<VoidFunc0> validVoidFunc0CallBack) {
+        CallBack<VoidFunc0> validVoidFunc0CallBack, Channel channel) {
 
         Parameter[] parameterArr = method.getParameters();
 
@@ -467,7 +468,27 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
         }
 
-        args = new Object[] {object};
+        if (parameterArr.length == 2 && parameterArr[parameterArr.length - 1].getType() == ChannelDataBO.class) {
+
+            ChannelDataBO channelDataBO = new ChannelDataBO();
+
+            Long userId = channel.attr(USER_ID_KEY).get();
+            Long socketRefUserId = channel.attr(BASE_SOCKET_REF_USER_ID_KEY).get();
+            BaseRequestCategoryEnum category = channel.attr(BASE_REQUEST_CATEGORY_ENUM_KEY).get();
+            String ip = channel.attr(IP_KEY).get();
+
+            channelDataBO.setUserId(userId);
+            channelDataBO.setSocketRefUserId(socketRefUserId);
+            channelDataBO.setCategory(category);
+            channelDataBO.setIp(ip);
+
+            args = new Object[] {object, channelDataBO};
+
+        } else {
+
+            args = new Object[] {object};
+
+        }
 
         return args;
 

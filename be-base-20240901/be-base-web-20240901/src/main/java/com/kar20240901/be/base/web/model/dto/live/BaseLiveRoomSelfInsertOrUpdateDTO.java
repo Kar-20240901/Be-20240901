@@ -14,4 +14,7 @@ public class BaseLiveRoomSelfInsertOrUpdateDTO extends TempInsertOrUpdateDTO {
     @Schema(description = "实时房间名")
     private String name;
 
+    @Schema(description = "是否有房间验证码，默认：true，备注：只有在新增的时候才有用")
+    private Boolean codeFlag;
+
 }

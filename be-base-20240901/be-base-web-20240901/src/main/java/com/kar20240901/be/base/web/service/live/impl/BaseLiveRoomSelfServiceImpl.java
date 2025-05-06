@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.service.live.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
@@ -46,7 +47,16 @@ public class BaseLiveRoomSelfServiceImpl extends ServiceImpl<BaseLiveRoomMapper,
 
             baseLiveRoomDO.setBelongId(currentUserId);
             baseLiveRoomDO.setName(dto.getName());
-            baseLiveRoomDO.setCode(CodeUtil.getCode());
+
+            if (BooleanUtil.isFalse(dto.getCodeFlag())) {
+
+                baseLiveRoomDO.setCode("");
+
+            } else {
+
+                baseLiveRoomDO.setCode(CodeUtil.getCode());
+
+            }
 
             save(baseLiveRoomDO);
 
