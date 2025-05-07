@@ -10,6 +10,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.net.url.UrlQuery;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.CharsetUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
@@ -44,7 +45,9 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
 import java.lang.reflect.InvocationTargetException;
@@ -308,12 +311,12 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
             });
 
-        } else if (msg instanceof TextWebSocketFrame) {
+        } else if (msg instanceof TextWebSocketFrame || msg instanceof BinaryWebSocketFrame) {
 
             MyTryUtil.tryCatchFinally(() -> {
 
                 // 处理：TextWebSocketFrame
-                handleTextWebSocketFrame((TextWebSocketFrame)msg, ctx.channel());
+                handleTextWebSocketFrame((WebSocketFrame)msg, ctx.channel());
 
             }, () -> {
 
@@ -333,13 +336,47 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
     /**
      * 处理：TextWebSocketFrame
      */
-    private void handleTextWebSocketFrame(@NotNull TextWebSocketFrame textWebSocketFrame, Channel channel) {
+    private void handleTextWebSocketFrame(@NotNull WebSocketFrame webSocketFrame, Channel channel) {
 
         long costMs = System.currentTimeMillis();
 
-        String text = textWebSocketFrame.text();
+        String text;
 
-        WebSocketMessageDTO<?> dto = JSONUtil.toBean(text, WebSocketMessageDTO.class);
+        WebSocketMessageDTO<?> dto;
+
+        byte[] byteDataArr = null;
+
+        if (webSocketFrame instanceof TextWebSocketFrame) {
+
+            text = ((TextWebSocketFrame)webSocketFrame).text();
+
+            dto = JSONUtil.toBean(text, WebSocketMessageDTO.class);
+
+        } else {
+
+            byte[] byteArr = (webSocketFrame).content().array();
+
+            if (byteArr.length < 5) {
+                return;
+            }
+
+            int length = 5;
+
+            String jsonLengthStr = new String(byteArr, 0, length);
+
+            int jsonLength = NumberUtil.parseInt(jsonLengthStr);
+
+            if (byteArr.length < jsonLength) {
+                return;
+            }
+
+            text = new String(byteArr, length, jsonLength);
+
+            dto = JSONUtil.toBean(text, WebSocketMessageDTO.class);
+
+            byteDataArr = ArrayUtil.sub(byteArr, length + jsonLength, byteArr.length);
+
+        }
 
         String uri = dto.getUri();
 
@@ -363,7 +400,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
         CallBack<VoidFunc0> validVoidFunc0CallBack = new CallBack<>();
 
         // 获取：方法的参数数组
-        Object[] args = getMethodArgs(method, dto, validVoidFunc0CallBack, channel);
+        Object[] args = getMethodArgs(method, dto, validVoidFunc0CallBack, channel, byteDataArr);
 
         // 执行
         doHandleTextWebSocketFrame(channel, mappingValue, method, args, uri, text, costMs, validVoidFunc0CallBack);
@@ -440,7 +477,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
      * 获取：方法的参数数组
      */
     private static Object[] getMethodArgs(Method method, WebSocketMessageDTO<?> dto,
-        CallBack<VoidFunc0> validVoidFunc0CallBack, Channel channel) {
+        CallBack<VoidFunc0> validVoidFunc0CallBack, Channel channel, byte[] byteDataArr) {
 
         Parameter[] parameterArr = method.getParameters();
 
@@ -481,6 +518,10 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
             channelDataBO.setSocketRefUserId(socketRefUserId);
             channelDataBO.setCategory(category);
             channelDataBO.setIp(ip);
+
+            if (byteDataArr != null) {
+                channelDataBO.setByteArr(byteDataArr);
+            }
 
             args = new Object[] {object, channelDataBO};
 

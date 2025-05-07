@@ -16,10 +16,6 @@ public class BaseLiveRoomDataAddDataDTO {
     @Schema(description = "创建时间的时间戳，UTC+8")
     private Long createTs;
 
-    @NotNull
-    @Schema(description = "数据")
-    private byte[] data;
-
     @NotBlank
     @Schema(description = "媒体类型")
     private String mediaType;

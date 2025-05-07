@@ -60,13 +60,13 @@ public class BaseLiveRoomDataServiceImpl extends ServiceImpl<BaseLiveRoomDataMap
         }
 
         // 发送：webSocket数据
-        sendWebSocket(dto, socketMap);
+        //        sendWebSocket(dto, socketMap);
 
         BaseLiveRoomDataDO baseLiveRoomDataDO = new BaseLiveRoomDataDO();
 
         baseLiveRoomDataDO.setRoomId(dto.getRoomId());
         baseLiveRoomDataDO.setCreateTs(dto.getCreateTs());
-        baseLiveRoomDataDO.setData(dto.getData());
+        baseLiveRoomDataDO.setData(channelDataBO.getByteArr());
         baseLiveRoomDataDO.setCreateId(channelDataBO.getUserId());
         baseLiveRoomDataDO.setMediaType(dto.getMediaType());
 

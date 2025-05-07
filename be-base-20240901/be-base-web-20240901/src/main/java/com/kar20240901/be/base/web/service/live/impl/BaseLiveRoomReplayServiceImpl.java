@@ -116,7 +116,7 @@ public class BaseLiveRoomReplayServiceImpl extends ServiceImpl<BaseLiveRoomRepla
 
             for (File file : deleteFileList) {
 
-                FileUtil.del(file); // 删除文件
+                //                FileUtil.del(file); // 删除文件
 
             }
 
@@ -142,7 +142,7 @@ public class BaseLiveRoomReplayServiceImpl extends ServiceImpl<BaseLiveRoomRepla
 
             byte[] data = baseLiveRoomDataDO.getData();
 
-            String fileName = simpleUuid + "." + index;
+            String fileName = simpleUuid + "." + index + ".mp4";
 
             File file = FileUtil.touch(TempFileTempPathConstant.FFMPEG_TEMP_PATH + fileName);
 

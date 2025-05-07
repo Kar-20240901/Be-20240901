@@ -19,4 +19,7 @@ public class ChannelDataBO {
     @Schema(description = "用户 ip")
     private String ip;
 
+    @Schema(description = "二进制数据，即：blob格式数据")
+    private byte[] byteArr;
+
 }
