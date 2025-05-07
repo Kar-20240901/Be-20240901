@@ -40,7 +40,7 @@ public class FfmpegUtil {
 
             while ((line = reader.readLine()) != null) {
 
-                log.info("ffmpeg 输出：{}", line);
+                log.info("ffmpeg 日志：{}", line);
 
             }
 

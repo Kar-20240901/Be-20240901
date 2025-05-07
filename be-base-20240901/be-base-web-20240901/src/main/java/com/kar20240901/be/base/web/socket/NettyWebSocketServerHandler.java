@@ -9,8 +9,8 @@ import cn.hutool.core.lang.func.VoidFunc0;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.net.url.UrlQuery;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.ByteUtil;
 import cn.hutool.core.util.CharsetUtil;
-import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
@@ -40,6 +40,7 @@ import com.kar20240901.be.base.web.util.base.MyValidUtil;
 import com.kar20240901.be.base.web.util.base.RequestUtil;
 import com.kar20240901.be.base.web.util.socket.SocketUtil;
 import com.kar20240901.be.base.web.util.socket.WebSocketUtil;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -354,17 +355,23 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
         } else {
 
-            byte[] byteArr = (webSocketFrame).content().array();
+            ByteBuf byteBuf = webSocketFrame.content();
 
-            if (byteArr.length < 5) {
+            int readableBytes = byteBuf.readableBytes();
+
+            byte[] byteArr = new byte[readableBytes];
+
+            byteBuf.readBytes(byteArr);
+
+            if (byteArr.length < 4) {
                 return;
             }
 
-            int length = 5;
+            int length = 4;
 
-            String jsonLengthStr = new String(byteArr, 0, length);
+            byte[] lengthByteArr = ArrayUtil.sub(byteArr, 0, length);
 
-            int jsonLength = NumberUtil.parseInt(jsonLengthStr);
+            int jsonLength = ByteUtil.bytesToInt(lengthByteArr);
 
             if (byteArr.length < jsonLength) {
                 return;
