@@ -38,7 +38,7 @@ public class BaseLiveRoomDataServiceImpl extends ServiceImpl<BaseLiveRoomDataMap
 
         long currentTimeMillis = System.currentTimeMillis();
 
-        if (dto.getCreateTs() > currentTimeMillis) {
+        if (dto.getCreateTs() > currentTimeMillis + 10 * 1000) {
 
             R.error("操作失败：数据不合法",
                 StrUtil.format("当前时间：{}，传递时间：{}", currentTimeMillis, dto.getCreateTs()));
