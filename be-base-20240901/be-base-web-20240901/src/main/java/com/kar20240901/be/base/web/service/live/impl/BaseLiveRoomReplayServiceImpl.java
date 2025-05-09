@@ -79,11 +79,11 @@ public class BaseLiveRoomReplayServiceImpl extends ServiceImpl<BaseLiveRoomRepla
 
         for (Entry<Long, Map<Long, List<BaseLiveRoomDataDO>>> item : map.entrySet()) {
 
-            if (item.getValue().values().size() < 10) {
-                continue;
-            }
-
             for (Entry<Long, List<BaseLiveRoomDataDO>> subItem : item.getValue().entrySet()) {
+
+                if (subItem.getValue().size() < 10) {
+                    continue;
+                }
 
                 // 处理：生成文件
                 handleGenerateReplay(item, subItem, date, insertList, deleteIdList);
