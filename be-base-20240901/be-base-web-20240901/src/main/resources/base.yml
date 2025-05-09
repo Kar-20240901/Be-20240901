@@ -2,7 +2,6 @@ logTopicSet:
   - be.normal
   - be.mybatis
   - be.mybatis.insert
-  - be.ffmpeg
 notLogTopicSet:
   - org.apache.kafka.clients.consumer.ConsumerConfig
   - com.kar20240901.be.base.web.mapper.request.BaseRequestMapper.insert
@@ -12,3 +11,4 @@ notLogTopicSet:
   - com.kar20240901.be.base.web.mapper.wallet.BaseUserWalletMapper.selectList
   - com.kar20240901.be.base.web.mapper.bulletin.BaseBulletinMapper.selectCount
   - com.kar20240901.be.base.web.mapper.live.BaseLiveRoomDataMapper.selectList
+  - com.kar20240901.be.base.web.mapper.live.BaseLiveRoomDataMapper.insert

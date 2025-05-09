@@ -77,31 +77,37 @@ public class BaseLiveRoomReplayServiceImpl extends ServiceImpl<BaseLiveRoomRepla
 
         List<BaseLiveRoomReplayDO> insertList = new ArrayList<>();
 
-        for (Entry<Long, Map<Long, List<BaseLiveRoomDataDO>>> item : map.entrySet()) {
+        try {
 
-            for (Entry<Long, List<BaseLiveRoomDataDO>> subItem : item.getValue().entrySet()) {
+            for (Entry<Long, Map<Long, List<BaseLiveRoomDataDO>>> item : map.entrySet()) {
 
-                if (subItem.getValue().size() < 10) {
-                    continue;
+                for (Entry<Long, List<BaseLiveRoomDataDO>> subItem : item.getValue().entrySet()) {
+
+                    if (subItem.getValue().size() < 10) {
+                        continue;
+                    }
+
+                    // 处理：生成文件
+                    handleGenerateReplay(item, subItem, date, insertList, deleteIdList);
+
                 }
-
-                // 处理：生成文件
-                handleGenerateReplay(item, subItem, date, insertList, deleteIdList);
 
             }
 
-        }
+        } finally {
 
-        if (CollUtil.isNotEmpty(insertList)) {
+            if (CollUtil.isNotEmpty(deleteIdList)) {
 
-            ChainWrappers.lambdaUpdateChain(baseLiveRoomDataMapper).in(BaseLiveRoomDataDO::getId, deleteIdList)
-                .remove();
+                ChainWrappers.lambdaUpdateChain(baseLiveRoomDataMapper).in(BaseLiveRoomDataDO::getId, deleteIdList)
+                    .remove();
 
-        }
+            }
 
-        if (CollUtil.isNotEmpty(insertList)) {
+            if (CollUtil.isNotEmpty(insertList)) {
 
-            saveBatch(insertList);
+                saveBatch(insertList);
+
+            }
 
         }
 
@@ -110,7 +116,7 @@ public class BaseLiveRoomReplayServiceImpl extends ServiceImpl<BaseLiveRoomRepla
     /**
      * 处理：生成文件
      */
-    private static void handleGenerateReplay(Entry<Long, Map<Long, List<BaseLiveRoomDataDO>>> item,
+    private void handleGenerateReplay(Entry<Long, Map<Long, List<BaseLiveRoomDataDO>>> item,
         Entry<Long, List<BaseLiveRoomDataDO>> subItem, Date date, List<BaseLiveRoomReplayDO> insertList,
         List<Long> deleteIdList) {
 
@@ -137,7 +143,7 @@ public class BaseLiveRoomReplayServiceImpl extends ServiceImpl<BaseLiveRoomRepla
      * 执行
      */
     @SneakyThrows
-    private static void doHandleGenerateReplay(Entry<Long, Map<Long, List<BaseLiveRoomDataDO>>> item,
+    private void doHandleGenerateReplay(Entry<Long, Map<Long, List<BaseLiveRoomDataDO>>> item,
         Entry<Long, List<BaseLiveRoomDataDO>> subItem, Date date, List<BaseLiveRoomReplayDO> insertList,
         List<File> deleteFileList, List<Long> deleteIdList) {
 
@@ -175,11 +181,11 @@ public class BaseLiveRoomReplayServiceImpl extends ServiceImpl<BaseLiveRoomRepla
 
         deleteFileList.add(tsFile);
 
-        FfmpegUtil.handleCmd(StrUtil.format(" -f concat -safe 0 -i {} -c copy {}", inputTxtFile.getAbsolutePath(),
+        FfmpegUtil.handleCmd(StrUtil.format(" -y -f concat -safe 0 -i {} -c copy {}", inputTxtFile.getAbsolutePath(),
             tsFile.getAbsolutePath()));
 
         // 上传文件
-        Long fileId = BaseFileUtil.getTempFileId("", subItem.getKey(), "", null, tsFile);
+        Long fileId = BaseFileUtil.getTempFileId("", subItem.getKey(), "", null, tsFile, false);
 
         // 获取：ts文件视频总时长
         MultimediaObject multimediaObject = new MultimediaObject(tsFile);

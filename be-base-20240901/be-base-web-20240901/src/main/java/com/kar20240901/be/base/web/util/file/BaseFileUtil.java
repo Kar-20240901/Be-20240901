@@ -1612,11 +1612,12 @@ public class BaseFileUtil {
     /**
      * 获取：临时文件的 fileId，byteArr 和 fileTemp 只会处理一个
      *
-     * @param fileType 传递 byteArr时，需指定 fileType
+     * @param fileType    传递 byteArr时，需指定 fileType
+     * @param delFileFlag 是否删除文件
      */
     @SneakyThrows
     public static Long getTempFileId(String remark, Long userId, @Nullable String fileType, byte @Nullable [] byteArr,
-        @Nullable File fileTemp) {
+        @Nullable File fileTemp, boolean delFileFlag) {
 
         File file;
 
@@ -1662,7 +1663,11 @@ public class BaseFileUtil {
 
         } finally {
 
-            FileUtil.del(file); // 删除文件
+            if (delFileFlag) {
+
+                FileUtil.del(file); // 删除文件
+
+            }
 
         }
 
@@ -1676,7 +1681,7 @@ public class BaseFileUtil {
     public static String getTempFileUrl(String remark, Long userId, @Nullable String fileType,
         byte @Nullable [] byteArr, @Nullable File fileTemp) {
 
-        Long fileId = getTempFileId(remark, userId, fileType, byteArr, fileTemp);
+        Long fileId = getTempFileId(remark, userId, fileType, byteArr, fileTemp, true);
 
         // 获取：文件链接
         Map<Long, String> publicUrlMap = BaseFileUtil.getPublicUrl(CollUtil.newHashSet(fileId));
