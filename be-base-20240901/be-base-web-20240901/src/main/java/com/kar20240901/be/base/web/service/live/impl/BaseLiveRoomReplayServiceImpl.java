@@ -79,7 +79,7 @@ public class BaseLiveRoomReplayServiceImpl extends ServiceImpl<BaseLiveRoomRepla
 
         for (Entry<Long, Map<Long, List<BaseLiveRoomDataDO>>> item : map.entrySet()) {
 
-            if (item.getValue().values().size() < 200) {
+            if (item.getValue().values().size() < 10) {
                 continue;
             }
 
