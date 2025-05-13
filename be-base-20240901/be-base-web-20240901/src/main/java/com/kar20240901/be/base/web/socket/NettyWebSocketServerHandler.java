@@ -451,15 +451,6 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
     }
 
     /**
-     * 字符串和数组转 byte数组
-     */
-    public static byte[] strToByteArr(String text, byte[] byteDataArr) {
-
-        return null;
-
-    }
-
-    /**
      * 执行：处理：TextWebSocketFrame
      */
     private void doHandleTextWebSocketFrame(Channel channel, NettyWebSocketBeanPostProcessor.MappingValue mappingValue,
