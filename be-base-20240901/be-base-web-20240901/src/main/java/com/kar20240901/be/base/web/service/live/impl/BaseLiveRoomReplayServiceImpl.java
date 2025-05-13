@@ -23,10 +23,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import lombok.SneakyThrows;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ws.schild.jave.MultimediaObject;
 
@@ -40,8 +38,8 @@ public class BaseLiveRoomReplayServiceImpl extends ServiceImpl<BaseLiveRoomRepla
     /**
      * 定时任务，生成回放
      */
-    @PreDestroy
-    @Scheduled(fixedDelay = 9000)
+    //    @PreDestroy
+    //    @Scheduled(fixedDelay = 9000)
     @MyTransactional
     public void scheduledGenerateReplay() {
 
