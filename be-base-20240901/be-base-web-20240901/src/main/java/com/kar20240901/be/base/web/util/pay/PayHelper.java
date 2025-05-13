@@ -2,7 +2,7 @@ package com.kar20240901.be.base.web.util.pay;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.RandomUtil;
-import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketEventBO;
+import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketStrEventBO;
 import com.kar20240901.be.base.web.model.domain.pay.BasePayConfigurationDO;
 import com.kar20240901.be.base.web.model.domain.pay.BasePayDO;
 import com.kar20240901.be.base.web.model.dto.pay.PayDTO;
@@ -34,17 +34,17 @@ public class PayHelper {
      */
     public static void sendBasePayCloseModalTopic(BasePayDO basePayDO) {
 
-        BaseWebSocketEventBO<Long> baseWebSocketEventBO = new BaseWebSocketEventBO<>();
+        BaseWebSocketStrEventBO<Long> baseWebSocketStrEventBO = new BaseWebSocketStrEventBO<>();
 
-        baseWebSocketEventBO.setUserIdSet(CollUtil.newHashSet(basePayDO.getUserId()));
+        baseWebSocketStrEventBO.setUserIdSet(CollUtil.newHashSet(basePayDO.getUserId()));
 
         WebSocketMessageDTO<Long> webSocketMessageDTO =
             WebSocketMessageDTO.okData(BaseWebSocketUriEnum.BASE_PAY_CLOSE_MODAL, basePayDO.getId());
 
-        baseWebSocketEventBO.setWebSocketMessageDTO(webSocketMessageDTO);
+        baseWebSocketStrEventBO.setWebSocketMessageDTO(webSocketMessageDTO);
 
         // 发送：webSocket事件
-        TempKafkaUtil.sendBaseWebSocketEventTopic(baseWebSocketEventBO);
+        TempKafkaUtil.sendBaseWebSocketStrEventTopic(baseWebSocketStrEventBO);
 
     }
 

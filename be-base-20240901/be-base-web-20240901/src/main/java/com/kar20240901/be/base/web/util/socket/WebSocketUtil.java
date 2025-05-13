@@ -1,8 +1,13 @@
 package com.kar20240901.be.base.web.util.socket;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.ByteUtil;
+import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketEventBO;
+import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketByteEventBO;
+import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketStrEventBO;
+import com.kar20240901.be.base.web.model.bo.socket.HandleByteArrResultBO;
 import com.kar20240901.be.base.web.model.configuration.socket.NettyWebSocketBeanPostProcessor;
 import com.kar20240901.be.base.web.model.constant.base.OperationDescriptionConstant;
 import com.kar20240901.be.base.web.model.domain.request.BaseRequestDO;
@@ -13,7 +18,10 @@ import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
 import com.kar20240901.be.base.web.util.base.Ip2RegionUtil;
 import com.kar20240901.be.base.web.util.base.MyUserInfoUtil;
 import com.kar20240901.be.base.web.util.base.RequestUtil;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.ArrayList;
@@ -39,10 +47,119 @@ public class WebSocketUtil {
     }
 
     /**
-     * 发送消息
+     * 发送二进制消息，给多个通道发送
      */
     @SneakyThrows
-    public static void send(@Nullable BaseWebSocketEventBO<?> bo) {
+    public static void sendByte(byte[] byteArr) {
+
+        HandleByteArrResultBO<BaseWebSocketByteEventBO> handleByteArrResultBO =
+            NettyWebSocketServerHandler.handleByteArr(byteArr, BaseWebSocketByteEventBO.class);
+
+        if (handleByteArrResultBO == null) {
+            return;
+        }
+
+        BaseWebSocketByteEventBO<?> bo = handleByteArrResultBO.getDto();
+
+        Set<Long> userIdSet = bo.getUserIdSet();
+
+        // 给所有在线的用户发送
+        if (userIdSet == null) {
+
+            // 再包一层：防止遍历的时候，集合被修改
+            userIdSet = new HashSet<>(NettyWebSocketServerHandler.USER_ID_CHANNEL_MAP.keySet());
+
+        } else if (userIdSet.isEmpty()) {
+
+            // 不发送
+            return;
+
+        }
+
+        String jsonStr = objectMapper.writeValueAsString(bo.getWebSocketMessageDTO());
+
+        if (StrUtil.isBlank(jsonStr)) {
+            return; // 不发送
+        }
+
+        // 获取：需要发送的二进制数据
+        byte[] sendByteArr = getSendByteArr(jsonStr, handleByteArrResultBO.getByteDataArr());
+
+        Set<Long> baseSocketRefUserIdSet = bo.getBaseSocketRefUserIdSet();
+
+        boolean checkFlag = CollUtil.isNotEmpty(baseSocketRefUserIdSet);
+
+        for (Long item : userIdSet) {
+
+            ConcurrentHashMap<Long, Channel> channelMap = NettyWebSocketServerHandler.USER_ID_CHANNEL_MAP.get(item);
+
+            if (CollUtil.isEmpty(channelMap)) {
+                continue;
+            }
+
+            // 再包一层：防止遍历的时候，集合被修改
+            List<Channel> channelList = new ArrayList<>(channelMap.values());
+
+            for (Channel subItem : channelList) {
+
+                if (checkFlag) {
+
+                    Long baseSocketRefUserId =
+                        subItem.attr(NettyWebSocketServerHandler.BASE_SOCKET_REF_USER_ID_KEY).get();
+
+                    if (!baseSocketRefUserIdSet.contains(baseSocketRefUserId)) {
+                        continue;
+                    }
+
+                }
+
+                ByteBuf byteBuf = Unpooled.buffer().writeBytes(sendByteArr);
+
+                // 发送数据
+                subItem.writeAndFlush(new BinaryWebSocketFrame(byteBuf));
+
+            }
+
+        }
+
+    }
+
+    /**
+     * 获取：需要发送的二进制数据
+     */
+    public static byte[] getSendByteArr(String jsonStr, byte[] byteDataArr) {
+
+        if (StrUtil.isBlank(jsonStr)) {
+            return null;
+        }
+
+        int length = jsonStr.length();
+
+        byte[] lengthBytes = ByteUtil.intToBytes(length);
+
+        byte[] jsonStrBytes = StrUtil.bytes(jsonStr);
+
+        byte[] sendByteArr;
+
+        if (byteDataArr == null) {
+
+            sendByteArr = ArrayUtil.addAll(lengthBytes, jsonStrBytes);
+
+        } else {
+
+            sendByteArr = ArrayUtil.addAll(lengthBytes, jsonStrBytes, byteDataArr);
+
+        }
+
+        return sendByteArr;
+
+    }
+
+    /**
+     * 发送字符串消息，给多个通道发送
+     */
+    @SneakyThrows
+    public static void sendStr(@Nullable BaseWebSocketStrEventBO<?> bo) {
 
         if (bo == null) {
             return;
@@ -107,10 +224,10 @@ public class WebSocketUtil {
     }
 
     /**
-     * 发送消息
+     * 保存请求信息，并发送返回的字符串消息，只给一个通道发送
      */
     @SneakyThrows
-    public static <T> void send(Channel channel, WebSocketMessageDTO<T> dto, String text, long costMs,
+    public static <T> void saveAndSendStr(Channel channel, WebSocketMessageDTO<T> dto, String text, long costMs,
         @Nullable NettyWebSocketBeanPostProcessor.MappingValue mappingValue, String errorMsg, boolean successFlag) {
 
         Long userId = channel.attr(NettyWebSocketServerHandler.USER_ID_KEY).get();

@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.socket.BaseSocketRefUserMapper;
-import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketEventBO;
+import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketStrEventBO;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.socket.BaseSocketRefUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
@@ -66,19 +66,19 @@ public class BaseSocketRefUserServiceImpl extends ServiceImpl<BaseSocketRefUserM
             return TempBizCodeEnum.OK;
         }
 
-        BaseWebSocketEventBO<NotNullIdAndNotEmptyLongSet> baseWebSocketEventBO = new BaseWebSocketEventBO<>();
+        BaseWebSocketStrEventBO<NotNullIdAndNotEmptyLongSet> baseWebSocketStrEventBO = new BaseWebSocketStrEventBO<>();
 
-        baseWebSocketEventBO.setUserIdSet(userIdSet);
+        baseWebSocketStrEventBO.setUserIdSet(userIdSet);
 
-        baseWebSocketEventBO.setBaseSocketRefUserIdSet(notEmptyIdSet.getIdSet());
+        baseWebSocketStrEventBO.setBaseSocketRefUserIdSet(notEmptyIdSet.getIdSet());
 
         WebSocketMessageDTO<NotNullIdAndNotEmptyLongSet> webSocketMessageDTO =
             WebSocketMessageDTO.okData(BaseWebSocketUriEnum.BASE_SIGN_OUT, null);
 
-        baseWebSocketEventBO.setWebSocketMessageDTO(webSocketMessageDTO);
+        baseWebSocketStrEventBO.setWebSocketMessageDTO(webSocketMessageDTO);
 
         // 发送：webSocket事件
-        TempKafkaUtil.sendBaseWebSocketEventTopic(baseWebSocketEventBO);
+        TempKafkaUtil.sendBaseWebSocketStrEventTopic(baseWebSocketStrEventBO);
 
         baseMapper.deleteByIds(notEmptyIdSet.getIdSet());
 
@@ -102,19 +102,19 @@ public class BaseSocketRefUserServiceImpl extends ServiceImpl<BaseSocketRefUserM
             return TempBizCodeEnum.OK;
         }
 
-        BaseWebSocketEventBO<NotNullIdAndNotEmptyLongSet> baseWebSocketEventBO = new BaseWebSocketEventBO<>();
+        BaseWebSocketStrEventBO<NotNullIdAndNotEmptyLongSet> baseWebSocketStrEventBO = new BaseWebSocketStrEventBO<>();
 
-        baseWebSocketEventBO.setUserIdSet(userIdSet);
+        baseWebSocketStrEventBO.setUserIdSet(userIdSet);
 
-        baseWebSocketEventBO.setBaseSocketRefUserIdSet(notEmptyIdSet.getIdSet());
+        baseWebSocketStrEventBO.setBaseSocketRefUserIdSet(notEmptyIdSet.getIdSet());
 
         WebSocketMessageDTO<NotNullIdAndNotEmptyLongSet> webSocketMessageDTO =
             WebSocketMessageDTO.okData(BaseWebSocketUriEnum.BASE_SOCKET_REF_USER_CHANGE_CONSOLE_FLAG_BY_ID_SET, null);
 
-        baseWebSocketEventBO.setWebSocketMessageDTO(webSocketMessageDTO);
+        baseWebSocketStrEventBO.setWebSocketMessageDTO(webSocketMessageDTO);
 
         // 发送：webSocket事件
-        TempKafkaUtil.sendBaseWebSocketEventTopic(baseWebSocketEventBO);
+        TempKafkaUtil.sendBaseWebSocketStrEventTopic(baseWebSocketStrEventBO);
 
         return TempBizCodeEnum.OK;
 

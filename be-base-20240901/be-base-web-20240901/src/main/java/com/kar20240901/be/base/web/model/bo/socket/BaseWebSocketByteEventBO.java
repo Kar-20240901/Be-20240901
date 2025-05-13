@@ -5,10 +5,10 @@ import java.util.Set;
 import lombok.Data;
 
 /**
- * webSocket事件的 bo
+ * webSocket二进制事件的 bo
  */
 @Data
-public class BaseWebSocketEventBO<T> {
+public class BaseWebSocketByteEventBO<T> {
 
     /**
      * 用户主键 idSet，如果为 null，则给所有在线的用户发，为空为空集合，则不发送任何消息

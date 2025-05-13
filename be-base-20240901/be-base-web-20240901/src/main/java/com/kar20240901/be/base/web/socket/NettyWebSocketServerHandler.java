@@ -18,6 +18,7 @@ import com.kar20240901.be.base.web.configuration.socket.NettyWebSocketProperties
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.exception.TempException;
 import com.kar20240901.be.base.web.model.bo.socket.ChannelDataBO;
+import com.kar20240901.be.base.web.model.bo.socket.HandleByteArrResultBO;
 import com.kar20240901.be.base.web.model.configuration.socket.NettyWebSocketBeanPostProcessor;
 import com.kar20240901.be.base.web.model.constant.base.OperationDescriptionConstant;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
@@ -66,6 +67,7 @@ import javax.validation.Valid;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.redisson.api.RedissonClient;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -363,25 +365,19 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
             byteBuf.readBytes(byteArr);
 
-            if (byteArr.length < 4) {
+            // 处理：二进制数据
+            HandleByteArrResultBO<WebSocketMessageDTO> handleByteArrResultBO =
+                handleByteArr(byteArr, WebSocketMessageDTO.class);
+
+            if (handleByteArrResultBO == null) {
                 return;
             }
 
-            int length = 4;
+            text = handleByteArrResultBO.getText();
 
-            byte[] lengthByteArr = ArrayUtil.sub(byteArr, 0, length);
+            dto = handleByteArrResultBO.getDto();
 
-            int jsonLength = ByteUtil.bytesToInt(lengthByteArr);
-
-            if (byteArr.length < jsonLength) {
-                return;
-            }
-
-            text = new String(byteArr, length, jsonLength);
-
-            dto = JSONUtil.toBean(text, WebSocketMessageDTO.class);
-
-            byteDataArr = ArrayUtil.sub(byteArr, length + jsonLength, byteArr.length);
+            byteDataArr = handleByteArrResultBO.getByteDataArr();
 
         }
 
@@ -394,7 +390,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
             WebSocketMessageDTO<Object> webSocketMessageDTO = WebSocketMessageDTO.errorCode(uri, 404);
 
-            WebSocketUtil.send(channel, webSocketMessageDTO, text, costMs, null, "", false);
+            WebSocketUtil.saveAndSendStr(channel, webSocketMessageDTO, text, costMs, null, "", false);
 
             return;
 
@@ -411,6 +407,55 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
         // 执行
         doHandleTextWebSocketFrame(channel, mappingValue, method, args, uri, text, costMs, validVoidFunc0CallBack);
+
+    }
+
+    /**
+     * 处理：二进制数据
+     */
+    @Nullable
+    public static <T> HandleByteArrResultBO<T> handleByteArr(byte[] byteArr, Class<T> tClass) {
+
+        if (byteArr == null) {
+            return null;
+        }
+
+        byte[] byteDataArr;
+
+        String text;
+
+        T dto;
+
+        int length = 4;
+
+        if (byteArr.length < length) {
+            return null;
+        }
+
+        byte[] lengthByteArr = ArrayUtil.sub(byteArr, 0, length);
+
+        int jsonLength = ByteUtil.bytesToInt(lengthByteArr);
+
+        if (byteArr.length < jsonLength) {
+            return null;
+        }
+
+        text = new String(byteArr, length, jsonLength);
+
+        dto = JSONUtil.toBean(text, tClass);
+
+        byteDataArr = ArrayUtil.sub(byteArr, length + jsonLength, byteArr.length);
+
+        return new HandleByteArrResultBO<>(text, dto, byteDataArr);
+
+    }
+
+    /**
+     * 字符串和数组转 byte数组
+     */
+    public static byte[] strToByteArr(String text, byte[] byteDataArr) {
+
+        return null;
 
     }
 
@@ -441,7 +486,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
                 // 获取：WebSocketMessageDTO对象
                 WebSocketMessageDTO<Object> webSocketMessageDTO = getWebSocketMessageDTO(uri, invoke);
 
-                WebSocketUtil.send(channel, webSocketMessageDTO, text, costMs, mappingValue, "", true);
+                WebSocketUtil.saveAndSendStr(channel, webSocketMessageDTO, text, costMs, mappingValue, "", true);
 
             } catch (Throwable e) {
 
@@ -573,7 +618,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
         }
 
         // 发送消息
-        WebSocketUtil.send(channel, webSocketMessageDTO, text, costMs, mappingValue,
+        WebSocketUtil.saveAndSendStr(channel, webSocketMessageDTO, text, costMs, mappingValue,
             ExceptionUtil.stacktraceToString(e), false);
 
     }

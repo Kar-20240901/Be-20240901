@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.live.BaseLiveRoomDataMapper;
 import com.kar20240901.be.base.web.mapper.live.BaseLiveRoomUserMapper;
-import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketEventBO;
+import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketByteEventBO;
 import com.kar20240901.be.base.web.model.bo.socket.ChannelDataBO;
 import com.kar20240901.be.base.web.model.domain.live.BaseLiveRoomDataDO;
 import com.kar20240901.be.base.web.model.domain.live.BaseLiveRoomUserDO;
@@ -60,7 +60,7 @@ public class BaseLiveRoomDataServiceImpl extends ServiceImpl<BaseLiveRoomDataMap
         }
 
         // 发送：webSocket数据
-        //        sendWebSocket(dto, socketMap);
+        sendWebSocket(dto, socketMap, channelDataBO.getByteArr());
 
         BaseLiveRoomDataDO baseLiveRoomDataDO = new BaseLiveRoomDataDO();
 
@@ -79,21 +79,22 @@ public class BaseLiveRoomDataServiceImpl extends ServiceImpl<BaseLiveRoomDataMap
     /**
      * 发送：webSocket数据
      */
-    private static void sendWebSocket(BaseLiveRoomDataAddDataDTO dto, Map<Long, Long> socketMap) {
+    private static void sendWebSocket(BaseLiveRoomDataAddDataDTO dto, Map<Long, Long> socketMap, byte[] byteArr) {
 
-        BaseWebSocketEventBO<BaseLiveRoomDataAddDataDTO> baseWebSocketEventBO = new BaseWebSocketEventBO<>();
+        BaseWebSocketByteEventBO<BaseLiveRoomDataAddDataDTO> baseWebSocketByteEventBO =
+            new BaseWebSocketByteEventBO<>();
 
-        baseWebSocketEventBO.setUserIdSet(socketMap.keySet());
+        baseWebSocketByteEventBO.setUserIdSet(socketMap.keySet());
 
-        baseWebSocketEventBO.setBaseSocketRefUserIdSet(CollUtil.newHashSet(socketMap.values()));
+        baseWebSocketByteEventBO.setBaseSocketRefUserIdSet(CollUtil.newHashSet(socketMap.values()));
 
         WebSocketMessageDTO<BaseLiveRoomDataAddDataDTO> webSocketMessageDTO =
             WebSocketMessageDTO.okData(BaseWebSocketUriEnum.BASE_LIVE_ROOM_NEW_DATA, dto);
 
-        baseWebSocketEventBO.setWebSocketMessageDTO(webSocketMessageDTO);
+        baseWebSocketByteEventBO.setWebSocketMessageDTO(webSocketMessageDTO);
 
         // 发送：webSocket事件
-        TempKafkaUtil.sendBaseWebSocketEventTopic(baseWebSocketEventBO);
+        TempKafkaUtil.sendBaseWebSocketByteEventTopic(baseWebSocketByteEventBO, byteArr);
 
     }
 

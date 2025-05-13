@@ -37,7 +37,9 @@ public enum BaseKafkaTopicEnum implements IKafkaTopic {
 
     SOCKET_ENABLE_TOPIC, // socket启用的 topic
 
-    BASE_WEB_SOCKET_EVENT_TOPIC, // webSocket事件的 topic
+    BASE_WEB_SOCKET_STR_EVENT_TOPIC, // webSocket字符串事件的 topic
+
+    BASE_WEB_SOCKET_BYTE_EVENT_TOPIC, // webSocket二进制事件的 topic
 
     // socket相关 ↑
 

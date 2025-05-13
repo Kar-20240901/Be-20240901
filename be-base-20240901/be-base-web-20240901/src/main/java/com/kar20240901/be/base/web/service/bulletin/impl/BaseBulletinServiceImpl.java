@@ -13,7 +13,7 @@ import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.bulletin.BaseBulletinMapper;
 import com.kar20240901.be.base.web.mapper.bulletin.BaseBulletinReadTimeRefUserMapper;
-import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketEventBO;
+import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketStrEventBO;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoIdSuper;
@@ -409,17 +409,17 @@ public class BaseBulletinServiceImpl extends ServiceImpl<BaseBulletinMapper, Bas
      */
     private void sendRefreshBulletin(@Nullable Set<Long> userIdSet) {
 
-        BaseWebSocketEventBO<Long> baseWebSocketEventBO = new BaseWebSocketEventBO<>();
+        BaseWebSocketStrEventBO<Long> baseWebSocketStrEventBO = new BaseWebSocketStrEventBO<>();
 
-        baseWebSocketEventBO.setUserIdSet(userIdSet);
+        baseWebSocketStrEventBO.setUserIdSet(userIdSet);
 
         WebSocketMessageDTO<Long> webSocketMessageDTO =
             WebSocketMessageDTO.okData(BaseWebSocketUriEnum.BASE_REFRESH_BULLETIN, null);
 
-        baseWebSocketEventBO.setWebSocketMessageDTO(webSocketMessageDTO);
+        baseWebSocketStrEventBO.setWebSocketMessageDTO(webSocketMessageDTO);
 
         // 通知该用户，刷新公告信息
-        TempKafkaUtil.sendBaseWebSocketEventTopic(baseWebSocketEventBO);
+        TempKafkaUtil.sendBaseWebSocketStrEventTopic(baseWebSocketStrEventBO);
 
     }
 
