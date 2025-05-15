@@ -59,6 +59,10 @@ public class BaseLiveRoomDataServiceImpl extends ServiceImpl<BaseLiveRoomDataMap
 
         }
 
+        dto.setUserId(channelDataBO.getUserId());
+
+        dto.setSocketRefUserId(channelDataBO.getSocketRefUserId());
+
         // 发送：webSocket数据
         sendWebSocket(dto, socketMap, channelDataBO.getByteArr());
 

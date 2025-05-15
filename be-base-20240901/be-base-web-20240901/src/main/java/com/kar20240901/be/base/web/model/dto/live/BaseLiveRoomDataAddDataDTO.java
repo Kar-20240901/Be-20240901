@@ -20,4 +20,10 @@ public class BaseLiveRoomDataAddDataDTO {
     @Schema(description = "媒体类型")
     private String mediaType;
 
+    @Schema(description = "用户主键 id", hidden = true)
+    private Long userId;
+
+    @Schema(description = "套接字关联用户的关联 id", hidden = true)
+    private Long socketRefUserId;
+
 }
