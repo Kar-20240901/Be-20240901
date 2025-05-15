@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class BaseLiveRoomUserPageDTO extends MyPageDTO {
+public class BaseLiveRoomUserSelfPageDTO extends MyPageDTO {
 
     @NotNull
     @Schema(description = "房间主键 id")

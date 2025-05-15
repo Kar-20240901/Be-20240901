@@ -5,7 +5,7 @@ import java.util.Date;
 import lombok.Data;
 
 @Data
-public class BaseLiveRoomUserPageVO {
+public class BaseLiveRoomUserSelfPageVO {
 
     @Schema(description = "主键 id")
     private Long id;

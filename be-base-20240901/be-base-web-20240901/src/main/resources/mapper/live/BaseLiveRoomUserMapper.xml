@@ -9,7 +9,7 @@
     WHERE b.id IS NULL
   </select>
 
-  <select id="myPage" resultType="com.kar20240901.be.base.web.model.vo.live.BaseLiveRoomUserPageVO">
+  <select id="myPage" resultType="com.kar20240901.be.base.web.model.vo.live.BaseLiveRoomUserSelfPageVO">
     SELECT a.id,
     a.user_id,
     a.socket_ref_user_id AS socketRefUserId,
@@ -30,7 +30,7 @@
   </select>
 
   <select id="infoById"
-          resultType="com.kar20240901.be.base.web.model.vo.live.BaseLiveRoomUserInfoByIdVO">
+          resultType="com.kar20240901.be.base.web.model.vo.live.BaseLiveRoomUserSelfInfoByIdVO">
     SELECT a.id,
            a.user_id,
            a.socket_ref_user_id AS socketRefUserId,

@@ -5,6 +5,6 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class BaseLiveRoomUserInfoByIdVO extends BaseLiveRoomUserPageVO {
+public class BaseLiveRoomUserSelfInfoByIdVO extends BaseLiveRoomUserSelfPageVO {
 
 }

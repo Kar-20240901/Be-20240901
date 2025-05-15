@@ -12,10 +12,10 @@ import com.kar20240901.be.base.web.model.domain.live.BaseLiveRoomDO;
 import com.kar20240901.be.base.web.model.domain.live.BaseLiveRoomUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
-import com.kar20240901.be.base.web.model.dto.live.BaseLiveRoomUserPageDTO;
+import com.kar20240901.be.base.web.model.dto.live.BaseLiveRoomUserSelfPageDTO;
 import com.kar20240901.be.base.web.model.vo.base.R;
-import com.kar20240901.be.base.web.model.vo.live.BaseLiveRoomUserInfoByIdVO;
-import com.kar20240901.be.base.web.model.vo.live.BaseLiveRoomUserPageVO;
+import com.kar20240901.be.base.web.model.vo.live.BaseLiveRoomUserSelfInfoByIdVO;
+import com.kar20240901.be.base.web.model.vo.live.BaseLiveRoomUserSelfPageVO;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.service.live.BaseLiveRoomUserSelfService;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
@@ -40,7 +40,7 @@ public class BaseLiveRoomUserSelfServiceImpl extends ServiceImpl<BaseLiveRoomUse
      * 分页排序查询
      */
     @Override
-    public Page<BaseLiveRoomUserPageVO> myPage(BaseLiveRoomUserPageDTO dto) {
+    public Page<BaseLiveRoomUserSelfPageVO> myPage(BaseLiveRoomUserSelfPageDTO dto) {
 
         Long roomId = dto.getRoomId();
 
@@ -54,14 +54,14 @@ public class BaseLiveRoomUserSelfServiceImpl extends ServiceImpl<BaseLiveRoomUse
             R.error("操作失败：您不在房间里，无法获取房间人员信息", roomId);
         }
 
-        Page<BaseLiveRoomUserPageVO> resPage = baseMapper.myPage(dto.createTimeDescDefaultOrderPage(), dto);
+        Page<BaseLiveRoomUserSelfPageVO> resPage = baseMapper.myPage(dto.createTimeDescDefaultOrderPage(), dto);
 
-        Set<Long> avatarFileIdSet = resPage.getRecords().stream().map(BaseLiveRoomUserPageVO::getAvatarFileId)
+        Set<Long> avatarFileIdSet = resPage.getRecords().stream().map(BaseLiveRoomUserSelfPageVO::getAvatarFileId)
             .filter(it -> it != TempConstant.NEGATIVE_ONE).collect(Collectors.toSet());
 
         Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(avatarFileIdSet)).getMap();
 
-        for (BaseLiveRoomUserPageVO item : resPage.getRecords()) {
+        for (BaseLiveRoomUserSelfPageVO item : resPage.getRecords()) {
 
             String avatarUrl = publicUrlMap.get(item.getAvatarFileId());
 
@@ -79,9 +79,9 @@ public class BaseLiveRoomUserSelfServiceImpl extends ServiceImpl<BaseLiveRoomUse
      * 通过主键id，查看详情
      */
     @Override
-    public BaseLiveRoomUserInfoByIdVO infoById(NotNullId dto) {
+    public BaseLiveRoomUserSelfInfoByIdVO infoById(NotNullId dto) {
 
-        BaseLiveRoomUserInfoByIdVO baseLiveRoomUserInfoByIdVO = baseMapper.infoById(dto.getId());
+        BaseLiveRoomUserSelfInfoByIdVO baseLiveRoomUserInfoByIdVO = baseMapper.infoById(dto.getId());
 
         if (baseLiveRoomUserInfoByIdVO == null) {
             return null;
