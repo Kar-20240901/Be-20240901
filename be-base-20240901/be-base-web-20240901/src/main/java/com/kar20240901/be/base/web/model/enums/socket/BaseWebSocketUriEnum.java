@@ -22,6 +22,12 @@ public enum BaseWebSocketUriEnum implements IWebSocketUri {
 
     BASE_LIVE_ROOM_NEW_DATA("/base/live/room/newData"), // 实时房间有新的数据
 
+    BASE_LIVE_ROOM_JOIN_ON_OTHER_DEVICE("/base/live/room/joinOnOtherDevice"), // 实时房间-您已经在其他设备上加入此房间
+
+    BASE_LIVE_ROOM_NEW_USER("/base/live/room/newUser"), // 实时房间-有新的用户加入房间
+
+    BASE_LIVE_ROOM_REMOVE_USER("/base/live/room/removeUser"), // 实时房间-有用户退出房间
+
     ;
 
     private final String uri;

@@ -7,7 +7,6 @@ import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.live.BaseLiveRoomMapper;
 import com.kar20240901.be.base.web.mapper.live.BaseLiveRoomUserMapper;
-import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketStrEventBO;
 import com.kar20240901.be.base.web.model.bo.socket.ChannelDataBO;
 import com.kar20240901.be.base.web.model.domain.live.BaseLiveRoomDO;
@@ -40,7 +39,6 @@ public class BaseLiveRoomUserServiceImpl extends ServiceImpl<BaseLiveRoomUserMap
      */
     @PreDestroy
     @Scheduled(fixedDelay = 3000)
-    @MyTransactional
     public void scheduledCheckRoomUser() {
 
         List<Long> roomUserIdList = baseMapper.checkRoomUser();
@@ -51,10 +49,43 @@ public class BaseLiveRoomUserServiceImpl extends ServiceImpl<BaseLiveRoomUserMap
 
         removeBatchByIds(roomUserIdList);
 
+        List<BaseLiveRoomUserDO> baseLiveRoomUserDoList = lambdaQuery().in(BaseLiveRoomUserDO::getId, roomUserIdList)
+            .select(BaseLiveRoomUserDO::getUserId, BaseLiveRoomUserDO::getSocketRefUserId).list();
+
+        if (CollUtil.isEmpty(baseLiveRoomUserDoList)) {
+            return;
+        }
+
+        Set<Long> userIdSet = new HashSet<>(baseLiveRoomUserDoList.size());
+
+        Set<Long> baseSocketRefUserIdSet = new HashSet<>(baseLiveRoomUserDoList.size());
+
+        for (BaseLiveRoomUserDO item : baseLiveRoomUserDoList) {
+
+            userIdSet.add(item.getUserId());
+
+            baseSocketRefUserIdSet.add(item.getSocketRefUserId());
+
+        }
+
+        BaseWebSocketStrEventBO<Long> baseWebSocketStrEventBO = new BaseWebSocketStrEventBO<>();
+
+        baseWebSocketStrEventBO.setUserIdSet(userIdSet);
+
+        baseWebSocketStrEventBO.setBaseSocketRefUserIdSet(baseSocketRefUserIdSet);
+
+        WebSocketMessageDTO<Long> webSocketMessageDTO =
+            WebSocketMessageDTO.okData(BaseWebSocketUriEnum.BASE_LIVE_ROOM_REMOVE_USER, null);
+
+        baseWebSocketStrEventBO.setWebSocketMessageDTO(webSocketMessageDTO);
+
+        // 发送消息，您已经在其他设备上加入此房间
+        TempKafkaUtil.sendBaseWebSocketStrEventTopic(baseWebSocketStrEventBO);
+
     }
 
     /**
-     * 新增用户
+     * 新增用户，备注：不用加事务
      */
     @Override
     public String addUser(BaseLiveRoomUserAddUserDTO dto, ChannelDataBO channelDataBO) {
@@ -82,6 +113,12 @@ public class BaseLiveRoomUserServiceImpl extends ServiceImpl<BaseLiveRoomUserMap
 
         }
 
+        // 处理：您已经在其他设备上加入此房间
+        handleJoinOnOtherDevice(currentUserId, dto.getId());
+
+        // 处理：有新用户加入
+        handleNewUserJoin(dto, currentUserId);
+
         BaseLiveRoomUserDO baseLiveRoomUserDO = new BaseLiveRoomUserDO();
 
         baseLiveRoomUserDO.setRoomId(dto.getId());
@@ -90,22 +127,70 @@ public class BaseLiveRoomUserServiceImpl extends ServiceImpl<BaseLiveRoomUserMap
 
         save(baseLiveRoomUserDO);
 
-        // 给房间内所有人，发送有新用户加入的信息
+        return TempBizCodeEnum.OK;
 
-        List<BaseLiveRoomUserDO> baseLiveRoomUserDoList = lambdaQuery().eq(BaseLiveRoomUserDO::getUserId, currentUserId)
-            .eq(BaseLiveRoomUserDO::getRoomId, dto.getId())
-            .select(BaseLiveRoomUserDO::getId, BaseLiveRoomUserDO::getSocketRefUserId, BaseLiveRoomUserDO::getUserId)
-            .list();
+    }
+
+    /**
+     * 处理：有新用户加入
+     */
+    private void handleNewUserJoin(BaseLiveRoomUserAddUserDTO dto, Long currentUserId) {
+
+        List<BaseLiveRoomUserDO> baseLiveRoomUserDoList = lambdaQuery().eq(BaseLiveRoomUserDO::getRoomId, dto.getId())
+            .select(BaseLiveRoomUserDO::getUserId, BaseLiveRoomUserDO::getSocketRefUserId)
+            .ne(BaseLiveRoomUserDO::getUserId, currentUserId).list();
 
         if (CollUtil.isEmpty(baseLiveRoomUserDoList)) {
-            return TempBizCodeEnum.OK;
+            return;
+        }
+
+        Set<Long> userIdSet = new HashSet<>(baseLiveRoomUserDoList.size());
+
+        Set<Long> baseSocketRefUserIdSet = new HashSet<>(baseLiveRoomUserDoList.size());
+
+        for (BaseLiveRoomUserDO item : baseLiveRoomUserDoList) {
+
+            userIdSet.add(item.getUserId());
+
+            baseSocketRefUserIdSet.add(item.getSocketRefUserId());
+
+        }
+
+        BaseWebSocketStrEventBO<Long> baseWebSocketStrEventBO = new BaseWebSocketStrEventBO<>();
+
+        baseWebSocketStrEventBO.setUserIdSet(userIdSet);
+
+        baseWebSocketStrEventBO.setBaseSocketRefUserIdSet(baseSocketRefUserIdSet);
+
+        WebSocketMessageDTO<Long> webSocketMessageDTO =
+            WebSocketMessageDTO.okData(BaseWebSocketUriEnum.BASE_LIVE_ROOM_NEW_USER, null);
+
+        baseWebSocketStrEventBO.setWebSocketMessageDTO(webSocketMessageDTO);
+
+        // 发送消息，有新用户加入
+        TempKafkaUtil.sendBaseWebSocketStrEventTopic(baseWebSocketStrEventBO);
+
+    }
+
+    /**
+     * 处理：您已经在其他设备上加入此房间
+     */
+    private void handleJoinOnOtherDevice(Long currentUserId, Long roomId) {
+
+        List<BaseLiveRoomUserDO> baseLiveRoomUserDoList =
+            lambdaQuery().eq(BaseLiveRoomUserDO::getUserId, currentUserId).eq(BaseLiveRoomUserDO::getRoomId, roomId)
+                .select(BaseLiveRoomUserDO::getId, BaseLiveRoomUserDO::getSocketRefUserId,
+                    BaseLiveRoomUserDO::getUserId).list();
+
+        if (CollUtil.isEmpty(baseLiveRoomUserDoList)) {
+            return;
         }
 
         Set<Long> userIdSet = new HashSet<>();
 
-        Set<Long> baseSocketRefUserIdSet = new HashSet<>();
+        Set<Long> baseSocketRefUserIdSet = new HashSet<>(baseLiveRoomUserDoList.size());
 
-        List<Long> baseLiveRoomUserIdList = new ArrayList<>();
+        List<Long> baseLiveRoomUserIdList = new ArrayList<>(baseLiveRoomUserDoList.size());
 
         for (BaseLiveRoomUserDO item : baseLiveRoomUserDoList) {
 
@@ -119,7 +204,6 @@ public class BaseLiveRoomUserServiceImpl extends ServiceImpl<BaseLiveRoomUserMap
 
         removeBatchByIds(baseLiveRoomUserIdList);
 
-        // 提示：您已经在其他设备上加入此房间
         BaseWebSocketStrEventBO<Long> baseWebSocketStrEventBO = new BaseWebSocketStrEventBO<>();
 
         baseWebSocketStrEventBO.setUserIdSet(userIdSet);
@@ -127,14 +211,12 @@ public class BaseLiveRoomUserServiceImpl extends ServiceImpl<BaseLiveRoomUserMap
         baseWebSocketStrEventBO.setBaseSocketRefUserIdSet(baseSocketRefUserIdSet);
 
         WebSocketMessageDTO<Long> webSocketMessageDTO =
-            WebSocketMessageDTO.okData(BaseWebSocketUriEnum.BASE_REFRESH_BULLETIN, null);
+            WebSocketMessageDTO.okData(BaseWebSocketUriEnum.BASE_LIVE_ROOM_JOIN_ON_OTHER_DEVICE, null);
 
         baseWebSocketStrEventBO.setWebSocketMessageDTO(webSocketMessageDTO);
 
-        // 通知该用户，刷新公告信息
+        // 发送消息，您已经在其他设备上加入此房间
         TempKafkaUtil.sendBaseWebSocketStrEventTopic(baseWebSocketStrEventBO);
-
-        return TempBizCodeEnum.OK;
 
     }
 

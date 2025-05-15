@@ -12,3 +12,4 @@ notLogTopicSet:
   - com.kar20240901.be.base.web.mapper.bulletin.BaseBulletinMapper.selectCount
   - com.kar20240901.be.base.web.mapper.live.BaseLiveRoomDataMapper.selectList
   - com.kar20240901.be.base.web.mapper.live.BaseLiveRoomDataMapper.insert
+  - com.kar20240901.be.base.web.mapper.live.BaseLiveRoomUserMapper.checkRoomUser
