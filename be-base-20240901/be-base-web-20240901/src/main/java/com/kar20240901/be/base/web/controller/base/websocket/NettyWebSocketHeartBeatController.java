@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @NettyWebSocketController
 @RequestMapping(value = "/netty/webSocket/heartBeat")
-@Tag(name = "基础-WebSocket-心跳检测")
+@Tag(name = "websocket-基础-心跳检测")
 public class NettyWebSocketHeartBeatController {
 
     @Resource

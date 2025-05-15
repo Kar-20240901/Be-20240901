@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @NettyWebSocketController
 @RequestMapping(value = "/base/liveRoomData")
-@Tag(name = "基础-实时房间-数据")
+@Tag(name = "websocket-基础-实时房间-数据")
 public class BaseLiveRoomDataController {
 
     @Resource
