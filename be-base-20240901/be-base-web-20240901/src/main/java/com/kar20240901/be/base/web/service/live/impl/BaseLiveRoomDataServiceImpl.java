@@ -47,7 +47,9 @@ public class BaseLiveRoomDataServiceImpl extends ServiceImpl<BaseLiveRoomDataMap
 
         List<BaseLiveRoomUserDO> baseLiveRoomUserDoList =
             ChainWrappers.lambdaQueryChain(baseLiveRoomUserMapper).eq(BaseLiveRoomUserDO::getRoomId, dto.getRoomId())
-                .select(BaseLiveRoomUserDO::getSocketRefUserId, BaseLiveRoomUserDO::getUserId).list();
+                .select(BaseLiveRoomUserDO::getSocketRefUserId, BaseLiveRoomUserDO::getUserId)
+                .ne(BaseLiveRoomUserDO::getUserId, channelDataBO.getUserId())
+                .ne(BaseLiveRoomUserDO::getSocketRefUserId, channelDataBO.getSocketRefUserId()).list();
 
         Map<Long, Long> socketMap = baseLiveRoomUserDoList.stream()
             .collect(Collectors.toMap(BaseLiveRoomUserDO::getUserId, BaseLiveRoomUserDO::getSocketRefUserId));
