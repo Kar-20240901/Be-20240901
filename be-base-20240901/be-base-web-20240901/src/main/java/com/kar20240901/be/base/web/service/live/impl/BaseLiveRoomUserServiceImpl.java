@@ -1,5 +1,6 @@
 package com.kar20240901.be.base.web.service.live.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
@@ -14,7 +15,10 @@ import com.kar20240901.be.base.web.model.dto.live.BaseLiveRoomUserAddUserDTO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.live.BaseLiveRoomUserService;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
+import java.util.List;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,6 +27,24 @@ public class BaseLiveRoomUserServiceImpl extends ServiceImpl<BaseLiveRoomUserMap
 
     @Resource
     BaseLiveRoomMapper baseLiveRoomMapper;
+
+    /**
+     * 定时任务，检查房间内的用户
+     */
+    @PreDestroy
+    @Scheduled(fixedDelay = 3000)
+    @MyTransactional
+    public void scheduledCheckRoomUser() {
+
+        List<Long> roomUserIdList = baseMapper.checkRoomUser();
+
+        if (CollUtil.isEmpty(roomUserIdList)) {
+            return;
+        }
+
+        removeBatchByIds(roomUserIdList);
+
+    }
 
     /**
      * 新增用户

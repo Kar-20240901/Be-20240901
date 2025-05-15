@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kar20240901.be.base.web.mapper.live.BaseLiveRoomUserMapper">
+  <select id="checkRoomUser" resultType="java.lang.Long">
+    SELECT a.id
+    FROM base_live_room_user a
+           LEFT JOIN base_socket_ref_user b ON b.id = a.socket_ref_user_id
+    WHERE b.id IS NULL
+  </select>
+</mapper>
