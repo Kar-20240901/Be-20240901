@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 /**
@@ -54,7 +55,7 @@ public class BasePayTradeNotifyKafkaListener {
     }
 
     @KafkaHandler
-    public void receive(String recordStr, Acknowledgment acknowledgment) {
+    public void receive(@Payload String recordStr, Acknowledgment acknowledgment) {
 
         MyTryUtil.tryCatchFinally(() -> {
 
