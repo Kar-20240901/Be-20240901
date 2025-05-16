@@ -22,8 +22,8 @@ public class BaseLiveRoomUserController {
 
     @Operation(summary = "用户加入房间")
     @PostMapping("/addUser")
-    public R<String> addUser(@Valid BaseLiveRoomUserAddUserDTO dto, ChannelDataBO channelDataBO) {
-        return R.okMsg(baseService.addUser(dto, channelDataBO));
+    public R<Long> addUser(@Valid BaseLiveRoomUserAddUserDTO dto, ChannelDataBO channelDataBO) {
+        return R.okData(baseService.addUser(dto, channelDataBO));
     }
 
 }

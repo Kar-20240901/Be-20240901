@@ -7,6 +7,6 @@ import com.kar20240901.be.base.web.model.dto.live.BaseLiveRoomUserAddUserDTO;
 
 public interface BaseLiveRoomUserService extends IService<BaseLiveRoomUserDO> {
 
-    String addUser(BaseLiveRoomUserAddUserDTO dto, ChannelDataBO channelDataBO);
+    Long addUser(BaseLiveRoomUserAddUserDTO dto, ChannelDataBO channelDataBO);
 
 }

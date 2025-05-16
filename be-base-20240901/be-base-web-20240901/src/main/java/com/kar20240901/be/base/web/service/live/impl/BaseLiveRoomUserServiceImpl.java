@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
-import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.live.BaseLiveRoomMapper;
 import com.kar20240901.be.base.web.mapper.live.BaseLiveRoomUserMapper;
 import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketStrEventBO;
@@ -88,7 +87,7 @@ public class BaseLiveRoomUserServiceImpl extends ServiceImpl<BaseLiveRoomUserMap
      * 新增用户，备注：不用加事务
      */
     @Override
-    public String addUser(BaseLiveRoomUserAddUserDTO dto, ChannelDataBO channelDataBO) {
+    public Long addUser(BaseLiveRoomUserAddUserDTO dto, ChannelDataBO channelDataBO) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
@@ -127,7 +126,7 @@ public class BaseLiveRoomUserServiceImpl extends ServiceImpl<BaseLiveRoomUserMap
 
         save(baseLiveRoomUserDO);
 
-        return TempBizCodeEnum.OK;
+        return dto.getId();
 
     }
 
