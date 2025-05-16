@@ -10,6 +10,7 @@ import java.util.List;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 /**
@@ -24,7 +25,7 @@ public class BaseWebSocketByteEventKafkaListener {
         CollUtil.newArrayList(BaseKafkaTopicEnum.BASE_WEB_SOCKET_BYTE_EVENT_TOPIC.name());
 
     @KafkaHandler
-    public void receive(List<byte[]> recordList, Acknowledgment acknowledgment) {
+    public void receive(@Payload List<byte[]> recordList, Acknowledgment acknowledgment) {
 
         acknowledgment.acknowledge();
 

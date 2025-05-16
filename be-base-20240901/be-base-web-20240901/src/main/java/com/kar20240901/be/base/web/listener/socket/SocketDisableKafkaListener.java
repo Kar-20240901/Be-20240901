@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 /**
@@ -37,7 +38,7 @@ public class SocketDisableKafkaListener {
     }
 
     @KafkaHandler
-    public void receive(List<String> recordList, Acknowledgment acknowledgment) {
+    public void receive(@Payload List<String> recordList, Acknowledgment acknowledgment) {
 
         acknowledgment.acknowledge();
 
