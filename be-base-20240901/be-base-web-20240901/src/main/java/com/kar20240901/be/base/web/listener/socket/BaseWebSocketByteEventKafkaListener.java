@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @KafkaListener(topics = "#{__listener.TOPIC_LIST}", groupId = "#{kafkaDynamicGroupIdConfiguration.getGroupId()}",
-    batch = "true")
+    batch = "true", containerFactory = "byteArrayKafkaListenerContainerFactory")
 public class BaseWebSocketByteEventKafkaListener {
 
     public static final List<String> TOPIC_LIST =

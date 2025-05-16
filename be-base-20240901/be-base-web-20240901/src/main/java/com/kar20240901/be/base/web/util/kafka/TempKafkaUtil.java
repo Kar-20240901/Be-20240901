@@ -19,15 +19,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class TempKafkaUtil {
 
-    private static KafkaTemplate<String, Object> kafkaTemplate;
+    private static KafkaTemplate<String, String> stringKafkaTemplate;
+
+    private static KafkaTemplate<String, byte[]> byteArrayKafkaTemplate;
 
     // 目的：Long 转 String，Enum 转 code
     private static ObjectMapper objectMapper;
 
-    public TempKafkaUtil(KafkaTemplate<String, Object> kafkaTemplate, ObjectMapper objectMapper) {
+    public TempKafkaUtil(KafkaTemplate<String, String> stringKafkaTemplate, ObjectMapper objectMapper,
+        KafkaTemplate<String, byte[]> byteArrayKafkaTemplate) {
 
-        TempKafkaUtil.kafkaTemplate = kafkaTemplate;
+        TempKafkaUtil.stringKafkaTemplate = stringKafkaTemplate;
         TempKafkaUtil.objectMapper = objectMapper;
+        TempKafkaUtil.byteArrayKafkaTemplate = byteArrayKafkaTemplate;
 
     }
 
@@ -39,11 +43,11 @@ public class TempKafkaUtil {
 
         if (data instanceof String) {
 
-            kafkaTemplate.send(iKafkaTopic.name(), data);
+            stringKafkaTemplate.send(iKafkaTopic.name(), (String)data);
 
         } else {
 
-            kafkaTemplate.send(iKafkaTopic.name(), objectMapper.writeValueAsString(data));
+            stringKafkaTemplate.send(iKafkaTopic.name(), objectMapper.writeValueAsString(data));
 
         }
 
@@ -55,7 +59,7 @@ public class TempKafkaUtil {
     @SneakyThrows
     public static void sendByte(IKafkaTopic iKafkaTopic, byte[] byteArr) {
 
-        kafkaTemplate.send(iKafkaTopic.name(), byteArr);
+        byteArrayKafkaTemplate.send(iKafkaTopic.name(), byteArr);
 
     }
 
