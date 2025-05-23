@@ -19,6 +19,11 @@ public class BaseSocketBaseProperties {
     private String host;
 
     /**
+     * 寻找主机地址的 url
+     */
+    private String findHostUrl;
+
+    /**
      * 端口
      */
     private Integer port;

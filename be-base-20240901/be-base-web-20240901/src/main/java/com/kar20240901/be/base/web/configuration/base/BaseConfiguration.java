@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.net.NetUtil;
 import cn.hutool.http.HttpGlobalConfig;
 import com.kar20240901.be.base.web.configuration.socket.NettyWebSocketProperties;
+import com.kar20240901.be.base.web.util.socket.SocketUtil;
 import java.util.concurrent.ThreadPoolExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
@@ -157,8 +158,10 @@ public class BaseConfiguration implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
 
+        String host = SocketUtil.getHost(nettyWebSocketProperties);
+
         log.info("服务已启动，耗时：{}，地址：http://{}:{}",
-            DateUtil.formatBetween(System.currentTimeMillis() - START_TIME), nettyWebSocketProperties.getHost(), port);
+            DateUtil.formatBetween(System.currentTimeMillis() - START_TIME), host, port);
 
     }
 

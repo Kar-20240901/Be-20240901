@@ -1,8 +1,10 @@
 package com.kar20240901.be.base.web.util.socket;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Validator;
 import cn.hutool.core.net.NetUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
 import com.kar20240901.be.base.web.configuration.base.BaseConfiguration;
 import com.kar20240901.be.base.web.model.configuration.socket.BaseSocketBaseProperties;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
@@ -160,16 +162,69 @@ public class SocketUtil {
 
     }
 
+    public static String HOST = null;
+
+    /**
+     * 获取主机地址
+     */
+    public static String getHost(BaseSocketBaseProperties baseSocketBaseProperties) {
+
+        if (StrUtil.isNotBlank(HOST)) {
+            return HOST;
+        }
+
+        String host = baseSocketBaseProperties.getHost();
+
+        if (StrUtil.isNotBlank(host)) {
+
+            HOST = host;
+
+            return host;
+
+        }
+
+        String findHostUrl = baseSocketBaseProperties.getFindHostUrl();
+
+        if (StrUtil.isBlank(findHostUrl)) {
+
+            findHostUrl = "http://ipecho.net/plain";
+
+        }
+
+        try {
+
+            host = HttpUtil.get(findHostUrl, 4 * 1000);
+
+        } catch (Exception e) {
+
+            log.error(StrUtil.format("获取 ip失败：{}", findHostUrl), e);
+
+        }
+
+        if (Validator.isIpv4(host) == false) {
+
+            host = "localhost";
+
+        }
+
+        HOST = host;
+
+        return host;
+
+    }
+
     /**
      * 获取：baseSocketServerId
      */
     public static Long getBaseSocketServerId(int port, BaseSocketBaseProperties baseSocketBaseProperties,
         BaseSocketTypeEnum baseSocketTypeEnum) {
 
+        String host = getHost(baseSocketBaseProperties);
+
         BaseSocketDO baseSocketDO = new BaseSocketDO();
 
         baseSocketDO.setScheme(MyEntityUtil.getNotNullStr(baseSocketBaseProperties.getScheme()));
-        baseSocketDO.setHost(MyEntityUtil.getNotNullStr(baseSocketBaseProperties.getHost()));
+        baseSocketDO.setHost(MyEntityUtil.getNotNullStr(host));
         baseSocketDO.setPort(MyEntityUtil.getNotNullInt(baseSocketBaseProperties.getPort(), port));
         baseSocketDO.setPath(MyEntityUtil.getNotNullStr(baseSocketBaseProperties.getPath()));
         baseSocketDO.setType(baseSocketTypeEnum);
