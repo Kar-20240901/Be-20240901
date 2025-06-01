@@ -87,6 +87,10 @@ public class BaseLiveRoomDataServiceImpl extends ServiceImpl<BaseLiveRoomDataMap
      */
     private static void sendWebSocket(BaseLiveRoomDataAddDataDTO dto, Map<Long, Long> socketMap, byte[] byteArr) {
 
+        if (socketMap.keySet().size() == 0) {
+            return;
+        }
+
         BaseWebSocketByteEventBO<BaseLiveRoomDataAddDataDTO> baseWebSocketByteEventBO =
             new BaseWebSocketByteEventBO<>();
 

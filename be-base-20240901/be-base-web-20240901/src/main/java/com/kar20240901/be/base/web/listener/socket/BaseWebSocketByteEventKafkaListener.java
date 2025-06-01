@@ -9,7 +9,6 @@ import com.kar20240901.be.base.web.util.socket.WebSocketUtil;
 import java.util.List;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
@@ -18,16 +17,14 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @KafkaListener(topics = "#{__listener.TOPIC_LIST}", groupId = "#{kafkaDynamicGroupIdConfiguration.getGroupId()}",
-    batch = "true", containerFactory = "byteArrayKafkaListenerContainerFactory")
+    batch = "false", containerFactory = "byteArrayKafkaListenerContainerFactory")
 public class BaseWebSocketByteEventKafkaListener {
 
     public static final List<String> TOPIC_LIST =
         CollUtil.newArrayList(BaseKafkaTopicEnum.BASE_WEB_SOCKET_BYTE_EVENT_TOPIC.name());
 
     @KafkaHandler
-    public void receive(@Payload List<byte[]> recordList, Acknowledgment acknowledgment) {
-
-        acknowledgment.acknowledge();
+    public void receive(@Payload byte[] byteArr) {
 
         MyTryUtil.tryCatch(() -> {
 
@@ -35,24 +32,16 @@ public class BaseWebSocketByteEventKafkaListener {
                 return;
             }
 
-            if (CollUtil.isNotEmpty(recordList)) {
+            MyThreadUtil.execute(() -> {
 
-                MyThreadUtil.execute(() -> {
+                MyTryUtil.tryCatch(() -> {
 
-                    for (byte[] item : recordList) {
-
-                        MyTryUtil.tryCatch(() -> {
-
-                            // 发送：webSocket消息
-                            WebSocketUtil.sendByte(item);
-
-                        });
-
-                    }
+                    // 发送：webSocket消息
+                    WebSocketUtil.sendByte(byteArr);
 
                 });
 
-            }
+            });
 
         });
 

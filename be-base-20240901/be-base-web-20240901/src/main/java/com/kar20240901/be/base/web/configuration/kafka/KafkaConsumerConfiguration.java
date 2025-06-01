@@ -33,6 +33,7 @@ public class KafkaConsumerConfiguration {
     public ConsumerFactory<String, byte[]> byteArrayConsumerFactory() {
         Map<String, Object> consumerPropertiesMap = kafkaProperties.buildConsumerProperties();
         consumerPropertiesMap.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class);
+        consumerPropertiesMap.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
         return new DefaultKafkaConsumerFactory<>(consumerPropertiesMap);
     }
 
