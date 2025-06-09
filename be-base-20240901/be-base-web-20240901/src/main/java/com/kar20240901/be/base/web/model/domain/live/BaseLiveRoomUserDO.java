@@ -31,4 +31,7 @@ public class BaseLiveRoomUserDO {
     @Schema(description = "创建时间")
     private Date createTime;
 
+    @Schema(description = "第一个 blob，用于播放时，需要先传递该 blob")
+    private String firstBlobStr;
+
 }

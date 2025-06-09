@@ -1,6 +1,9 @@
 package com.kar20240901.be.base.web.service.live.impl;
 
+import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
@@ -16,11 +19,16 @@ import com.kar20240901.be.base.web.model.dto.socket.WebSocketMessageDTO;
 import com.kar20240901.be.base.web.model.enums.socket.BaseWebSocketUriEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.live.BaseLiveRoomDataService;
+import com.kar20240901.be.base.web.util.base.MyThreadUtil;
 import com.kar20240901.be.base.web.util.kafka.TempKafkaUtil;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,6 +37,38 @@ public class BaseLiveRoomDataServiceImpl extends ServiceImpl<BaseLiveRoomDataMap
 
     @Resource
     BaseLiveRoomUserMapper baseLiveRoomUserMapper;
+
+    CopyOnWriteArrayList<BaseLiveRoomDataDO> BASE_LIVE_ROOM_DATA_DO_LIST = new CopyOnWriteArrayList<>();
+
+    /**
+     * 定时任务，保存数据
+     */
+    @PreDestroy
+    @Scheduled(fixedDelay = 2000)
+    public void scheduledSava() {
+
+        CopyOnWriteArrayList<BaseLiveRoomDataDO> tempBaseLiveRoomDataDoList;
+
+        synchronized (BASE_LIVE_ROOM_DATA_DO_LIST) {
+
+            if (CollUtil.isEmpty(BASE_LIVE_ROOM_DATA_DO_LIST)) {
+                return;
+            }
+
+            tempBaseLiveRoomDataDoList = BASE_LIVE_ROOM_DATA_DO_LIST;
+            BASE_LIVE_ROOM_DATA_DO_LIST = new CopyOnWriteArrayList<>();
+
+        }
+
+        // 目的：防止还有程序往：tempList，里面添加数据，所以这里等待一会
+        MyThreadUtil.schedule(() -> {
+
+            // 批量保存数据
+            saveBatch(tempBaseLiveRoomDataDoList);
+
+        }, DateUtil.offsetMillisecond(new Date(), 1500));
+
+    }
 
     /**
      * 新增数据
@@ -76,7 +116,28 @@ public class BaseLiveRoomDataServiceImpl extends ServiceImpl<BaseLiveRoomDataMap
         baseLiveRoomDataDO.setCreateId(channelDataBO.getUserId());
         baseLiveRoomDataDO.setMediaType(dto.getMediaType());
 
-        save(baseLiveRoomDataDO);
+        boolean firstBlobFlag = BooleanUtil.isTrue(dto.getFirstBlobFlag());
+
+        baseLiveRoomDataDO.setFirstBlobFlag(firstBlobFlag);
+
+        BASE_LIVE_ROOM_DATA_DO_LIST.add(baseLiveRoomDataDO);
+
+        if (firstBlobFlag) {
+
+            String firstBlobStr = Base64.encode(channelDataBO.getByteArr());
+
+            if (StrUtil.isNotBlank(firstBlobStr)) {
+
+                // 更新第一个 blob的值
+                ChainWrappers.lambdaUpdateChain(baseLiveRoomUserMapper)
+                    .eq(BaseLiveRoomUserDO::getRoomId, dto.getRoomId())
+                    .eq(BaseLiveRoomUserDO::getUserId, channelDataBO.getUserId())
+                    .eq(BaseLiveRoomUserDO::getSocketRefUserId, channelDataBO.getSocketRefUserId())
+                    .set(BaseLiveRoomUserDO::getFirstBlobStr, firstBlobStr).update();
+
+            }
+
+        }
 
         return TempBizCodeEnum.OK;
 

@@ -37,4 +37,7 @@ public class BaseLiveRoomDataDO {
     @Schema(description = "媒体类型")
     private String mediaType;
 
+    @Schema(description = "是否是第一个 blob")
+    private Boolean firstBlobFlag;
+
 }

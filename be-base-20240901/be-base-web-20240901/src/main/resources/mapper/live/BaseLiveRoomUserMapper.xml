@@ -15,7 +15,8 @@
     a.socket_ref_user_id AS socketRefUserId,
     a.create_time AS createTime,
     b.nickname,
-    b.avatar_file_id AS avatarFileId
+    b.avatar_file_id AS avatarFileId,
+    a.first_blob_str AS firstBlobStr
     FROM base_live_room_user a
     LEFT JOIN base_user_info b ON b.id = a.user_id
     WHERE b.id IS NOT NULL

@@ -28,4 +28,7 @@ public class BaseLiveRoomUserSelfPageVO {
     @Schema(description = "用户头像 url")
     private String avatarUrl;
 
+    @Schema(description = "第一个 blob，用于播放时，需要先传递该 blob")
+    private String firstBlobStr;
+
 }

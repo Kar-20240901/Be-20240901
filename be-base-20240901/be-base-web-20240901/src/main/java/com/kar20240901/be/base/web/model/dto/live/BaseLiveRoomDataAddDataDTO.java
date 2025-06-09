@@ -26,4 +26,7 @@ public class BaseLiveRoomDataAddDataDTO {
     @Schema(description = "套接字关联用户的关联 id", hidden = true)
     private Long socketRefUserId;
 
+    @Schema(description = "是否是第一个 blob")
+    private Boolean firstBlobFlag;
+
 }
