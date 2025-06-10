@@ -124,6 +124,8 @@ public class BaseLiveRoomUserServiceImpl extends ServiceImpl<BaseLiveRoomUserMap
         baseLiveRoomUserDO.setUserId(channelDataBO.getUserId());
         baseLiveRoomUserDO.setSocketRefUserId(channelDataBO.getSocketRefUserId());
 
+        baseLiveRoomUserDO.setFirstBlobStr("");
+
         save(baseLiveRoomUserDO);
 
         return dto.getId();
