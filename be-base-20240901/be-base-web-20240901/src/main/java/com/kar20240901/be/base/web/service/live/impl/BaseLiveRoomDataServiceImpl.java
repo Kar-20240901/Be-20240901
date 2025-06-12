@@ -120,7 +120,7 @@ public class BaseLiveRoomDataServiceImpl extends ServiceImpl<BaseLiveRoomDataMap
 
         baseLiveRoomDataDO.setFirstBlobFlag(firstBlobFlag);
 
-        BASE_LIVE_ROOM_DATA_DO_LIST.add(baseLiveRoomDataDO);
+        //        BASE_LIVE_ROOM_DATA_DO_LIST.add(baseLiveRoomDataDO);
 
         if (firstBlobFlag) {
 
