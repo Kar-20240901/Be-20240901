@@ -8,6 +8,7 @@ import cn.hutool.http.HttpUtil;
 import com.kar20240901.be.base.web.configuration.base.BaseConfiguration;
 import com.kar20240901.be.base.web.model.configuration.socket.BaseSocketBaseProperties;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
+import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
 import com.kar20240901.be.base.web.model.domain.socket.BaseSocketDO;
 import com.kar20240901.be.base.web.model.domain.socket.BaseSocketRefUserDO;
 import com.kar20240901.be.base.web.model.enums.socket.BaseSocketTypeEnum;
@@ -122,6 +123,9 @@ public class SocketUtil {
         if (baseSocketServerId != null) {
 
             if (disableFlag) {
+
+                baseSocketService.lambdaUpdate().eq(TempEntity::getId, baseSocketServerId)
+                    .set(TempEntityNoId::getEnableFlag, false).update();
 
                 removeFlag = true;
 
