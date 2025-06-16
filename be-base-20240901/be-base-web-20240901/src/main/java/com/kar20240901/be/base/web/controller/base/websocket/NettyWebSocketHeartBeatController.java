@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.controller.base.websocket;
 
 import com.kar20240901.be.base.web.model.annotation.base.NettyWebSocketController;
+import com.kar20240901.be.base.web.model.bo.socket.ChannelDataBO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.socket.NettyWebSocketHeartBeatService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,8 +20,8 @@ public class NettyWebSocketHeartBeatController {
 
     @Operation(summary = "心跳检测")
     @PostMapping
-    public R<Long> heartBeat() {
-        return R.okData(baseService.heartBeat());
+    public R<Long> heartBeat(ChannelDataBO channelDataBO) {
+        return R.okData(baseService.heartBeat(channelDataBO));
     }
 
 }

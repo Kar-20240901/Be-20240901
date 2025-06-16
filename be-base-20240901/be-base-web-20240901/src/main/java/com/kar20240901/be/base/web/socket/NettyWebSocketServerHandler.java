@@ -534,47 +534,70 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
         Parameter parameter = parameterArr[0];
 
-        Object object = BeanUtil.toBean(dto.getData(), parameter.getType());
+        if (parameter.getType() == ChannelDataBO.class) {
 
-        Valid validAnnotation = parameter.getAnnotation(Valid.class);
+            // 获取：ChannelDataBO对象
+            ChannelDataBO channelDataBO = getChannelDataBO(channel, byteDataArr);
 
-        if (validAnnotation != null) {
-
-            validVoidFunc0CallBack.setValue(() -> {
-
-                MyValidUtil.validWillError(object);
-
-            });
-
-        }
-
-        if (parameterArr.length == 2 && parameterArr[parameterArr.length - 1].getType() == ChannelDataBO.class) {
-
-            ChannelDataBO channelDataBO = new ChannelDataBO();
-
-            Long userId = channel.attr(USER_ID_KEY).get();
-            Long socketRefUserId = channel.attr(BASE_SOCKET_REF_USER_ID_KEY).get();
-            BaseRequestCategoryEnum category = channel.attr(BASE_REQUEST_CATEGORY_ENUM_KEY).get();
-            String ip = channel.attr(IP_KEY).get();
-
-            channelDataBO.setUserId(userId);
-            channelDataBO.setSocketRefUserId(socketRefUserId);
-            channelDataBO.setCategory(category);
-            channelDataBO.setIp(ip);
-
-            if (byteDataArr != null) {
-                channelDataBO.setByteArr(byteDataArr);
-            }
-
-            args = new Object[] {object, channelDataBO};
+            args = new Object[] {channelDataBO};
 
         } else {
 
-            args = new Object[] {object};
+            Object object = BeanUtil.toBean(dto.getData(), parameter.getType());
+
+            Valid validAnnotation = parameter.getAnnotation(Valid.class);
+
+            if (validAnnotation != null) {
+
+                validVoidFunc0CallBack.setValue(() -> {
+
+                    MyValidUtil.validWillError(object);
+
+                });
+
+            }
+
+            if (parameterArr.length == 2 && parameterArr[parameterArr.length - 1].getType() == ChannelDataBO.class) {
+
+                // 获取：ChannelDataBO对象
+                ChannelDataBO channelDataBO = getChannelDataBO(channel, byteDataArr);
+
+                args = new Object[] {object, channelDataBO};
+
+            } else {
+
+                args = new Object[] {object};
+
+            }
 
         }
 
         return args;
+
+    }
+
+    /**
+     * 获取：ChannelDataBO对象
+     */
+    private static ChannelDataBO getChannelDataBO(Channel channel, byte[] byteDataArr) {
+
+        ChannelDataBO channelDataBO = new ChannelDataBO();
+
+        Long userId = channel.attr(USER_ID_KEY).get();
+        Long socketRefUserId = channel.attr(BASE_SOCKET_REF_USER_ID_KEY).get();
+        BaseRequestCategoryEnum category = channel.attr(BASE_REQUEST_CATEGORY_ENUM_KEY).get();
+        String ip = channel.attr(IP_KEY).get();
+
+        channelDataBO.setUserId(userId);
+        channelDataBO.setSocketRefUserId(socketRefUserId);
+        channelDataBO.setCategory(category);
+        channelDataBO.setIp(ip);
+
+        if (byteDataArr != null) {
+            channelDataBO.setByteArr(byteDataArr);
+        }
+
+        return channelDataBO;
 
     }
 
