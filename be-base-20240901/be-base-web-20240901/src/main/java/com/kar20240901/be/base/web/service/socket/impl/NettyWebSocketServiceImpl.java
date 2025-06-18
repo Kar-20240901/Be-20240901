@@ -168,6 +168,10 @@ public class NettyWebSocketServiceImpl implements NettyWebSocketService {
             baseSocketService.lambdaQuery().eq(BaseSocketDO::getId, notNullIdAndIntegerValue.getId())
                 .eq(BaseSocketDO::getType, BaseSocketTypeEnum.WEB_SOCKET).eq(BaseSocketDO::getEnableFlag, true).one();
 
+        if (baseSocketDO == null) {
+            return null;
+        }
+
         Integer value = notNullIdAndIntegerValue.getValue();
 
         BaseSocketOnlineTypeEnum baseSocketOnlineTypeEnum = BaseSocketOnlineTypeEnum.getByCode(value);
