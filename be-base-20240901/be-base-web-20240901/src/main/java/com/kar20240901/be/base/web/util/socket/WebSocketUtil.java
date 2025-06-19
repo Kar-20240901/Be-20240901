@@ -205,8 +205,7 @@ public class WebSocketUtil {
 
                 if (checkFlag) {
 
-                    Long baseSocketRefUserId =
-                        subItem.attr(NettyWebSocketServerHandler.BASE_SOCKET_REF_USER_ID_KEY).get();
+                    Long baseSocketRefUserId = subItem.attr(SocketAttributeKey.BASE_SOCKET_REF_USER_ID_KEY).get();
 
                     if (!baseSocketRefUserIdSet.contains(baseSocketRefUserId)) {
                         continue;
@@ -230,7 +229,7 @@ public class WebSocketUtil {
     public static <T> void saveAndSendStr(Channel channel, WebSocketMessageDTO<T> dto, String text, long costMs,
         @Nullable NettyWebSocketBeanPostProcessor.MappingValue mappingValue, String errorMsg, boolean successFlag) {
 
-        Long userId = channel.attr(NettyWebSocketServerHandler.USER_ID_KEY).get();
+        Long userId = channel.attr(SocketAttributeKey.USER_ID_KEY).get();
 
         Date date = new Date();
 
@@ -264,9 +263,9 @@ public class WebSocketUtil {
         baseRequestDO.setUri(dto.getUri());
         baseRequestDO.setCostMs(costMs);
         baseRequestDO.setName(summary);
-        baseRequestDO.setCategory(channel.attr(NettyWebSocketServerHandler.BASE_REQUEST_CATEGORY_ENUM_KEY).get());
+        baseRequestDO.setCategory(channel.attr(SocketAttributeKey.BASE_REQUEST_CATEGORY_ENUM_KEY).get());
 
-        String ip = channel.attr(NettyWebSocketServerHandler.IP_KEY).get();
+        String ip = channel.attr(SocketAttributeKey.IP_KEY).get();
 
         baseRequestDO.setIp(ip);
         baseRequestDO.setRegion(Ip2RegionUtil.getRegion(baseRequestDO.getIp()));
