@@ -19,15 +19,18 @@ import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.exception.TempException;
 import com.kar20240901.be.base.web.model.bo.socket.ChannelDataBO;
 import com.kar20240901.be.base.web.model.bo.socket.HandleByteArrResultBO;
+import com.kar20240901.be.base.web.model.bo.socket.SocketEventBO;
 import com.kar20240901.be.base.web.model.configuration.socket.NettyWebSocketBeanPostProcessor;
 import com.kar20240901.be.base.web.model.constant.base.OperationDescriptionConstant;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
+import com.kar20240901.be.base.web.model.constant.socket.SocketAttributeKey;
 import com.kar20240901.be.base.web.model.domain.request.BaseRequestDO;
 import com.kar20240901.be.base.web.model.domain.request.BaseRequestInfoDO;
 import com.kar20240901.be.base.web.model.domain.socket.BaseSocketRefUserDO;
 import com.kar20240901.be.base.web.model.dto.socket.WebSocketMessageDTO;
 import com.kar20240901.be.base.web.model.enums.base.BaseRedisKeyEnum;
 import com.kar20240901.be.base.web.model.enums.base.BaseRequestCategoryEnum;
+import com.kar20240901.be.base.web.model.interfaces.socket.ISocketEvent;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.socket.BaseSocketRefUserService;
 import com.kar20240901.be.base.web.util.base.CallBack;
@@ -50,7 +53,6 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-import io.netty.util.AttributeKey;
 import io.netty.util.ReferenceCountUtil;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -69,6 +71,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -87,23 +90,6 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
     @Resource
     BaseSocketRefUserService baseSocketRefUserService;
 
-    // UserId key
-    public static final AttributeKey<Long> USER_ID_KEY = AttributeKey.valueOf("USER_ID_KEY");
-
-    // BaseSocketRefUserId key
-    public static final AttributeKey<Long> BASE_SOCKET_REF_USER_ID_KEY =
-        AttributeKey.valueOf("BASE_SOCKET_REF_USER_ID_KEY");
-
-    // BaseRequestCategoryEnum key
-    public static final AttributeKey<BaseRequestCategoryEnum> BASE_REQUEST_CATEGORY_ENUM_KEY =
-        AttributeKey.valueOf("BASE_REQUEST_CATEGORY_ENUM_KEY");
-
-    // Ip key
-    public static final AttributeKey<String> IP_KEY = AttributeKey.valueOf("IP_KEY");
-
-    // 最近活跃时间 key
-    public static final AttributeKey<Date> ACTIVITY_TIME_KEY = AttributeKey.valueOf("ACTIVITY_TIME_KEY");
-
     // 用户通道 map，大key：用户主键 id，小key：baseSocketRefUserId，value：通道
     public static final ConcurrentHashMap<Long, ConcurrentHashMap<Long, Channel>> USER_ID_CHANNEL_MAP =
         MapUtil.newConcurrentHashMap();
@@ -112,6 +98,10 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
     private static CopyOnWriteArrayList<BaseSocketRefUserDO> BASE_SOCKET_REF_USER_DO_INSERT_LIST =
         new CopyOnWriteArrayList<>();
+
+    @Autowired(required = false)
+    @Nullable
+    List<ISocketEvent> iSocketEventList;
 
     /**
      * 定时任务，检查 webSocket活跃状态
@@ -131,7 +121,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
             for (Channel subItem : channelList) {
 
-                long time = subItem.attr(ACTIVITY_TIME_KEY).get().getTime();
+                long time = subItem.attr(SocketAttributeKey.ACTIVITY_TIME_KEY).get().getTime();
 
                 // 如果：5分钟没有活跃，则关闭该 webSocket
                 if (time + TempConstant.MINUTE_5_EXPIRE_TIME < currentTimeMillis) {
@@ -173,10 +163,6 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
                 item.call();
 
             }
-
-            //            int sum = USER_ID_CHANNEL_MAP.values().stream().mapToInt(it -> it.values().size()).sum();
-
-            //            log.info("NettyWebSocket 当前连接总数：{}", sum);
 
         }, DateUtil.offsetMillisecond(new Date(), 1500));
 
@@ -256,21 +242,41 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
         Channel channel = ctx.channel();
 
-        Long userId = channel.attr(USER_ID_KEY).get();
+        Long userId = channel.attr(SocketAttributeKey.USER_ID_KEY).get();
 
         if (userId != null) {
 
-            Long baseSocketRefUserId = channel.attr(BASE_SOCKET_REF_USER_ID_KEY).get();
+            Long baseSocketRefUserId = channel.attr(SocketAttributeKey.BASE_SOCKET_REF_USER_ID_KEY).get();
 
             ConcurrentHashMap<Long, Channel> channelMap =
                 USER_ID_CHANNEL_MAP.computeIfAbsent(userId, k -> MapUtil.newConcurrentHashMap());
 
             channelMap.remove(baseSocketRefUserId);
 
-            //            log.info("WebSocket 断开，用户：{}，连接数：{}，baseSocketRefUserId：{}", userId, channelMap.size(),
-            //                baseSocketRefUserId);
-
             BASE_SOCKET_REMOVE_REF_USER_ID_SET.add(baseSocketRefUserId);
+
+            if (CollUtil.isNotEmpty(iSocketEventList)) {
+
+                BaseRequestCategoryEnum baseRequestCategoryEnum =
+                    channel.attr(SocketAttributeKey.BASE_REQUEST_CATEGORY_ENUM_KEY).get();
+
+                String ip = channel.attr(SocketAttributeKey.IP_KEY).get();
+
+                SocketEventBO socketEventBO = new SocketEventBO();
+
+                socketEventBO.setUserId(userId);
+                socketEventBO.setSocketRefUserId(baseSocketRefUserId);
+                socketEventBO.setCategory(baseRequestCategoryEnum);
+                socketEventBO.setIp(ip);
+                socketEventBO.setChannel(channel);
+
+                for (ISocketEvent item : iSocketEventList) {
+
+                    item.onDisconnected(socketEventBO);
+
+                }
+
+            }
 
         }
 
@@ -396,7 +402,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
         }
 
-        channel.attr(ACTIVITY_TIME_KEY).set(new Date()); // 设置：活跃时间，备注：404不设置活跃时间，目的：防止随便请求
+        channel.attr(SocketAttributeKey.ACTIVITY_TIME_KEY).set(new Date()); // 设置：活跃时间，备注：404不设置活跃时间，目的：防止随便请求
 
         Method method = mappingValue.getMethod();
 
@@ -457,7 +463,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
         Method method, Object[] args, String uri, String text, long costMs,
         CallBack<VoidFunc0> validVoidFunc0CallBack) {
 
-        Long userId = channel.attr(USER_ID_KEY).get();
+        Long userId = channel.attr(SocketAttributeKey.USER_ID_KEY).get();
 
         // 备注：加了该注解，并且使用代理 bean对象执行该方法，会自动检查权限
         boolean setAuthoritySetFlag = method.getAnnotation(PreAuthorize.class) != null;
@@ -583,15 +589,17 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
         ChannelDataBO channelDataBO = new ChannelDataBO();
 
-        Long userId = channel.attr(USER_ID_KEY).get();
-        Long socketRefUserId = channel.attr(BASE_SOCKET_REF_USER_ID_KEY).get();
-        BaseRequestCategoryEnum category = channel.attr(BASE_REQUEST_CATEGORY_ENUM_KEY).get();
-        String ip = channel.attr(IP_KEY).get();
+        Long userId = channel.attr(SocketAttributeKey.USER_ID_KEY).get();
+        Long socketRefUserId = channel.attr(SocketAttributeKey.BASE_SOCKET_REF_USER_ID_KEY).get();
+        BaseRequestCategoryEnum category = channel.attr(SocketAttributeKey.BASE_REQUEST_CATEGORY_ENUM_KEY).get();
+        String ip = channel.attr(SocketAttributeKey.IP_KEY).get();
 
         channelDataBO.setUserId(userId);
         channelDataBO.setSocketRefUserId(socketRefUserId);
         channelDataBO.setCategory(category);
         channelDataBO.setIp(ip);
+
+        channelDataBO.setChannel(channel);
 
         if (byteDataArr != null) {
             channelDataBO.setByteArr(byteDataArr);
@@ -696,24 +704,44 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
         Long baseSocketRefUserDoId = baseSocketRefUserDO.getId();
 
         // 绑定 UserId
-        channel.attr(USER_ID_KEY).set(userId);
+        channel.attr(SocketAttributeKey.USER_ID_KEY).set(userId);
 
         // 绑定 BaseSocketRefUserId
-        channel.attr(BASE_SOCKET_REF_USER_ID_KEY).set(baseSocketRefUserDoId);
+        channel.attr(SocketAttributeKey.BASE_SOCKET_REF_USER_ID_KEY).set(baseSocketRefUserDoId);
 
         // 绑定 BaseRequestCategoryEnum
-        channel.attr(BASE_REQUEST_CATEGORY_ENUM_KEY).set(baseSocketRefUserDO.getCategory());
+        channel.attr(SocketAttributeKey.BASE_REQUEST_CATEGORY_ENUM_KEY).set(baseSocketRefUserDO.getCategory());
+
+        String ip = SocketUtil.getIp(fullHttpRequest, channel);
 
         // 绑定 Ip
-        channel.attr(IP_KEY).set(SocketUtil.getIp(fullHttpRequest, channel));
+        channel.attr(SocketAttributeKey.IP_KEY).set(ip);
 
         // 设置：最近活跃时间
-        channel.attr(ACTIVITY_TIME_KEY).set(new Date());
+        channel.attr(SocketAttributeKey.ACTIVITY_TIME_KEY).set(new Date());
 
         ConcurrentHashMap<Long, Channel> channelMap =
             USER_ID_CHANNEL_MAP.computeIfAbsent(userId, k -> MapUtil.newConcurrentHashMap());
 
         channelMap.put(baseSocketRefUserDoId, channel);
+
+        if (CollUtil.isNotEmpty(iSocketEventList)) {
+
+            SocketEventBO socketEventBO = new SocketEventBO();
+
+            socketEventBO.setUserId(userId);
+            socketEventBO.setSocketRefUserId(baseSocketRefUserDoId);
+            socketEventBO.setCategory(baseSocketRefUserDO.getCategory());
+            socketEventBO.setIp(ip);
+            socketEventBO.setChannel(channel);
+
+            for (ISocketEvent item : iSocketEventList) {
+
+                item.onConnected(socketEventBO);
+
+            }
+
+        }
 
     }
 

@@ -4,10 +4,12 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
+import com.kar20240901.be.base.web.configuration.live.BaseLiveRoomUserSocketEvent;
 import com.kar20240901.be.base.web.mapper.live.BaseLiveRoomMapper;
 import com.kar20240901.be.base.web.mapper.live.BaseLiveRoomUserMapper;
 import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketStrEventBO;
 import com.kar20240901.be.base.web.model.bo.socket.ChannelDataBO;
+import com.kar20240901.be.base.web.model.constant.socket.SocketAttributeKey;
 import com.kar20240901.be.base.web.model.domain.live.BaseLiveRoomDO;
 import com.kar20240901.be.base.web.model.domain.live.BaseLiveRoomUserDO;
 import com.kar20240901.be.base.web.model.dto.live.BaseLiveRoomUserAddUserDTO;
@@ -21,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -127,6 +130,12 @@ public class BaseLiveRoomUserServiceImpl extends ServiceImpl<BaseLiveRoomUserMap
         baseLiveRoomUserDO.setFirstBlobStr("");
 
         save(baseLiveRoomUserDO);
+
+        channelDataBO.getChannel().attr(SocketAttributeKey.LIVE_ROOM_ID_KEY).set(dto.getId());
+
+        ConcurrentHashMap<Long, Long> roomUserMap = BaseLiveRoomUserSocketEvent.getByRoomId(dto.getId());
+
+        roomUserMap.put(channelDataBO.getUserId(), channelDataBO.getSocketRefUserId());
 
         return dto.getId();
 

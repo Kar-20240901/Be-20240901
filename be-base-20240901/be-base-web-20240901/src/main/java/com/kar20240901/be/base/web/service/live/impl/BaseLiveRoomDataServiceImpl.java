@@ -7,6 +7,7 @@ import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
+import com.kar20240901.be.base.web.configuration.live.BaseLiveRoomUserSocketEvent;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.live.BaseLiveRoomDataMapper;
 import com.kar20240901.be.base.web.mapper.live.BaseLiveRoomUserMapper;
@@ -22,10 +23,9 @@ import com.kar20240901.be.base.web.service.live.BaseLiveRoomDataService;
 import com.kar20240901.be.base.web.util.base.MyThreadUtil;
 import com.kar20240901.be.base.web.util.kafka.TempKafkaUtil;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -85,19 +85,16 @@ public class BaseLiveRoomDataServiceImpl extends ServiceImpl<BaseLiveRoomDataMap
 
         }
 
-        List<BaseLiveRoomUserDO> baseLiveRoomUserDoList =
-            ChainWrappers.lambdaQueryChain(baseLiveRoomUserMapper).eq(BaseLiveRoomUserDO::getRoomId, dto.getRoomId())
-                .select(BaseLiveRoomUserDO::getSocketRefUserId, BaseLiveRoomUserDO::getUserId).list();
+        ConcurrentHashMap<Long, Long> roomUserMap = BaseLiveRoomUserSocketEvent.getByRoomId(dto.getRoomId());
 
-        Map<Long, Long> socketMap = baseLiveRoomUserDoList.stream()
-            .collect(Collectors.toMap(BaseLiveRoomUserDO::getUserId, BaseLiveRoomUserDO::getSocketRefUserId));
-
-        if (!socketMap.containsValue(channelDataBO.getSocketRefUserId())) {
+        if (!roomUserMap.containsValue(channelDataBO.getSocketRefUserId())) {
 
             R.error("操作失败：您不在房间内",
                 StrUtil.format("roomId：{}，socketRefUserId：{}", dto.getRoomId(), channelDataBO.getSocketRefUserId()));
 
         }
+
+        ConcurrentHashMap<Long, Long> socketMap = new ConcurrentHashMap<>(roomUserMap);
 
         socketMap.remove(channelDataBO.getUserId());
 

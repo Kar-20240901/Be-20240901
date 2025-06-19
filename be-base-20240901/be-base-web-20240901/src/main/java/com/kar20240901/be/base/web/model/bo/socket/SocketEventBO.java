@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-public class ChannelDataBO {
+public class SocketEventBO {
 
     @Schema(description = "用户主键 id")
     private Long userId;
@@ -19,9 +19,6 @@ public class ChannelDataBO {
 
     @Schema(description = "用户 ip")
     private String ip;
-
-    @Schema(description = "二进制数据，即：blob格式数据")
-    private byte[] byteArr;
 
     @Schema(description = "通道，备注：建议只进行参数绑定和获取")
     private Channel channel;
