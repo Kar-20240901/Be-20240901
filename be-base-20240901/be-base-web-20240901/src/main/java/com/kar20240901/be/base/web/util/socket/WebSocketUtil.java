@@ -10,6 +10,7 @@ import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketStrEventBO;
 import com.kar20240901.be.base.web.model.bo.socket.HandleByteArrResultBO;
 import com.kar20240901.be.base.web.model.configuration.socket.NettyWebSocketBeanPostProcessor;
 import com.kar20240901.be.base.web.model.constant.base.OperationDescriptionConstant;
+import com.kar20240901.be.base.web.model.constant.socket.SocketAttributeKey;
 import com.kar20240901.be.base.web.model.domain.request.BaseRequestDO;
 import com.kar20240901.be.base.web.model.domain.request.BaseRequestInfoDO;
 import com.kar20240901.be.base.web.model.dto.socket.WebSocketMessageDTO;
@@ -104,8 +105,7 @@ public class WebSocketUtil {
 
                 if (checkFlag) {
 
-                    Long baseSocketRefUserId =
-                        subItem.attr(NettyWebSocketServerHandler.BASE_SOCKET_REF_USER_ID_KEY).get();
+                    Long baseSocketRefUserId = subItem.attr(SocketAttributeKey.BASE_SOCKET_REF_USER_ID_KEY).get();
 
                     if (!baseSocketRefUserIdSet.contains(baseSocketRefUserId)) {
                         continue;
