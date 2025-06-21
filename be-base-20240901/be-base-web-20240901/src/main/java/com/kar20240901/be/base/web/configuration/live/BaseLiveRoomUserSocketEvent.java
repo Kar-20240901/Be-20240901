@@ -32,13 +32,17 @@ public class BaseLiveRoomUserSocketEvent implements ISocketEvent {
     @Override
     public void onDisconnected(SocketEventBO socketEventBo) {
 
-        Long userId = socketEventBo.getUserId();
-
-        Long socketRefUserId = socketEventBo.getSocketRefUserId();
-
         Channel channel = socketEventBo.getChannel();
 
         Long liveRoomId = channel.attr(SocketAttributeKey.LIVE_ROOM_ID_KEY).get();
+
+        if (liveRoomId == null) {
+            return;
+        }
+
+        Long userId = socketEventBo.getUserId();
+
+        Long socketRefUserId = socketEventBo.getSocketRefUserId();
 
         ConcurrentHashMap<Long, Long> roomUserMap = getByRoomId(liveRoomId);
 
