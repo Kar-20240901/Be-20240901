@@ -14,6 +14,7 @@ import com.kar20240901.be.base.web.model.constant.socket.SocketAttributeKey;
 import com.kar20240901.be.base.web.model.domain.request.BaseRequestDO;
 import com.kar20240901.be.base.web.model.domain.request.BaseRequestInfoDO;
 import com.kar20240901.be.base.web.model.dto.socket.WebSocketMessageDTO;
+import com.kar20240901.be.base.web.model.enums.base.BaseRequestMethodEnum;
 import com.kar20240901.be.base.web.socket.NettyWebSocketServerHandler;
 import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
 import com.kar20240901.be.base.web.util.base.Ip2RegionUtil;
@@ -261,6 +262,7 @@ public class WebSocketUtil {
         baseRequestInfoDO.setId(id);
 
         baseRequestDO.setUri(dto.getUri());
+        baseRequestDO.setMethod(BaseRequestMethodEnum.WEB_SOCKET);
         baseRequestDO.setCostMs(costMs);
         baseRequestDO.setName(summary);
         baseRequestDO.setCategory(channel.attr(SocketAttributeKey.BASE_REQUEST_CATEGORY_ENUM_KEY).get());

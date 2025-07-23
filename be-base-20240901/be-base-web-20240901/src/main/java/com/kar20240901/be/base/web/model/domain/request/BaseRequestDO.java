@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.kar20240901.be.base.web.model.enums.base.BaseRequestCategoryEnum;
+import com.kar20240901.be.base.web.model.enums.base.BaseRequestMethodEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Date;
 import lombok.Data;
@@ -27,6 +28,9 @@ public class BaseRequestDO {
     @TableField(fill = FieldFill.INSERT)
     @Schema(description = "创建时间")
     private Date createTime;
+
+    @Schema(description = "请求方式")
+    private BaseRequestMethodEnum method;
 
     @Schema(description = "请求的 uri")
     private String uri;

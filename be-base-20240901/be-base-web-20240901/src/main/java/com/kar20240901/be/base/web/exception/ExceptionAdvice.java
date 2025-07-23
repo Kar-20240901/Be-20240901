@@ -6,6 +6,7 @@ import cn.hutool.extra.servlet.ServletUtil;
 import cn.hutool.json.JSONUtil;
 import com.kar20240901.be.base.web.model.domain.request.BaseRequestDO;
 import com.kar20240901.be.base.web.model.domain.request.BaseRequestInfoDO;
+import com.kar20240901.be.base.web.model.enums.base.BaseRequestMethodEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
 import com.kar20240901.be.base.web.util.base.Ip2RegionUtil;
@@ -179,6 +180,7 @@ public class ExceptionAdvice {
         baseRequestInfoDO.setId(id);
 
         baseRequestDO.setUri(uri);
+        baseRequestDO.setMethod(BaseRequestMethodEnum.getByCode(httpServletRequest.getMethod()));
         baseRequestDO.setCostMs(0L);
         baseRequestDO.setName(operation == null ? "" : operation.summary());
 

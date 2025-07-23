@@ -27,7 +27,8 @@ public class BaseRequestServiceImpl extends ServiceImpl<BaseRequestMapper, BaseR
         return getMyPageLambdaQueryChainWrapper(dto) //
             .select(BaseRequestDO::getIp, BaseRequestDO::getUri, BaseRequestDO::getSuccessFlag,
                 BaseRequestDO::getCreateTime, BaseRequestDO::getCreateId, BaseRequestDO::getName,
-                BaseRequestDO::getCategory, BaseRequestDO::getIp, BaseRequestDO::getRegion, BaseRequestDO::getId)
+                BaseRequestDO::getCategory, BaseRequestDO::getIp, BaseRequestDO::getRegion, BaseRequestDO::getId,
+                BaseRequestDO::getCostMs, BaseRequestDO::getType, BaseRequestDO::getMethod)
             .page(dto.createTimeDescDefaultOrderPage());
 
     }

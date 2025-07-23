@@ -30,6 +30,7 @@ import com.kar20240901.be.base.web.model.domain.socket.BaseSocketRefUserDO;
 import com.kar20240901.be.base.web.model.dto.socket.WebSocketMessageDTO;
 import com.kar20240901.be.base.web.model.enums.base.BaseRedisKeyEnum;
 import com.kar20240901.be.base.web.model.enums.base.BaseRequestCategoryEnum;
+import com.kar20240901.be.base.web.model.enums.base.BaseRequestMethodEnum;
 import com.kar20240901.be.base.web.model.interfaces.socket.ISocketEvent;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.socket.BaseSocketRefUserService;
@@ -766,6 +767,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
         baseRequestDO.setUri("");
         baseRequestDO.setCostMs(0L);
+        baseRequestDO.setMethod(BaseRequestMethodEnum.getByCode(fullHttpRequest.method().name()));
         baseRequestDO.setName("WebSocket连接错误");
         baseRequestDO.setCategory(BaseRequestCategoryEnum.PC_BROWSER_WINDOWS);
 

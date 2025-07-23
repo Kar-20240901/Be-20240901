@@ -12,6 +12,7 @@ import com.kar20240901.be.base.web.exception.TempException;
 import com.kar20240901.be.base.web.model.constant.base.OperationDescriptionConstant;
 import com.kar20240901.be.base.web.model.domain.request.BaseRequestDO;
 import com.kar20240901.be.base.web.model.domain.request.BaseRequestInfoDO;
+import com.kar20240901.be.base.web.model.enums.base.BaseRequestMethodEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.base.SignInVO;
 import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
@@ -83,8 +84,8 @@ public class BaseRequestAop {
         baseRequestDO.setId(id);
         baseRequestInfoDO.setId(id);
 
-        // 这个路径不需要记录到数据库
         baseRequestDO.setUri(uri);
+        baseRequestDO.setMethod(BaseRequestMethodEnum.getByCode(httpServletRequest.getMethod()));
         baseRequestDO.setCostMs(0L);
         baseRequestDO.setName(operation.summary());
 
