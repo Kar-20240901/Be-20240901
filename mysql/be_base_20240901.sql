@@ -319,7 +319,7 @@ CREATE TABLE `base_api_token`
     `user_id`       bigint                                                        NOT NULL COMMENT '用户 id',
     `create_time`   datetime                                                      NOT NULL,
     `update_time`   datetime                                                      NOT NULL,
-    `token`         varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NOT NULL COMMENT '调用 api时，传递的 token，格式：uuid',
+    `token` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '调用 api时，传递的 token，格式：uuid，在 header头里传递：BE-API-TOKEN',
     `name`          varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '令牌名',
     `last_use_time` datetime                                                      NOT NULL COMMENT '最近使用时间',
     `enable_flag`   tinyint(1)                                                    NOT NULL COMMENT '是否启用',

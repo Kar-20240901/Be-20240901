@@ -1,12 +1,9 @@
 package com.kar20240901.be.base.web.service.live.impl;
 
-import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.configuration.live.BaseLiveRoomUserSocketEvent;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.live.BaseLiveRoomDataMapper;
@@ -14,7 +11,6 @@ import com.kar20240901.be.base.web.mapper.live.BaseLiveRoomUserMapper;
 import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketByteEventBO;
 import com.kar20240901.be.base.web.model.bo.socket.ChannelDataBO;
 import com.kar20240901.be.base.web.model.domain.live.BaseLiveRoomDataDO;
-import com.kar20240901.be.base.web.model.domain.live.BaseLiveRoomUserDO;
 import com.kar20240901.be.base.web.model.dto.live.BaseLiveRoomDataAddDataDTO;
 import com.kar20240901.be.base.web.model.dto.socket.WebSocketMessageDTO;
 import com.kar20240901.be.base.web.model.enums.socket.BaseWebSocketUriEnum;
@@ -113,28 +109,28 @@ public class BaseLiveRoomDataServiceImpl extends ServiceImpl<BaseLiveRoomDataMap
         baseLiveRoomDataDO.setCreateId(channelDataBO.getUserId());
         baseLiveRoomDataDO.setMediaType(dto.getMediaType());
 
-        boolean firstBlobFlag = BooleanUtil.isTrue(dto.getFirstBlobFlag());
+        //        boolean firstBlobFlag = BooleanUtil.isTrue(dto.getFirstBlobFlag());
 
-        baseLiveRoomDataDO.setFirstBlobFlag(firstBlobFlag);
+        baseLiveRoomDataDO.setFirstBlobFlag(false);
 
         //        BASE_LIVE_ROOM_DATA_DO_LIST.add(baseLiveRoomDataDO);
 
-        if (firstBlobFlag) {
-
-            String firstBlobStr = Base64.encode(channelDataBO.getByteArr());
-
-            if (StrUtil.isNotBlank(firstBlobStr)) {
-
-                // 更新第一个 blob的值
-                ChainWrappers.lambdaUpdateChain(baseLiveRoomUserMapper)
-                    .eq(BaseLiveRoomUserDO::getRoomId, dto.getRoomId())
-                    .eq(BaseLiveRoomUserDO::getUserId, channelDataBO.getUserId())
-                    .eq(BaseLiveRoomUserDO::getSocketRefUserId, channelDataBO.getSocketRefUserId())
-                    .set(BaseLiveRoomUserDO::getFirstBlobStr, firstBlobStr).update();
-
-            }
-
-        }
+        //        if (firstBlobFlag) {
+        //
+        //            String firstBlobStr = Base64.encode(channelDataBO.getByteArr());
+        //
+        //            if (StrUtil.isNotBlank(firstBlobStr)) {
+        //
+        //                // 更新第一个 blob的值
+        //                ChainWrappers.lambdaUpdateChain(baseLiveRoomUserMapper)
+        //                    .eq(BaseLiveRoomUserDO::getRoomId, dto.getRoomId())
+        //                    .eq(BaseLiveRoomUserDO::getUserId, channelDataBO.getUserId())
+        //                    .eq(BaseLiveRoomUserDO::getSocketRefUserId, channelDataBO.getSocketRefUserId())
+        //                    .set(BaseLiveRoomUserDO::getFirstBlobStr, firstBlobStr).update();
+        //
+        //            }
+        //
+        //        }
 
         return TempBizCodeEnum.OK;
 
