@@ -29,6 +29,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -78,6 +80,13 @@ public class BaseFileController {
     @PostMapping("/upload/fileSystem/chunk/compose")
     public R<String> uploadFileSystemChunkCompose(@RequestBody @Valid BaseFileUploadFileSystemChunkComposeDTO dto) {
         return R.okMsg(baseService.uploadFileSystemChunkCompose(dto));
+    }
+
+    @Operation(summary = "下载文件：私有")
+    @GetMapping("/privateDownload/{id}")
+    public void privateDownload(@PathVariable(value = "id") Long id, HttpServletResponse response,
+        HttpServletRequest request) {
+        baseService.privateDownload(new NotNullId(id), response, request);
     }
 
     @Operation(summary = "下载文件：私有")

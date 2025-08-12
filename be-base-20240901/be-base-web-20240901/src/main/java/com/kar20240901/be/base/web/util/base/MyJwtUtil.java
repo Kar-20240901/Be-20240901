@@ -192,6 +192,10 @@ public class MyJwtUtil {
 
         String authorization = request.getHeader(SecurityConstant.AUTHORIZATION);
 
+        if (authorization == null) {
+            authorization = request.getParameter(SecurityConstant.AUTHORIZATION);
+        }
+
         if (authorization == null || authorization.startsWith(SecurityConstant.JWT_PREFIX) == false) {
             return null;
         }
