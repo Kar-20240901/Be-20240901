@@ -15,12 +15,6 @@
 
   <dependencies>
 
-    <!-- 动态数据源 -->
-    <dependency>
-      <groupId>com.baomidou</groupId>
-      <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>ws.schild</groupId>
       <artifactId>jave-all-deps</artifactId>
@@ -103,6 +97,12 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+
+    <!-- 动态数据源 -->
+    <dependency>
+      <groupId>com.baomidou</groupId>
+      <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
     </dependency>
 
     <!-- sharding-jdbc -->
