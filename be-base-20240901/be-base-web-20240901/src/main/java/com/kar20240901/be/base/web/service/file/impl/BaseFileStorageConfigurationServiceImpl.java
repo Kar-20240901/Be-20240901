@@ -3,11 +3,11 @@ package com.kar20240901.be.base.web.service.file.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.file.BaseFileStorageConfigurationMapper;
-import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoIdSuper;
@@ -30,7 +30,7 @@ public class BaseFileStorageConfigurationServiceImpl
      * 新增/修改
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String insertOrUpdate(BaseFileStorageConfigurationInsertOrUpdateDTO dto) {
 
         // 如果是默认文件存储，则取消之前的默认文件存储

@@ -6,11 +6,11 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.mapper.live.BaseLiveRoomDataMapper;
 import com.kar20240901.be.base.web.mapper.live.BaseLiveRoomReplayMapper;
-import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.constant.base.TempFileTempPathConstant;
 import com.kar20240901.be.base.web.model.domain.live.BaseLiveRoomDataDO;
 import com.kar20240901.be.base.web.model.domain.live.BaseLiveRoomReplayDO;
@@ -40,7 +40,7 @@ public class BaseLiveRoomReplayServiceImpl extends ServiceImpl<BaseLiveRoomRepla
      */
     //    @PreDestroy
     //    @Scheduled(fixedDelay = 9000)
-    @MyTransactional
+    @DSTransactional
     public void scheduledGenerateReplay() {
 
         Date date = new Date();

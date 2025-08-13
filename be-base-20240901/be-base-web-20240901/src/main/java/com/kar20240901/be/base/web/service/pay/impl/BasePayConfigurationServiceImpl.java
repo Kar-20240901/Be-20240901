@@ -3,11 +3,11 @@ package com.kar20240901.be.base.web.service.pay.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.pay.BasePayConfigurationMapper;
-import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoIdSuper;
@@ -33,7 +33,7 @@ public class BasePayConfigurationServiceImpl extends ServiceImpl<BasePayConfigur
      * 新增/修改
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String insertOrUpdate(BasePayConfigurationInsertOrUpdateDTO dto) {
 
         // 每个支付方式，需要单独检查 dto

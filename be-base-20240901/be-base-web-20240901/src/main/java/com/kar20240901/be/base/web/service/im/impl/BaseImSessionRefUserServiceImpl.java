@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.BooleanUtil;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
@@ -12,7 +13,6 @@ import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImGroupMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionContentRefUserMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper;
-import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionRefUserDO;
@@ -61,7 +61,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
      * 创建会话关联用户：好友
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public void addOrUpdateSessionRefUserForFriend(Long sessionId, Long userId1, Long userId2, boolean addFlag) {
 
         Assert.notNull(sessionId);
@@ -354,7 +354,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
      * 更新头像和昵称
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String updateAvatarAndNickname(NotEmptyIdSet dto) {
 
         Set<Long> sessionIdSet = dto.getIdSet();

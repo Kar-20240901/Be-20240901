@@ -6,13 +6,13 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.exception.base.BaseBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.base.BaseAreaMapper;
-import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.domain.base.BaseAreaDO;
 import com.kar20240901.be.base.web.model.domain.base.BaseAreaRefUserDO;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
@@ -50,7 +50,7 @@ public class BaseAreaServiceImpl extends ServiceImpl<BaseAreaMapper, BaseAreaDO>
      * 新增/修改
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String insertOrUpdate(BaseAreaInsertOrUpdateDTO dto) {
 
         if (dto.getId() != null && dto.getId().equals(dto.getPid())) {
@@ -241,7 +241,7 @@ public class BaseAreaServiceImpl extends ServiceImpl<BaseAreaMapper, BaseAreaDO>
      * 批量删除
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String deleteByIdSet(NotEmptyIdSet notEmptyIdSet) {
 
         Set<Long> idSet = notEmptyIdSet.getIdSet();
@@ -270,7 +270,7 @@ public class BaseAreaServiceImpl extends ServiceImpl<BaseAreaMapper, BaseAreaDO>
      * 通过主键 idSet，加减排序号
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String addOrderNo(ChangeNumberDTO dto) {
 
         if (dto.getNumber() == 0) {

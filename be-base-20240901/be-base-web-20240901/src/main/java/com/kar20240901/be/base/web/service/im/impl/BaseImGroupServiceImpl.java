@@ -1,5 +1,6 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
@@ -8,7 +9,6 @@ import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImBlockMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImGroupMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImGroupRefUserMapper;
-import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
@@ -66,7 +66,7 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
      * 新增/修改
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String insertOrUpdate(BaseImGroupInsertOrUpdateDTO dto) {
 
         BaseImGroupDO baseImGroupDO = new BaseImGroupDO();
@@ -147,7 +147,7 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
      * 踢出群员
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String removeUser(BaseImGroupRemoveUserDTO dto) {
 
         // 检查：是否有权限
@@ -201,7 +201,7 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
      * 解散群组
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String deleteById(NotNullId dto) {
 
         // 检查：是否有权限

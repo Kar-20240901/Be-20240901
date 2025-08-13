@@ -4,12 +4,12 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.exception.base.BaseBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.base.BaseDictMapper;
-import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.domain.base.BaseDictDO;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
@@ -40,7 +40,7 @@ public class BaseDictServiceImpl extends ServiceImpl<BaseDictMapper, BaseDictDO>
      * 新增/修改 备注：这里修改了，租户管理那边也要一起修改
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String insertOrUpdate(BaseDictInsertOrUpdateDTO dto) {
 
         // uuid不能重复
@@ -235,7 +235,7 @@ public class BaseDictServiceImpl extends ServiceImpl<BaseDictMapper, BaseDictDO>
      * 批量删除
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String deleteByIdSet(NotEmptyIdSet notEmptyIdSet, boolean checkDeleteFlag) {
 
         Set<Long> idSet = notEmptyIdSet.getIdSet();
@@ -267,7 +267,7 @@ public class BaseDictServiceImpl extends ServiceImpl<BaseDictMapper, BaseDictDO>
      * 通过主键 idSet，加减排序号
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String addOrderNo(ChangeNumberDTO dto) {
 
         if (dto.getNumber() == 0) {

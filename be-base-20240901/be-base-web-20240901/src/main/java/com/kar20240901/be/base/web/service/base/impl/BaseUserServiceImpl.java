@@ -9,6 +9,7 @@ import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.DesensitizedUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
@@ -16,7 +17,6 @@ import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.exception.base.BaseBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseUserMapper;
-import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.constant.base.ParamConstant;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.constant.base.TempRegexConstant;
@@ -146,7 +146,7 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
      * 新增/修改
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String insertOrUpdate(BaseUserInsertOrUpdateDTO dto) {
 
         boolean emailBlank = StrUtil.isBlank(dto.getEmail());
@@ -449,7 +449,7 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
      * 批量：注销用户
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String deleteByIdSet(NotEmptyIdSet notEmptyIdSet) {
 
         notEmptyIdSet.getIdSet().remove(TempConstant.ADMIN_ID);
@@ -469,7 +469,7 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
      * 批量：重置头像
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String resetAvatar(NotEmptyIdSet notEmptyIdSet) {
 
         notEmptyIdSet.getIdSet().remove(TempConstant.ADMIN_ID);
@@ -489,7 +489,7 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
      * 批量：修改密码
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String updatePassword(BaseUserUpdatePasswordDTO dto) {
 
         dto.getIdSet().remove(TempConstant.ADMIN_ID);
@@ -532,7 +532,7 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
      * 批量：解冻
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String thaw(NotEmptyIdSet notEmptyIdSet) {
 
         notEmptyIdSet.getIdSet().remove(TempConstant.ADMIN_ID);
@@ -554,7 +554,7 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
      * 批量：冻结
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String freeze(NotEmptyIdSet notEmptyIdSet) {
 
         notEmptyIdSet.getIdSet().remove(TempConstant.ADMIN_ID);

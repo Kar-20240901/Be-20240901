@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
@@ -9,7 +10,6 @@ import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImApplyFriendExtraMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImApplyFriendMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImBlockMapper;
-import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImApplyFriendDO;
@@ -129,7 +129,7 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
      * 发送好友申请
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String send(BaseImApplyFriendSendDTO dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
@@ -243,7 +243,7 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
      * 同意
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String agree(NotNullId dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
@@ -314,7 +314,7 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
      * 拒绝
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String reject(BaseImApplyFriendRejectDTO dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();

@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
@@ -10,7 +11,6 @@ import com.kar20240901.be.base.web.mapper.im.BaseImApplyGroupMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImBlockMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImGroupMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImGroupRefUserMapper;
-import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.im.BaseImApplyGroupDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImApplyGroupExtraDO;
@@ -132,7 +132,7 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
      * 发送入群申请
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String send(BaseImApplyGroupSendDTO dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
@@ -273,7 +273,7 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
      * 同意
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String agree(NotNullId dto) {
 
         String lockKey = BaseRedisKeyEnum.PRE_IM_APPLY_GROUP_ID + ":" + dto.getId();
@@ -323,7 +323,7 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
      * 拒绝
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String reject(BaseImApplyGroupRejectDTO dto) {
 
         String lockKey = BaseRedisKeyEnum.PRE_IM_APPLY_GROUP_ID + ":" + dto.getId();

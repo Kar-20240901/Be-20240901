@@ -5,12 +5,12 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.configuration.wallet.BaseUserWalletUserSignConfiguration;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.wallet.BaseUserWalletMapper;
-import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoIdSuper;
@@ -230,7 +230,7 @@ public class BaseUserWalletServiceImpl extends ServiceImpl<BaseUserWalletMapper,
      * 通过主键 idSet，加减可提现的钱
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String addWithdrawableMoneyBackground(ChangeBigDecimalNumberIdSetDTO dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
@@ -256,7 +256,7 @@ public class BaseUserWalletServiceImpl extends ServiceImpl<BaseUserWalletMapper,
      */
     @Override
     @NotNull
-    @MyTransactional
+    @DSTransactional
     public String doAddWithdrawableMoney(Long currentUserId, Date date, Set<Long> idSet, BigDecimal addNumber,
         IBaseUserWalletLogType iBaseUserWalletLogType, boolean lowErrorFlag, boolean checkWalletEnableFlag,
         @Nullable Long refId, @Nullable String refData, boolean withdrawableMoneyFlag,
@@ -299,7 +299,7 @@ public class BaseUserWalletServiceImpl extends ServiceImpl<BaseUserWalletMapper,
      * 充值-用户自我
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public BuyVO rechargeUserSelf(BaseUserWalletRechargeUserSelfDTO dto) {
 
         if (dto.getValue().compareTo(BigDecimal.ZERO) <= 0) {

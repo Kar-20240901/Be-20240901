@@ -1,11 +1,11 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.im.BaseImFriendMapper;
-import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.domain.im.BaseImFriendDO;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.im.BaseImFriendPageDTO;
@@ -27,7 +27,7 @@ public class BaseImFriendServiceImpl extends ServiceImpl<BaseImFriendMapper, Bas
      *
      * @param userId1 和 userId2 可以随便传
      */
-    @MyTransactional
+    @DSTransactional
     @Override
     public void addOrUpdateFriend(Long userId1, Long userId2, Long sessionId, boolean addFlag) {
 

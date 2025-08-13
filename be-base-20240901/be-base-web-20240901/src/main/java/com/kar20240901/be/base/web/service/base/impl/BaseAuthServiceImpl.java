@@ -4,13 +4,13 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.exception.base.BaseBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.base.BaseAuthMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseRoleRefUserMapper;
-import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.domain.base.BaseAuthDO;
 import com.kar20240901.be.base.web.model.domain.base.BaseRoleRefAuthDO;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
@@ -45,7 +45,7 @@ public class BaseAuthServiceImpl extends ServiceImpl<BaseAuthMapper, BaseAuthDO>
      * 新增/修改
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String insertOrUpdate(BaseAuthInsertOrUpdateDTO dto) {
 
         // 权限名，不能重复
@@ -178,7 +178,7 @@ public class BaseAuthServiceImpl extends ServiceImpl<BaseAuthMapper, BaseAuthDO>
      * 批量删除
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String deleteByIdSet(NotEmptyIdSet notEmptyIdSet) {
 
         if (CollUtil.isEmpty(notEmptyIdSet.getIdSet())) {

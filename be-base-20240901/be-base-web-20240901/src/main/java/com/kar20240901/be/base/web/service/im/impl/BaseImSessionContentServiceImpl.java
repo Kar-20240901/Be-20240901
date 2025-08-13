@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
 import cn.hutool.core.util.BooleanUtil;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
@@ -9,7 +10,6 @@ import com.kar20240901.be.base.web.mapper.im.BaseImFriendMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImGroupRefUserMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionContentMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper;
-import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImFriendDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupRefUserDO;
@@ -55,7 +55,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
      * 新增文字消息
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String insertTxt(BaseImSessionContentInsertTxtDTO dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();

@@ -9,12 +9,12 @@ import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.file.BaseFileMapper;
-import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.bo.file.BaseFilePrivateDownloadBO;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadBO;
 import com.kar20240901.be.base.web.model.constant.base.BaseConstant;
@@ -275,7 +275,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
      * 批量删除文件：公有和私有
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String removeByFileIdSet(NotEmptyIdSet notEmptyIdSet, boolean checkBelongFlag) {
 
         if (CollUtil.isEmpty(notEmptyIdSet.getIdSet())) {
@@ -694,7 +694,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
      * 移动：文件和文件夹-自我
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String moveSelf(BaseFileMoveSelfDTO dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
@@ -743,7 +743,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
      * 复制：文件和文件夹-自我
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String copySelf(BaseFileCopySelfDTO dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();

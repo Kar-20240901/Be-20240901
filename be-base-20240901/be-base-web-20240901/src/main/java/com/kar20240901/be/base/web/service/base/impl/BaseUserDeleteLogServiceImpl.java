@@ -2,11 +2,11 @@ package com.kar20240901.be.base.web.service.base.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.base.BaseUserDeleteLogMapper;
-import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.domain.base.BaseUserDeleteLogDO;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoIdSuper;
 import com.kar20240901.be.base.web.model.dto.base.BaseUserDeleteLogPageDTO;
@@ -54,7 +54,7 @@ public class BaseUserDeleteLogServiceImpl extends ServiceImpl<BaseUserDeleteLogM
      * 批量删除
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String deleteByIdSet(NotEmptyIdSet notEmptyIdSet) {
 
         Set<Long> idSet = notEmptyIdSet.getIdSet();

@@ -2,13 +2,13 @@ package com.kar20240901.be.base.web.service.live.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.live.BaseLiveRoomMapper;
 import com.kar20240901.be.base.web.mapper.live.BaseLiveRoomUserMapper;
-import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.domain.live.BaseLiveRoomDO;
 import com.kar20240901.be.base.web.model.domain.live.BaseLiveRoomUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
@@ -85,7 +85,7 @@ public class BaseLiveRoomServiceImpl extends ServiceImpl<BaseLiveRoomMapper, Bas
      * 批量删除
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String deleteByIdSet(NotEmptyIdSet dto) {
 
         Set<Long> idSet = dto.getIdSet();

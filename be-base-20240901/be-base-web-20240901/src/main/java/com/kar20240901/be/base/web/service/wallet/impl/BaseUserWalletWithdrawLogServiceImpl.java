@@ -4,13 +4,13 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.DesensitizedUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.wallet.BaseUserBankCardMapper;
 import com.kar20240901.be.base.web.mapper.wallet.BaseUserWalletWithdrawLogMapper;
-import com.kar20240901.be.base.web.model.annotation.base.MyTransactional;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
 import com.kar20240901.be.base.web.model.domain.wallet.BaseUserBankCardDO;
@@ -76,7 +76,7 @@ public class BaseUserWalletWithdrawLogServiceImpl
      * 新增/修改
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String insertOrUpdate(BaseUserWalletWithdrawLogInsertOrUpdateDTO dto) {
 
         Long userId = dto.getUserId();
@@ -90,7 +90,7 @@ public class BaseUserWalletWithdrawLogServiceImpl
      * 取消
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String cancel(NotNullId notNullId) {
 
         // 执行
@@ -188,7 +188,7 @@ public class BaseUserWalletWithdrawLogServiceImpl
      * 新增/修改-用户
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String insertOrUpdateUserSelf(BaseUserWalletWithdrawLogInsertOrUpdateUserSelfDTO dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
@@ -248,7 +248,7 @@ public class BaseUserWalletWithdrawLogServiceImpl
      * 取消-用户
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String cancelUserSelf(NotNullId notNullId) {
 
         // 执行
@@ -302,7 +302,7 @@ public class BaseUserWalletWithdrawLogServiceImpl
      * 受理-用户的提现记录
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String accept(NotEmptyIdSet notEmptyIdSet) {
 
         return RedissonUtil.doMultiLock(BaseRedisKeyEnum.PRE_USER_WALLET_WITHDRAW_LOG.name() + ":",
@@ -386,7 +386,7 @@ public class BaseUserWalletWithdrawLogServiceImpl
      * 成功-用户的提现记录
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String success(NotNullId notNullId) {
 
         Set<Long> idSet = CollUtil.newHashSet(notNullId.getId());
@@ -426,7 +426,7 @@ public class BaseUserWalletWithdrawLogServiceImpl
      * 拒绝-用户的提现记录
      */
     @Override
-    @MyTransactional
+    @DSTransactional
     public String reject(NotNullIdAndStringValue notNullIdAndStringValue) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
