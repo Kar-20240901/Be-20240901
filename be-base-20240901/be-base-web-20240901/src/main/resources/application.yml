@@ -62,6 +62,16 @@ spring:
     listener:
       ack-mode: manual_immediate #手动调用 Acknowledgment.acknowledge() 后立即提交
 
+  datasource:
+    dynamic:
+      primary: master # 默认数据源名称，备注：如果不指定值，则值为：master，并且这里会在代码里面注入 master的数据源：shardingJdbc
+      # datasource:
+      # be-base-doris-20240901: # 备注：不要使用下划线，因为下划线会进行分组
+      # driver-class-name: com.mysql.cj.jdbc.Driver
+      # url: jdbc:mysql://${be.common.doris-host}:9031/be_base_doris_20240901?${be.mysql.connect-param}
+      # username: ${be.common.username}
+      # password: ${be.common.doris-password}
+
   shardingsphere:
     #props:
     #  sql-show: true #按环境进行修改：直接注释掉
