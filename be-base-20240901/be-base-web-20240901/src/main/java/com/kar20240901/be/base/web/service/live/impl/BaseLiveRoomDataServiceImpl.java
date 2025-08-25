@@ -101,17 +101,17 @@ public class BaseLiveRoomDataServiceImpl extends ServiceImpl<BaseLiveRoomDataMap
         // 发送：webSocket数据
         sendWebSocket(dto, socketMap, channelDataBO.getByteArr());
 
-        BaseLiveRoomDataDO baseLiveRoomDataDO = new BaseLiveRoomDataDO();
-
-        baseLiveRoomDataDO.setRoomId(dto.getRoomId());
-        baseLiveRoomDataDO.setCreateTs(dto.getCreateTs());
-        baseLiveRoomDataDO.setData(channelDataBO.getByteArr());
-        baseLiveRoomDataDO.setCreateId(channelDataBO.getUserId());
-        baseLiveRoomDataDO.setMediaType(dto.getMediaType());
+        //        BaseLiveRoomDataDO baseLiveRoomDataDO = new BaseLiveRoomDataDO();
+        //
+        //        baseLiveRoomDataDO.setRoomId(dto.getRoomId());
+        //        baseLiveRoomDataDO.setCreateTs(dto.getCreateTs());
+        //        baseLiveRoomDataDO.setData(channelDataBO.getByteArr());
+        //        baseLiveRoomDataDO.setCreateId(channelDataBO.getUserId());
+        //        baseLiveRoomDataDO.setMediaType(dto.getMediaType());
 
         //        boolean firstBlobFlag = BooleanUtil.isTrue(dto.getFirstBlobFlag());
 
-        baseLiveRoomDataDO.setFirstBlobFlag(false);
+        //        baseLiveRoomDataDO.setFirstBlobFlag(false);
 
         //        BASE_LIVE_ROOM_DATA_DO_LIST.add(baseLiveRoomDataDO);
 
