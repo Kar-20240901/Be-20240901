@@ -11,7 +11,7 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface BaseImFriendMapper extends BaseMapper<BaseImFriendDO> {
 
-    Page<BaseImFriendPageVO> myPage(@Param("page") Page<BaseImFriendPageVO> page, @Param("dto") BaseImFriendPageDTO dto,
+    Page<BaseImFriendPageVO> myPage(@Param("page") Page<?> page, @Param("dto") BaseImFriendPageDTO dto,
         @Param("currentUserId") Long currentUserId);
 
 }

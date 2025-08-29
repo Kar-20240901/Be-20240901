@@ -11,7 +11,7 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface BaseImGroupMapper extends BaseMapper<BaseImGroupDO> {
 
-    Page<BaseImGroupPageVO> myPage(@Param("page") Page<BaseImGroupPageVO> page, @Param("dto") BaseImGroupPageDTO dto,
+    Page<BaseImGroupPageVO> myPage(@Param("page") Page<?> page, @Param("dto") BaseImGroupPageDTO dto,
         @Param("currentUserId") Long currentUserId);
 
 }

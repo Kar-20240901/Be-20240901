@@ -205,6 +205,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         Set<Long> sessionIdSet =
             resPage.getRecords().stream().map(BaseImSessionRefUserPageVO::getSessionId).collect(Collectors.toSet());
 
+        // 查询最新消息和未读消息数量
         Map<Long, BaseImSessionRefUserQueryLastContentVO> map = queryLastContentMap(new NotEmptyIdSet(sessionIdSet));
 
         for (BaseImSessionRefUserPageVO item : resPage.getRecords()) {

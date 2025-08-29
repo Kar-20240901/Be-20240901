@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionContentRefUserDO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionContentRefUserPageDTO;
+import com.kar20240901.be.base.web.model.vo.im.BaseImSearchBaseContentVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionContentRefUserPageVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO;
 import java.util.List;
@@ -16,7 +17,10 @@ public interface BaseImSessionContentRefUserMapper extends BaseMapper<BaseImSess
     List<BaseImSessionRefUserQueryLastContentVO> queryLastContent(@Param("sessionIdList") List<Long> sessionIdList,
         @Param("currentUserId") Long currentUserId);
 
-    Page<BaseImSessionContentRefUserPageVO> myPage(@Param("page") Page<BaseImSessionContentRefUserPageVO> page,
+    Page<BaseImSessionContentRefUserPageVO> myPage(@Param("page") Page<?> page,
+        @Param("dto") BaseImSessionContentRefUserPageDTO dto, @Param("currentUserId") Long currentUserId);
+
+    Page<BaseImSearchBaseContentVO> searchPage(@Param("page") Page<?> page,
         @Param("dto") BaseImSessionContentRefUserPageDTO dto, @Param("currentUserId") Long currentUserId);
 
 }

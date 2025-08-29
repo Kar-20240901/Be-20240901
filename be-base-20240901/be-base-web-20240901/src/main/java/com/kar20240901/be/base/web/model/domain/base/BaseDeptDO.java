@@ -16,7 +16,7 @@ public class BaseDeptDO extends TempEntityTree<BaseDeptDO> {
     @Schema(description = "部门名")
     private String name;
 
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @TableField(fill = FieldFill.INSERT)
     @Schema(description = "该部门的 uuid，备注：不能重复")
     private String uuid;
 

@@ -15,4 +15,7 @@ public class BaseImApplyFriendSearchApplyFriendDTO extends MyPageDTO {
     @Schema(description = "用户昵称")
     private String nickname;
 
+    @Schema(description = "用户 uuid")
+    private String uuid;
+
 }

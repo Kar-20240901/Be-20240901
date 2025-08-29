@@ -5,8 +5,8 @@
   <select id="queryLastContent"
     resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO">
     SELECT
-    a.session_id,
-    SUBSTRING(b.content, 1, 16) AS lastContent,
+    a.session_id AS sessionId,
+    SUBSTRING(b.content, 1, 16) AS lastContent AS lastContent,
     b.create_time AS lastContentCreateTime,
     b.type AS lastContentType
 
@@ -32,7 +32,12 @@
 
   <select id="myPage"
     resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionContentRefUserPageVO">
-    SELECT b.id, b.create_ts, b.type, b.content, b.create_id, b.ref_id
+    SELECT b.id AS contentId,
+    b.create_ts AS createTs,
+    b.type AS type,
+    b.content AS content,
+    b.create_id AS createId,
+    b.ref_id AS refId
 
     FROM base_im_session_content_ref_user a
     LEFT JOIN base_im_session_content b ON b.id = a.content_id
@@ -64,6 +69,34 @@
         </otherwise>
       </choose>
     </if>
+
+    ORDER BY b.create_ts DESC, b.order_no DESC
+  </select>
+
+  <select id="searchPage"
+    resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSearchBaseContentVO">
+    SELECT IF(c.name = '', c.target_name, c.name) AS showName,
+    c.target_id AS targetId,
+    c.target_type AS target_type,
+    c.session_id AS sessionId,
+    c.avatar_url AS avatarUrl,
+    COUNT(*) AS searchCount
+
+    FROM base_im_session_content_ref_user a
+    LEFT JOIN base_im_session_content b ON b.id = a.content_id
+    LEFT JOIN base_im_session_ref_user c ON c.session_id = b.session_id
+
+    WHERE a.user_id = #{currentUserId}
+
+    AND a.show_flag = TRUE
+
+    AND b.enable_flag = TRUE
+
+    <if test="dto.content != null and dto.content != ''">
+      AND b.content LIKE CONCAT('%', #{dto.content}, '%')
+    </if>
+
+    GROUP BY c.session_id
 
     ORDER BY b.create_ts DESC, b.order_no DESC
   </select>

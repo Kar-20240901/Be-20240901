@@ -45,8 +45,6 @@ public class MetaObjectHandlerConfiguration implements MetaObjectHandler {
         strictUpdateFill(metaObject, "updateTime", Date.class, date);
         strictUpdateFill(metaObject, "updateId", Long.class, currentUserIdDefault);
 
-        strictInsertFill(metaObject, "uuid", String.class, IdUtil.simpleUUID());
-
     }
 
 }

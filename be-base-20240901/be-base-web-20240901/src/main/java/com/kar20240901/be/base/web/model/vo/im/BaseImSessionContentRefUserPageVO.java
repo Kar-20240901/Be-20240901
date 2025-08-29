@@ -7,7 +7,7 @@ import lombok.Data;
 public class BaseImSessionContentRefUserPageVO {
 
     @Schema(description = "主键 id")
-    private Long id;
+    private Long contentId;
 
     @Schema(description = "创建人id")
     private Long createId;

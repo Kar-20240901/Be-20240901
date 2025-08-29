@@ -12,10 +12,10 @@ public class BaseImGroupPageVO {
     @Schema(description = "显示的名称")
     private String groupName;
 
-    @Schema(description = "头像文件主键 id", hidden = true)
-    private Long avatarFileId;
-
     @Schema(description = "头像地址")
     private String avatarUrl;
+
+    @Schema(description = "会话主键 id")
+    private Long sessionId;
 
 }

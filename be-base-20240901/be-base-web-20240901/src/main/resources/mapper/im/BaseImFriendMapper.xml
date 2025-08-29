@@ -14,7 +14,12 @@
     WHERE a.belong_id = #{currentUserId}
     AND b.id IS NOT NULL
     <if test="dto.searchKey != null and dto.searchKey != ''">
-      AND IF(c.name = '', b.nickname, c.name) LIKE CONCAT('%', #{dto.searchKey}, '%')
+      AND (
+      b.nickname CONCAT('%', #{dto.searchKey}, '%')
+      OR c.name CONCAT('%', #{dto.searchKey}, '%')
+      OR a.friend_id LIKE CONCAT('%', #{dto.searchKey}, '%')
+      )
     </if>
+    ORDER BY a.create_time DESC
   </select>
 </mapper>

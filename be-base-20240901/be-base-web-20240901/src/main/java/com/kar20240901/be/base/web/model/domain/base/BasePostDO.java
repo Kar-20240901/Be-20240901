@@ -16,7 +16,7 @@ public class BasePostDO extends TempEntityTree<BasePostDO> {
     @Schema(description = "岗位名")
     private String name;
 
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @TableField(fill = FieldFill.INSERT)
     @Schema(description = "该岗位的 uuid，备注：不能重复")
     private String uuid;
 

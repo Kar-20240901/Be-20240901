@@ -34,7 +34,7 @@ public class BaseDictDO extends TempEntity {
     @Schema(description = "字典的子节点")
     private List<BaseDictDO> children;
 
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @TableField(fill = FieldFill.INSERT)
     @Schema(description = "该字典的 uuid")
     private String uuid;
 

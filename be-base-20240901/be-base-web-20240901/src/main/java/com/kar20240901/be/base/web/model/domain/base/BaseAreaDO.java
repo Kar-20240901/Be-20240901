@@ -16,7 +16,7 @@ public class BaseAreaDO extends TempEntityTree<BaseAreaDO> {
     @Schema(description = "区域名")
     private String name;
 
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @TableField(fill = FieldFill.INSERT)
     @Schema(description = "该区域的 uuid，备注：不能重复")
     private String uuid;
 
