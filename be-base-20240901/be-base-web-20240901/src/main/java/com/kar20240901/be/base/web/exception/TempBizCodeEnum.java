@@ -20,7 +20,8 @@ public enum TempBizCodeEnum implements IBizCode {
     PARAMETER_CHECK_ERROR(100011, "参数校验出现问题"), //
     ILLEGAL_REQUEST(100021, "非法请求"), //
     PLEASE_DELETE_THE_CHILD_NODE_FIRST(100031, "请先删除子节点"), //
-    INSUFFICIENT_PERMISSIONS(100041, "权限不足"), //
+    API_INSUFFICIENT_PERMISSIONS(100041, "接口权限不足"), //
+    INSUFFICIENT_PERMISSIONS(100051, "权限不足"), //
 
     THE_ACCOUNT_IS_LOGGED_IN_ELSEWHERE(100111, "账号在其他地方登录，您被迫下线"), //
     ACCOUNT_IS_DISABLED(100111, "账户被冻结，请联系管理员"), //

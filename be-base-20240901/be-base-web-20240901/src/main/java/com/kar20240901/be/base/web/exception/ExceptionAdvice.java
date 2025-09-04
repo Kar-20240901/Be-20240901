@@ -120,9 +120,9 @@ public class ExceptionAdvice {
 
         Long currentUserIdDefault = MyUserUtil.getCurrentUserIdDefault();
 
-        log.info("权限不足：{}，uri：{}", currentUserIdDefault, httpServletRequest.getRequestURI());
+        log.info("接口权限不足：{}，uri：{}", currentUserIdDefault, httpServletRequest.getRequestURI());
 
-        R<String> r = R.errorOrigin(TempBizCodeEnum.INSUFFICIENT_PERMISSIONS);
+        R<String> r = R.errorOrigin(TempBizCodeEnum.API_INSUFFICIENT_PERMISSIONS);
 
         // 处理：请求
         handleRequest(httpServletRequest, null, ExceptionUtil.stacktraceToString(e), "", JSONUtil.toJsonStr(r));

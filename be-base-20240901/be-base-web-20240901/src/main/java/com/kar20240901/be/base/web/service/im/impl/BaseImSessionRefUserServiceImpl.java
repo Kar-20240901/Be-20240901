@@ -520,6 +520,13 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
+        boolean exists = lambdaQuery().eq(BaseImSessionRefUserDO::getSessionId, dto.getId())
+            .eq(BaseImSessionRefUserDO::getUserId, currentUserId).exists();
+
+        if (!exists) {
+            R.error(TempBizCodeEnum.INSUFFICIENT_PERMISSIONS);
+        }
+
         Map<Long, BaseImSessionRefUserInfoVO> map = MapUtil.newHashMap();
 
         List<BaseImSessionRefUserInfoVO> list = baseMapper.querySessionRefUserInfoBySessionId(dto.getId());
