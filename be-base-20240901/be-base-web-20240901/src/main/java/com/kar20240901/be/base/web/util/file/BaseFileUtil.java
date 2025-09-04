@@ -1142,7 +1142,7 @@ public class BaseFileUtil {
 
         }
 
-        if (MyUserUtil.getCurrentUserAdminFlag(userId)) {
+        if (MyUserUtil.getCurrentUserAdminFlag()) {
             return;
         }
 
@@ -1381,7 +1381,7 @@ public class BaseFileUtil {
 
             Long currentUserId = MyUserUtil.getCurrentUserId();
 
-            if (MyUserUtil.getCurrentUserAdminFlag(currentUserId)) {
+            if (MyUserUtil.getCurrentUserAdminFlag()) {
 
                 // admin 用户可以删除
                 baseFileDoList = lambdaQueryChainWrapper.list();

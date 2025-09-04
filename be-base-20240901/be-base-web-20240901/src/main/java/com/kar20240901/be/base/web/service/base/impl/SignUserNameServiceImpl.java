@@ -89,7 +89,7 @@ public class SignUserNameServiceImpl implements SignUserNameService {
     @Override
     public String updatePassword(SignUserNameUpdatePasswordDTO dto) {
 
-        SignUtil.checkWillError(PRE_REDIS_KEY_ENUM, null, null); // 检查：是否可以进行操作
+        SignUtil.checkWillError(PRE_REDIS_KEY_ENUM, null, null, true); // 检查：是否可以进行操作
 
         return SignUtil.updatePassword(dto.getNewPassword(), dto.getOriginNewPassword(), PRE_REDIS_KEY_ENUM, null,
             dto.getOldPassword());
@@ -102,7 +102,7 @@ public class SignUserNameServiceImpl implements SignUserNameService {
     @Override
     public String updateUserName(SignUserNameUpdateUserNameDTO dto) {
 
-        SignUtil.checkWillError(PRE_REDIS_KEY_ENUM, null, null); // 检查：是否可以进行操作
+        SignUtil.checkWillError(PRE_REDIS_KEY_ENUM, null, null, false); // 检查：是否可以进行操作
 
         return SignUtil.updateAccount(null, null, PRE_REDIS_KEY_ENUM, PRE_REDIS_KEY_ENUM, dto.getNewUserName(),
             dto.getCurrentPassword(), null);
@@ -115,7 +115,7 @@ public class SignUserNameServiceImpl implements SignUserNameService {
     @Override
     public String setEmailSendCode(SignUserNameSetEmailSendCodeDTO dto) {
 
-        SignUtil.checkWillError(PRE_REDIS_KEY_ENUM, null, null); // 检查：是否可以进行操作
+        SignUtil.checkWillError(PRE_REDIS_KEY_ENUM, null, null, false); // 检查：是否可以进行操作
 
         String key = BaseRedisKeyEnum.PRE_EMAIL + ":" + dto.getEmail();
 
@@ -132,7 +132,7 @@ public class SignUserNameServiceImpl implements SignUserNameService {
     @Override
     public String setEmail(SignUserNameSetEmailDTO dto) {
 
-        SignUtil.checkWillError(PRE_REDIS_KEY_ENUM, null, null); // 检查：是否可以进行操作
+        SignUtil.checkWillError(PRE_REDIS_KEY_ENUM, null, null, false); // 检查：是否可以进行操作
 
         return SignUtil.bindAccount(dto.getCode(), BaseRedisKeyEnum.PRE_EMAIL, dto.getEmail(), null, null,
             dto.getCurrentPassword());
@@ -145,7 +145,7 @@ public class SignUserNameServiceImpl implements SignUserNameService {
     @Override
     public String signDelete(SignUserNameSignDeleteDTO dto) {
 
-        SignUtil.checkWillError(PRE_REDIS_KEY_ENUM, null, null); // 检查：是否可以进行操作
+        SignUtil.checkWillError(PRE_REDIS_KEY_ENUM, null, null, false); // 检查：是否可以进行操作
 
         return SignUtil.signDelete(null, PRE_REDIS_KEY_ENUM, dto.getCurrentPassword(), null);
 

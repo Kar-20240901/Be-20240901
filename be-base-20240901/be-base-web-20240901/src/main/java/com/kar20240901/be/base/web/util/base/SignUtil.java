@@ -196,7 +196,8 @@ public class SignUtil {
     public static String getAccountAndSendCode(Enum<? extends IRedisKey> redisKeyEnum,
         VoidFunc2<String, String> voidFunc2) {
 
-        String account = getAccountByUserIdAndRedisKeyEnum(redisKeyEnum, MyUserUtil.getCurrentUserIdNotAdmin());
+        // 获取：账号，通过：redisKeyEnum
+        String account = getAccountByUserIdAndRedisKeyEnum(redisKeyEnum, MyUserUtil.getCurrentUserIdNotSuperAdmin());
 
         if (BaseRedisKeyEnum.PRE_EMAIL.equals(redisKeyEnum)) {
 
@@ -237,7 +238,7 @@ public class SignUtil {
     public static String bindAccount(@Nullable String code, Enum<? extends IRedisKey> accountRedisKeyEnum,
         String account, String appId, @Nullable String codeKey, @Nullable String password) {
 
-        Long currentUserIdNotAdmin = MyUserUtil.getCurrentUserIdNotAdmin();
+        Long currentUserIdNotAdmin = MyUserUtil.getCurrentUserIdNotSuperAdmin();
 
         if (StrUtil.isNotBlank(password)) {
 
@@ -677,18 +678,29 @@ public class SignUtil {
     /**
      * 检查：是否可以进行操作：敏感操作都需要调用此方法
      *
-     * @param baseRedisKeyEnum 操作账户的类型：用户名，邮箱，微信，手机号
-     * @param account          账号信息，一般情况为 null，只有：忘记密码，才会传值
+     * @param baseRedisKeyEnum   操作账户的类型：用户名，邮箱，微信，手机号
+     * @param account            账号信息，一般情况为 null，只有：忘记密码，才会传值
+     * @param updatePasswordFlag 是否是更新密码操作
      */
     public static void checkWillError(BaseRedisKeyEnum baseRedisKeyEnum, @Nullable String account,
-        @Nullable String appId) {
+        @Nullable String appId, boolean updatePasswordFlag) {
 
         Long userId = null;
 
         boolean accountBlankFlag = StrUtil.isBlank(account);
 
         if (accountBlankFlag) {
-            userId = MyUserUtil.getCurrentUserIdNotAdmin();
+
+            if (updatePasswordFlag) {
+
+                userId = MyUserUtil.getCurrentUserId();
+
+            } else {
+
+                userId = MyUserUtil.getCurrentUserIdNotSuperAdmin();
+
+            }
+
         }
 
         // 敏感操作：
@@ -806,7 +818,7 @@ public class SignUtil {
     public static String updatePassword(String newPasswordTemp, String originNewPasswordTemp,
         Enum<? extends IRedisKey> redisKeyEnum, String code, String oldPassword) {
 
-        Long currentUserIdNotAdmin = MyUserUtil.getCurrentUserIdNotAdmin();
+        Long currentUserIdNotAdmin = MyUserUtil.getCurrentUserIdNotSuperAdmin();
 
         if (BaseRedisKeyEnum.PRE_USER_NAME.equals(redisKeyEnum)) {
 
@@ -1012,7 +1024,7 @@ public class SignUtil {
     public static String updateAccount(String oldCode, String newCode, Enum<? extends IRedisKey> oldRedisKeyEnum,
         Enum<? extends IRedisKey> newRedisKeyEnum, String newAccount, String currentPassword, String appId) {
 
-        Long currentUserIdNotAdmin = MyUserUtil.getCurrentUserIdNotAdmin();
+        Long currentUserIdNotAdmin = MyUserUtil.getCurrentUserIdNotSuperAdmin();
 
         if (BaseRedisKeyEnum.PRE_USER_NAME.equals(newRedisKeyEnum)) {
             checkCurrentPasswordWillError(currentPassword, currentUserIdNotAdmin, null);
@@ -1162,7 +1174,7 @@ public class SignUtil {
         String currentPassword, @Nullable Long userId) {
 
         if (userId == null) {
-            userId = MyUserUtil.getCurrentUserIdNotAdmin();
+            userId = MyUserUtil.getCurrentUserIdNotSuperAdmin();
         }
 
         if (StrUtil.isNotBlank(currentPassword)) {
@@ -1421,7 +1433,7 @@ public class SignUtil {
 
             } else {
 
-                Long currentUserIdNotAdmin = MyUserUtil.getCurrentUserIdNotAdmin();
+                Long currentUserIdNotAdmin = MyUserUtil.getCurrentUserIdNotSuperAdmin();
 
                 if (currentUserIdNotAdmin.equals(qrCodeUserId)) {
 
@@ -1552,7 +1564,7 @@ public class SignUtil {
 
             baseQrCodeSceneBindVO.setSceneFlag(true);
 
-            Long currentUserIdNotAdmin = MyUserUtil.getCurrentUserIdNotAdmin();
+            Long currentUserIdNotAdmin = MyUserUtil.getCurrentUserIdNotSuperAdmin();
 
             if (!userId.equals(currentUserIdNotAdmin)) {
 

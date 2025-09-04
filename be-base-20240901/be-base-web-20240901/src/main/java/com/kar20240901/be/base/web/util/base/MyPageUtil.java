@@ -49,10 +49,10 @@ public class MyPageUtil {
     /**
      * 获取：滚动查询的 page对象 作用：根据 最后一个 id查询数据
      */
-    public static <T> Page<T> getScrollPage(@Nullable Integer size) {
+    public static <T> Page<T> getScrollPage(@Nullable Long size) {
 
         if (size == null) {
-            size = 20;
+            size = 20L;
         }
 
         return new Page<>(1, size, true);

@@ -34,6 +34,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+/**
+ * 备注：超级管理员只有一个，管理员可以有很多个
+ */
 @Component
 public class MyUserUtil {
 
@@ -78,11 +81,11 @@ public class MyUserUtil {
      * 获取当前 userId，如果是 admin账号，则会报错，只会返回 用户id，不会返回 null 因为 admin不支持一些操作，例如：修改密码，修改邮箱等
      */
     @NotNull
-    public static Long getCurrentUserIdNotAdmin() {
+    public static Long getCurrentUserIdNotSuperAdmin() {
 
         Long currentUserId = getCurrentUserId();
 
-        if (MyUserUtil.getCurrentUserAdminFlag(currentUserId)) {
+        if (MyUserUtil.getCurrentUserSuperAdminFlag(currentUserId)) {
             R.error(TempBizCodeEnum.THE_ADMIN_ACCOUNT_DOES_NOT_SUPPORT_THIS_OPERATION);
         }
 
@@ -123,20 +126,30 @@ public class MyUserUtil {
     }
 
     /**
-     * 用户是否是系统管理员
+     * 用户是否是超级管理员
      */
-    public static boolean getCurrentUserAdminFlag() {
+    public static boolean getCurrentUserSuperAdminFlag() {
 
-        return getCurrentUserAdminFlag(getCurrentUserIdDefault());
+        return getCurrentUserSuperAdminFlag(getCurrentUserIdDefault());
 
     }
 
     /**
-     * 用户是否是系统管理员
+     * 用户是否是超级管理员
      */
-    public static boolean getCurrentUserAdminFlag(Long userId) {
+    public static boolean getCurrentUserSuperAdminFlag(Long userId) {
 
         return TempConstant.ADMIN_ID.equals(userId);
+
+    }
+
+    /**
+     * 获取当前是否是管理员
+     */
+    public static boolean getCurrentUserAdminFlag() {
+
+        return MyJwtUtil.getPayloadMapAdminFlagValue(
+            getSecurityContextHolderContextAuthenticationPrincipalJsonObject());
 
     }
 
@@ -246,9 +259,11 @@ public class MyUserUtil {
 
         JSONObject result = null;
 
-        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+        Authentication authentication = getSecurityContextHolderContextAuthentication();
 
-            Object principalObject = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (authentication != null) {
+
+            Object principalObject = authentication.getPrincipal();
 
             if (principalObject instanceof JSONObject) {
                 result = (JSONObject)principalObject;

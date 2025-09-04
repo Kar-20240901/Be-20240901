@@ -24,6 +24,7 @@ import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserDeleteNotDis
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserPageDTO;
 import com.kar20240901.be.base.web.model.enums.im.BaseImTypeEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
+import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserInfoVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserPageVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
@@ -508,6 +509,28 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
             .update();
 
         return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 通过 sessionId查询相关用户信息
+     */
+    @Override
+    public Map<Long, BaseImSessionRefUserInfoVO> querySessionRefUserInfoBySessionId(NotNullId dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        Map<Long, BaseImSessionRefUserInfoVO> map = MapUtil.newHashMap();
+
+        List<BaseImSessionRefUserInfoVO> list = baseMapper.querySessionRefUserInfoBySessionId(dto.getId());
+
+        for (BaseImSessionRefUserInfoVO item : list) {
+
+            map.put(item.getUserId(), item);
+
+        }
+
+        return map;
 
     }
 

@@ -314,7 +314,7 @@ public class BaseMenuServiceImpl extends ServiceImpl<BaseMenuMapper, BaseMenuDO>
 
             Long queryUserId = userId;
 
-            if (MyUserUtil.getCurrentUserAdminFlag(queryUserId)) {
+            if (MyUserUtil.getCurrentUserAdminFlag()) {
 
                 queryUserId = null;
 

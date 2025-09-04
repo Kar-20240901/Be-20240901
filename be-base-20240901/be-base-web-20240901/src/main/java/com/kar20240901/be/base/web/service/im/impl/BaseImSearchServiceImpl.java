@@ -97,12 +97,20 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
+        String searchKey = dto.getSearchKey();
+
         MyThreadUtil.execute(() -> {
 
+            // 先移除：重复的搜索内容
+            ChainWrappers.lambdaUpdateChain(baseImSearchHistoryMapper)
+                .eq(BaseImSearchHistoryDO::getSearchHistory, searchKey)
+                .eq(BaseImSearchHistoryDO::getBelongId, currentUserId).remove();
+
+            // 再新增：新的搜索内容
             BaseImSearchHistoryDO baseImSearchHistoryDO = new BaseImSearchHistoryDO();
 
             baseImSearchHistoryDO.setBelongId(currentUserId);
-            baseImSearchHistoryDO.setSearchHistory(dto.getSearchKey());
+            baseImSearchHistoryDO.setSearchHistory(searchKey);
 
             baseImSearchHistoryMapper.insert(baseImSearchHistoryDO);
 
@@ -125,7 +133,7 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
 
             BaseImFriendPageDTO baseImFriendPageDTO = new BaseImFriendPageDTO();
 
-            baseImFriendPageDTO.setSearchKey(dto.getSearchKey());
+            baseImFriendPageDTO.setSearchKey(searchKey);
 
             Page<BaseImFriendPageVO> baseImFriendPageVoPage =
                 baseImFriendMapper.myPage(page, baseImFriendPageDTO, currentUserId);
@@ -146,7 +154,7 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
 
             BaseImGroupPageDTO baseImGroupPageDTO = new BaseImGroupPageDTO();
 
-            baseImGroupPageDTO.setSearchKey(dto.getSearchKey());
+            baseImGroupPageDTO.setSearchKey(searchKey);
 
             Page<BaseImGroupPageVO> baseImGroupPageVoPage =
                 baseImGroupMapper.myPage(page, baseImGroupPageDTO, currentUserId);
@@ -168,7 +176,7 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
             BaseImSessionContentRefUserPageDTO baseImSessionContentRefUserPageDTO =
                 new BaseImSessionContentRefUserPageDTO();
 
-            baseImSessionContentRefUserPageDTO.setContent(dto.getSearchKey());
+            baseImSessionContentRefUserPageDTO.setContent(searchKey);
 
             Page<BaseImSearchBaseContentVO> baseImSearchBaseContentVoPage =
                 baseImSessionContentRefUserMapper.searchPage(page, baseImSessionContentRefUserPageDTO, currentUserId);

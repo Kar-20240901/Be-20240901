@@ -15,7 +15,7 @@ public class ScrollListDTO {
     private Long id;
 
     @Schema(description = "本次查询的长度，默认：20")
-    private Integer pageSize;
+    private Long pageSize;
 
     @Schema(description = "是否向后查询，默认：false 根据 id，往前查询 true 根据 id，往后查询")
     private Boolean backwardFlag;

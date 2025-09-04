@@ -35,7 +35,7 @@ public class BaseFileTransferServiceImpl extends ServiceImpl<BaseFileTransferMap
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        boolean adminFlag = MyUserUtil.getCurrentUserAdminFlag(currentUserId);
+        boolean adminFlag = MyUserUtil.getCurrentUserAdminFlag();
 
         return lambdaQuery() //
             .like(StrUtil.isNotBlank(dto.getShowFileName()), BaseFileTransferDO::getShowFileName,
@@ -56,7 +56,7 @@ public class BaseFileTransferServiceImpl extends ServiceImpl<BaseFileTransferMap
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        boolean adminFlag = MyUserUtil.getCurrentUserAdminFlag(currentUserId);
+        boolean adminFlag = MyUserUtil.getCurrentUserAdminFlag();
 
         return lambdaQuery().eq(TempEntity::getId, notNullId.getId())
             .eq(!adminFlag, BaseFileTransferDO::getUserId, currentUserId).one();
@@ -77,7 +77,7 @@ public class BaseFileTransferServiceImpl extends ServiceImpl<BaseFileTransferMap
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        boolean adminFlag = MyUserUtil.getCurrentUserAdminFlag(currentUserId);
+        boolean adminFlag = MyUserUtil.getCurrentUserAdminFlag();
 
         // 根据 idSet删除
         lambdaUpdate().eq(!adminFlag, BaseFileTransferDO::getUserId, currentUserId).in(BaseFileTransferDO::getId, idSet)

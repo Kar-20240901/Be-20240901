@@ -8,6 +8,7 @@ import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserAddNotDistur
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserDeleteNotDisturbDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserPageDTO;
 import com.kar20240901.be.base.web.model.vo.base.R;
+import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserInfoVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserPageVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO;
 import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
@@ -77,6 +78,13 @@ public class BaseImSessionRefUserController {
     @PostMapping("/deleteNotDisturb")
     public R<String> deleteNotDisturb(@RequestBody @Valid BaseImSessionRefUserDeleteNotDisturbDTO dto) {
         return R.okMsg(baseService.deleteNotDisturb(dto));
+    }
+
+    @Operation(summary = "通过 sessionId查询相关用户信息")
+    @PostMapping("/querySessionRefUserInfoBySessionId")
+    public R<Map<Long, BaseImSessionRefUserInfoVO>> querySessionRefUserInfoBySessionId(
+        @RequestBody @Valid NotNullId dto) {
+        return R.okData(baseService.querySessionRefUserInfoBySessionId(dto));
     }
 
 }

@@ -10,6 +10,7 @@ import com.kar20240901.be.base.web.model.enums.base.BaseRequestCategoryEnum;
 import com.kar20240901.be.base.web.model.vo.base.SignInVO;
 import java.time.Duration;
 import java.util.Date;
+import java.util.Set;
 import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -19,6 +20,9 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class BaseJwtUtil {
+
+    // 是否是：管理员，备注：只要权限里面有该值，则表示是管理员，并且超级管理员只有一个，管理员可以有很多个
+    private static final String ADMIN_FLAG = "baseRoleKey:admin";
 
     /**
      * 统一生成 jwt
@@ -56,6 +60,26 @@ public class BaseJwtUtil {
         JSONObject payloadMap = JSONUtil.createObj();
 
         payloadMap.set(MyJwtUtil.PAYLOAD_MAP_USER_ID_KEY, userId);
+
+        boolean adminFlag = false;
+
+        if (MyUserUtil.getCurrentUserSuperAdminFlag(userId)) {
+
+            adminFlag = true;
+
+        } else {
+
+            Set<String> authSet = MyJwtUtil.getAuthSetByUserId(userId);
+
+            if (authSet.contains(ADMIN_FLAG)) {
+
+                adminFlag = true;
+
+            }
+
+        }
+
+        payloadMap.set(MyJwtUtil.PAYLOAD_MAP_ADMIN_FLAG_KEY, adminFlag);
 
         if (consumer != null) {
             consumer.accept(payloadMap);

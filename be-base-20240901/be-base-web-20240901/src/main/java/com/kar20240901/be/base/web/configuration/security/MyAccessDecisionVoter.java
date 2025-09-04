@@ -25,7 +25,7 @@ public class MyAccessDecisionVoter implements AccessDecisionVoter<Object> {
     public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attributes) {
 
         // 如果是 admin，则可以访问所有接口
-        if (MyUserUtil.getCurrentUserAdminFlag()) {
+        if (MyUserUtil.getCurrentUserSuperAdminFlag()) {
             return ACCESS_GRANTED; // 同意票
         }
 

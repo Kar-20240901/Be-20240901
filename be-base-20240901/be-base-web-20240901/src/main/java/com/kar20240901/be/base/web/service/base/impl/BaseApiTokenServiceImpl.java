@@ -32,7 +32,7 @@ public class BaseApiTokenServiceImpl extends ServiceImpl<BaseApiTokenMapper, Bas
 
         Long userId = MyUserUtil.getCurrentUserId();
 
-        if (MyUserUtil.getCurrentUserAdminFlag(userId)) {
+        if (MyUserUtil.getCurrentUserAdminFlag()) {
 
             if (dto.getUserId() == null) {
 
@@ -88,7 +88,7 @@ public class BaseApiTokenServiceImpl extends ServiceImpl<BaseApiTokenMapper, Bas
 
         Long queryUserId = null;
 
-        if (MyUserUtil.getCurrentUserAdminFlag(userId)) {
+        if (MyUserUtil.getCurrentUserAdminFlag()) {
 
             if (dto.getUserId() != null) {
 
@@ -119,7 +119,7 @@ public class BaseApiTokenServiceImpl extends ServiceImpl<BaseApiTokenMapper, Bas
 
         Long queryUserId = null;
 
-        if (!MyUserUtil.getCurrentUserAdminFlag(userId)) {
+        if (!MyUserUtil.getCurrentUserAdminFlag()) {
 
             queryUserId = userId;
 
@@ -146,7 +146,7 @@ public class BaseApiTokenServiceImpl extends ServiceImpl<BaseApiTokenMapper, Bas
 
         Long queryUserId = null;
 
-        if (!MyUserUtil.getCurrentUserAdminFlag(userId)) {
+        if (!MyUserUtil.getCurrentUserAdminFlag()) {
 
             queryUserId = userId;
 

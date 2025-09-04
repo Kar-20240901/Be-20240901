@@ -105,7 +105,7 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
      */
     public static boolean getManageSignInFlag(Long userId) {
 
-        if (MyUserUtil.getCurrentUserAdminFlag(userId)) {
+        if (MyUserUtil.getCurrentUserAdminFlag()) {
             return true;
         }
 

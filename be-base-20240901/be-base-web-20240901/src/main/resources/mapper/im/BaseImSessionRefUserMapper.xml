@@ -54,4 +54,14 @@
 
     GROUP BY a.session_id
   </select>
+
+  <select id="querySessionRefUserInfoBySessionId"
+          resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserInfoVO">
+    SELECT a.user_id                              AS userId,
+           IF(a.name = '', a.target_name, a.name) AS showName,
+           a.avatar_url                           AS avatarUrl
+
+    FROM base_im_session_ref_user a
+    WHERE a.session_id = #{sessionId}
+  </select>
 </mapper>

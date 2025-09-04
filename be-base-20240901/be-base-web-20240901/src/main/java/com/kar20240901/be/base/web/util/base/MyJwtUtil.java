@@ -44,6 +44,8 @@ public class MyJwtUtil {
 
     public static final String PAYLOAD_MAP_WX_OPEN_ID_KEY = "wxOpenId";
 
+    public static final String PAYLOAD_MAP_ADMIN_FLAG_KEY = "adminFlag";
+
     private static BaseSecurityProperties baseSecurityProperties;
 
     @Resource
@@ -84,6 +86,19 @@ public class MyJwtUtil {
     @Resource
     public void setBaseAuthMapper(BaseAuthMapper baseAuthMapper) {
         MyJwtUtil.baseAuthMapper = baseAuthMapper;
+    }
+
+    /**
+     * 获取：jwt中的 是否是管理员
+     */
+    public static boolean getPayloadMapAdminFlagValue(@Nullable JSONObject claimsJson) {
+
+        if (claimsJson == null) {
+            return false;
+        }
+
+        return claimsJson.getBool(MyJwtUtil.PAYLOAD_MAP_ADMIN_FLAG_KEY, false);
+
     }
 
     /**
@@ -230,7 +245,7 @@ public class MyJwtUtil {
         }
 
         // admin账号，自带所有权限
-        if (MyUserUtil.getCurrentUserAdminFlag(userId)) {
+        if (MyUserUtil.getCurrentUserSuperAdminFlag(userId)) {
             return new HashSet<>();
         }
 

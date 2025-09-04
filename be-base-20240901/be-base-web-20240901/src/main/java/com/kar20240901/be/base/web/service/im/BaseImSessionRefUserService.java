@@ -9,6 +9,7 @@ import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserAddNotDisturbDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserDeleteNotDisturbDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserPageDTO;
+import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserInfoVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserPageVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO;
 import java.util.List;
@@ -35,5 +36,7 @@ public interface BaseImSessionRefUserService extends IService<BaseImSessionRefUs
     String addNotDisturb(BaseImSessionRefUserAddNotDisturbDTO dto);
 
     String deleteNotDisturb(BaseImSessionRefUserDeleteNotDisturbDTO dto);
+
+    Map<Long, BaseImSessionRefUserInfoVO> querySessionRefUserInfoBySessionId(NotNullId dto);
 
 }
