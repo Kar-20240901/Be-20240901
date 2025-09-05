@@ -13,9 +13,9 @@ import org.apache.ibatis.annotations.Param;
 public interface BaseImGroupRefUserMapper extends BaseMapper<BaseImGroupRefUserDO> {
 
     Page<BaseImGroupRefUserPageVO> myPage(@Param("page") Page<BaseImGroupRefUserPageVO> page,
-        @Param("dto") BaseImGroupRefUserMutePageDTO dto);
+        @Param("dto") BaseImGroupRefUserPageDTO dto);
 
     Page<BaseImGroupRefUserPageVO> pageMute(@Param("page") Page<BaseImGroupRefUserPageVO> page,
-        @Param("dto") BaseImGroupRefUserPageDTO dto);
+        @Param("dto") BaseImGroupRefUserMutePageDTO dto);
 
 }

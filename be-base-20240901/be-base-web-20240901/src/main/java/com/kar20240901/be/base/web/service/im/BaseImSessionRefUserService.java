@@ -9,9 +9,9 @@ import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserAddNotDisturbDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserDeleteNotDisturbDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserPageDTO;
-import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserInfoVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserPageVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO;
+import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserUpdateAvatarAndNicknameVO;
 import java.util.List;
 import java.util.Map;
 
@@ -31,12 +31,10 @@ public interface BaseImSessionRefUserService extends IService<BaseImSessionRefUs
 
     String updateLastOpenTs(NotNullId dto);
 
-    String updateAvatarAndNickname(NotEmptyIdSet dto);
+    List<BaseImSessionRefUserUpdateAvatarAndNicknameVO> updateAvatarAndNickname(NotEmptyIdSet dto);
 
     String addNotDisturb(BaseImSessionRefUserAddNotDisturbDTO dto);
 
     String deleteNotDisturb(BaseImSessionRefUserDeleteNotDisturbDTO dto);
-
-    Map<Long, BaseImSessionRefUserInfoVO> querySessionRefUserInfoBySessionId(NotNullId dto);
 
 }

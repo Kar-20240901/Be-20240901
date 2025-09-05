@@ -34,6 +34,13 @@
       </choose>
     </if>
 
+    <if test="dto.sessionIdSet != null and dto.sessionIdSet.size != 0">
+      AND a.session_id IN
+      <foreach collection="dto.sessionIdSet" separator="," open="(" close=")" item="item">
+        #{item}
+      </foreach>
+    </if>
+
     <if test="dto.searchKey != null and dto.searchKey != ''">
       AND (a.name LIKE CONCAT('%', #{dto.searchKey}, '%') OR a.target_name LIKE CONCAT('%',
       #{dto.searchKey}, '%'))
@@ -43,7 +50,7 @@
   </select>
 
   <select id="queryUnReadCount" resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO">
-    SELECT a.session_id AS sessionId, LEAST(99, COUNT(*)) AS unReadCount
+    SELECT a.session_id AS sessionId, LEAST(100, COUNT(*)) AS unReadCount
 
     FROM base_im_session_ref_user a
            LEFT JOIN base_im_session_content b ON b.session_id = a.session_id

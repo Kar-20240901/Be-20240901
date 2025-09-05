@@ -27,13 +27,13 @@ public class BaseImGroupRefUserController {
 
     @Operation(summary = "群组分页排序查询群员")
     @PostMapping("/page")
-    public R<Page<BaseImGroupRefUserPageVO>> myPage(@RequestBody @Valid BaseImGroupRefUserMutePageDTO dto) {
+    public R<Page<BaseImGroupRefUserPageVO>> myPage(@RequestBody @Valid BaseImGroupRefUserPageDTO dto) {
         return R.okData(baseService.myPage(dto));
     }
 
-    @Operation(summary = "群组分页排序查询禁言用户")
+    @Operation(summary = "群组分页排序查询-禁言用户")
     @PostMapping("/pageMute")
-    public R<Page<BaseImGroupRefUserPageVO>> pageMute(@RequestBody @Valid BaseImGroupRefUserPageDTO dto) {
+    public R<Page<BaseImGroupRefUserPageVO>> pageMute(@RequestBody @Valid BaseImGroupRefUserMutePageDTO dto) {
         return R.okData(baseService.pageMute(dto));
     }
 

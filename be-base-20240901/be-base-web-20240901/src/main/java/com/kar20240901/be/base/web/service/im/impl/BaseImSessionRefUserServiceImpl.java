@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImGroupMapper;
+import com.kar20240901.be.base.web.mapper.im.BaseImGroupRefUserMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionContentRefUserMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper;
 import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
@@ -24,9 +25,9 @@ import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserDeleteNotDis
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserPageDTO;
 import com.kar20240901.be.base.web.model.enums.im.BaseImTypeEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
-import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserInfoVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserPageVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO;
+import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserUpdateAvatarAndNicknameVO;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
@@ -57,6 +58,9 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
     @Resource
     BaseImGroupMapper baseImGroupMapper;
+
+    @Resource
+    BaseImGroupRefUserMapper baseImGroupRefUserMapper;
 
     /**
      * 创建会话关联用户：好友
@@ -357,7 +361,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
      */
     @Override
     @DSTransactional
-    public String updateAvatarAndNickname(NotEmptyIdSet dto) {
+    public List<BaseImSessionRefUserUpdateAvatarAndNicknameVO> updateAvatarAndNickname(NotEmptyIdSet dto) {
 
         Set<Long> sessionIdSet = dto.getIdSet();
 
@@ -367,11 +371,14 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
             lambdaQuery().in(BaseImSessionRefUserDO::getSessionId, sessionIdSet)
                 .eq(BaseImSessionRefUserDO::getUserId, currentUserId)
                 .select(BaseImSessionRefUserDO::getId, BaseImSessionRefUserDO::getTargetId,
-                    BaseImSessionRefUserDO::getTargetType).list();
+                    BaseImSessionRefUserDO::getTargetType, BaseImSessionRefUserDO::getSessionId).list();
+
+        List<BaseImSessionRefUserUpdateAvatarAndNicknameVO> updateAvatarAndNicknameVoList =
+            new ArrayList<>(baseImSessionRefUserDoList.size());
 
         if (CollUtil.isEmpty(baseImSessionRefUserDoList)) {
 
-            return TempBizCodeEnum.OK;
+            return updateAvatarAndNicknameVoList;
 
         }
 
@@ -470,13 +477,38 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
             }
 
+            // 获取：BaseImSessionRefUserUpdateAvatarAndNicknameVO对象
+            BaseImSessionRefUserUpdateAvatarAndNicknameVO baseImSessionRefUserUpdateAvatarAndNicknameVO =
+                getBaseImSessionRefUserUpdateAvatarAndNicknameVO(item, baseImSessionRefUserDO);
+
+            updateAvatarAndNicknameVoList.add(baseImSessionRefUserUpdateAvatarAndNicknameVO);
+
             updateList.add(baseImSessionRefUserDO);
 
         }
 
         updateBatchById(updateList);
 
-        return TempBizCodeEnum.OK;
+        return updateAvatarAndNicknameVoList;
+
+    }
+
+    /**
+     * 获取：BaseImSessionRefUserUpdateAvatarAndNicknameVO对象
+     */
+    private static BaseImSessionRefUserUpdateAvatarAndNicknameVO getBaseImSessionRefUserUpdateAvatarAndNicknameVO(
+        BaseImSessionRefUserDO item, BaseImSessionRefUserDO baseImSessionRefUserDO) {
+
+        BaseImSessionRefUserUpdateAvatarAndNicknameVO baseImSessionRefUserUpdateAvatarAndNicknameVO =
+            new BaseImSessionRefUserUpdateAvatarAndNicknameVO();
+
+        baseImSessionRefUserUpdateAvatarAndNicknameVO.setSessionId(item.getSessionId());
+        baseImSessionRefUserUpdateAvatarAndNicknameVO.setShowName(baseImSessionRefUserDO.getTargetName());
+        baseImSessionRefUserUpdateAvatarAndNicknameVO.setAvatarUrl(baseImSessionRefUserDO.getAvatarUrl());
+        baseImSessionRefUserUpdateAvatarAndNicknameVO.setTargetId(item.getTargetId());
+        baseImSessionRefUserUpdateAvatarAndNicknameVO.setTargetType(item.getTargetType());
+
+        return baseImSessionRefUserUpdateAvatarAndNicknameVO;
 
     }
 
@@ -509,35 +541,6 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
             .update();
 
         return TempBizCodeEnum.OK;
-
-    }
-
-    /**
-     * 通过 sessionId查询相关用户信息
-     */
-    @Override
-    public Map<Long, BaseImSessionRefUserInfoVO> querySessionRefUserInfoBySessionId(NotNullId dto) {
-
-        Long currentUserId = MyUserUtil.getCurrentUserId();
-
-        boolean exists = lambdaQuery().eq(BaseImSessionRefUserDO::getSessionId, dto.getId())
-            .eq(BaseImSessionRefUserDO::getUserId, currentUserId).exists();
-
-        if (!exists) {
-            R.error(TempBizCodeEnum.INSUFFICIENT_PERMISSIONS);
-        }
-
-        Map<Long, BaseImSessionRefUserInfoVO> map = MapUtil.newHashMap();
-
-        List<BaseImSessionRefUserInfoVO> list = baseMapper.querySessionRefUserInfoBySessionId(dto.getId());
-
-        for (BaseImSessionRefUserInfoVO item : list) {
-
-            map.put(item.getUserId(), item);
-
-        }
-
-        return map;
 
     }
 

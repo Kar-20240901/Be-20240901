@@ -35,7 +35,7 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
      * 群组分页排序查询群员
      */
     @Override
-    public Page<BaseImGroupRefUserPageVO> myPage(BaseImGroupRefUserMutePageDTO dto) {
+    public Page<BaseImGroupRefUserPageVO> myPage(BaseImGroupRefUserPageDTO dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
@@ -69,7 +69,7 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
      * 群组分页排序查询禁言用户
      */
     @Override
-    public Page<BaseImGroupRefUserPageVO> pageMute(BaseImGroupRefUserPageDTO dto) {
+    public Page<BaseImGroupRefUserPageVO> pageMute(BaseImGroupRefUserMutePageDTO dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 

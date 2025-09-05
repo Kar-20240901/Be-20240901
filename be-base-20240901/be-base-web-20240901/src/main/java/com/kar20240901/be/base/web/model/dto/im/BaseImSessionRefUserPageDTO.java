@@ -2,6 +2,7 @@ package com.kar20240901.be.base.web.model.dto.im;
 
 import com.kar20240901.be.base.web.model.dto.base.MyPageDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -20,5 +21,8 @@ public class BaseImSessionRefUserPageDTO extends MyPageDTO {
 
     @Schema(description = "搜索内容：会话名")
     private String searchKey;
+
+    @Schema(description = "会话主键 id集合")
+    private Set<Long> sessionIdSet;
 
 }

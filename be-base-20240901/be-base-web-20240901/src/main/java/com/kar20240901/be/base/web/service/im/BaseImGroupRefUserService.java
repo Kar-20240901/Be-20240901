@@ -11,9 +11,9 @@ import com.kar20240901.be.base.web.model.vo.im.BaseImGroupRefUserPageVO;
 
 public interface BaseImGroupRefUserService extends IService<BaseImGroupRefUserDO> {
 
-    Page<BaseImGroupRefUserPageVO> myPage(BaseImGroupRefUserMutePageDTO dto);
+    Page<BaseImGroupRefUserPageVO> myPage(BaseImGroupRefUserPageDTO dto);
 
-    Page<BaseImGroupRefUserPageVO> pageMute(BaseImGroupRefUserPageDTO dto);
+    Page<BaseImGroupRefUserPageVO> pageMute(BaseImGroupRefUserMutePageDTO dto);
 
     String addMute(BaseImGroupRefUserAddMuteDTO dto);
 
