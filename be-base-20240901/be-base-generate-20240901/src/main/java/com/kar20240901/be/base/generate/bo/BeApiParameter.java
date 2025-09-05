@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.generate.bo;
 
 import com.kar20240901.be.base.generate.interfaces.BeApiField;
+import java.util.List;
 import lombok.Data;
 
 /**
@@ -20,6 +21,11 @@ public class BeApiParameter implements BeApiField {
     private String type;
 
     /**
+     * 前端对应的对象，比如：integer format int64 会变成 string
+     */
+    private String feType;
+
+    /**
      * 是否必须传递
      */
     private Boolean required;
@@ -33,6 +39,11 @@ public class BeApiParameter implements BeApiField {
      * 字段格式化
      */
     private String format;
+
+    /**
+     * 枚举类型
+     */
+    private List<String> enumList;
 
     /**
      * 正则表达式

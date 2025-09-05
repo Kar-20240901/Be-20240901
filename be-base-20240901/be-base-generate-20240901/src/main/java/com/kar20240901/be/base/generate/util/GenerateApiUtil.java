@@ -2,7 +2,6 @@ package com.kar20240901.be.base.generate.util;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.text.CharPool;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
@@ -18,12 +17,10 @@ import com.kar20240901.be.base.web.util.base.CallBack;
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * 生成 api的工具类
@@ -52,6 +49,8 @@ public class GenerateApiUtil {
     private String apiRequestFormName = "form";
 
     private String apiRequestFormTemp = apiRequestFormName + ": {}, ";
+
+    private String apiRequestFormTemp2 = "{}: {}, ";
 
     private String apiImportBase =
         "import { http } from \"@/utils/http\";\nimport { baseApi } from \"@/api/http/utils\";\n";
@@ -120,8 +119,8 @@ public class GenerateApiUtil {
 
             for (BeApi subItem : item.getValue().values()) {
 
-                if (CollUtil.newArrayList("/base/file/upload").contains(subItem.getPath())) {
-                    continue;
+                if (CollUtil.newArrayList("/base/file/privateDownload/{id}").contains(subItem.getPath())) {
+                    System.out.println();
                 }
 
                 // 处理
@@ -165,7 +164,7 @@ public class GenerateApiUtil {
         CallBack<Boolean> myProPagePostCallBack) {
 
         // api的方法名
-        String apiName = getApiName(beApi.getPath());
+        String apiName = beApi.getApiName();
 
         String formStr = ""; // 拼接 form参数
         String formValueStr = getUndefined(); // 拼接 form值
@@ -189,6 +188,16 @@ public class GenerateApiUtil {
 
                 formStr = StrUtil.format(getApiRequestFormTemp(), parameterBeApiSchema.getClassName());
                 formValueStr = getApiRequestFormName();
+
+            } else if (beApiField instanceof BeApiParameter) {
+                // 如果是一般类型
+
+                BeApiParameter parameterBeApiParameter = (BeApiParameter)beApiField;
+
+                formStr = StrUtil.format(getApiRequestFormTemp2(), parameterBeApiParameter.getName(),
+                    parameterBeApiParameter.getFeType());
+
+                formValueStr = parameterBeApiParameter.getName();
 
             }
 
@@ -241,22 +250,6 @@ public class GenerateApiUtil {
         strBuilder.append(
             StrUtil.format(getApiRequestTemp(), beApi.getSummary(), apiName, formStr, httpStr, returnTypeStr,
                 beApi.getMethod(), beApi.getPath(), formValueStr));
-
-    }
-
-    /**
-     * 通过：path，获取：api的方法名
-     */
-    @NotNull
-    public static String getApiName(String path) {
-
-        List<String> splitTrimList = StrUtil.splitTrim(path, CharPool.SLASH);
-
-        String str = splitTrimList.stream().reduce((x, y) -> StrUtil.upperFirst(x) + StrUtil.upperFirst(y)).orElse("");
-
-        str = StrUtil.lowerFirst(str);
-
-        return str;
 
     }
 
@@ -316,12 +309,9 @@ public class GenerateApiUtil {
 
                 BeApiParameter dataBeApiParameter = (BeApiParameter)data;
 
-                String type = dataBeApiParameter.getType();
+                String beType = dataBeApiParameter.getFeType();
 
-                // 处理：integer类型
-                type = handleIntegerType(dataBeApiParameter, type);
-
-                beApi.setReturnTypeStr(type);
+                beApi.setReturnTypeStr(beType);
 
                 beApi.setReturnTypeArrFlag(dataBeApiParameter.getArrFlag());
 
@@ -493,12 +483,9 @@ public class GenerateApiUtil {
     public void generateInterfaceParameter(StrBuilder interfaceBuilder, String fieldName,
         BeApiParameter beApiParameter) {
 
-        String type = beApiParameter.getType();
+        String beType = beApiParameter.getFeType();
 
-        // 处理：integer类型
-        type = handleIntegerType(beApiParameter, type);
-
-        interfaceBuilder.append(StrUtil.format(getApiInterfaceFieldTemp(), fieldName, "?", type,
+        interfaceBuilder.append(StrUtil.format(getApiInterfaceFieldTemp(), fieldName, "?", beType,
             BooleanUtil.isTrue(beApiParameter.getArrFlag()) ? "[]" : "", beApiParameter.getDescription()));
 
         if (StrUtil.isNotBlank(beApiParameter.getPattern())) {
@@ -509,53 +496,33 @@ public class GenerateApiUtil {
 
         if (beApiParameter.getMaxLength() != null) {
 
-            interfaceBuilder.append("，maxLength：").append(beApiParameter.getMaxLength());
+            interfaceBuilder.append("，最大长度：").append(beApiParameter.getMaxLength());
 
         }
 
         if (beApiParameter.getMinLength() != null) {
 
-            interfaceBuilder.append("，minLength：").append(beApiParameter.getMinLength());
+            interfaceBuilder.append("，最小长度：").append(beApiParameter.getMinLength());
 
         }
 
         if (BooleanUtil.isTrue(beApiParameter.getRequired())) {
 
-            interfaceBuilder.append("，required：").append(beApiParameter.getRequired());
+            interfaceBuilder.append("，是否必传：").append(beApiParameter.getRequired());
 
         }
 
         if (StrUtil.isNotBlank(beApiParameter.getFormat())) {
 
-            interfaceBuilder.append("，format：").append(beApiParameter.getFormat());
+            interfaceBuilder.append("，格式：").append(beApiParameter.getFormat());
 
         }
 
-    }
+        if (CollUtil.isNotEmpty(beApiParameter.getEnumList())) {
 
-    /**
-     * 处理：integer类型
-     */
-    public String handleIntegerType(BeApiParameter beApiParameter, String type) {
-
-        String integerStr = "integer";
-        String formatInt64 = "int64";
-
-        if (integerStr.equals(type)) {
-
-            if (formatInt64.equals(beApiParameter.getFormat())) {
-
-                type = "string"; // long 转换为 string
-
-            } else {
-
-                type = "number";
-
-            }
+            interfaceBuilder.append("，枚举值：").append(StrUtil.join(";", beApiParameter.getEnumList()));
 
         }
-
-        return type;
 
     }
 

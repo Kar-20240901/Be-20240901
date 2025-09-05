@@ -2,8 +2,10 @@ package com.kar20240901.be.base.generate.util;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.text.CharPool;
 import cn.hutool.core.text.StrMatcher;
 import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.json.JSONArray;
@@ -18,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -83,6 +86,23 @@ public class SpringDocUtil {
     }
 
     /**
+     * 处理：路径
+     */
+    private static String handlePath(String path) {
+
+        path = ReUtil.replaceAll(path, "\\{(.*?)\\}", match -> {
+
+            String group = match.group(1);
+
+            return StrUtil.toCamelCase(group);
+
+        });
+
+        return path;
+
+    }
+
+    /**
      * 处理：返回值
      */
     private static void handleResult(JSONObject paths, HashMap<String, HashMap<String, BeApi>> result,
@@ -106,7 +126,17 @@ public class SpringDocUtil {
 
             BeApi beApi = new BeApi();
 
-            beApi.setPath(item.getKey());
+            String path = item.getKey();
+
+            beApi.setPath(path);
+
+            // 处理：路径
+            String pathTemp = handlePath(path);
+
+            String apiName = getApiName(pathTemp);
+
+            beApi.setApiName(apiName);
+
             beApi.setMethod(methodStr);
 
             List<String> tagList = method.getBeanList("tags", String.class);
@@ -154,9 +184,25 @@ public class SpringDocUtil {
 
             HashMap<String, BeApi> secondMap = result.computeIfAbsent(group, k -> new HashMap<>());
 
-            secondMap.put(item.getKey(), beApi); // 添加到返回值里
+            secondMap.put(path, beApi); // 添加到返回值里
 
         }
+
+    }
+
+    /**
+     * 通过：path，获取：api的方法名
+     */
+    @NotNull
+    public static String getApiName(String path) {
+
+        List<String> splitTrimList = StrUtil.splitTrim(path, CharPool.SLASH);
+
+        String str = splitTrimList.stream().reduce((x, y) -> StrUtil.upperFirst(x) + StrUtil.upperFirst(y)).orElse("");
+
+        str = StrUtil.lowerFirst(str);
+
+        return str;
 
     }
 
@@ -344,9 +390,29 @@ public class SpringDocUtil {
         beApiParameter.setRequired(jsonObject.getBool("required"));
         beApiParameter.setDescription(jsonObject.getStr("description"));
         beApiParameter.setFormat(jsonObject.getStr("format"));
+        beApiParameter.setEnumList(jsonObject.getBeanList("enum", String.class));
         beApiParameter.setPattern(jsonObject.getStr("pattern"));
         beApiParameter.setMaxLength(jsonObject.getInt("maxLength"));
         beApiParameter.setMinLength(jsonObject.getInt("minLength"));
+
+        String feType = beApiParameter.getType();
+        String format = beApiParameter.getFormat();
+
+        if ("integer".equals(feType)) {
+
+            if ("int64".equals(format)) {
+
+                feType = "string";
+
+            } else {
+
+                feType = "number";
+
+            }
+
+        }
+
+        beApiParameter.setFeType(feType);
 
     }
 

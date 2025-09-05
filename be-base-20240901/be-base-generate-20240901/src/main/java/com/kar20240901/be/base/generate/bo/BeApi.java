@@ -11,6 +11,11 @@ import lombok.Data;
 public class BeApi {
 
     /**
+     * 请求名称，格式例如：baseFilePrivateDownloadId
+     */
+    private String apiName;
+
+    /**
      * 请求路径
      */
     private String path;
