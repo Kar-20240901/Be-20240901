@@ -9,18 +9,19 @@
     WHERE b.id IS NULL
   </select>
 
-  <select id="myPage" resultType="com.kar20240901.be.base.web.model.vo.live.BaseLiveRoomUserSelfPageVO">
+  <select id="myPage"
+    resultType="com.kar20240901.be.base.web.model.vo.live.BaseLiveRoomUserSelfPageVO">
     SELECT a.id,
-    a.user_id,
-    a.socket_ref_user_id AS socketRefUserId,
-    a.create_time AS createTime,
-    b.nickname,
-    b.avatar_file_id AS avatarFileId,
-    a.first_blob_str AS firstBlobStr
+           a.user_id,
+           a.socket_ref_user_id AS socketRefUserId,
+           a.create_time        AS createTime,
+           b.nickname,
+           b.avatar_file_id     AS avatarFileId,
+           a.first_blob_str     AS firstBlobStr
     FROM base_live_room_user a
-    LEFT JOIN base_user_info b ON b.id = a.user_id
+           LEFT JOIN base_user_info b ON b.id = a.user_id
     WHERE b.id IS NOT NULL
-    AND a.room_id = #{dto.roomId}
+      AND a.room_id = #{dto.roomId}
     <if test="dto.userId != null">
       AND a.user_id = #{dto.userId}
     </if>
@@ -31,7 +32,7 @@
   </select>
 
   <select id="infoById"
-          resultType="com.kar20240901.be.base.web.model.vo.live.BaseLiveRoomUserSelfInfoByIdVO">
+    resultType="com.kar20240901.be.base.web.model.vo.live.BaseLiveRoomUserSelfInfoByIdVO">
     SELECT a.id,
            a.user_id,
            a.socket_ref_user_id AS socketRefUserId,

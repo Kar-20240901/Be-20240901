@@ -3,38 +3,40 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.kar20240901.be.base.web.mapper.im.BaseImGroupRefUserMapper">
   <select id="myPage" resultType="com.kar20240901.be.base.web.model.vo.im.BaseImGroupRefUserPageVO">
-    SELECT a.user_id AS userId,
-    IF(a.my_nickname = '', b.nickname, a.my_nickname) AS nickname,
-    b.avatar_file_id AS avatarFileId
+    SELECT a.user_id                                         AS userId,
+           IF(a.my_nickname = '', b.nickname, a.my_nickname) AS nickname,
+           b.avatar_file_id                                  AS avatarFileId
     FROM base_im_group_ref_user a
-    LEFT JOIN base_user_info b ON b.id = a.user_id
+           LEFT JOIN base_user_info b ON b.id = a.user_id
     WHERE a.group_id = #{dto.groupId}
-    AND b.id IS NOT NULL
+      AND b.id IS NOT NULL
     <if test="dto.userId != null">
       AND a.user_id = #{dto.userId}
     </if>
     <if test="dto.nickname != null and dto.nickname != ''">
       AND (a.my_nickname LIKE CONCAT('%', #{dto.nickname}, '%') OR b.nickname LIKE CONCAT('%',
-      #{dto.nickname}, '%'))
+                                                                                          #{dto.nickname},
+                                                                                          '%'))
     </if>
   </select>
 
   <select id="pageMute"
     resultType="com.kar20240901.be.base.web.model.vo.im.BaseImGroupRefUserPageVO">
-    SELECT a.user_id AS userId,
-    IF(a.my_nickname = '', b.nickname, a.my_nickname) AS nickname,
-    b.avatar_file_id AS avatarFileId
+    SELECT a.user_id                                         AS userId,
+           IF(a.my_nickname = '', b.nickname, a.my_nickname) AS nickname,
+           b.avatar_file_id                                  AS avatarFileId
     FROM base_im_group_ref_user a
-    LEFT JOIN base_user_info b ON b.id = a.user_id
+           LEFT JOIN base_user_info b ON b.id = a.user_id
     WHERE a.group_id = #{dto.groupId}
-    AND a.mute_flag = TRUE
-    AND b.id IS NOT NULL
+      AND a.mute_flag = TRUE
+      AND b.id IS NOT NULL
     <if test="dto.userId != null">
       AND a.user_id = #{dto.userId}
     </if>
     <if test="dto.nickname != null and dto.nickname != ''">
       AND (a.my_nickname LIKE CONCAT('%', #{dto.nickname}, '%') OR b.nickname LIKE CONCAT('%',
-      #{dto.nickname}, '%'))
+                                                                                          #{dto.nickname},
+                                                                                          '%'))
     </if>
   </select>
 </mapper>

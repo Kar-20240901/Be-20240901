@@ -7,13 +7,17 @@
     FROM base_auth a
     WHERE a.enable_flag = TRUE
     <if test="userId != null">
-      AND a.id IN (SELECT subA.auth_id FROM base_role_ref_auth subA WHERE subA.role_id IN (
-
-      ( SELECT subSubA.role_id as roleId FROM base_role_ref_user subSubA WHERE subSubA.user_id =
-      #{userId} ) UNION ALL ( SELECT subSubA.id as roleId FROM
-      base_role subSubA WHERE subSubA.enable_flag = true AND subSubA.default_flag = true )
-
-      ))
+      AND a.id IN (SELECT subA.auth_id
+                   FROM base_role_ref_auth subA
+                   WHERE subA.role_id IN ((SELECT subSubA.role_id as roleId
+                                           FROM base_role_ref_user subSubA
+                                           WHERE subSubA.user_id =
+                                                 #{userId})
+                                          UNION ALL
+                                          (SELECT subSubA.id as roleId
+                                           FROM base_role subSubA
+                                           WHERE subSubA.enable_flag = true
+                                             AND subSubA.default_flag = true)))
     </if>
   </select>
 </mapper>

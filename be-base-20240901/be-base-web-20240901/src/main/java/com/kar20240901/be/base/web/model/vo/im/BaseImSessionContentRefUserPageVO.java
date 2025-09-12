@@ -24,4 +24,7 @@ public class BaseImSessionContentRefUserPageVO {
     @Schema(description = "引用的内容主键 id，不引用时为 -1")
     private Long refId;
 
+    @Schema(description = "会话主键 id")
+    private Long sessionId;
+
 }

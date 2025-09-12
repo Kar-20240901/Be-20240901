@@ -4,25 +4,24 @@
 <mapper namespace="com.kar20240901.be.base.web.mapper.im.BaseImSessionContentRefUserMapper">
   <select id="queryLastContent"
     resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO">
-    SELECT
-    a.session_id AS sessionId,
-    SUBSTRING(b.content, 1, 16) AS lastContent AS lastContent,
-    b.create_time AS lastContentCreateTime,
-    b.type AS lastContentType
+    SELECT a.session_id                AS sessionId,
+           SUBSTRING(b.content, 1, 16) AS lastContent,
+           b.create_time               AS lastContentCreateTime,
+           b.type                      AS lastContentType
 
     FROM base_im_session_content_ref_user a
 
-    LEFT JOIN base_im_session_content b ON b.id = a.content_id
+           LEFT JOIN base_im_session_content b ON b.id = a.content_id
 
     WHERE a.user_id = #{currentUserId}
 
-    AND a.show_flag = TRUE
+      AND a.show_flag = TRUE
 
-    AND b.enable_flag = TRUE
+      AND b.enable_flag = TRUE
 
-    <if test="dto.sessionIdList != null and dto.sessionIdList.size != 0">
+    <if test="sessionIdList != null and sessionIdList.size != 0">
       AND a.session_id IN
-      <foreach collection="dto.sessionIdList" separator="," open="(" close=")" item="item">
+      <foreach collection="sessionIdList" separator="," open="(" close=")" item="item">
         #{item}
       </foreach>
     </if>
@@ -32,23 +31,24 @@
 
   <select id="myPage"
     resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionContentRefUserPageVO">
-    SELECT b.id AS contentId,
-    b.create_ts AS createTs,
-    b.type AS type,
-    b.content AS content,
-    b.create_id AS createId,
-    b.ref_id AS refId
+    SELECT b.id         AS contentId,
+           b.create_ts  AS createTs,
+           b.type       AS type,
+           b.content    AS content,
+           b.create_id  AS createId,
+           b.ref_id     AS refId,
+           b.session_id AS sessionId
 
     FROM base_im_session_content_ref_user a
-    LEFT JOIN base_im_session_content b ON b.id = a.content_id
+           LEFT JOIN base_im_session_content b ON b.id = a.content_id
 
     WHERE a.user_id = #{currentUserId}
 
-    AND a.show_flag = TRUE
+      AND a.show_flag = TRUE
 
-    AND b.enable_flag = TRUE
+      AND b.enable_flag = TRUE
 
-    AND a.session_id = #{dto.sessionId}
+      AND a.session_id = #{dto.sessionId}
 
     <if test="dto.content != null and dto.content != ''">
       AND b.content LIKE CONCAT('%', #{dto.content}, '%')
@@ -75,22 +75,22 @@
 
   <select id="searchPage"
     resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSearchBaseContentVO">
-    SELECT IF(c.name = '', c.target_name, c.name) AS showName,
-    c.target_id AS targetId,
-    c.target_type AS target_type,
-    c.session_id AS sessionId,
-    c.avatar_url AS avatarUrl,
-    COUNT(*) AS searchCount
+    SELECT IF(MAX(c.name) = '', MAX(c.target_name), MAX(c.name)) AS showName,
+           MAX(c.target_id)                                      AS targetId,
+           MAX(c.target_type)                                    AS target_type,
+           c.session_id                                          AS sessionId,
+           MAX(c.avatar_url)                                     AS avatarUrl,
+           COUNT(*)                                              AS searchCount
 
     FROM base_im_session_content_ref_user a
-    LEFT JOIN base_im_session_content b ON b.id = a.content_id
-    LEFT JOIN base_im_session_ref_user c ON c.session_id = b.session_id
+           LEFT JOIN base_im_session_content b ON b.id = a.content_id
+           LEFT JOIN base_im_session_ref_user c ON c.session_id = b.session_id
 
     WHERE a.user_id = #{currentUserId}
 
-    AND a.show_flag = TRUE
+      AND a.show_flag = TRUE
 
-    AND b.enable_flag = TRUE
+      AND b.enable_flag = TRUE
 
     <if test="dto.content != null and dto.content != ''">
       AND b.content LIKE CONCAT('%', #{dto.content}, '%')
@@ -98,6 +98,6 @@
 
     GROUP BY c.session_id
 
-    ORDER BY b.create_ts DESC, b.order_no DESC
+    ORDER BY MAX(b.create_ts) DESC, MAX(b.order_no) DESC
   </select>
 </mapper>

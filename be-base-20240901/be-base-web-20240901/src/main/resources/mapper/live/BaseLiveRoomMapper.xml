@@ -5,7 +5,7 @@
   <select id="myPage" resultType="com.kar20240901.be.base.web.model.domain.live.BaseLiveRoomDO">
     SELECT a.id, a.name, a.belong_id, a.create_time, a.code, b.nickname AS belongNickname
     FROM base_live_room a
-    LEFT JOIN base_user_info b ON b.id = a.belong_id
+           LEFT JOIN base_user_info b ON b.id = a.belong_id
     WHERE b.id IS NOT NULL
     <if test="dto.name != null and dto.name != ''">
       AND a.name LIKE CONCAT('%', #{dto.name}, '%')

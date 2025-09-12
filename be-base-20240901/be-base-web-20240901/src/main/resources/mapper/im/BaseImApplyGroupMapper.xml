@@ -4,18 +4,18 @@
 <mapper namespace="com.kar20240901.be.base.web.mapper.im.BaseImApplyGroupMapper">
   <select id="myPageSelf"
     resultType="com.kar20240901.be.base.web.model.vo.im.BaseImApplyGroupPageSelfVO">
-    SELECT a.id,a.apply_content,a.apply_time,a.status,c.name AS groupName,c.avatar_file_id
+    SELECT a.id, a.apply_content, a.apply_time, a.status, c.name AS groupName, c.avatar_file_id
 
     FROM base_im_apply_group a
 
-    LEFT JOIN base_im_apply_group_extra b
-    ON b.apply_group_id = a.id AND b.user_id = #{currentUserId}
+           LEFT JOIN base_im_apply_group_extra b
+                     ON b.apply_group_id = a.id AND b.user_id = #{currentUserId}
 
-    LEFT JOIN base_im_group c ON c.id = a.target_group_id
+           LEFT JOIN base_im_group c ON c.id = a.target_group_id
 
     WHERE (b.hidden_flag IS NULL OR b.hidden_flag = FALSE)
 
-    AND a.user_id = #{currentUserId}
+      AND a.user_id = #{currentUserId}
 
     <if test="dto.groupName != null and dto.groupName != ''">
       AND c.name LIKE CONCAT('%', #{dto.groupName}, '%')
@@ -27,7 +27,8 @@
 
     <if test="dto.searchKey != null and dto.searchKey != ''">
       AND (c.name LIKE CONCAT('%', #{dto.searchKey}, '%') OR a.apply_content LIKE CONCAT('%',
-      #{dto.searchKey}, '%'))
+                                                                                         #{dto.searchKey},
+                                                                                         '%'))
     </if>
 
     ORDER BY a.update_time DESC
@@ -35,19 +36,20 @@
 
   <select id="myPageGroup"
     resultType="com.kar20240901.be.base.web.model.vo.im.BaseImApplyGroupPageGroupVO">
-    SELECT a.id,a.apply_content,a.apply_time,a.status,b.nickname,b.avatar_file_id
+    SELECT a.id, a.apply_content, a.apply_time, a.status, b.nickname, b.avatar_file_id
 
     FROM base_im_apply_group a
 
-    LEFT JOIN base_user_info b ON b.id = a.user_id
+           LEFT JOIN base_user_info b ON b.id = a.user_id
 
     WHERE a.target_group_id = #{dto.groupId}
 
-    AND b.id IS NOT NULL
+      AND b.id IS NOT NULL
 
     <if test="dto.searchKey != null and dto.searchKey != ''">
       AND (b.nickname LIKE CONCAT('%', #{dto.searchKey}, '%') OR a.apply_content LIKE CONCAT('%',
-      #{dto.searchKey}, '%'))
+                                                                                             #{dto.searchKey},
+                                                                                             '%'))
     </if>
 
     ORDER BY a.update_time DESC
