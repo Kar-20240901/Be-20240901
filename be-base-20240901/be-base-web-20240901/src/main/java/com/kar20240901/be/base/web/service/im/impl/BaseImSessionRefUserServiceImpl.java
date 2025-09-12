@@ -207,6 +207,18 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
             return resPage;
         }
 
+        // 后续处理分页排序查询
+        sufHandlePage(resPage);
+
+        return resPage;
+
+    }
+
+    /**
+     * 后续处理分页排序查询
+     */
+    private void sufHandlePage(Page<BaseImSessionRefUserPageVO> resPage) {
+
         Set<Long> sessionIdSet =
             resPage.getRecords().stream().map(BaseImSessionRefUserPageVO::getSessionId).collect(Collectors.toSet());
 
@@ -231,8 +243,6 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
             item.setUnReadCount(baseImSessionRefUserQueryLastContentVO.getUnReadCount());
 
         }
-
-        return resPage;
 
     }
 
@@ -272,6 +282,9 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
         Page<BaseImSessionRefUserPageVO> resPage =
             baseMapper.myPage(MyPageUtil.getScrollPage(dto.getPageSize()), pageDTO, currentUserId);
+
+        // 后续处理分页排序查询
+        sufHandlePage(resPage);
 
         return resPage.getRecords();
 

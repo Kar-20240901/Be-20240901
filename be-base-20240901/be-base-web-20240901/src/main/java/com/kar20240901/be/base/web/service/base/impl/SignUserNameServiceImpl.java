@@ -121,7 +121,7 @@ public class SignUserNameServiceImpl implements SignUserNameService {
 
         return SignUtil.sendCode(key,
             ChainWrappers.lambdaQueryChain(baseUserMapper).eq(TempUserDO::getEmail, dto.getEmail()), false,
-            BaseBizCodeEnum.EMAIL_NOT_REGISTERED,
+            BaseBizCodeEnum.EMAIL_HAS_BEEN_REGISTERED,
             (code) -> MyEmailUtil.send(dto.getEmail(), EmailMessageEnum.BIND_EMAIL, code));
 
     }

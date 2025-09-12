@@ -173,8 +173,10 @@ public class SignUtil {
         }
 
         if (mustExist == null) {
+            return;
+        }
 
-        } else if (mustExist) {
+        if (mustExist) {
 
             if (!exists) {
                 R.error(iBizCode);

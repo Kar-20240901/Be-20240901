@@ -5,18 +5,18 @@
   <select id="myPage"
           resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserPageVO">
     SELECT a.session_id,
-    IF(a.name = '', a.target_name, a.name) AS sessionName,
-    a.avatar_url,
-    a.target_id,
-    a.target_type
+           IF(a.name = '', a.target_name, a.name) AS sessionName,
+           a.avatar_url,
+           a.target_id,
+           a.target_type
 
     FROM base_im_session_ref_user a
 
-    LEFT JOIN base_im_session b ON b.id = a.session_id
+           LEFT JOIN base_im_session b ON b.id = a.session_id
 
     WHERE a.show_flag = TRUE
 
-    AND a.user_id = #{currentUserId}
+      AND a.user_id = #{currentUserId}
 
     <if test="dto.sessionId != null">
       <choose>
@@ -42,15 +42,15 @@
     </if>
 
     <if test="dto.searchKey != null and dto.searchKey != ''">
-      AND (a.name LIKE CONCAT('%', #{dto.searchKey}, '%') OR a.target_name LIKE CONCAT('%',
-      #{dto.searchKey}, '%'))
+      AND (a.name LIKE CONCAT('%', #{dto.searchKey}, '%')
+        OR a.target_name LIKE CONCAT('%', #{dto.searchKey}, '%'))
     </if>
 
     ORDER BY b.last_receive_ts DESC
   </select>
 
   <select id="queryUnReadCount" resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO">
-    SELECT a.session_id AS sessionId, LEAST(100, COUNT(*)) AS unReadCount
+    SELECT a.session_id AS sessionId, COUNT(*) AS unReadCount
 
     FROM base_im_session_ref_user a
            LEFT JOIN base_im_session_content b ON b.session_id = a.session_id
