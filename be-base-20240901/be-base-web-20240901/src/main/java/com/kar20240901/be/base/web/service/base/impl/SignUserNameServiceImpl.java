@@ -115,7 +115,7 @@ public class SignUserNameServiceImpl implements SignUserNameService {
     @Override
     public String setEmailSendCode(SignUserNameSetEmailSendCodeDTO dto) {
 
-        SignUtil.checkWillError(PRE_REDIS_KEY_ENUM, null, null, false); // 检查：是否可以进行操作
+        SignUtil.checkWillError(PRE_REDIS_KEY_ENUM, null, null, true); // 检查：是否可以进行操作
 
         String key = BaseRedisKeyEnum.PRE_EMAIL + ":" + dto.getEmail();
 
@@ -132,7 +132,7 @@ public class SignUserNameServiceImpl implements SignUserNameService {
     @Override
     public String setEmail(SignUserNameSetEmailDTO dto) {
 
-        SignUtil.checkWillError(PRE_REDIS_KEY_ENUM, null, null, false); // 检查：是否可以进行操作
+        SignUtil.checkWillError(PRE_REDIS_KEY_ENUM, null, null, true); // 检查：是否可以进行操作
 
         return SignUtil.bindAccount(dto.getCode(), BaseRedisKeyEnum.PRE_EMAIL, dto.getEmail(), null, null,
             dto.getCurrentPassword());

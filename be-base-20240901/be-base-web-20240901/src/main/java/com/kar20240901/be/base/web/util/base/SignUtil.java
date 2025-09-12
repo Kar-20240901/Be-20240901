@@ -678,12 +678,12 @@ public class SignUtil {
     /**
      * 检查：是否可以进行操作：敏感操作都需要调用此方法
      *
-     * @param baseRedisKeyEnum   操作账户的类型：用户名，邮箱，微信，手机号
-     * @param account            账号信息，一般情况为 null，只有：忘记密码，才会传值
-     * @param updatePasswordFlag 是否是更新密码操作
+     * @param baseRedisKeyEnum    操作账户的类型：用户名，邮箱，微信，手机号
+     * @param account             账号信息，一般情况为 null，只有：忘记密码，才会传值
+     * @param allowSuperAdminFlag 是否允许超级管理员进行操作操作
      */
     public static void checkWillError(BaseRedisKeyEnum baseRedisKeyEnum, @Nullable String account,
-        @Nullable String appId, boolean updatePasswordFlag) {
+        @Nullable String appId, boolean allowSuperAdminFlag) {
 
         Long userId = null;
 
@@ -691,7 +691,7 @@ public class SignUtil {
 
         if (accountBlankFlag) {
 
-            if (updatePasswordFlag) {
+            if (allowSuperAdminFlag) {
 
                 userId = MyUserUtil.getCurrentUserId();
 
@@ -818,12 +818,12 @@ public class SignUtil {
     public static String updatePassword(String newPasswordTemp, String originNewPasswordTemp,
         Enum<? extends IRedisKey> redisKeyEnum, String code, String oldPassword) {
 
-        Long currentUserIdNotAdmin = MyUserUtil.getCurrentUserIdNotSuperAdmin();
+        Long currentUserId = MyUserUtil.getCurrentUserId();
 
         if (BaseRedisKeyEnum.PRE_USER_NAME.equals(redisKeyEnum)) {
 
             // 检查：当前密码是否正确
-            checkCurrentPasswordWillError(oldPassword, currentUserIdNotAdmin, null);
+            checkCurrentPasswordWillError(oldPassword, currentUserId, null);
 
         }
 
@@ -835,7 +835,7 @@ public class SignUtil {
         }
 
         // 获取：账号
-        String account = getAccountByUserIdAndRedisKeyEnum(redisKeyEnum, currentUserIdNotAdmin);
+        String account = getAccountByUserIdAndRedisKeyEnum(redisKeyEnum, currentUserId);
 
         String key = redisKeyEnum + ":" + account;
 
@@ -852,7 +852,7 @@ public class SignUtil {
 
             TempUserDO tempUserDO = new TempUserDO();
 
-            tempUserDO.setId(currentUserIdNotAdmin);
+            tempUserDO.setId(currentUserId);
 
             tempUserDO.setPassword(PasswordConvertUtil.convert(newPassword, true));
 
@@ -863,9 +863,9 @@ public class SignUtil {
                 RedissonUtil.batch((batch) -> {
 
                     // 移除密码错误次数相关
-                    batch.getBucket(BaseRedisKeyEnum.PRE_PASSWORD_ERROR_COUNT.name() + ":" + currentUserIdNotAdmin)
+                    batch.getBucket(BaseRedisKeyEnum.PRE_PASSWORD_ERROR_COUNT.name() + ":" + currentUserId)
                         .deleteAsync();
-                    batch.getBucket(BaseRedisKeyEnum.PRE_TOO_MANY_PASSWORD_ERROR.name() + ":" + currentUserIdNotAdmin)
+                    batch.getBucket(BaseRedisKeyEnum.PRE_TOO_MANY_PASSWORD_ERROR.name() + ":" + currentUserId)
                         .deleteAsync();
 
                     if (checkCodeFlag) {
@@ -875,7 +875,7 @@ public class SignUtil {
                 });
 
                 // 移除：jwt相关
-                SignUtil.removeJwt(CollUtil.newHashSet(currentUserIdNotAdmin));
+                SignUtil.removeJwt(CollUtil.newHashSet(currentUserId));
 
                 return TempBizCodeEnum.OK;
 
