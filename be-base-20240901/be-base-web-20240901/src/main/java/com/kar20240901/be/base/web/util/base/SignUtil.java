@@ -581,7 +581,8 @@ public class SignUtil {
         BaseRequestCategoryEnum baseRequestCategoryEnum) {
 
         // 校验密码，成功之后，再判断是否被冻结，免得透露用户被封号的信息
-        if (BooleanUtil.isFalse(tempUserDO.getEnableFlag())) {
+        if (BooleanUtil.isFalse(MyUserUtil.getCurrentUserSuperAdminFlag(tempUserDO.getId())) && BooleanUtil.isFalse(
+            tempUserDO.getEnableFlag())) {
 
             R.error(TempBizCodeEnum.ACCOUNT_IS_DISABLED);
 
