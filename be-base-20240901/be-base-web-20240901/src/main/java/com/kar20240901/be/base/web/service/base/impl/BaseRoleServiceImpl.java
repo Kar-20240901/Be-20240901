@@ -38,7 +38,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.annotation.Resource;
-import org.redisson.api.RKeys;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
@@ -140,7 +139,7 @@ public class BaseRoleServiceImpl extends ServiceImpl<BaseRoleMapper, BaseRoleDO>
 
         if (userIdSet == null) {
 
-            TempKafkaUtil.sendDeleteCacheTopic(TempRedisKeyEnum.PRE_USER_AUTH.name() + ":*");
+            TempKafkaUtil.sendDeleteCacheTopic(CollUtil.newArrayList(TempRedisKeyEnum.PRE_USER_AUTH.name() + ":*"));
 
         } else {
 
@@ -148,12 +147,10 @@ public class BaseRoleServiceImpl extends ServiceImpl<BaseRoleMapper, BaseRoleDO>
                 return;
             }
 
-            RKeys keys = redissonClient.getKeys();
+            List<String> redisKeyList = userIdSet.stream().map(it -> TempRedisKeyEnum.PRE_USER_AUTH.name() + ":" + it)
+                .collect(Collectors.toList());
 
-            String[] redisKeyArr =
-                userIdSet.stream().map(it -> TempRedisKeyEnum.PRE_USER_AUTH.name() + ":" + it).toArray(String[]::new);
-
-            keys.delete(redisKeyArr);
+            TempKafkaUtil.sendDeleteCacheTopic(redisKeyList);
 
         }
 
@@ -166,7 +163,7 @@ public class BaseRoleServiceImpl extends ServiceImpl<BaseRoleMapper, BaseRoleDO>
 
         if (userIdSet == null) {
 
-            TempKafkaUtil.sendDeleteCacheTopic(TempRedisKeyEnum.PRE_USER_MENU.name() + ":*");
+            TempKafkaUtil.sendDeleteCacheTopic(CollUtil.newArrayList(TempRedisKeyEnum.PRE_USER_MENU.name() + ":*"));
 
         } else {
 
@@ -174,12 +171,10 @@ public class BaseRoleServiceImpl extends ServiceImpl<BaseRoleMapper, BaseRoleDO>
                 return;
             }
 
-            RKeys keys = redissonClient.getKeys();
+            List<String> redisKeyList = userIdSet.stream().map(it -> TempRedisKeyEnum.PRE_USER_MENU.name() + ":" + it)
+                .collect(Collectors.toList());
 
-            String[] redisKeyArr =
-                userIdSet.stream().map(it -> TempRedisKeyEnum.PRE_USER_MENU.name() + ":" + it).toArray(String[]::new);
-
-            keys.delete(redisKeyArr);
+            TempKafkaUtil.sendDeleteCacheTopic(redisKeyList);
 
         }
 

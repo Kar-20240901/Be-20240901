@@ -6,8 +6,6 @@ import com.kar20240901.be.base.web.model.dto.base.BaseUserConfigurationInsertOrU
 
 public interface BaseUserConfigurationService extends IService<BaseUserConfigurationDO> {
 
-    BaseUserConfigurationDO getBaseUserConfigurationDo();
-
     String insertOrUpdate(BaseUserConfigurationInsertOrUpdateDTO dto);
 
     BaseUserConfigurationDO infoById();

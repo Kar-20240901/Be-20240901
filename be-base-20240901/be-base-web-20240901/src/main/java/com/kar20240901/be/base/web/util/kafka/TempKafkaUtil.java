@@ -8,6 +8,7 @@ import com.kar20240901.be.base.web.model.domain.pay.BasePayDO;
 import com.kar20240901.be.base.web.model.enums.kafka.BaseKafkaTopicEnum;
 import com.kar20240901.be.base.web.model.interfaces.kafka.IKafkaTopic;
 import com.kar20240901.be.base.web.util.socket.WebSocketUtil;
+import java.util.List;
 import java.util.Set;
 import lombok.SneakyThrows;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -111,9 +112,9 @@ public class TempKafkaUtil {
     /**
      * 发送消息：删除缓存的 topic
      */
-    public static void sendDeleteCacheTopic(String pattern) {
+    public static void sendDeleteCacheTopic(List<String> patternList) {
 
-        sendStr(BaseKafkaTopicEnum.DELETE_CACHE_TOPIC, pattern);
+        sendStr(BaseKafkaTopicEnum.DELETE_CACHE_TOPIC, patternList);
 
     }
 

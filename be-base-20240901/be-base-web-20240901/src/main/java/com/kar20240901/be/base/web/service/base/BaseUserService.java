@@ -34,4 +34,8 @@ public interface BaseUserService extends IService<TempUserDO> {
 
     String freeze(NotEmptyIdSet notEmptyIdSet);
 
+    String signOut(NotEmptyIdSet notEmptyIdSet);
+
+    String signOutAll();
+
 }

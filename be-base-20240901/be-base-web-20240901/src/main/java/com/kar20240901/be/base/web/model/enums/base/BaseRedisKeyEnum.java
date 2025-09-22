@@ -57,6 +57,8 @@ public enum BaseRedisKeyEnum implements IRedisKey {
     PRE_PASSWORD_ERROR_COUNT, // 密码错误总数：锁【用户主键 id】
 
     // 【_CACHE】结尾 ↓
+    SIGN_CONFIGURATION_CACHE, // 用户登录注册相关配置缓存
+
     GOOGLE_ACCESS_TOKEN_CACHE, // google接口调用凭据
 
     WX_WORK_ACCESS_TOKEN_CACHE, // 企业微信全局唯一后台接口调用凭据

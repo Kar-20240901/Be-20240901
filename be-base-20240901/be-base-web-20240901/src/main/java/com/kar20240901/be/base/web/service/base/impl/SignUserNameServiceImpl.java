@@ -21,9 +21,9 @@ import com.kar20240901.be.base.web.model.enums.base.BaseRedisKeyEnum;
 import com.kar20240901.be.base.web.model.enums.base.EmailMessageEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.base.SignInVO;
-import com.kar20240901.be.base.web.service.base.BaseUserConfigurationService;
 import com.kar20240901.be.base.web.service.base.SignUserNameService;
 import com.kar20240901.be.base.web.util.base.BaseJwtUtil;
+import com.kar20240901.be.base.web.util.base.BaseUserConfigurationUtil;
 import com.kar20240901.be.base.web.util.base.MyEmailUtil;
 import com.kar20240901.be.base.web.util.base.MyJwtUtil;
 import com.kar20240901.be.base.web.util.base.RequestUtil;
@@ -36,9 +36,6 @@ import org.springframework.stereotype.Service;
 public class SignUserNameServiceImpl implements SignUserNameService {
 
     private static final BaseRedisKeyEnum PRE_REDIS_KEY_ENUM = BaseRedisKeyEnum.PRE_USER_NAME;
-
-    @Resource
-    BaseUserConfigurationService baseUserConfigurationService;
 
     @Resource
     BaseUserMapper baseUserMapper;
@@ -63,7 +60,7 @@ public class SignUserNameServiceImpl implements SignUserNameService {
      */
     private void checkSignUpEnable() {
 
-        BaseUserConfigurationDO baseUserConfigurationDO = baseUserConfigurationService.getBaseUserConfigurationDo();
+        BaseUserConfigurationDO baseUserConfigurationDO = BaseUserConfigurationUtil.getBaseUserConfigurationDo();
 
         if (BooleanUtil.isFalse(baseUserConfigurationDO.getUserNameSignUpEnable())) {
             R.errorMsg("操作失败：不允许用户名注册，请联系管理员");

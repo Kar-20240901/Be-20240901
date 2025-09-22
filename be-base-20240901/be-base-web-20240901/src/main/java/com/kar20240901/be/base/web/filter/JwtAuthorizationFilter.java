@@ -13,7 +13,6 @@ import com.kar20240901.be.base.web.model.vo.base.SignInVO;
 import com.kar20240901.be.base.web.util.base.BaseJwtUtil;
 import com.kar20240901.be.base.web.util.base.MyExceptionUtil;
 import com.kar20240901.be.base.web.util.base.MyJwtUtil;
-import com.kar20240901.be.base.web.util.base.MyThreadUtil;
 import com.kar20240901.be.base.web.util.base.RequestUtil;
 import com.kar20240901.be.base.web.util.base.ResponseUtil;
 import java.util.List;
@@ -134,17 +133,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             return;
         }
 
-        MyThreadUtil.execute(() -> {
+        String ip = RequestUtil.getIp(request);
 
-            String ip = RequestUtil.getIp(request);
+        for (IJwtFilterHandler iJwtFilterHandler : iJwtFilterHandlerList) {
 
-            for (IJwtFilterHandler iJwtFilterHandler : iJwtFilterHandlerList) {
+            iJwtFilterHandler.handleJwt(userId, ip, jwt, request);
 
-                iJwtFilterHandler.handleJwt(userId, ip, jwt);
-
-            }
-
-        });
+        }
 
     }
 

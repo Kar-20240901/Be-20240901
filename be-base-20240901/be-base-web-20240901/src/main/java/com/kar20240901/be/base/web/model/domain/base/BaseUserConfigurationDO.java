@@ -24,4 +24,10 @@ public class BaseUserConfigurationDO {
     @Schema(description = "是否启用：手机号码注册功能，默认启用")
     private Boolean phoneSignUpEnable;
 
+    @Schema(description = "管理员用户是否可以登录，备注：超级管理员除外")
+    private Boolean manageSignInEnable;
+
+    @Schema(description = "普通用户是否可以登录，备注：管理员和超级管理员除外")
+    private Boolean normalSignInEnable;
+
 }

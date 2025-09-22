@@ -1255,6 +1255,10 @@ public class SignUtil {
      */
     public static void removeJwt(Set<Long> userIdSet) {
 
+        if (CollUtil.isEmpty(userIdSet)) {
+            return;
+        }
+
         RBatch rBatch = redissonClient.createBatch();
 
         RKeysAsync rKeysAsync = rBatch.getKeys();

@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.annotation.Resource;
-import org.redisson.api.RKeys;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
@@ -145,7 +144,7 @@ public class BaseParamServiceImpl extends ServiceImpl<BaseParamMapper, BaseParam
 
         if (uuidSet == null) {
 
-            TempKafkaUtil.sendDeleteCacheTopic(TempRedisKeyEnum.PRE_PARAM_UUID.name() + ":*");
+            TempKafkaUtil.sendDeleteCacheTopic(CollUtil.newArrayList(TempRedisKeyEnum.PRE_PARAM_UUID.name() + ":*"));
 
         } else {
 
@@ -153,12 +152,10 @@ public class BaseParamServiceImpl extends ServiceImpl<BaseParamMapper, BaseParam
                 return;
             }
 
-            RKeys keys = redissonClient.getKeys();
+            List<String> redisKeyList = uuidSet.stream().map(it -> TempRedisKeyEnum.PRE_PARAM_UUID.name() + ":" + it)
+                .collect(Collectors.toList());
 
-            String[] redisKeyArr =
-                uuidSet.stream().map(it -> TempRedisKeyEnum.PRE_PARAM_UUID.name() + ":" + it).toArray(String[]::new);
-
-            keys.delete(redisKeyArr);
+            TempKafkaUtil.sendDeleteCacheTopic(redisKeyList);
 
         }
 

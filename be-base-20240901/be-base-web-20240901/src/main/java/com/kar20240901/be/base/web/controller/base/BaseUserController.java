@@ -98,4 +98,18 @@ public class BaseUserController {
         return R.okMsg(baseService.freeze(notEmptyIdSet));
     }
 
+    @Operation(summary = "批量：退出登录")
+    @PostMapping("/signOut")
+    @PreAuthorize("hasAuthority('baseUser:insertOrUpdate')")
+    public R<String> signOut(@RequestBody @Valid NotEmptyIdSet notEmptyIdSet) {
+        return R.okMsg(baseService.signOut(notEmptyIdSet));
+    }
+
+    @Operation(summary = "全部退出登录")
+    @PostMapping("/signOutAll")
+    @PreAuthorize("hasAuthority('baseUser:insertOrUpdate')")
+    public R<String> signOutAll() {
+        return R.okMsg(baseService.signOutAll());
+    }
+
 }

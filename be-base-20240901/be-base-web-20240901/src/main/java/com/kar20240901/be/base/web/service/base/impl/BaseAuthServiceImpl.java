@@ -10,7 +10,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.exception.base.BaseBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.base.BaseAuthMapper;
-import com.kar20240901.be.base.web.mapper.base.BaseRoleRefUserMapper;
 import com.kar20240901.be.base.web.model.domain.base.BaseAuthDO;
 import com.kar20240901.be.base.web.model.domain.base.BaseRoleRefAuthDO;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
@@ -37,9 +36,6 @@ public class BaseAuthServiceImpl extends ServiceImpl<BaseAuthMapper, BaseAuthDO>
 
     @Resource
     BaseRoleRefAuthService baseRoleRefAuthService;
-
-    @Resource
-    BaseRoleRefUserMapper baseRoleRefUserMapper;
 
     /**
      * 新增/修改

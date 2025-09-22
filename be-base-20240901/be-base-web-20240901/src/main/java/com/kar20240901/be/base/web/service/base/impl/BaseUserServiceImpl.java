@@ -572,4 +572,42 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
 
     }
 
+    /**
+     * 批量：退出登录
+     */
+    @Override
+    public String signOut(NotEmptyIdSet notEmptyIdSet) {
+
+        if (CollUtil.isEmpty(notEmptyIdSet.getIdSet())) {
+            return TempBizCodeEnum.OK;
+        }
+
+        // 移除：jwt
+        SignUtil.removeJwt(notEmptyIdSet.getIdSet());
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 全部退出登录
+     */
+    @Override
+    public String signOutAll() {
+
+        List<TempUserDO> tempUserDOList = lambdaQuery().select(TempEntity::getId).list();
+
+        if (CollUtil.isEmpty(tempUserDOList)) {
+            return TempBizCodeEnum.OK;
+        }
+
+        Set<Long> userIdSet = tempUserDOList.stream().map(TempEntity::getId).collect(Collectors.toSet());
+
+        // 移除：jwt
+        SignUtil.removeJwt(userIdSet);
+
+        return TempBizCodeEnum.OK;
+
+    }
+
 }

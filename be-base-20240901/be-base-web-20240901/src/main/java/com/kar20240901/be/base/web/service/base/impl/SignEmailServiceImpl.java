@@ -32,8 +32,8 @@ import com.kar20240901.be.base.web.model.vo.base.BaseQrCodeSceneBindVO;
 import com.kar20240901.be.base.web.model.vo.base.GetQrCodeVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.base.SignInVO;
-import com.kar20240901.be.base.web.service.base.BaseUserConfigurationService;
 import com.kar20240901.be.base.web.service.base.SignEmailService;
+import com.kar20240901.be.base.web.util.base.BaseUserConfigurationUtil;
 import com.kar20240901.be.base.web.util.base.MyEmailUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import com.kar20240901.be.base.web.util.base.RequestUtil;
@@ -50,9 +50,6 @@ public class SignEmailServiceImpl implements SignEmailService {
 
     @Resource
     BaseUserMapper baseUserMapper;
-
-    @Resource
-    BaseUserConfigurationService baseUserConfigurationService;
 
     /**
      * 注册-发送验证码
@@ -76,7 +73,7 @@ public class SignEmailServiceImpl implements SignEmailService {
      */
     private void checkSignUpEnable() {
 
-        BaseUserConfigurationDO baseUserConfigurationDO = baseUserConfigurationService.getBaseUserConfigurationDo();
+        BaseUserConfigurationDO baseUserConfigurationDO = BaseUserConfigurationUtil.getBaseUserConfigurationDo();
 
         if (BooleanUtil.isFalse(baseUserConfigurationDO.getEmailSignUpEnable())) {
             R.errorMsg("操作失败：不允许邮箱注册，请联系管理员");

@@ -1,8 +1,10 @@
 package com.kar20240901.be.base.web.listener.base;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.json.JSONUtil;
 import com.kar20240901.be.base.web.model.enums.kafka.BaseKafkaTopicEnum;
-import com.kar20240901.be.base.web.util.base.MyTryUtil;
+import com.kar20240901.be.base.web.util.base.MyThreadUtil;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -33,15 +35,24 @@ public class DeleteCacheKafkaListener {
 
         acknowledgment.acknowledge();
 
-        MyTryUtil.tryCatch(() -> {
+        // 延迟：1秒再执行
+        MyThreadUtil.schedule(() -> {
+
+            log.info("删除缓存的 kafka监听器：{}", recordList);
 
             for (String item : recordList) {
 
-                redissonClient.getKeys().deleteByPatternAsync(item);
+                List<String> redisKeyList = JSONUtil.toList(item, String.class);
+
+                for (String subItem : redisKeyList) {
+
+                    redissonClient.getKeys().deleteByPatternAsync(subItem);
+
+                }
 
             }
 
-        });
+        }, new Date(System.currentTimeMillis() + 1000));
 
     }
 
