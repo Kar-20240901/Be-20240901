@@ -8,6 +8,7 @@ import com.kar20240901.be.base.web.configuration.base.BaseConfiguration;
 import com.kar20240901.be.base.web.configuration.security.SecurityConfiguration;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.model.configuration.base.IJwtGenerateConfiguration;
+import com.kar20240901.be.base.web.model.interfaces.base.IBizCode;
 import com.kar20240901.be.base.web.model.interfaces.base.IJwtFilterHandler;
 import com.kar20240901.be.base.web.model.vo.base.SignInVO;
 import com.kar20240901.be.base.web.util.base.BaseJwtUtil;
@@ -110,7 +111,15 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         }
 
-        handleIjwtFilterList(userId, jwt, request); // 扩展处理 jwt
+        // 扩展处理 jwt
+        IBizCode iBizCode = handleIjwtFilterList(userId, jwt, request);
+
+        if (iBizCode != null) {
+
+            ResponseUtil.out(response, iBizCode);
+            return;
+
+        }
 
         Set<String> authSet = MyJwtUtil.getAuthSetByUserId(userId); // 获取：权限
 
@@ -126,20 +135,30 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     /**
      * 扩展处理 jwt
+     *
+     * @return null 表示成功，反之表示失败
      */
-    private void handleIjwtFilterList(Long userId, JWT jwt, HttpServletRequest request) {
+    private IBizCode handleIjwtFilterList(Long userId, JWT jwt, HttpServletRequest request) {
 
         if (CollUtil.isEmpty(iJwtFilterHandlerList)) {
-            return;
+            return null;
         }
 
         String ip = RequestUtil.getIp(request);
 
         for (IJwtFilterHandler iJwtFilterHandler : iJwtFilterHandlerList) {
 
-            iJwtFilterHandler.handleJwt(userId, ip, jwt, request);
+            IBizCode iBizCode = iJwtFilterHandler.handleJwt(userId, ip, jwt, request);
+
+            if (iBizCode != null) {
+
+                return iBizCode;
+
+            }
 
         }
+
+        return null;
 
     }
 

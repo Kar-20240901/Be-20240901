@@ -15,10 +15,10 @@ public class BaseUserConfigurationInsertOrUpdateDTO {
     @Schema(description = "是否启用：手机号码注册功能")
     private Boolean phoneSignUpEnable;
 
-    @Schema(description = "管理员用户是否可以登录，备注：超级管理员除外")
-    private Boolean manageSignInEnable;
+    @Schema(description = "管理员用户是否可以操作，备注：超级管理员除外")
+    private Boolean manageOperateEnable;
 
-    @Schema(description = "普通用户是否可以登录，备注：管理员和超级管理员除外")
-    private Boolean normalSignInEnable;
+    @Schema(description = "普通用户是否可以操作，备注：管理员和超级管理员除外")
+    private Boolean normalOperateEnable;
 
 }

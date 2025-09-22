@@ -78,8 +78,8 @@ public class BaseUserConfigurationUtil {
                 tempBaseUserConfigurationDO.setUserNameSignUpEnable(true);
                 tempBaseUserConfigurationDO.setEmailSignUpEnable(true);
                 tempBaseUserConfigurationDO.setPhoneSignUpEnable(true);
-                tempBaseUserConfigurationDO.setManageSignInEnable(true);
-                tempBaseUserConfigurationDO.setNormalSignInEnable(true);
+                tempBaseUserConfigurationDO.setManageOperateEnable(true);
+                tempBaseUserConfigurationDO.setNormalOperateEnable(true);
 
                 // 保存：用户登录注册相关配置
                 baseSignConfigurationMapper.insert(tempBaseUserConfigurationDO);

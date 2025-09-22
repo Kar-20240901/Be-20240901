@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 
 public interface IJwtFilterHandler {
 
-    void handleJwt(Long userId, String ip, JWT jwt, HttpServletRequest request);
+    // null表示成功，反之表示错误
+    IBizCode handleJwt(Long userId, String ip, JWT jwt, HttpServletRequest request);
 
 }
