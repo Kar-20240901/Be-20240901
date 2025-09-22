@@ -52,7 +52,7 @@ public class DeleteCacheKafkaListener {
 
             }
 
-        }, new Date(System.currentTimeMillis() + 1000));
+        }, new Date(System.currentTimeMillis() + 200));
 
     }
 
