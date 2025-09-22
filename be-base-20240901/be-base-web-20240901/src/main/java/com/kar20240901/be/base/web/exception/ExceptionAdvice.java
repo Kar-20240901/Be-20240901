@@ -43,7 +43,7 @@ public class ExceptionAdvice {
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     public R<?> handleValidException(MethodArgumentNotValidException e) {
 
-        MyExceptionUtil.printError(e);
+        MyExceptionUtil.printError(e, "，uri：" + httpServletRequest.getRequestURI());
 
         // 返回详细的参数校验错误信息
         Map<String, String> map = MapUtil.newHashMap(e.getBindingResult().getFieldErrors().size());
@@ -77,7 +77,7 @@ public class ExceptionAdvice {
     @ExceptionHandler(value = IllegalArgumentException.class)
     public R<?> handleIllegalArgumentException(IllegalArgumentException e) {
 
-        MyExceptionUtil.printError(e);
+        MyExceptionUtil.printError(e, "，uri：" + httpServletRequest.getRequestURI());
 
         return R.errorMsgOrigin(e.getMessage());
 
@@ -89,7 +89,7 @@ public class ExceptionAdvice {
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
     public R<?> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
 
-        MyExceptionUtil.printError(e);
+        MyExceptionUtil.printError(e, "，uri：" + httpServletRequest.getRequestURI());
 
         R<String> r = R.errorOrigin(TempBizCodeEnum.PARAMETER_CHECK_ERROR, e.getMessage());
 
@@ -106,7 +106,7 @@ public class ExceptionAdvice {
     @ExceptionHandler(value = TempException.class)
     public R<?> handleBaseException(TempException e) {
 
-        MyExceptionUtil.printError(e);
+        MyExceptionUtil.printError(e, "，uri：" + httpServletRequest.getRequestURI());
 
         return e.getR();
 
@@ -147,7 +147,7 @@ public class ExceptionAdvice {
     @ExceptionHandler(value = Throwable.class)
     public R<?> handleThrowable(Throwable e) {
 
-        MyExceptionUtil.printError(e);
+        MyExceptionUtil.printError(e, "，uri：" + httpServletRequest.getRequestURI());
 
         R<String> r = R.errorOrigin(TempBizCodeEnum.RESULT_SYS_ERROR);
 

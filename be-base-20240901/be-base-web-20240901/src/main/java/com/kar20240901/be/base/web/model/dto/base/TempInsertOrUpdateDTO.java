@@ -14,7 +14,7 @@ public class TempInsertOrUpdateDTO {
     /**
      * 允许为 null
      */
-    @Min(1)
+    @Min(0)
     @Schema(description = "主键 id")
     private Long id;
 

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class NotNullId {
 
-    @Min(1)
+    @Min(0)
     @NotNull
     @Schema(description = "主键 id")
     private Long id;

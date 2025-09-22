@@ -622,7 +622,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
 
         }
 
-        MyExceptionUtil.printError(e);
+        MyExceptionUtil.printError(e, "，uri：" + uri);
 
         WebSocketMessageDTO<Object> webSocketMessageDTO = new WebSocketMessageDTO<>(uri);
 

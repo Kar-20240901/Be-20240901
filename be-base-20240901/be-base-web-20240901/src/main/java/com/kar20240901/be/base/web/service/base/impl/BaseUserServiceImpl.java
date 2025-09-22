@@ -440,6 +440,10 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
+        if (MyUserUtil.getCurrentUserSuperAdminFlag(currentUserId)) {
+            return true;
+        }
+
         // 执行
         return getManageSignInFlag(currentUserId);
 
@@ -471,8 +475,6 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
     @Override
     @DSTransactional
     public String resetAvatar(NotEmptyIdSet notEmptyIdSet) {
-
-        notEmptyIdSet.getIdSet().remove(TempConstant.ADMIN_ID);
 
         if (CollUtil.isEmpty(notEmptyIdSet.getIdSet())) {
             return TempBizCodeEnum.OK;

@@ -166,7 +166,7 @@ public class BaseRequestAop {
 
             }
 
-            MyExceptionUtil.printError(e);
+            MyExceptionUtil.printError(e, "，uri：" + uri);
 
             handleThrowable(baseRequestDO, e, costMs, baseRequestInfoDO); // 处理：异常
 

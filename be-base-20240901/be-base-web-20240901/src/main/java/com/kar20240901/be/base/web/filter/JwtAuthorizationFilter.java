@@ -85,7 +85,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         } catch (Exception e) {
 
-            MyExceptionUtil.printError(e);
+            MyExceptionUtil.printError(e, "，uri：" + request.getRequestURI());
             ResponseUtil.out(response, TempBizCodeEnum.LOGIN_EXPIRED);
             return;
 

@@ -65,7 +65,6 @@ import com.kar20240901.be.base.web.service.file.BaseFileTransferService;
 import com.kar20240901.be.base.web.util.base.CallBack;
 import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
-import com.kar20240901.be.base.web.util.base.MyExceptionUtil;
 import com.kar20240901.be.base.web.util.base.MyStrUtil;
 import com.kar20240901.be.base.web.util.base.MyTryUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
@@ -995,8 +994,6 @@ public class BaseFileUtil {
                 baseFileTransferService.lambdaUpdate().eq(BaseFileTransferDO::getId, transferId)
                     .set(BaseFileTransferDO::getStatus, BaseFileTransferStatusEnum.TRANSFER_COMPLETE)
                     .set(TempEntityNoIdSuper::getUpdateTime, date).update();
-
-                MyExceptionUtil.printError(e);
 
                 R.error("操作失败：合并异常", transferId);
 
