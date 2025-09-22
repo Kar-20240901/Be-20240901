@@ -99,10 +99,10 @@ public class BaseUserController {
     }
 
     @Operation(summary = "批量：退出登录")
-    @PostMapping("/signOut")
+    @PostMapping("/signOutByIdSet")
     @PreAuthorize("hasAuthority('baseUser:insertOrUpdate')")
-    public R<String> signOut(@RequestBody @Valid NotEmptyIdSet notEmptyIdSet) {
-        return R.okMsg(baseService.signOut(notEmptyIdSet));
+    public R<String> signOutByIdSet(@RequestBody @Valid NotEmptyIdSet notEmptyIdSet) {
+        return R.okMsg(baseService.signOutByIdSet(notEmptyIdSet));
     }
 
     @Operation(summary = "全部退出登录")

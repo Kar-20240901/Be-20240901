@@ -7,6 +7,7 @@ import com.kar20240901.be.base.web.model.domain.base.BaseUserConfigurationDO;
 import com.kar20240901.be.base.web.model.interfaces.base.IBizCode;
 import com.kar20240901.be.base.web.model.interfaces.base.IJwtFilterHandler;
 import com.kar20240901.be.base.web.util.base.BaseUserConfigurationUtil;
+import com.kar20240901.be.base.web.util.base.MyJwtUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;
@@ -23,7 +24,7 @@ public class UserConfigurationJwtFilterHandler implements IJwtFilterHandler {
 
         BaseUserConfigurationDO baseUserConfigurationDO = BaseUserConfigurationUtil.getBaseUserConfigurationDo();
 
-        if (MyUserUtil.getCurrentUserAdminFlag()) {
+        if (MyJwtUtil.getPayloadMapAdminFlagValue(jwt.getPayload().getClaimsJson())) {
 
             if (BooleanUtil.isFalse(baseUserConfigurationDO.getManageOperateEnable())) {
 

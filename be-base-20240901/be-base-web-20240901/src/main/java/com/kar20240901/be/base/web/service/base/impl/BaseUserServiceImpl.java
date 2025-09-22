@@ -576,7 +576,7 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
      * 批量：退出登录
      */
     @Override
-    public String signOut(NotEmptyIdSet notEmptyIdSet) {
+    public String signOutByIdSet(NotEmptyIdSet notEmptyIdSet) {
 
         if (CollUtil.isEmpty(notEmptyIdSet.getIdSet())) {
             return TempBizCodeEnum.OK;
