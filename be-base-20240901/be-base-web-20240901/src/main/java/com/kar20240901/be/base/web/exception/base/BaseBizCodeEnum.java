@@ -47,8 +47,8 @@ public enum BaseBizCodeEnum implements IBizCode {
     EMAIL_DOES_NOT_EXIST_PLEASE_RE_ENTER(300221, "操作失败：邮箱不存在，请重新输入"), //
     EMAIL_NOT_REGISTERED(300231, "操作失败：邮箱未注册，请重新输入"), //
 
-    MANAGE_OPERATE_NOT_ENABLE(300241, "操作失败：系统维护中，暂时无法进行操作"), //
-    NORMAL_OPERATE_NOT_ENABLE(300251, "操作失败：系统维护中，暂时无法进行操作"), //
+    MANAGE_OPERATE_NOT_ENABLE(100111, "操作失败：系统维护中，暂时无法进行操作，请联系超级管理员"), //
+    NORMAL_OPERATE_NOT_ENABLE(100111, "操作失败：系统维护中，暂时无法进行操作"), //
 
     ;
 

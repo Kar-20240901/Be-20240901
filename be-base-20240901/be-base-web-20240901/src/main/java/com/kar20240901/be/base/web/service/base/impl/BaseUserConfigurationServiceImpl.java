@@ -12,11 +12,16 @@ import com.kar20240901.be.base.web.model.enums.base.BaseRedisKeyEnum;
 import com.kar20240901.be.base.web.service.base.BaseUserConfigurationService;
 import com.kar20240901.be.base.web.util.base.BaseUserConfigurationUtil;
 import com.kar20240901.be.base.web.util.kafka.TempKafkaUtil;
+import javax.annotation.Resource;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
 @Service
 public class BaseUserConfigurationServiceImpl extends ServiceImpl<BaseSignConfigurationMapper, BaseUserConfigurationDO>
     implements BaseUserConfigurationService {
+
+    @Resource
+    RedissonClient redissonClient;
 
     /**
      * 新增/修改
@@ -50,6 +55,8 @@ public class BaseUserConfigurationServiceImpl extends ServiceImpl<BaseSignConfig
             updateById(baseUserConfigurationDO);
 
         }
+
+        redissonClient.getBucket(BaseRedisKeyEnum.SIGN_CONFIGURATION_CACHE.name()).delete();
 
         // 删除：缓存
         TempKafkaUtil.sendDeleteCacheTopic(CollUtil.newArrayList(BaseRedisKeyEnum.SIGN_CONFIGURATION_CACHE.name()));

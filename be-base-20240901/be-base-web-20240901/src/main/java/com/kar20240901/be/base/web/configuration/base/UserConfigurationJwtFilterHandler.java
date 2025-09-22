@@ -1,5 +1,6 @@
 package com.kar20240901.be.base.web.configuration.base;
 
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.jwt.JWT;
 import com.kar20240901.be.base.web.exception.base.BaseBizCodeEnum;
 import com.kar20240901.be.base.web.model.domain.base.BaseUserConfigurationDO;
@@ -24,7 +25,7 @@ public class UserConfigurationJwtFilterHandler implements IJwtFilterHandler {
 
         if (MyUserUtil.getCurrentUserAdminFlag()) {
 
-            if (baseUserConfigurationDO.getManageOperateEnable() == false) {
+            if (BooleanUtil.isFalse(baseUserConfigurationDO.getManageOperateEnable())) {
 
                 return BaseBizCodeEnum.MANAGE_OPERATE_NOT_ENABLE;
 
@@ -32,7 +33,7 @@ public class UserConfigurationJwtFilterHandler implements IJwtFilterHandler {
 
         } else {
 
-            if (baseUserConfigurationDO.getNormalOperateEnable() == false) {
+            if (BooleanUtil.isFalse(baseUserConfigurationDO.getNormalOperateEnable())) {
 
                 return BaseBizCodeEnum.NORMAL_OPERATE_NOT_ENABLE;
 
