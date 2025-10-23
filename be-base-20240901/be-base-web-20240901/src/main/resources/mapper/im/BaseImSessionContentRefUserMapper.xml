@@ -84,7 +84,7 @@
 
     FROM base_im_session_content_ref_user a
            LEFT JOIN base_im_session_content b ON b.id = a.content_id
-           LEFT JOIN base_im_session_ref_user c ON c.session_id = b.session_id
+           LEFT JOIN base_im_session_ref_user c ON c.user_id = a.user_id
 
     WHERE a.user_id = #{currentUserId}
 
