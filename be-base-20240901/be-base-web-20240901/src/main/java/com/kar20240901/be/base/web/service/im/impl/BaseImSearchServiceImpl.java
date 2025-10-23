@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import javax.annotation.Resource;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -92,6 +93,7 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
     /**
      * 搜索：联系人，群聊，聊天记录
      */
+    @SneakyThrows
     @Override
     public BaseImSearchBaseVO searchBase(BaseImSearchBaseDTO dto) {
 
@@ -184,6 +186,8 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
             contentList.addAll(baseImSearchBaseContentVoPage.getRecords());
 
         }, countDownLatch);
+
+        countDownLatch.await();
 
         BaseImSearchBaseVO baseImSearchBaseVO = new BaseImSearchBaseVO();
 

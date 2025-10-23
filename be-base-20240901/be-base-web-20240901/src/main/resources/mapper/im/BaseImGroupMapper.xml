@@ -9,7 +9,8 @@
            c.avatar_url                    AS avatarUrl
     FROM base_im_group_ref_user a
            LEFT JOIN base_im_group b ON b.id = a.group_id
-           LEFT JOIN base_im_session_ref_user c ON c.session_id = b.session_id
+           LEFT JOIN base_im_session_ref_user c
+                     ON c.session_id = b.session_id AND c.user_id = a.user_id
     WHERE a.user_id = #{currentUserId}
     <if test="dto.groupId != null">
       AND a.group_id = #{dto.groupId}
