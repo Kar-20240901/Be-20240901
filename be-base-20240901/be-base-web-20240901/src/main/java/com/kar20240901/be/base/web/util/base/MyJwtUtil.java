@@ -45,7 +45,7 @@ public class MyJwtUtil {
     public static final String PAYLOAD_MAP_WX_OPEN_ID_KEY = "wxOpenId";
 
     public static final String PAYLOAD_MAP_ADMIN_FLAG_KEY = "adminFlag";
-        // 管理员标识，判断逻辑：权限里面是否有：baseRoleKey:admin，或者是超级管理员
+    // 管理员标识，判断逻辑：权限里面是否有：baseRoleKey:admin，或者是超级管理员
 
     private static BaseSecurityProperties baseSecurityProperties;
 
@@ -140,13 +140,27 @@ public class MyJwtUtil {
             return null;
         }
 
-        NumberWithFormat numberWithFormat = (NumberWithFormat)claimsJson.get(MyJwtUtil.PAYLOAD_MAP_USER_ID_KEY);
+        Object userId = claimsJson.get(MyJwtUtil.PAYLOAD_MAP_USER_ID_KEY);
 
-        if (numberWithFormat == null) {
+        if (userId == null) {
             return null;
         }
 
-        return numberWithFormat.longValue();
+        if (userId instanceof NumberWithFormat) {
+
+            NumberWithFormat numberWithFormat = (NumberWithFormat)userId;
+
+            return numberWithFormat.longValue();
+
+        } else if (userId instanceof Long) {
+
+            return (Long)userId;
+
+        } else {
+
+            return null;
+
+        }
 
     }
 

@@ -121,7 +121,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             }
 
             // 通过 apiToken获取
-            return getByApiToken(request, jwtStr);
+            return getByApiToken(request, apiToken);
 
         } else {
 
