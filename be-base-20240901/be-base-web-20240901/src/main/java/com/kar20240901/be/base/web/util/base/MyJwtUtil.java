@@ -148,9 +148,7 @@ public class MyJwtUtil {
 
         if (userId instanceof NumberWithFormat) {
 
-            NumberWithFormat numberWithFormat = (NumberWithFormat)userId;
-
-            return numberWithFormat.longValue();
+            return ((NumberWithFormat)userId).longValue();
 
         } else if (userId instanceof Long) {
 
