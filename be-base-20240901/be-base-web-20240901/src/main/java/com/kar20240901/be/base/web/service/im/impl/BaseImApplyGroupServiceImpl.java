@@ -81,19 +81,19 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
 
         String name = dto.getName();
 
-        Long groupId = dto.getGroupId();
+        Long groupShowId = dto.getGroupShowId();
 
         Page<BaseImApplyFriendSearchApplyGroupVO> resPage = new Page<>();
 
-        if (StrUtil.isBlank(name) && groupId == null) {
+        if (StrUtil.isBlank(name) && groupShowId == null) {
             return resPage;
         }
 
-        Page<BaseImGroupDO> page =
-            ChainWrappers.lambdaQueryChain(baseImGroupMapper).eq(groupId != null, BaseImGroupDO::getId, groupId)
-                .like(StrUtil.isNotBlank(name), BaseImGroupDO::getName, name)
-                .select(BaseImGroupDO::getId, BaseImGroupDO::getName, BaseImGroupDO::getAvatarFileId)
-                .page(dto.createTimeDescDefaultOrderPage(true));
+        Page<BaseImGroupDO> page = ChainWrappers.lambdaQueryChain(baseImGroupMapper)
+            .eq(groupShowId != null, BaseImGroupDO::getShowId, groupShowId)
+            .like(StrUtil.isNotBlank(name), BaseImGroupDO::getName, name)
+            .select(BaseImGroupDO::getId, BaseImGroupDO::getName, BaseImGroupDO::getAvatarFileId)
+            .page(dto.createTimeDescDefaultOrderPage(true));
 
         Set<Long> avatarFileIdSet =
             page.getRecords().stream().map(BaseImGroupDO::getAvatarFileId).filter(it -> it != TempConstant.NEGATIVE_ONE)

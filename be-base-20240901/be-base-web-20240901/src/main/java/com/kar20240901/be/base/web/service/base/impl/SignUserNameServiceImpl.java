@@ -170,7 +170,7 @@ public class SignUserNameServiceImpl implements SignUserNameService {
         }
 
         return BaseJwtUtil.generateJwt(userId, null, false, RequestUtil.getRequestCategoryEnum(),
-            dto.getJwtRefreshToken());
+            dto.getJwtRefreshToken(), false);
 
     }
 

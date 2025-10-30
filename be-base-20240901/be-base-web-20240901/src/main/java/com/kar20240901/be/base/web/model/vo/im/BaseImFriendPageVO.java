@@ -6,16 +6,16 @@ import lombok.Data;
 @Data
 public class BaseImFriendPageVO {
 
-    @Schema(description = "会话主键 id")
-    private Long sessionId;
-
-    @Schema(description = "好友主键 id")
-    private Long friendId;
+    @Schema(description = "好友显示的 id")
+    private Long friendShowId;
 
     @Schema(description = "好友显示名称")
-    private String friendName;
+    private String friendShowName;
 
     @Schema(description = "好友头像")
     private String avatarUrl;
+
+    @Schema(description = "会话主键 id")
+    private Long sessionId;
 
 }

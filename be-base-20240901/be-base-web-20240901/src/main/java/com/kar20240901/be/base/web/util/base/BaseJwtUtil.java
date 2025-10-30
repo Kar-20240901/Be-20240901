@@ -26,23 +26,29 @@ public class BaseJwtUtil {
 
     /**
      * 统一生成 jwt
+     *
+     * @param removePasswordErrorFlag 是否移除密码错误次数相关
      */
     @Nullable
     public static SignInVO generateJwt(Long userId, @Nullable Consumer<JSONObject> consumer,
         boolean generateRefreshTokenFlag, BaseRequestCategoryEnum baseRequestCategoryEnum,
-        @Nullable String jwtRefreshToken) {
+        @Nullable String jwtRefreshToken, boolean removePasswordErrorFlag) {
 
         if (userId == null) {
             return null;
         }
 
-        RedissonUtil.batch(batch -> {
+        if (removePasswordErrorFlag) {
 
-            // 移除密码错误次数相关
-            batch.getBucket(BaseRedisKeyEnum.PRE_PASSWORD_ERROR_COUNT.name() + ":" + userId).deleteAsync();
-            batch.getBucket(BaseRedisKeyEnum.PRE_TOO_MANY_PASSWORD_ERROR.name() + ":" + userId).deleteAsync();
+            RedissonUtil.batch(batch -> {
 
-        });
+                // 移除密码错误次数相关
+                batch.getBucket(BaseRedisKeyEnum.PRE_PASSWORD_ERROR_COUNT.name() + ":" + userId).deleteAsync();
+                batch.getBucket(BaseRedisKeyEnum.PRE_TOO_MANY_PASSWORD_ERROR.name() + ":" + userId).deleteAsync();
+
+            });
+
+        }
 
         // 生成 jwt
         return sign(userId, consumer, generateRefreshTokenFlag, baseRequestCategoryEnum, jwtRefreshToken);
@@ -56,34 +62,8 @@ public class BaseJwtUtil {
     private static SignInVO sign(Long userId, @Nullable Consumer<JSONObject> consumer, boolean generateRefreshTokenFlag,
         BaseRequestCategoryEnum baseRequestCategoryEnum, @Nullable String jwtRefreshTokenTemp) {
 
-        // 备注：jwtRefreshToken请求，需要同步进行修改
-        JSONObject payloadMap = JSONUtil.createObj();
-
-        payloadMap.set(MyJwtUtil.PAYLOAD_MAP_USER_ID_KEY, userId);
-
-        boolean adminFlag = false;
-
-        if (MyUserUtil.getCurrentUserSuperAdminFlag(userId)) {
-
-            adminFlag = true;
-
-        } else {
-
-            Set<String> authSet = MyJwtUtil.getAuthSetByUserId(userId);
-
-            if (authSet.contains(ADMIN_FLAG)) {
-
-                adminFlag = true;
-
-            }
-
-        }
-
-        payloadMap.set(MyJwtUtil.PAYLOAD_MAP_ADMIN_FLAG_KEY, adminFlag);
-
-        if (consumer != null) {
-            consumer.accept(payloadMap);
-        }
+        // 获取：payloadMap对象
+        JSONObject payloadMap = getPayloadMap(userId, consumer);
 
         long jwtExpireTime = TempConstant.JWT_EXPIRE_TIME;
 
@@ -126,6 +106,43 @@ public class BaseJwtUtil {
         });
 
         return new SignInVO(SecurityConstant.JWT_PREFIX + jwt, expireTs.getTime() - (10 * 60 * 1000), jwtRefreshToken);
+
+    }
+
+    /**
+     * 获取：payloadMap对象
+     */
+    public static JSONObject getPayloadMap(Long userId, @Nullable Consumer<JSONObject> consumer) {
+
+        JSONObject payloadMap = JSONUtil.createObj();
+
+        payloadMap.set(MyJwtUtil.PAYLOAD_MAP_USER_ID_KEY, userId);
+
+        boolean adminFlag = false;
+
+        if (MyUserUtil.getCurrentUserSuperAdminFlag(userId)) {
+
+            adminFlag = true;
+
+        } else {
+
+            Set<String> authSet = MyJwtUtil.getAuthSetByUserId(userId);
+
+            if (authSet.contains(ADMIN_FLAG)) {
+
+                adminFlag = true;
+
+            }
+
+        }
+
+        payloadMap.set(MyJwtUtil.PAYLOAD_MAP_ADMIN_FLAG_KEY, adminFlag);
+
+        if (consumer != null) {
+            consumer.accept(payloadMap);
+        }
+
+        return payloadMap;
 
     }
 

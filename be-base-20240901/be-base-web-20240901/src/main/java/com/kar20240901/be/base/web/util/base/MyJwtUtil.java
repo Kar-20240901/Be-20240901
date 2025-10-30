@@ -45,6 +45,7 @@ public class MyJwtUtil {
     public static final String PAYLOAD_MAP_WX_OPEN_ID_KEY = "wxOpenId";
 
     public static final String PAYLOAD_MAP_ADMIN_FLAG_KEY = "adminFlag";
+        // 管理员标识，判断逻辑：权限里面是否有：baseRoleKey:admin，或者是超级管理员
 
     private static BaseSecurityProperties baseSecurityProperties;
 
@@ -200,7 +201,27 @@ public class MyJwtUtil {
     }
 
     /**
-     * 从请求头里，获取：jwt字符串
+     * 从请求头或者url里，获取：apiToken字符串
+     */
+    @Nullable
+    public static String getApiTokenByRequest(HttpServletRequest request) {
+
+        String apiToken = request.getHeader(SecurityConstant.BE_API_TOKEN);
+
+        if (apiToken == null) {
+            apiToken = request.getParameter(SecurityConstant.BE_API_TOKEN);
+        }
+
+        if (StrUtil.isBlank(apiToken)) {
+            return null;
+        }
+
+        return apiToken;
+
+    }
+
+    /**
+     * 从请求头或者url里，获取：jwt字符串
      */
     @Nullable
     public static String getJwtStrByRequest(HttpServletRequest request) {

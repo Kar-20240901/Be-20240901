@@ -569,7 +569,7 @@ public class SignUtil {
         }
 
         // 登录时，获取：jwt
-        return signInGetJwt(tempUserDO, true, baseRequestCategoryEnum);
+        return signInGetJwt(tempUserDO, true, baseRequestCategoryEnum, true);
 
     }
 
@@ -578,7 +578,7 @@ public class SignUtil {
      */
     @Nullable
     public static SignInVO signInGetJwt(TempUserDO tempUserDO, boolean generateRefreshTokenFlag,
-        BaseRequestCategoryEnum baseRequestCategoryEnum) {
+        BaseRequestCategoryEnum baseRequestCategoryEnum, boolean removePasswordErrorFlag) {
 
         // 校验密码，成功之后，再判断是否被冻结，免得透露用户被封号的信息
         if (BooleanUtil.isFalse(MyUserUtil.getCurrentUserSuperAdminFlag(tempUserDO.getId())) && BooleanUtil.isFalse(
@@ -595,7 +595,7 @@ public class SignUtil {
 
             payloadMap.set(MyJwtUtil.PAYLOAD_MAP_WX_OPEN_ID_KEY, tempUserDO.getWxOpenId());
 
-        }, generateRefreshTokenFlag, baseRequestCategoryEnum, null);
+        }, generateRefreshTokenFlag, baseRequestCategoryEnum, null, removePasswordErrorFlag);
 
     }
 
@@ -1648,7 +1648,7 @@ public class SignUtil {
         bucket.delete(); // 删除：验证码
 
         // 登录时，获取：jwt
-        return signInGetJwt(tempUserDO, true, baseRequestCategoryEnum);
+        return signInGetJwt(tempUserDO, true, baseRequestCategoryEnum, true);
 
     }
 

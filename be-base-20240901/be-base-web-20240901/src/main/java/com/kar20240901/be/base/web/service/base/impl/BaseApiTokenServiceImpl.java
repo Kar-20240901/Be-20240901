@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.service.base.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
@@ -16,7 +17,6 @@ import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.base.BaseApiTokenService;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
-import java.util.Date;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 
@@ -66,7 +66,7 @@ public class BaseApiTokenServiceImpl extends ServiceImpl<BaseApiTokenMapper, Bas
         if (dto.getId() == null) {
 
             baseApiTokenDO.setToken(IdUtil.simpleUUID());
-            baseApiTokenDO.setLastUseTime(new Date());
+            baseApiTokenDO.setLastUseTime(DateUtil.parseDateTime("1970-01-01 00:00:00"));
 
         }
 

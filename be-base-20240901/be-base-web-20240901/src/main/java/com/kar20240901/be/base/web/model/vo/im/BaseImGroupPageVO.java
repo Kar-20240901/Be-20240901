@@ -6,11 +6,11 @@ import lombok.Data;
 @Data
 public class BaseImGroupPageVO {
 
-    @Schema(description = "群组主键 id")
-    private Long groupId;
+    @Schema(description = "群组显示的 id")
+    private Long groupShowId;
 
     @Schema(description = "显示的名称")
-    private String groupName;
+    private String groupShowName;
 
     @Schema(description = "头像地址")
     private String avatarUrl;

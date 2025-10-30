@@ -30,4 +30,7 @@ public class BaseImGroupDO extends TempEntityNoIdSuper {
     @Schema(description = "会话主键 id")
     private Long sessionId;
 
+    @Schema(description = "展示的 id")
+    private String showId;
+
 }

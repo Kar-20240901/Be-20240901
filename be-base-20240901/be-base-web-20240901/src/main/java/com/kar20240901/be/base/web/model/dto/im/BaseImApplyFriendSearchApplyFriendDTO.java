@@ -9,9 +9,6 @@ import lombok.EqualsAndHashCode;
 @Data
 public class BaseImApplyFriendSearchApplyFriendDTO extends MyPageDTO {
 
-    @Schema(description = "用户主键 id")
-    private Long userId;
-
     @Schema(description = "用户昵称")
     private String nickname;
 

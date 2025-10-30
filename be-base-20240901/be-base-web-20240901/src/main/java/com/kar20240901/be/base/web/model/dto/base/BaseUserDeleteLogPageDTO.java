@@ -26,7 +26,7 @@ public class BaseUserDeleteLogPageDTO extends MyPageDTO {
     @Schema(description = "微信 appId，可以为空")
     private String wxAppId;
 
-    @Schema(description = "该用户的 uuid，本系统使用 id，不使用此字段（uuid），备注：不允许修改")
+    @Schema(description = "该用户的 uuid")
     private String uuid;
 
     @Schema(description = "昵称")

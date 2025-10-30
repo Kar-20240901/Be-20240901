@@ -1,6 +1,5 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
@@ -142,8 +141,12 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
 
             for (BaseImFriendPageVO item : baseImFriendPageVoPage.getRecords()) {
 
-                BaseImSearchBaseFriendVO baseImSearchBaseFriendVO =
-                    BeanUtil.copyProperties(item, BaseImSearchBaseFriendVO.class);
+                BaseImSearchBaseFriendVO baseImSearchBaseFriendVO = new BaseImSearchBaseFriendVO();
+
+                baseImSearchBaseFriendVO.setFriendShowId(item.getFriendShowId());
+                baseImSearchBaseFriendVO.setFriendShowName(item.getFriendShowName());
+                baseImSearchBaseFriendVO.setAvatarUrl(item.getAvatarUrl());
+                baseImSearchBaseFriendVO.setSessionId(item.getSessionId());
 
                 friendList.add(baseImSearchBaseFriendVO);
 
@@ -163,8 +166,12 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
 
             for (BaseImGroupPageVO item : baseImGroupPageVoPage.getRecords()) {
 
-                BaseImSearchBaseGroupVO baseImSearchBaseGroupVO =
-                    BeanUtil.copyProperties(item, BaseImSearchBaseGroupVO.class);
+                BaseImSearchBaseGroupVO baseImSearchBaseGroupVO = new BaseImSearchBaseGroupVO();
+
+                baseImSearchBaseGroupVO.setGroupShowId(item.getGroupShowId());
+                baseImSearchBaseGroupVO.setGroupShowName(item.getGroupShowName());
+                baseImSearchBaseGroupVO.setAvatarUrl(item.getAvatarUrl());
+                baseImSearchBaseGroupVO.setSessionId(item.getSessionId());
 
                 groupList.add(baseImSearchBaseGroupVO);
 

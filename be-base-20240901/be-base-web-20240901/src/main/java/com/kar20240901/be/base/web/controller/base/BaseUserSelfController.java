@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.controller.base;
 
 import com.kar20240901.be.base.web.model.dto.base.BaseUserSelfUpdateInfoDTO;
+import com.kar20240901.be.base.web.model.dto.base.NotBlankString;
 import com.kar20240901.be.base.web.model.vo.base.BaseUserSelfInfoVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.base.BaseUserSelfService;
@@ -37,6 +38,12 @@ public class BaseUserSelfController {
     @PostMapping(value = "/resetAvatar")
     public R<String> userSelfResetAvatar() {
         return R.okMsg(baseService.userSelfResetAvatar());
+    }
+
+    @Operation(summary = "当前用户：修改uuid")
+    @PostMapping(value = "/updateUuid")
+    public R<String> updateUuid(@RequestBody @Valid NotBlankString dto) {
+        return R.okMsg(baseService.updateUuid(dto));
     }
 
 }

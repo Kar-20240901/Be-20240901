@@ -40,4 +40,7 @@ public class BaseUserSelfInfoVO {
     @Schema(description = "头像 fileId（文件主键 id）")
     private Long avatarFileId;
 
+    @Schema(description = "该用户的 uuid，本系统目前只有即时聊天使用该字段，备注：不能重复")
+    private String uuid;
+
 }

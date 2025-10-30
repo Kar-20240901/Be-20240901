@@ -28,13 +28,12 @@ public class BaseApiTokenDO {
     @Schema(description = "修改时间")
     private Date updateTime;
 
-    @Schema(description = "调用 api时，传递的 token，格式：uuid，在 header头里传递：BE-API-TOKEN")
+    @Schema(description = "调用 api时，传递的 token，格式：uuid，在 header头或者url里传递：BeApiToken")
     private String token;
 
     @Schema(description = "apiToken名")
     private String name;
 
-    @TableField(fill = FieldFill.INSERT)
     @Schema(description = "最近使用时间")
     private Date lastUseTime;
 

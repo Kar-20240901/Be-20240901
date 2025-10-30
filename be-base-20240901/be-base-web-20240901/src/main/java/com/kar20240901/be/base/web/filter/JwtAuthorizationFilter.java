@@ -3,11 +3,17 @@ package com.kar20240901.be.base.web.filter;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
 import cn.hutool.jwt.JWT;
+import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.configuration.base.BaseConfiguration;
 import com.kar20240901.be.base.web.configuration.security.SecurityConfiguration;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
+import com.kar20240901.be.base.web.mapper.base.BaseApiTokenMapper;
+import com.kar20240901.be.base.web.model.bo.base.BaseAuthorizationBO;
 import com.kar20240901.be.base.web.model.configuration.base.IJwtGenerateConfiguration;
+import com.kar20240901.be.base.web.model.domain.base.BaseApiTokenDO;
 import com.kar20240901.be.base.web.model.interfaces.base.IBizCode;
 import com.kar20240901.be.base.web.model.interfaces.base.IJwtFilterHandler;
 import com.kar20240901.be.base.web.model.vo.base.SignInVO;
@@ -53,6 +59,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Resource
     RedissonClient redissonClient;
 
+    @Resource
+    BaseApiTokenMapper baseApiTokenMapper;
+
     @SneakyThrows
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
@@ -65,15 +74,97 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         }
 
-        // 从请求头里，获取：jwt字符串，备注：就算加了不需要登录就可以访问，但是也会走该方法
-        String jwtStr = MyJwtUtil.getJwtStrByRequest(request);
+        // 获取赋权所需要的对象
+        BaseAuthorizationBO baseAuthorizationBO = getBaseAuthorizationBO(request);
 
-        if (jwtStr == null) {
+        if (baseAuthorizationBO == null) {
 
             filterChain.doFilter(request, response);
             return;
 
         }
+
+        if (baseAuthorizationBO.getIBizCode() != null) {
+
+            ResponseUtil.out(response, baseAuthorizationBO.getIBizCode());
+            return;
+
+        }
+
+        Set<String> authSet = MyJwtUtil.getAuthSetByUserId(baseAuthorizationBO.getUserId()); // 获取：权限
+
+        List<GrantedAuthority> authoritieList =
+            authSet.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+
+        SecurityContextHolder.getContext().setAuthentication(
+            new UsernamePasswordAuthenticationToken(baseAuthorizationBO.getClaimsJson(), null, authoritieList));
+
+        filterChain.doFilter(request, response);
+
+    }
+
+    /**
+     * 获取赋权所需要的对象
+     */
+    @SneakyThrows
+    private BaseAuthorizationBO getBaseAuthorizationBO(HttpServletRequest request) {
+
+        // 从请求头里，获取：jwt字符串，备注：就算加了不需要登录就可以访问，但是也会走该方法
+        String jwtStr = MyJwtUtil.getJwtStrByRequest(request);
+
+        if (StrUtil.isBlank(jwtStr)) {
+
+            String apiToken = MyJwtUtil.getApiTokenByRequest(request);
+
+            if (StrUtil.isBlank(apiToken)) {
+                return null;
+            }
+
+            // 通过 apiToken获取
+            return getByApiToken(request, jwtStr);
+
+        } else {
+
+            // 通过 jwt获取
+            return getByJwt(request, jwtStr);
+
+        }
+
+    }
+
+    /**
+     * 通过 apiToken获取
+     */
+    private BaseAuthorizationBO getByApiToken(HttpServletRequest request, String apiToken) {
+
+        BaseAuthorizationBO baseAuthorizationBO = new BaseAuthorizationBO();
+
+        BaseApiTokenDO baseApiTokenDO =
+            ChainWrappers.lambdaQueryChain(baseApiTokenMapper).eq(BaseApiTokenDO::getToken, apiToken)
+                .eq(BaseApiTokenDO::getEnableFlag, true).select(BaseApiTokenDO::getId, BaseApiTokenDO::getUserId).one();
+
+        if (baseApiTokenDO == null) {
+
+            baseAuthorizationBO.setIBizCode(TempBizCodeEnum.LOGIN_EXPIRED);
+            return baseAuthorizationBO;
+
+        }
+
+        Long userId = baseApiTokenDO.getUserId();
+
+        JSONObject payloadMap = BaseJwtUtil.getPayloadMap(userId, null);
+
+        // 处理：BaseAuthorizationBO对象
+        return handleBaseAuthorizationBO(request, userId, payloadMap, baseAuthorizationBO);
+
+    }
+
+    /**
+     * 通过 jwt获取
+     */
+    private BaseAuthorizationBO getByJwt(HttpServletRequest request, String jwtStr) {
+
+        BaseAuthorizationBO baseAuthorizationBO = new BaseAuthorizationBO();
 
         jwtStr = handleJwtStr(jwtStr, request); // 处理：jwtStr
 
@@ -85,9 +176,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         } catch (Exception e) {
 
-            MyExceptionUtil.printError(e, "，uri：" + request.getRequestURI());
-            ResponseUtil.out(response, TempBizCodeEnum.LOGIN_EXPIRED);
-            return;
+            MyExceptionUtil.printError(e, StrUtil.format("，uri：{}，jwtStr：{}", request.getRequestURI(), jwtStr));
+            baseAuthorizationBO.setIBizCode(TempBizCodeEnum.LOGIN_EXPIRED);
+            return baseAuthorizationBO;
 
         }
 
@@ -96,8 +187,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         if (userId == null) {
 
-            ResponseUtil.out(response, TempBizCodeEnum.LOGIN_EXPIRED);
-            return;
+            baseAuthorizationBO.setIBizCode(TempBizCodeEnum.LOGIN_EXPIRED);
+            return baseAuthorizationBO;
 
         }
 
@@ -106,30 +197,36 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         if (!exists) {
 
-            ResponseUtil.out(response, TempBizCodeEnum.LOGIN_EXPIRED);
-            return;
+            baseAuthorizationBO.setIBizCode(TempBizCodeEnum.LOGIN_EXPIRED);
+            return baseAuthorizationBO;
 
         }
 
+        // 处理：BaseAuthorizationBO对象
+        return handleBaseAuthorizationBO(request, userId, jwt.getPayload().getClaimsJson(), baseAuthorizationBO);
+
+    }
+
+    /**
+     * 处理：BaseAuthorizationBO对象
+     */
+    private BaseAuthorizationBO handleBaseAuthorizationBO(HttpServletRequest request, Long userId,
+        JSONObject claimsJson, BaseAuthorizationBO baseAuthorizationBO) {
+
         // 扩展处理 jwt
-        IBizCode iBizCode = handleIjwtFilterList(userId, jwt, request);
+        IBizCode iBizCode = handleIjwtFilterList(userId, claimsJson, request);
 
         if (iBizCode != null) {
 
-            ResponseUtil.out(response, iBizCode);
-            return;
+            baseAuthorizationBO.setIBizCode(iBizCode);
+            return baseAuthorizationBO;
 
         }
 
-        Set<String> authSet = MyJwtUtil.getAuthSetByUserId(userId); // 获取：权限
+        baseAuthorizationBO.setUserId(userId);
+        baseAuthorizationBO.setClaimsJson(claimsJson);
 
-        List<GrantedAuthority> authoritieList =
-            authSet.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
-
-        SecurityContextHolder.getContext().setAuthentication(
-            new UsernamePasswordAuthenticationToken(jwt.getPayload().getClaimsJson(), null, authoritieList));
-
-        filterChain.doFilter(request, response);
+        return baseAuthorizationBO;
 
     }
 
@@ -138,7 +235,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
      *
      * @return null 表示成功，反之表示失败
      */
-    private IBizCode handleIjwtFilterList(Long userId, JWT jwt, HttpServletRequest request) {
+    private IBizCode handleIjwtFilterList(Long userId, JSONObject claimsJson, HttpServletRequest request) {
 
         if (CollUtil.isEmpty(iJwtFilterHandlerList)) {
             return null;
@@ -148,7 +245,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         for (IJwtFilterHandler iJwtFilterHandler : iJwtFilterHandlerList) {
 
-            IBizCode iBizCode = iJwtFilterHandler.handleJwt(userId, ip, jwt, request);
+            IBizCode iBizCode = iJwtFilterHandler.handleJwt(userId, ip, claimsJson, request);
 
             if (iBizCode != null) {
 
@@ -168,8 +265,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Nullable
     private String handleJwtStr(String jwtStr, HttpServletRequest request) {
 
-        // 如果不是正式环境：Authorization Bearer 0
-        if (BaseConfiguration.prodFlag() == false && NumberUtil.isNumber(jwtStr)) {
+        // 如果是开发环境：Authorization Bearer 0
+        if (BaseConfiguration.devFlag() && NumberUtil.isNumber(jwtStr)) {
 
             SignInVO signInVO;
 
@@ -181,7 +278,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             } else {
 
                 signInVO = BaseJwtUtil.generateJwt(Convert.toLong(jwtStr), null, false,
-                    RequestUtil.getRequestCategoryEnum(request), null);
+                    RequestUtil.getRequestCategoryEnum(request), null, false);
 
             }
 

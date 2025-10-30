@@ -11,6 +11,7 @@ import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.base.TempUserDO;
 import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
 import com.kar20240901.be.base.web.model.dto.base.BaseUserSelfUpdateInfoDTO;
+import com.kar20240901.be.base.web.model.dto.base.NotBlankString;
 import com.kar20240901.be.base.web.model.vo.base.BaseUserSelfInfoVO;
 import com.kar20240901.be.base.web.service.base.BaseUserSelfService;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
@@ -50,13 +51,15 @@ public class BaseUserSelfServiceImpl implements BaseUserSelfService {
 
             TempUserInfoDO tempUserInfoDO =
                 ChainWrappers.lambdaQueryChain(baseUserInfoMapper).eq(TempUserInfoDO::getId, currentUserId)
-                    .select(TempUserInfoDO::getAvatarFileId, TempUserInfoDO::getNickname, TempUserInfoDO::getBio).one();
+                    .select(TempUserInfoDO::getAvatarFileId, TempUserInfoDO::getNickname, TempUserInfoDO::getBio,
+                        TempUserInfoDO::getUuid).one();
 
             if (tempUserInfoDO != null) {
 
                 baseUserSelfInfoVO.setAvatarFileId(tempUserInfoDO.getAvatarFileId());
                 baseUserSelfInfoVO.setNickname(tempUserInfoDO.getNickname());
                 baseUserSelfInfoVO.setBio(tempUserInfoDO.getBio());
+                baseUserSelfInfoVO.setUuid(tempUserInfoDO.getUuid());
 
             }
 
@@ -124,6 +127,16 @@ public class BaseUserSelfServiceImpl implements BaseUserSelfService {
 
         ChainWrappers.lambdaUpdateChain(baseUserInfoMapper).eq(TempUserInfoDO::getId, currentUserId)
             .set(TempUserInfoDO::getAvatarFileId, -1).update();
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 当前用户：修改uuid
+     */
+    @Override
+    public String updateUuid(NotBlankString dto) {
 
         return TempBizCodeEnum.OK;
 

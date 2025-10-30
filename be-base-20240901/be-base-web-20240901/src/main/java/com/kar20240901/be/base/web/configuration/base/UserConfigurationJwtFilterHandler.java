@@ -1,7 +1,7 @@
 package com.kar20240901.be.base.web.configuration.base;
 
 import cn.hutool.core.util.BooleanUtil;
-import cn.hutool.jwt.JWT;
+import cn.hutool.json.JSONObject;
 import com.kar20240901.be.base.web.exception.base.BaseBizCodeEnum;
 import com.kar20240901.be.base.web.model.domain.base.BaseUserConfigurationDO;
 import com.kar20240901.be.base.web.model.interfaces.base.IBizCode;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 public class UserConfigurationJwtFilterHandler implements IJwtFilterHandler {
 
     @Override
-    public IBizCode handleJwt(Long userId, String ip, JWT jwt, HttpServletRequest request) {
+    public IBizCode handleJwt(Long userId, String ip, JSONObject claimsJson, HttpServletRequest request) {
 
         if (MyUserUtil.getCurrentUserSuperAdminFlag(userId)) {
             return null;
@@ -24,7 +24,7 @@ public class UserConfigurationJwtFilterHandler implements IJwtFilterHandler {
 
         BaseUserConfigurationDO baseUserConfigurationDO = BaseUserConfigurationUtil.getBaseUserConfigurationDo();
 
-        if (MyJwtUtil.getPayloadMapAdminFlagValue(jwt.getPayload().getClaimsJson())) {
+        if (MyJwtUtil.getPayloadMapAdminFlagValue(claimsJson)) {
 
             if (BooleanUtil.isFalse(baseUserConfigurationDO.getManageOperateEnable())) {
 

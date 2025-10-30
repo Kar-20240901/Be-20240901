@@ -79,22 +79,19 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
         String nickname = dto.getNickname();
 
-        Long userId = dto.getUserId();
-
         String uuid = dto.getUuid();
 
         Page<BaseImApplyFriendSearchApplyFriendVO> resPage = new Page<>();
 
-        if (StrUtil.isBlank(nickname) && userId == null && StrUtil.isBlank(uuid)) {
+        if (StrUtil.isBlank(nickname) && StrUtil.isBlank(uuid)) {
             return resPage;
         }
 
-        Page<TempUserInfoDO> page =
-            ChainWrappers.lambdaQueryChain(baseUserInfoMapper).eq(userId != null, TempUserInfoDO::getId, userId)
-                .like(StrUtil.isNotBlank(nickname), TempUserInfoDO::getNickname, nickname)
-                .like(StrUtil.isNotBlank(uuid), TempUserInfoDO::getUuid, uuid)
-                .select(TempUserInfoDO::getId, TempUserInfoDO::getNickname, TempUserInfoDO::getAvatarFileId)
-                .page(dto.fieldDescDefaultOrderPage("lastActiveTime", true));
+        Page<TempUserInfoDO> page = ChainWrappers.lambdaQueryChain(baseUserInfoMapper)
+            .like(StrUtil.isNotBlank(nickname), TempUserInfoDO::getNickname, nickname)
+            .like(StrUtil.isNotBlank(uuid), TempUserInfoDO::getUuid, uuid)
+            .select(TempUserInfoDO::getId, TempUserInfoDO::getNickname, TempUserInfoDO::getAvatarFileId)
+            .page(dto.fieldDescDefaultOrderPage("lastActiveTime", true));
 
         Set<Long> avatarFileIdSet = page.getRecords().stream().map(TempUserInfoDO::getAvatarFileId)
             .filter(it -> it != TempConstant.NEGATIVE_ONE).collect(Collectors.toSet());

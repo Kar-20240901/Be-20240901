@@ -10264,7 +10264,7 @@
           },
           "uuid": {
             "type": "string",
-            "description": "该用户的 uuid，本系统使用 id，不使用此字段（uuid），备注：不允许修改"
+            "description": "该用户的 uuid"
           },
           "nickname": {
             "type": "string",
@@ -10326,7 +10326,7 @@
           },
           "uuid": {
             "type": "string",
-            "description": "该用户的 uuid，本系统使用 id，不使用此字段（uuid），备注：不允许修改"
+            "description": "该用户的 uuid"
           },
           "nickname": {
             "type": "string",
@@ -22068,7 +22068,7 @@
           },
           "token": {
             "type": "string",
-            "description": "调用 api时，传递的 token，格式：uuid，在 header头里传递：BE-API-TOKEN"
+            "description": "调用 api时，传递的 token，格式：uuid，在 header头或者url里传递：BeApiToken"
           },
           "name": {
             "type": "string",
