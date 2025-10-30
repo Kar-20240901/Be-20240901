@@ -126,7 +126,7 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
 
         Page<?> page = new Page<>();
 
-        page.setSize(3);
+        page.setSize(4);
 
         CountDownLatch countDownLatch = ThreadUtil.newCountDownLatch(3);
 
