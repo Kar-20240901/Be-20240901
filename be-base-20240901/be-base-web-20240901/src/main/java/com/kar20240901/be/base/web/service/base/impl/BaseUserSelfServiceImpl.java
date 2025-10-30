@@ -12,12 +12,15 @@ import com.kar20240901.be.base.web.model.domain.base.TempUserDO;
 import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
 import com.kar20240901.be.base.web.model.dto.base.BaseUserSelfUpdateInfoDTO;
 import com.kar20240901.be.base.web.model.dto.base.NotBlankString;
+import com.kar20240901.be.base.web.model.enums.base.BaseRedisKeyEnum;
 import com.kar20240901.be.base.web.model.vo.base.BaseUserSelfInfoVO;
+import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.base.BaseUserSelfService;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyThreadUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import com.kar20240901.be.base.web.util.base.NicknameUtil;
+import com.kar20240901.be.base.web.util.base.RedissonUtil;
 import java.util.concurrent.CountDownLatch;
 import javax.annotation.Resource;
 import lombok.SneakyThrows;
@@ -138,7 +141,25 @@ public class BaseUserSelfServiceImpl implements BaseUserSelfService {
     @Override
     public String updateUuid(NotBlankString dto) {
 
-        return TempBizCodeEnum.OK;
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        String newUuid = StrUtil.cleanBlank(dto.getValue());
+
+        return RedissonUtil.doLock(BaseRedisKeyEnum.PRE_USER_UUID.name() + ":" + newUuid, () -> {
+
+            boolean exists =
+                ChainWrappers.lambdaQueryChain(baseUserInfoMapper).eq(TempUserInfoDO::getUuid, newUuid).exists();
+
+            if (exists) {
+                R.errorMsg("修改失败：该唯一标识已存在");
+            }
+
+            ChainWrappers.lambdaUpdateChain(baseUserInfoMapper).eq(TempUserInfoDO::getId, currentUserId)
+                .set(TempUserInfoDO::getUuid, newUuid).update();
+
+            return TempBizCodeEnum.OK;
+
+        });
 
     }
 

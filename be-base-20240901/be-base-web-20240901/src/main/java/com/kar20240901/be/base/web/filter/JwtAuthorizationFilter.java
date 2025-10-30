@@ -20,8 +20,10 @@ import com.kar20240901.be.base.web.model.vo.base.SignInVO;
 import com.kar20240901.be.base.web.util.base.BaseJwtUtil;
 import com.kar20240901.be.base.web.util.base.MyExceptionUtil;
 import com.kar20240901.be.base.web.util.base.MyJwtUtil;
+import com.kar20240901.be.base.web.util.base.MyThreadUtil;
 import com.kar20240901.be.base.web.util.base.RequestUtil;
 import com.kar20240901.be.base.web.util.base.ResponseUtil;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -149,6 +151,14 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             return baseAuthorizationBO;
 
         }
+
+        MyThreadUtil.execute(() -> {
+
+            // 更新：最新使用时间
+            ChainWrappers.lambdaUpdateChain(baseApiTokenMapper).eq(BaseApiTokenDO::getId, baseApiTokenDO.getId())
+                .set(BaseApiTokenDO::getLastUseTime, new Date()).update();
+
+        });
 
         Long userId = baseApiTokenDO.getUserId();
 

@@ -53,6 +53,8 @@ public enum BaseRedisKeyEnum implements IRedisKey {
     PRE_EMAIL, // 邮箱：锁：【邮箱】
     PRE_USER_NAME, // 用户名：锁：【用户名】
 
+    PRE_USER_UUID, // 用户 uuid，锁：【即将要修改的uuid】
+
     PRE_TOO_MANY_PASSWORD_ERROR, // 密码错误次数太多：锁【用户主键 id】
     PRE_PASSWORD_ERROR_COUNT, // 密码错误总数：锁【用户主键 id】
 
