@@ -4,7 +4,8 @@
 <mapper namespace="com.kar20240901.be.base.web.mapper.im.BaseImGroupMapper">
   <select id="myPage" resultType="com.kar20240901.be.base.web.model.vo.im.BaseImGroupPageVO">
     SELECT IF(c.name = '', b.name, c.name) AS groupShowName,
-           a.group_id                      AS groupShowId,
+           b.id                            AS groupId,
+           b.show_id                       AS groupShowId,
            c.session_id                    AS sessionId,
            c.avatar_url                    AS avatarUrl
 

@@ -4,11 +4,11 @@
 <mapper namespace="com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper">
   <select id="myPage"
           resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserPageVO">
-    SELECT a.session_id,
+    SELECT a.session_id                           AS sessionId,
            IF(a.name = '', a.target_name, a.name) AS sessionName,
-           a.avatar_url,
-           a.target_id,
-           a.target_type
+           a.avatar_url                           AS avatarUrl,
+           a.target_id                            AS targetId,
+           a.target_type                          AS targetType
 
     FROM base_im_session_ref_user a
 

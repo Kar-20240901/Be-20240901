@@ -4,6 +4,7 @@
 <mapper namespace="com.kar20240901.be.base.web.mapper.im.BaseImFriendMapper">
   <select id="myPage" resultType="com.kar20240901.be.base.web.model.vo.im.BaseImFriendPageVO">
     SELECT a.session_id                        AS sessionId,
+           b.id                                AS friendUserId,
            b.uuid                              AS friendShowId,
            IF(c.name = '', b.nickname, c.name) AS friendShowName,
            c.avatar_url                        AS avatarUrl
@@ -23,7 +24,7 @@
       AND (
         b.nickname LIKE CONCAT('%', #{dto.searchKey}, '%')
           OR c.name LIKE CONCAT('%', #{dto.searchKey}, '%')
-          OR a.friend_id LIKE CONCAT('%', #{dto.searchKey}, '%')
+          OR b.uuid LIKE CONCAT('%', #{dto.searchKey}, '%')
         )
     </if>
 

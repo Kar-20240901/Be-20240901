@@ -143,6 +143,7 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
 
                 BaseImSearchBaseFriendVO baseImSearchBaseFriendVO = new BaseImSearchBaseFriendVO();
 
+                baseImSearchBaseFriendVO.setFriendUserId(item.getFriendUserId());
                 baseImSearchBaseFriendVO.setFriendShowId(item.getFriendShowId());
                 baseImSearchBaseFriendVO.setFriendShowName(item.getFriendShowName());
                 baseImSearchBaseFriendVO.setAvatarUrl(item.getAvatarUrl());
@@ -168,6 +169,7 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
 
                 BaseImSearchBaseGroupVO baseImSearchBaseGroupVO = new BaseImSearchBaseGroupVO();
 
+                baseImSearchBaseGroupVO.setGroupId(item.getGroupId());
                 baseImSearchBaseGroupVO.setGroupShowId(item.getGroupShowId());
                 baseImSearchBaseGroupVO.setGroupShowName(item.getGroupShowName());
                 baseImSearchBaseGroupVO.setAvatarUrl(item.getAvatarUrl());
