@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
 import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
@@ -123,78 +124,109 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
 
         List<BaseImSearchBaseContentVO> contentList = new ArrayList<>();
 
+        boolean searchFriendFlag = !BooleanUtil.isFalse(dto.getSearchFriendFlag());
+        boolean searchGroupFlag = !BooleanUtil.isFalse(dto.getSearchGroupFlag());
+        boolean searchContentFlag = !BooleanUtil.isFalse(dto.getSearchContentFlag());
+
+        int threadCount = 0;
+
+        if (searchFriendFlag) {
+            threadCount = threadCount + 1;
+        }
+
+        if (searchGroupFlag) {
+            threadCount = threadCount + 1;
+        }
+
+        if (searchContentFlag) {
+            threadCount = threadCount + 1;
+        }
+
+        if (threadCount == 0) {
+            return new BaseImSearchBaseVO();
+        }
+
         Page<?> page = new Page<>();
 
-        page.setSize(4);
+        if (threadCount == 1) {
+            page.setSize(-1);
+        }
 
-        CountDownLatch countDownLatch = ThreadUtil.newCountDownLatch(3);
+        CountDownLatch countDownLatch = ThreadUtil.newCountDownLatch(threadCount);
 
         // 查询：联系人
-        MyThreadUtil.execute(() -> {
+        if (searchFriendFlag) {
+            MyThreadUtil.execute(() -> {
 
-            BaseImFriendPageDTO baseImFriendPageDTO = new BaseImFriendPageDTO();
+                BaseImFriendPageDTO baseImFriendPageDTO = new BaseImFriendPageDTO();
 
-            baseImFriendPageDTO.setSearchKey(searchKey);
+                baseImFriendPageDTO.setSearchKey(searchKey);
 
-            Page<BaseImFriendPageVO> baseImFriendPageVoPage =
-                baseImFriendMapper.myPage(page, baseImFriendPageDTO, currentUserId);
+                Page<BaseImFriendPageVO> baseImFriendPageVoPage =
+                    baseImFriendMapper.myPage(page, baseImFriendPageDTO, currentUserId);
 
-            for (BaseImFriendPageVO item : baseImFriendPageVoPage.getRecords()) {
+                for (BaseImFriendPageVO item : baseImFriendPageVoPage.getRecords()) {
 
-                BaseImSearchBaseFriendVO baseImSearchBaseFriendVO = new BaseImSearchBaseFriendVO();
+                    BaseImSearchBaseFriendVO baseImSearchBaseFriendVO = new BaseImSearchBaseFriendVO();
 
-                baseImSearchBaseFriendVO.setFriendUserId(item.getFriendUserId());
-                baseImSearchBaseFriendVO.setFriendShowId(item.getFriendShowId());
-                baseImSearchBaseFriendVO.setFriendShowName(item.getFriendShowName());
-                baseImSearchBaseFriendVO.setAvatarUrl(item.getAvatarUrl());
-                baseImSearchBaseFriendVO.setSessionId(item.getSessionId());
+                    baseImSearchBaseFriendVO.setFriendUserId(item.getFriendUserId());
+                    baseImSearchBaseFriendVO.setFriendShowId(item.getFriendShowId());
+                    baseImSearchBaseFriendVO.setFriendShowName(item.getFriendShowName());
+                    baseImSearchBaseFriendVO.setAvatarUrl(item.getAvatarUrl());
+                    baseImSearchBaseFriendVO.setSessionId(item.getSessionId());
 
-                friendList.add(baseImSearchBaseFriendVO);
+                    friendList.add(baseImSearchBaseFriendVO);
 
-            }
+                }
 
-        }, countDownLatch);
+            }, countDownLatch);
+        }
 
         // 查询：群聊
-        MyThreadUtil.execute(() -> {
+        if (searchGroupFlag) {
+            MyThreadUtil.execute(() -> {
 
-            BaseImGroupPageDTO baseImGroupPageDTO = new BaseImGroupPageDTO();
+                BaseImGroupPageDTO baseImGroupPageDTO = new BaseImGroupPageDTO();
 
-            baseImGroupPageDTO.setSearchKey(searchKey);
+                baseImGroupPageDTO.setSearchKey(searchKey);
 
-            Page<BaseImGroupPageVO> baseImGroupPageVoPage =
-                baseImGroupMapper.myPage(page, baseImGroupPageDTO, currentUserId);
+                Page<BaseImGroupPageVO> baseImGroupPageVoPage =
+                    baseImGroupMapper.myPage(page, baseImGroupPageDTO, currentUserId);
 
-            for (BaseImGroupPageVO item : baseImGroupPageVoPage.getRecords()) {
+                for (BaseImGroupPageVO item : baseImGroupPageVoPage.getRecords()) {
 
-                BaseImSearchBaseGroupVO baseImSearchBaseGroupVO = new BaseImSearchBaseGroupVO();
+                    BaseImSearchBaseGroupVO baseImSearchBaseGroupVO = new BaseImSearchBaseGroupVO();
 
-                baseImSearchBaseGroupVO.setGroupId(item.getGroupId());
-                baseImSearchBaseGroupVO.setGroupShowId(item.getGroupShowId());
-                baseImSearchBaseGroupVO.setGroupShowName(item.getGroupShowName());
-                baseImSearchBaseGroupVO.setAvatarUrl(item.getAvatarUrl());
-                baseImSearchBaseGroupVO.setSessionId(item.getSessionId());
+                    baseImSearchBaseGroupVO.setGroupId(item.getGroupId());
+                    baseImSearchBaseGroupVO.setGroupShowId(item.getGroupShowId());
+                    baseImSearchBaseGroupVO.setGroupShowName(item.getGroupShowName());
+                    baseImSearchBaseGroupVO.setAvatarUrl(item.getAvatarUrl());
+                    baseImSearchBaseGroupVO.setSessionId(item.getSessionId());
 
-                groupList.add(baseImSearchBaseGroupVO);
+                    groupList.add(baseImSearchBaseGroupVO);
 
-            }
+                }
 
-        }, countDownLatch);
+            }, countDownLatch);
+        }
 
         // 查询：聊天记录
-        MyThreadUtil.execute(() -> {
+        if (searchContentFlag) {
+            MyThreadUtil.execute(() -> {
 
-            BaseImSessionContentRefUserPageDTO baseImSessionContentRefUserPageDTO =
-                new BaseImSessionContentRefUserPageDTO();
+                BaseImSessionContentRefUserPageDTO baseImSessionContentRefUserPageDTO =
+                    new BaseImSessionContentRefUserPageDTO();
 
-            baseImSessionContentRefUserPageDTO.setContent(searchKey);
+                baseImSessionContentRefUserPageDTO.setContent(searchKey);
 
-            Page<BaseImSearchBaseContentVO> baseImSearchBaseContentVoPage =
-                baseImSessionContentRefUserMapper.searchPage(page, baseImSessionContentRefUserPageDTO, currentUserId);
+                Page<BaseImSearchBaseContentVO> baseImSearchBaseContentVoPage =
+                    baseImSessionContentRefUserMapper.searchPage(page, baseImSessionContentRefUserPageDTO,
+                        currentUserId);
 
-            contentList.addAll(baseImSearchBaseContentVoPage.getRecords());
+                contentList.addAll(baseImSearchBaseContentVoPage.getRecords());
 
-        }, countDownLatch);
+            }, countDownLatch);
+        }
 
         countDownLatch.await();
 

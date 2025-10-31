@@ -20,6 +20,8 @@
 
       AND b.id IS NOT NULL
 
+      AND c.session_id IS NOT NULL
+
     <if test="dto.searchKey != null and dto.searchKey != ''">
       AND (
         b.nickname LIKE CONCAT('%', #{dto.searchKey}, '%')

@@ -11,4 +11,13 @@ public class BaseImSearchBaseDTO {
     @Schema(description = "搜索内容")
     private String searchKey;
 
+    @Schema(description = "是否搜索好友，默认：true")
+    private Boolean searchFriendFlag;
+
+    @Schema(description = "是否搜索群组，默认：true")
+    private Boolean searchGroupFlag;
+
+    @Schema(description = "是否搜索聊天记录，默认：true")
+    private Boolean searchContentFlag;
+
 }

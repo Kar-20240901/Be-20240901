@@ -225,6 +225,10 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         // 查询最新消息和未读消息数量
         Map<Long, BaseImSessionRefUserQueryLastContentVO> map = queryLastContentMap(new NotEmptyIdSet(sessionIdSet));
 
+        if (CollUtil.isEmpty(map)) {
+            return;
+        }
+
         for (BaseImSessionRefUserPageVO item : resPage.getRecords()) {
 
             BaseImSessionRefUserQueryLastContentVO baseImSessionRefUserQueryLastContentVO =
@@ -301,14 +305,14 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
         List<BaseImSessionRefUserDO> baseImSessionRefUserDoList =
-            lambdaQuery().in(BaseImSessionRefUserDO::getId, sessionIdSet)
+            lambdaQuery().in(BaseImSessionRefUserDO::getSessionId, sessionIdSet)
                 .eq(BaseImSessionRefUserDO::getUserId, currentUserId).select(BaseImSessionRefUserDO::getSessionId)
                 .list();
 
         List<Long> sessionIdList =
             baseImSessionRefUserDoList.stream().map(BaseImSessionRefUserDO::getSessionId).collect(Collectors.toList());
 
-        if (CollUtil.isNotEmpty(sessionIdList)) {
+        if (CollUtil.isEmpty(sessionIdList)) {
             return MapUtil.newHashMap();
         }
 

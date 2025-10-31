@@ -95,6 +95,8 @@
 
       AND b.enable_flag = TRUE
 
+      AND c.session_id IS NOT NULL
+
     <if test="dto.content != null and dto.content != ''">
       AND b.content LIKE CONCAT('%', #{dto.content}, '%')
     </if>

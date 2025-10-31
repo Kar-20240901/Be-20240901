@@ -24,9 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -36,55 +34,55 @@ public class BaseLiveRoomUserServiceImpl extends ServiceImpl<BaseLiveRoomUserMap
     @Resource
     BaseLiveRoomMapper baseLiveRoomMapper;
 
-    /**
-     * 定时任务，检查房间内的用户
-     */
-    @PreDestroy
-    @Scheduled(fixedDelay = 3000)
-    public void scheduledCheckRoomUser() {
-
-        List<Long> roomUserIdList = baseMapper.checkRoomUser();
-
-        if (CollUtil.isEmpty(roomUserIdList)) {
-            return;
-        }
-
-        removeBatchByIds(roomUserIdList);
-
-        List<BaseLiveRoomUserDO> baseLiveRoomUserDoList = lambdaQuery().in(BaseLiveRoomUserDO::getId, roomUserIdList)
-            .select(BaseLiveRoomUserDO::getUserId, BaseLiveRoomUserDO::getSocketRefUserId).list();
-
-        if (CollUtil.isEmpty(baseLiveRoomUserDoList)) {
-            return;
-        }
-
-        Set<Long> userIdSet = new HashSet<>(baseLiveRoomUserDoList.size());
-
-        Set<Long> baseSocketRefUserIdSet = new HashSet<>(baseLiveRoomUserDoList.size());
-
-        for (BaseLiveRoomUserDO item : baseLiveRoomUserDoList) {
-
-            userIdSet.add(item.getUserId());
-
-            baseSocketRefUserIdSet.add(item.getSocketRefUserId());
-
-        }
-
-        BaseWebSocketStrEventBO<Long> baseWebSocketStrEventBO = new BaseWebSocketStrEventBO<>();
-
-        baseWebSocketStrEventBO.setUserIdSet(userIdSet);
-
-        baseWebSocketStrEventBO.setBaseSocketRefUserIdSet(baseSocketRefUserIdSet);
-
-        WebSocketMessageDTO<Long> webSocketMessageDTO =
-            WebSocketMessageDTO.okData(BaseWebSocketUriEnum.BASE_LIVE_ROOM_REMOVE_USER, null);
-
-        baseWebSocketStrEventBO.setWebSocketMessageDTO(webSocketMessageDTO);
-
-        // 发送消息，您已经在其他设备上加入此房间
-        TempKafkaUtil.sendBaseWebSocketStrEventTopic(baseWebSocketStrEventBO);
-
-    }
+    //    /**
+    //     * 定时任务，检查房间内的用户
+    //     */
+    //    @PreDestroy
+    //    @Scheduled(fixedDelay = 3000)
+    //    public void scheduledCheckRoomUser() {
+    //
+    //        List<Long> roomUserIdList = baseMapper.checkRoomUser();
+    //
+    //        if (CollUtil.isEmpty(roomUserIdList)) {
+    //            return;
+    //        }
+    //
+    //        removeBatchByIds(roomUserIdList);
+    //
+    //        List<BaseLiveRoomUserDO> baseLiveRoomUserDoList = lambdaQuery().in(BaseLiveRoomUserDO::getId, roomUserIdList)
+    //            .select(BaseLiveRoomUserDO::getUserId, BaseLiveRoomUserDO::getSocketRefUserId).list();
+    //
+    //        if (CollUtil.isEmpty(baseLiveRoomUserDoList)) {
+    //            return;
+    //        }
+    //
+    //        Set<Long> userIdSet = new HashSet<>(baseLiveRoomUserDoList.size());
+    //
+    //        Set<Long> baseSocketRefUserIdSet = new HashSet<>(baseLiveRoomUserDoList.size());
+    //
+    //        for (BaseLiveRoomUserDO item : baseLiveRoomUserDoList) {
+    //
+    //            userIdSet.add(item.getUserId());
+    //
+    //            baseSocketRefUserIdSet.add(item.getSocketRefUserId());
+    //
+    //        }
+    //
+    //        BaseWebSocketStrEventBO<Long> baseWebSocketStrEventBO = new BaseWebSocketStrEventBO<>();
+    //
+    //        baseWebSocketStrEventBO.setUserIdSet(userIdSet);
+    //
+    //        baseWebSocketStrEventBO.setBaseSocketRefUserIdSet(baseSocketRefUserIdSet);
+    //
+    //        WebSocketMessageDTO<Long> webSocketMessageDTO =
+    //            WebSocketMessageDTO.okData(BaseWebSocketUriEnum.BASE_LIVE_ROOM_REMOVE_USER, null);
+    //
+    //        baseWebSocketStrEventBO.setWebSocketMessageDTO(webSocketMessageDTO);
+    //
+    //        // 发送消息，您已经在其他设备上加入此房间
+    //        TempKafkaUtil.sendBaseWebSocketStrEventTopic(baseWebSocketStrEventBO);
+    //
+    //    }
 
     /**
      * 新增用户，备注：不用加事务
