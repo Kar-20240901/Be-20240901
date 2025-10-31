@@ -26,4 +26,7 @@ public class ScrollListDTO {
     @Schema(description = "关联其他主键 id")
     private Long refId;
 
+    @Schema(description = "是否包含当前主键 id，默认：false")
+    private Boolean containsCurrentIdFlag;
+
 }

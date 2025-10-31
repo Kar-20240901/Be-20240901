@@ -258,23 +258,10 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        Long sessionId = dto.getId();
-
         boolean backwardFlag = BooleanUtil.isTrue(dto.getBackwardFlag());
 
-        if (sessionId == null) {
-
-            if (backwardFlag) { // 最小的 id
-
-                sessionId = Long.MIN_VALUE;
-
-            } else { // 最大的 id
-
-                sessionId = Long.MAX_VALUE;
-
-            }
-
-        }
+        // 获取：滚动加载时的 id
+        Long sessionId = MyPageUtil.getScrollId(dto);
 
         BaseImSessionRefUserPageDTO pageDTO = new BaseImSessionRefUserPageDTO();
 

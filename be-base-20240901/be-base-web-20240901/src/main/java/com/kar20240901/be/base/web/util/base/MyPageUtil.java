@@ -1,6 +1,8 @@
 package com.kar20240901.be.base.web.util.base;
 
+import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import org.jetbrains.annotations.Nullable;
 
 public class MyPageUtil {
@@ -55,7 +57,50 @@ public class MyPageUtil {
             size = 20L;
         }
 
+        if (size < 1) {
+            size = 20L;
+        }
+
         return new Page<>(1, size, true);
+
+    }
+
+    /**
+     * 获取：滚动加载时的 id
+     */
+    public static Long getScrollId(ScrollListDTO dto) {
+
+        boolean backwardFlag = BooleanUtil.isTrue(dto.getBackwardFlag());
+
+        Long id = dto.getId();
+
+        if (id == null) {
+
+            if (backwardFlag) { // 最小的 id
+
+                id = Long.MIN_VALUE;
+
+            } else { // 最大的 id
+
+                id = Long.MAX_VALUE;
+
+            }
+
+        } else if (BooleanUtil.isTrue(dto.getContainsCurrentIdFlag())) {
+
+            if (backwardFlag) {
+
+                id = id - 1;
+
+            } else {
+
+                id = id + 1;
+
+            }
+
+        }
+
+        return id;
 
     }
 

@@ -42,23 +42,10 @@ public class BaseImSessionContentRefUserServiceImpl
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        Long contentId = dto.getId();
-
         boolean backwardFlag = BooleanUtil.isTrue(dto.getBackwardFlag());
 
-        if (contentId == null) {
-
-            if (backwardFlag) { // 最小的 id
-
-                contentId = Long.MIN_VALUE;
-
-            } else { // 最大的 id
-
-                contentId = Long.MAX_VALUE;
-
-            }
-
-        }
+        // 获取：滚动加载时的 id
+        Long contentId = MyPageUtil.getScrollId(dto);
 
         BaseImSessionContentRefUserPageDTO pageDTO = new BaseImSessionContentRefUserPageDTO();
 
