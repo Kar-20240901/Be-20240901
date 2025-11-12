@@ -53,7 +53,9 @@
   </select>
 
   <select id="queryUnReadCount" resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO">
-    SELECT a.session_id AS sessionId, COUNT(*) AS unReadCount
+    SELECT a.session_id            AS sessionId,
+           COUNT(*)                AS unReadCount,
+           MAX(a.not_disturb_flag) AS notDisturbFlag
 
     FROM base_im_session_ref_user a
            LEFT JOIN base_im_session_content b ON b.session_id = a.session_id

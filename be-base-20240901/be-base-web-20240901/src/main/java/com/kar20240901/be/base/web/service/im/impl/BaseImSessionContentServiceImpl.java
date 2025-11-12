@@ -1,5 +1,6 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -10,6 +11,7 @@ import com.kar20240901.be.base.web.mapper.im.BaseImFriendMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImGroupRefUserMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionContentMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper;
+import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketStrEventBO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImFriendDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupRefUserDO;
@@ -17,17 +19,26 @@ import com.kar20240901.be.base.web.model.domain.im.BaseImSessionContentDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionContentRefUserDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionRefUserDO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionContentInsertTxtDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImSessionContentUpdateTargetInputFlagDTO;
+import com.kar20240901.be.base.web.model.dto.socket.WebSocketMessageDTO;
 import com.kar20240901.be.base.web.model.enums.im.BaseImSessionContentTypeEnum;
 import com.kar20240901.be.base.web.model.enums.im.BaseImTypeEnum;
+import com.kar20240901.be.base.web.model.enums.socket.BaseWebSocketUriEnum;
+import com.kar20240901.be.base.web.model.interfaces.im.IBaseImSessionContentType;
+import com.kar20240901.be.base.web.model.interfaces.im.IBaseImType;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.im.BaseImSessionContentRefUserService;
 import com.kar20240901.be.base.web.service.im.BaseImSessionContentService;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
+import com.kar20240901.be.base.web.util.kafka.TempKafkaUtil;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -58,6 +69,12 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
     @DSTransactional
     public String insertTxt(BaseImSessionContentInsertTxtDTO dto) {
 
+        IBaseImSessionContentType iBaseImSessionContentType = BaseImSessionContentTypeEnum.MAP.get(dto.getType());
+
+        if (iBaseImSessionContentType == null) {
+            R.error("操作失败：消息类型不存在", dto.getType());
+        }
+
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
         Long sessionId = dto.getSessionId();
@@ -72,28 +89,28 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
 
         Integer targetType = baseImSessionRefUserDO.getTargetType();
 
-        BaseImTypeEnum baseImTypeEnum = BaseImTypeEnum.MAP.get(targetType);
+        IBaseImType iBaseImType = BaseImTypeEnum.MAP.get(targetType);
 
-        if (baseImTypeEnum == null) {
+        if (iBaseImType == null) {
             R.error("操作失败：会话类型不存在", targetType);
         }
 
         Long targetId = baseImSessionRefUserDO.getTargetId();
 
-        if (BaseImTypeEnum.FRIEND.equals(baseImTypeEnum)) {
+        if (BaseImTypeEnum.FRIEND.getCode() == iBaseImType.getCode()) {
 
             // 发送文字：好友检查
-            insertTxtForFriendCheck(currentUserId, targetId, baseImTypeEnum);
+            insertTxtForFriendCheck(currentUserId, targetId, iBaseImType);
 
-        } else if (BaseImTypeEnum.GROUP.equals(baseImTypeEnum)) {
+        } else if (BaseImTypeEnum.GROUP.getCode() == iBaseImType.getCode()) {
 
             // 发送文字：群组检查
-            insertTxtForGroupCheck(currentUserId, targetId, baseImTypeEnum);
+            insertTxtForGroupCheck(currentUserId, targetId, iBaseImType);
 
         }
 
         // 执行：发送消息
-        doInsertTxt(dto, sessionId);
+        doInsertTxt(dto, sessionId, iBaseImSessionContentType);
 
         return TempBizCodeEnum.OK;
 
@@ -102,17 +119,24 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
     /**
      * 执行：发送消息
      */
-    public void doInsertTxt(BaseImSessionContentInsertTxtDTO dto, Long sessionId) {
+    public void doInsertTxt(BaseImSessionContentInsertTxtDTO dto, Long sessionId,
+        IBaseImSessionContentType iBaseImSessionContentType) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        dto.setCreateId(currentUserId);
 
         BaseImSessionContentDO baseImSessionContentDO = new BaseImSessionContentDO();
 
         baseImSessionContentDO.setEnableFlag(true);
         baseImSessionContentDO.setSessionId(sessionId);
         baseImSessionContentDO.setContent(dto.getTxt());
-        baseImSessionContentDO.setType(BaseImSessionContentTypeEnum.TEXT.getCode());
+        baseImSessionContentDO.setType(iBaseImSessionContentType.getCode());
         baseImSessionContentDO.setCreateTs(dto.getCreateTs());
         baseImSessionContentDO.setRefId(MyEntityUtil.getNotNullLong(dto.getRefId()));
         baseImSessionContentDO.setOrderNo(MyEntityUtil.getNotNullOrderNo(dto.getOrderNo()));
+        baseImSessionContentDO.setCreateId(currentUserId);
+        baseImSessionContentDO.setCreateTime(new Date());
 
         save(baseImSessionContentDO);
 
@@ -128,6 +152,8 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
 
         List<BaseImSessionContentRefUserDO> list = new ArrayList<>();
 
+        Set<Long> notDisturbFlagUserIdSet = new HashSet<>();
+
         for (Entry<Long, BaseImSessionRefUserDO> item : sessionRefUserMap.entrySet()) {
 
             Long userId = item.getKey();
@@ -141,18 +167,41 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
 
             list.add(baseImSessionContentRefUserDO);
 
+            if (item.getValue().getNotDisturbFlag()) {
+                notDisturbFlagUserIdSet.add(userId);
+            }
+
         }
 
         baseImSessionContentRefUserService.saveBatch(list);
 
+        dto.setNotDisturbFlagUserIdSet(notDisturbFlagUserIdSet);
+
+        BaseWebSocketStrEventBO<BaseImSessionContentInsertTxtDTO> baseWebSocketStrEventBO =
+            new BaseWebSocketStrEventBO<>();
+
+        Set<Long> userIdSet = CollUtil.newHashSet(sessionRefUserMap.keySet());
+
+        userIdSet.remove(currentUserId);
+
+        baseWebSocketStrEventBO.setUserIdSet(userIdSet);
+
+        baseWebSocketStrEventBO.setBaseSocketRefUserIdSet(null);
+
+        WebSocketMessageDTO<BaseImSessionContentInsertTxtDTO> webSocketMessageDTO =
+            WebSocketMessageDTO.okData(BaseWebSocketUriEnum.BASE_IM_SESSION_CONTENT_SEND, dto);
+
+        baseWebSocketStrEventBO.setWebSocketMessageDTO(webSocketMessageDTO);
+
         // 通知用户：有新消息
+        TempKafkaUtil.sendBaseWebSocketStrEventTopic(baseWebSocketStrEventBO);
 
     }
 
     /**
      * 发送文字：群组
      */
-    private void insertTxtForGroupCheck(Long currentUserId, Long targetId, BaseImTypeEnum baseImTypeEnum) {
+    private void insertTxtForGroupCheck(Long currentUserId, Long targetId, IBaseImType baseImTypeEnum) {
 
         BaseImGroupRefUserDO baseImGroupRefUserDO =
             ChainWrappers.lambdaQueryChain(baseImGroupRefUserMapper).eq(BaseImGroupRefUserDO::getUserId, currentUserId)
@@ -167,7 +216,8 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
         }
 
         boolean exists = ChainWrappers.lambdaQueryChain(baseImBlockMapper).eq(BaseImBlockDO::getSourceId, targetId)
-            .eq(BaseImBlockDO::getUserId, currentUserId).eq(BaseImBlockDO::getSourceType, baseImTypeEnum).exists();
+            .eq(BaseImBlockDO::getUserId, currentUserId).eq(BaseImBlockDO::getSourceType, baseImTypeEnum.getCode())
+            .exists();
 
         if (exists) {
             R.error("操作失败：对方拒绝接收您的消息，无法发送消息", targetId);
@@ -178,7 +228,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
     /**
      * 发送文字：好友
      */
-    private void insertTxtForFriendCheck(Long currentUserId, Long targetId, BaseImTypeEnum baseImTypeEnum) {
+    private void insertTxtForFriendCheck(Long currentUserId, Long targetId, IBaseImType baseImTypeEnum) {
 
         boolean exists =
             ChainWrappers.lambdaQueryChain(baseImFriendMapper).eq(BaseImFriendDO::getBelongId, currentUserId)
@@ -196,11 +246,70 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
         }
 
         exists = ChainWrappers.lambdaQueryChain(baseImBlockMapper).eq(BaseImBlockDO::getSourceId, targetId)
-            .eq(BaseImBlockDO::getUserId, currentUserId).eq(BaseImBlockDO::getSourceType, baseImTypeEnum).exists();
+            .eq(BaseImBlockDO::getUserId, currentUserId).eq(BaseImBlockDO::getSourceType, baseImTypeEnum.getCode())
+            .exists();
 
         if (exists) {
             R.error("操作失败：对方拒绝接收您的消息，无法发送消息", targetId);
         }
+
+    }
+
+    /**
+     * 修改为输入中
+     */
+    @Override
+    public String updateTargetInputFlag(BaseImSessionContentUpdateTargetInputFlagDTO dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        Long sessionId = dto.getSessionId();
+
+        BaseImSessionRefUserDO baseImSessionRefUserDO = ChainWrappers.lambdaQueryChain(baseImSessionRefUserMapper)
+            .eq(BaseImSessionRefUserDO::getUserId, currentUserId).eq(BaseImSessionRefUserDO::getSessionId, sessionId)
+            .select(BaseImSessionRefUserDO::getTargetType, BaseImSessionRefUserDO::getTargetId).one();
+
+        if (baseImSessionRefUserDO == null) {
+            R.error("操作失败：会话信息不存在", sessionId);
+        }
+
+        Integer targetType = baseImSessionRefUserDO.getTargetType();
+
+        IBaseImType iBaseImType = BaseImTypeEnum.MAP.get(targetType);
+
+        if (iBaseImType == null) {
+            R.error("操作失败：会话类型不存在", targetType);
+        }
+
+        Long targetId = baseImSessionRefUserDO.getTargetId();
+
+        if (BaseImTypeEnum.FRIEND.getCode() == iBaseImType.getCode()) {
+
+            // 发送文字：好友检查
+            insertTxtForFriendCheck(currentUserId, targetId, iBaseImType);
+
+        } else if (BaseImTypeEnum.GROUP.getCode() == iBaseImType.getCode()) {
+
+            return TempBizCodeEnum.OK;
+
+        }
+
+        BaseWebSocketStrEventBO<Long> baseWebSocketStrEventBO = new BaseWebSocketStrEventBO<>();
+
+        baseWebSocketStrEventBO.setUserIdSet(CollUtil.newHashSet(targetId));
+
+        baseWebSocketStrEventBO.setBaseSocketRefUserIdSet(null);
+
+        WebSocketMessageDTO<Long> webSocketMessageDTO =
+            WebSocketMessageDTO.okData(BaseWebSocketUriEnum.BASE_IM_SESSION_CONTENT_UPDATE_TARGET_INPUT_FLAG,
+                sessionId);
+
+        baseWebSocketStrEventBO.setWebSocketMessageDTO(webSocketMessageDTO);
+
+        // 通知用户：有新消息
+        TempKafkaUtil.sendBaseWebSocketStrEventTopic(baseWebSocketStrEventBO);
+
+        return TempBizCodeEnum.OK;
 
     }
 

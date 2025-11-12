@@ -21,4 +21,7 @@ public class BaseImSessionRefUserQueryLastContentVO {
     @Schema(description = "未读数量，最大值为 100")
     private Integer unReadCount;
 
+    @Schema(description = "是否是免打扰：true 是 false 否")
+    private Boolean notDisturbFlag;
+
 }

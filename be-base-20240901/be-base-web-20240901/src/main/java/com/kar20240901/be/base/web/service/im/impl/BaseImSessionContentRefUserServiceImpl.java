@@ -1,5 +1,6 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -57,7 +58,11 @@ public class BaseImSessionContentRefUserServiceImpl
 
         pageDTO.setSessionId(dto.getRefId());
 
-        return baseMapper.myPage(MyPageUtil.getScrollPage(dto.getPageSize()), pageDTO, currentUserId).getRecords();
+        List<BaseImSessionContentRefUserPageVO> resultList =
+            baseMapper.myPage(MyPageUtil.getScrollPage(dto.getPageSize()), pageDTO, currentUserId).getRecords();
+
+        // 反转返回值
+        return CollUtil.reverse(resultList);
 
     }
 

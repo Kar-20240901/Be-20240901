@@ -27,4 +27,7 @@ public class BaseImSessionContentRefUserPageVO {
     @Schema(description = "会话主键 id")
     private Long sessionId;
 
+    @Schema(description = "排序号（值越大越前面，默认为 0）")
+    private Integer orderNo;
+
 }

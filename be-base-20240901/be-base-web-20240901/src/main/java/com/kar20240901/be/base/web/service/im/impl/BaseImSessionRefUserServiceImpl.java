@@ -306,9 +306,8 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         List<BaseImSessionRefUserQueryLastContentVO> unReadCountList =
             baseMapper.queryUnReadCount(sessionIdList, currentUserId);
 
-        Map<Long, Integer> sessionIdUnReadCountMap = unReadCountList.stream().collect(
-            Collectors.toMap(BaseImSessionRefUserQueryLastContentVO::getSessionId,
-                BaseImSessionRefUserQueryLastContentVO::getUnReadCount));
+        Map<Long, BaseImSessionRefUserQueryLastContentVO> sessionIdUnReadCountMap = unReadCountList.stream()
+            .collect(Collectors.toMap(BaseImSessionRefUserQueryLastContentVO::getSessionId, it -> it));
 
         List<BaseImSessionRefUserQueryLastContentVO> baseImSessionRefUserQueryLastContentVoList =
             baseImSessionContentRefUserMapper.queryLastContent(sessionIdList, currentUserId);
@@ -318,7 +317,20 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
         for (BaseImSessionRefUserQueryLastContentVO item : baseImSessionRefUserQueryLastContentVoList) {
 
-            item.setUnReadCount(sessionIdUnReadCountMap.getOrDefault(item.getSessionId(), 0));
+            BaseImSessionRefUserQueryLastContentVO baseImSessionRefUserQueryLastContentVO =
+                sessionIdUnReadCountMap.get(item.getSessionId());
+
+            if (baseImSessionRefUserQueryLastContentVO == null) {
+
+                item.setUnReadCount(0);
+                item.setNotDisturbFlag(false);
+
+            } else {
+
+                item.setUnReadCount(baseImSessionRefUserQueryLastContentVO.getUnReadCount());
+                item.setNotDisturbFlag(baseImSessionRefUserQueryLastContentVO.getNotDisturbFlag());
+
+            }
 
             resMap.put(item.getSessionId(), item);
 

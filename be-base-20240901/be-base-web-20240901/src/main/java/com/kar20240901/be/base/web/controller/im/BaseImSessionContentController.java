@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.controller.im;
 
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionContentInsertTxtDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImSessionContentUpdateTargetInputFlagDTO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.im.BaseImSessionContentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,6 +25,12 @@ public class BaseImSessionContentController {
     @PostMapping("/insertTxt")
     public R<String> insertTxt(@RequestBody @Valid BaseImSessionContentInsertTxtDTO dto) {
         return R.okData(baseService.insertTxt(dto));
+    }
+
+    @Operation(summary = "修改为输入中")
+    @PostMapping("/updateTargetInputFlag")
+    public R<String> updateTargetInputFlag(@RequestBody @Valid BaseImSessionContentUpdateTargetInputFlagDTO dto) {
+        return R.okData(baseService.updateTargetInputFlag(dto));
     }
 
 }

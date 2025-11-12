@@ -25,13 +25,13 @@ public enum BaseImTypeEnum implements IBaseImType {
     @JsonValue
     private final int code; // 类型编码
 
-    public static final Map<Integer, BaseImTypeEnum> MAP = new HashMap<>();
+    public static final Map<Integer, IBaseImType> MAP = new HashMap<>();
 
     static {
 
-        for (BaseImTypeEnum item : values()) {
+        for (IBaseImType item : values()) {
 
-            MAP.put(item.code, item);
+            MAP.put(item.getCode(), item);
 
         }
 

@@ -37,7 +37,8 @@
            b.content    AS content,
            b.create_id  AS createId,
            b.ref_id     AS refId,
-           b.session_id AS sessionId
+           b.session_id AS sessionId,
+           b.order_no   AS orderNo
 
     FROM base_im_session_content_ref_user a
            LEFT JOIN base_im_session_content b ON b.id = a.content_id
@@ -70,7 +71,7 @@
       </choose>
     </if>
 
-    ORDER BY b.create_ts DESC, b.order_no DESC
+    ORDER BY b.create_ts DESC, b.order_no DESC, b.id DESC
   </select>
 
   <select id="searchPage"
