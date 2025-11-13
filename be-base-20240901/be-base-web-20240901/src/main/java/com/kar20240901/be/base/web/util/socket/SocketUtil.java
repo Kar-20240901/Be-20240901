@@ -34,6 +34,9 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class SocketUtil {
 
+    @Resource
+    BaseConfiguration baseConfiguration;
+
     private static BaseSocketService baseSocketService;
 
     @Resource
