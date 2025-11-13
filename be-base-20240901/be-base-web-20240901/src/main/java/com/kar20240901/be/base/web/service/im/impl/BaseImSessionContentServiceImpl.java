@@ -180,11 +180,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
         BaseWebSocketStrEventBO<BaseImSessionContentInsertTxtDTO> baseWebSocketStrEventBO =
             new BaseWebSocketStrEventBO<>();
 
-        Set<Long> userIdSet = CollUtil.newHashSet(sessionRefUserMap.keySet());
-
-        userIdSet.remove(currentUserId);
-
-        baseWebSocketStrEventBO.setUserIdSet(userIdSet);
+        baseWebSocketStrEventBO.setUserIdSet(sessionRefUserMap.keySet());
 
         baseWebSocketStrEventBO.setBaseSocketRefUserIdSet(null);
 
