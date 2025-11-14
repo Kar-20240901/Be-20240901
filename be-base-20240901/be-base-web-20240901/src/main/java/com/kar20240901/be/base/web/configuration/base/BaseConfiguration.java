@@ -40,7 +40,21 @@ public class BaseConfiguration implements ApplicationRunner {
 
     public static final Long START_TIME = System.currentTimeMillis(); // 启动时间
 
-    public static final String MAC_ADDRESS = NetUtil.getLocalMacAddress(); // mac地址
+    public static final String MAC_ADDRESS; // mac地址
+
+    static {
+
+        String localMacAddress = NetUtil.getLocalMacAddress();
+
+        if (localMacAddress == null) {
+
+            localMacAddress = "";
+
+        }
+
+        MAC_ADDRESS = localMacAddress;
+
+    }
 
     public static NettyWebSocketProperties nettyWebSocketProperties;
 
