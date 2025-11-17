@@ -32,25 +32,25 @@
 
   <select id="myPage"
     resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionContentRefUserPageVO">
-    SELECT b.id AS contentId,
-    b.create_ts AS createTs,
-    b.type AS type,
-    b.content AS content,
-    b.create_id AS createId,
-    b.ref_id AS refId,
-    b.session_id AS sessionId,
-    b.order_no AS orderNo
+    SELECT b.id         AS contentId,
+           b.create_ts  AS createTs,
+           b.type       AS type,
+           b.content    AS content,
+           b.create_id  AS createId,
+           b.ref_id     AS refId,
+           b.session_id AS sessionId,
+           b.order_no   AS orderNo
 
     FROM base_im_session_content_ref_user a
-    LEFT JOIN base_im_session_content b ON b.id = a.content_id
+           LEFT JOIN base_im_session_content b ON b.id = a.content_id
 
     WHERE a.user_id = #{currentUserId}
 
-    AND a.show_flag = TRUE
+      AND a.show_flag = TRUE
 
-    AND b.enable_flag = TRUE
+      AND b.enable_flag = TRUE
 
-    AND a.session_id = #{dto.sessionId}
+      AND a.session_id = #{dto.sessionId}
 
     <if test="dto.content != null and dto.content != ''">
       AND b.content LIKE CONCAT('%', #{dto.content}, '%')
