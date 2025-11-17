@@ -357,22 +357,6 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
     }
 
     /**
-     * 更新最后一次打开会话的时间
-     */
-    @Override
-    public String updateLastOpenTs(NotNullId dto) {
-
-        Long currentUserId = MyUserUtil.getCurrentUserId();
-
-        lambdaUpdate().eq(BaseImSessionRefUserDO::getUserId, currentUserId)
-            .eq(BaseImSessionRefUserDO::getSessionId, dto.getId())
-            .set(BaseImSessionRefUserDO::getLastOpenTs, new Date()).set(BaseImSessionRefUserDO::getShowFlag, true);
-
-        return TempBizCodeEnum.OK;
-
-    }
-
-    /**
      * 更新头像和昵称
      */
     @Override

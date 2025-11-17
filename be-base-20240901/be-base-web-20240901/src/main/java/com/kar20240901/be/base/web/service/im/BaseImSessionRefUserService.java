@@ -29,8 +29,6 @@ public interface BaseImSessionRefUserService extends IService<BaseImSessionRefUs
 
     String hidden(NotNullId dto);
 
-    String updateLastOpenTs(NotNullId dto);
-
     List<BaseImSessionRefUserUpdateAvatarAndNicknameVO> updateAvatarAndNickname(NotEmptyIdSet dto);
 
     String addNotDisturb(BaseImSessionRefUserAddNotDisturbDTO dto);
