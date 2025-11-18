@@ -6,7 +6,7 @@
     resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO">
     SELECT a.session_id                AS sessionId,
            SUBSTRING(b.content, 1, 16) AS lastContent,
-           b.create_time               AS lastContentCreateTime,
+           b.create_ts                 AS lastContentCreateTs,
            b.type                      AS lastContentType
 
     FROM (SELECT subA.session_id, MAX(subA.content_id) AS maxContentId

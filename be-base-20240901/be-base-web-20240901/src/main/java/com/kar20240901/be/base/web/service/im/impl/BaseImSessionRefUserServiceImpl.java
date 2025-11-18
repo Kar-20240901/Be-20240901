@@ -243,7 +243,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
             item.setLastContentType(baseImSessionRefUserQueryLastContentVO.getLastContentType());
 
-            item.setLastContentCreateTime(baseImSessionRefUserQueryLastContentVO.getLastContentCreateTime());
+            item.setLastContentCreateTs(baseImSessionRefUserQueryLastContentVO.getLastContentCreateTs());
 
             item.setUnReadCount(baseImSessionRefUserQueryLastContentVO.getUnReadCount());
 

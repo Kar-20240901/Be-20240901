@@ -2,10 +2,12 @@ package com.kar20240901.be.base.web.util.base;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.func.VoidFunc0;
 import cn.hutool.extra.servlet.ServletUtil;
 import com.kar20240901.be.base.web.model.constant.base.SecurityConstant;
+import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.request.BaseRequestDO;
 import com.kar20240901.be.base.web.model.domain.request.BaseRequestInfoDO;
 import com.kar20240901.be.base.web.model.enums.base.BaseRequestCategoryEnum;
@@ -15,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -61,6 +64,33 @@ public class RequestUtil {
     }
 
     /**
+     * 定时任务，删除数据
+     */
+    @PreDestroy
+    @Scheduled(fixedDelay = TempConstant.MINUTE_5_EXPIRE_TIME)
+    public void scheduledDelete() {
+
+        // 只保留 6个月的数据
+        DateTime dateTime = DateUtil.offsetMonth(new Date(), -6);
+
+        List<BaseRequestDO> removeBaseRequestDoList =
+            baseRequestService.lambdaQuery().le(BaseRequestDO::getCreateTime, dateTime).select(BaseRequestDO::getId)
+                .list();
+
+        if (CollUtil.isEmpty(removeBaseRequestDoList)) {
+            return;
+        }
+
+        List<Long> requestIdList =
+            removeBaseRequestDoList.stream().map(BaseRequestDO::getId).collect(Collectors.toList());
+
+        baseRequestService.lambdaUpdate().in(BaseRequestDO::getId, requestIdList).remove();
+
+        baseRequestInfoService.lambdaUpdate().le(BaseRequestInfoDO::getId, requestIdList).remove();
+
+    }
+
+    /**
      * 定时任务，保存数据
      */
     @PreDestroy
@@ -92,6 +122,9 @@ public class RequestUtil {
 
     }
 
+    /**
+     * 处理：BASE_REQUEST_DO_INSERT_LIST
+     */
     private void handleBaseRequestDoInsertList(List<VoidFunc0> voidFunc0List) {
 
         CopyOnWriteArrayList<BaseRequestDO> tempBaseRequestDoList;
@@ -116,6 +149,9 @@ public class RequestUtil {
 
     }
 
+    /**
+     * 处理：BASE_REQUEST_INFO_DO_INSERT_LIST
+     */
     private void handleBaseRequestInfoDoInsertList(List<VoidFunc0> voidFunc0List) {
 
         CopyOnWriteArrayList<BaseRequestInfoDO> tempBaseRequestInfoDoList;
