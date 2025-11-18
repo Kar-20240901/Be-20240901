@@ -177,6 +177,8 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
 
         dto.setNotDisturbFlagUserIdSet(notDisturbFlagUserIdSet);
 
+        dto.setContentId(baseImSessionContentDO.getId());
+
         BaseWebSocketStrEventBO<BaseImSessionContentInsertTxtDTO> baseWebSocketStrEventBO =
             new BaseWebSocketStrEventBO<>();
 

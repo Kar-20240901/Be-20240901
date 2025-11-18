@@ -32,6 +32,9 @@ public class BaseImSessionContentInsertTxtDTO {
     @Schema(description = "开启了免打扰的用户主键 id集合，备注：后端用", hidden = true)
     private Set<Long> notDisturbFlagUserIdSet;
 
+    @Schema(description = "消息主键 id，备注：后端用", hidden = true)
+    private Long contentId;
+
     @NotNull
     @Schema(description = "消息类型")
     private Integer type;
