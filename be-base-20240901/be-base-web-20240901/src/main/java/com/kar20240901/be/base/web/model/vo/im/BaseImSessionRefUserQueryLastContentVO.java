@@ -18,7 +18,7 @@ public class BaseImSessionRefUserQueryLastContentVO {
     @Schema(description = "最新消息创建时间戳")
     private Long lastContentCreateTs;
 
-    @Schema(description = "未读数量，最大值为 100")
+    @Schema(description = "未读数量")
     private Integer unReadCount;
 
     @Schema(description = "是否是免打扰：true 是 false 否")

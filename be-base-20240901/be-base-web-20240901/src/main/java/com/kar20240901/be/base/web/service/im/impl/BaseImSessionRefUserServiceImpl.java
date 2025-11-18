@@ -247,6 +247,8 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
             item.setUnReadCount(baseImSessionRefUserQueryLastContentVO.getUnReadCount());
 
+            item.setNotDisturbFlag(baseImSessionRefUserQueryLastContentVO.getNotDisturbFlag());
+
         }
 
     }
