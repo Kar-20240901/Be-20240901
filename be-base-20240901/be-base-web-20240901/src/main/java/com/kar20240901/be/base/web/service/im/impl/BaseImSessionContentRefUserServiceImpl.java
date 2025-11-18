@@ -1,5 +1,6 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -76,7 +77,65 @@ public class BaseImSessionContentRefUserServiceImpl
 
         });
 
-        return baseMapper.myPage(MyPageUtil.getScrollPage(dto.getPageSize()), pageDTO, currentUserId).getRecords();
+        List<BaseImSessionContentRefUserPageVO> records =
+            baseMapper.myPage(MyPageUtil.getScrollPage(dto.getPageSize()), pageDTO, currentUserId).getRecords();
+
+        // 后续处理：records
+        return scrollHandleRecords(dto, records, backwardFlag, pageDTO, currentUserId);
+
+    }
+
+    /**
+     * 后续处理：records
+     */
+    private List<BaseImSessionContentRefUserPageVO> scrollHandleRecords(ScrollListDTO dto,
+        List<BaseImSessionContentRefUserPageVO> records, boolean backwardFlag,
+        BaseImSessionContentRefUserPageDTO pageDTO, Long currentUserId) {
+
+        if (!BooleanUtil.isTrue(dto.getQueryMoreFlag())) {
+            return records;
+        }
+
+        if (CollUtil.isEmpty(records)) {
+            return records;
+        }
+
+        long pageSize;
+
+        long morePageSize = 2L;
+
+        if (records.size() < dto.getPageSize()) {
+
+            pageSize = dto.getPageSize() + morePageSize - records.size();
+
+        } else {
+
+            pageSize = morePageSize;
+
+        }
+
+        pageDTO.setBackwardFlag(!backwardFlag);
+
+        List<BaseImSessionContentRefUserPageVO> moreRecords =
+            baseMapper.myPage(MyPageUtil.getScrollPage(pageSize), pageDTO, currentUserId).getRecords();
+
+        if (CollUtil.isEmpty(moreRecords)) {
+            return records;
+        }
+
+        if (backwardFlag) {
+
+            CollUtil.addAll(moreRecords, records);
+
+            return moreRecords;
+
+        } else {
+
+            CollUtil.addAll(records, moreRecords);
+
+            return records;
+
+        }
 
     }
 
@@ -86,8 +145,9 @@ public class BaseImSessionContentRefUserServiceImpl
     public static void updateLastOpenTs(Long userId, Long sessionId) {
 
         ChainWrappers.lambdaUpdateChain(baseImSessionRefUserMapper).eq(BaseImSessionRefUserDO::getUserId, userId)
-            .eq(BaseImSessionRefUserDO::getSessionId, sessionId).set(BaseImSessionRefUserDO::getLastOpenTs, new Date())
-            .set(BaseImSessionRefUserDO::getShowFlag, true);
+            .eq(BaseImSessionRefUserDO::getSessionId, sessionId)
+            .set(BaseImSessionRefUserDO::getLastOpenTs, new Date().getTime())
+            .set(BaseImSessionRefUserDO::getShowFlag, true).update();
 
     }
 

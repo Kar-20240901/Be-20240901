@@ -54,11 +54,17 @@ public class MyPageUtil {
     public static <T> Page<T> getScrollPage(@Nullable Long size) {
 
         if (size == null) {
-            size = 20L;
-        }
 
-        if (size < 1) {
             size = 20L;
+
+        } else if (size < 1) {
+
+            size = 20L;
+
+        } else if (size > 100) {
+
+            size = 100L;
+
         }
 
         return new Page<>(1, size, true);

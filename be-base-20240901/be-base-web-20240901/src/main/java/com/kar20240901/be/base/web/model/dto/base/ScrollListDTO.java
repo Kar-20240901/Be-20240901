@@ -29,4 +29,8 @@ public class ScrollListDTO {
     @Schema(description = "是否包含当前主键 id，默认：false")
     private Boolean containsCurrentIdFlag;
 
+    @Schema(
+        description = "是否多查询一些数据，backwardFlag 为 true时，往前多查询几条数据，为 false时，往后多查询几条数据，如果不足 pageSize，会补齐并且会额外多查询几条数据")
+    private Boolean queryMoreFlag;
+
 }

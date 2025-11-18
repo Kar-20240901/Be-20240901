@@ -35,6 +35,7 @@ import com.kar20240901.be.base.web.util.base.MyPageUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -288,6 +289,10 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
     public Map<Long, BaseImSessionRefUserQueryLastContentVO> queryLastContentMap(NotEmptyIdSet dto) {
 
         Set<Long> sessionIdSet = dto.getIdSet();
+
+        if (CollUtil.isEmpty(sessionIdSet)) {
+            return new HashMap<>();
+        }
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
