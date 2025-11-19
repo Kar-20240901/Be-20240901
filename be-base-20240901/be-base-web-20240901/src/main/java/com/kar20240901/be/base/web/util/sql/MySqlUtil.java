@@ -1,7 +1,9 @@
 package com.kar20240901.be.base.web.util.sql;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.sql.BaseSqlSlowDO;
 import com.kar20240901.be.base.web.service.sql.BaseSqlSlowService;
 import com.kar20240901.be.base.web.util.base.MyThreadUtil;
@@ -58,6 +60,20 @@ public class MySqlUtil {
             baseSlowService.saveBatch(tempBaseSqlSlowDoList);
 
         }, DateUtil.offsetMillisecond(new Date(), 1500));
+
+    }
+
+    /**
+     * 定时任务，删除数据
+     */
+    @PreDestroy
+    @Scheduled(fixedDelay = TempConstant.MINUTE_5_EXPIRE_TIME)
+    public void scheduledDelete() {
+
+        // 只保留 6个月的数据
+        DateTime dateTime = DateUtil.offsetMonth(new Date(), -6);
+
+        baseSlowService.lambdaUpdate().le(BaseSqlSlowDO::getCreateTime, dateTime).remove();
 
     }
 
