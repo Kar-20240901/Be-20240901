@@ -9,7 +9,13 @@ import lombok.EqualsAndHashCode;
 @Data
 public class BaseImFriendPageDTO extends MyPageDTO {
 
+    @Schema(description = "好友用户主键 id")
+    private Long friendUserId;
+
     @Schema(description = "搜索关键字")
     private String searchKey;
+
+    @Schema(description = "是否向后查询，默认：false 根据 id，往前查询 true 根据 id，往后查询", hidden = true)
+    private Boolean backwardFlag;
 
 }

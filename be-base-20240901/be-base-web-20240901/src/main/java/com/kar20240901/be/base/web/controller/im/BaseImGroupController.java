@@ -2,6 +2,7 @@ package com.kar20240901.be.base.web.controller.im;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupChangeBelongIdDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupInsertOrUpdateDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupPageDTO;
@@ -11,6 +12,7 @@ import com.kar20240901.be.base.web.model.vo.im.BaseImGroupPageVO;
 import com.kar20240901.be.base.web.service.im.BaseImGroupService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,6 +38,12 @@ public class BaseImGroupController {
     @PostMapping("/page")
     public R<Page<BaseImGroupPageVO>> myPage(@RequestBody @Valid BaseImGroupPageDTO dto) {
         return R.okData(baseService.myPage(dto));
+    }
+
+    @Operation(summary = "滚动加载")
+    @PostMapping("/scroll")
+    public R<List<BaseImGroupPageVO>> scroll(@RequestBody @Valid ScrollListDTO dto) {
+        return R.okData(baseService.scroll(dto));
     }
 
     @Operation(summary = "踢出群员")

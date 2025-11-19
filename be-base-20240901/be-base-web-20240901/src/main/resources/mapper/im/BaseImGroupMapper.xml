@@ -22,16 +22,28 @@
 
       AND c.session_id IS NOT NULL
 
-    <if test="dto.groupId != null">
-      AND a.group_id = #{dto.groupId}
-    </if>
-
     <if test="dto.searchKey != null and dto.searchKey != ''">
       AND (
         b.name LIKE CONCAT('%', #{dto.searchKey}, '%')
           OR c.name LIKE CONCAT('%', #{dto.searchKey}, '%')
           OR b.show_id LIKE CONCAT('%', #{dto.searchKey}, '%')
         )
+    </if>
+
+    <if test="dto.groupId != null">
+      <choose>
+        <when test="dto.backwardFlag == null">
+          AND b.id = #{dto.groupId}
+        </when>
+
+        <when test="dto.backwardFlag">
+          AND b.id <![CDATA[>]]> #{dto.groupId}
+        </when>
+
+        <otherwise>
+          AND b.id <![CDATA[<]]> #{dto.groupId}
+        </otherwise>
+      </choose>
     </if>
 
     ORDER BY a.create_time DESC

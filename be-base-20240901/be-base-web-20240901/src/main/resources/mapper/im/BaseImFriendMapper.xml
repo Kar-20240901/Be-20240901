@@ -30,6 +30,22 @@
         )
     </if>
 
+    <if test="dto.friendUserId != null">
+      <choose>
+        <when test="dto.backwardFlag == null">
+          AND b.id = #{dto.friendUserId}
+        </when>
+
+        <when test="dto.backwardFlag">
+          AND b.id <![CDATA[>]]> #{dto.friendUserId}
+        </when>
+
+        <otherwise>
+          AND b.id <![CDATA[<]]> #{dto.friendUserId}
+        </otherwise>
+      </choose>
+    </if>
+
     ORDER BY a.create_time DESC
   </select>
 </mapper>

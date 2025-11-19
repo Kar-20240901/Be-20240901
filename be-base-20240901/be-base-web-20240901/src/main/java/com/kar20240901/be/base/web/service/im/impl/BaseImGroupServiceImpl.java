@@ -1,5 +1,6 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
+import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -15,6 +16,7 @@ import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupRefUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupChangeBelongIdDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupInsertOrUpdateDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupPageDTO;
@@ -28,8 +30,10 @@ import com.kar20240901.be.base.web.service.im.BaseImGroupService;
 import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
 import com.kar20240901.be.base.web.service.im.BaseImSessionService;
 import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
+import com.kar20240901.be.base.web.util.base.MyPageUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import com.kar20240901.be.base.web.util.im.BaseImGroupUtil;
+import java.util.List;
 import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -119,7 +123,35 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        return baseMapper.myPage(dto.fieldDescDefaultOrderPage("a.create_time", true), dto, currentUserId);
+        return baseMapper.myPage(dto.pageOrder(), dto, currentUserId);
+
+    }
+
+    /**
+     * 滚动加载
+     */
+    @Override
+    public List<BaseImGroupPageVO> scroll(ScrollListDTO dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        boolean backwardFlag = BooleanUtil.isTrue(dto.getBackwardFlag());
+
+        // 获取：滚动加载时的 id
+        Long groupId = MyPageUtil.getScrollId(dto);
+
+        BaseImGroupPageDTO pageDTO = new BaseImGroupPageDTO();
+
+        pageDTO.setGroupId(groupId);
+
+        pageDTO.setBackwardFlag(backwardFlag);
+
+        pageDTO.setSearchKey(dto.getSearchKey());
+
+        Page<BaseImGroupPageVO> resPage =
+            baseMapper.myPage(MyPageUtil.getScrollPage(dto.getPageSize()), pageDTO, currentUserId);
+
+        return resPage.getRecords();
 
     }
 

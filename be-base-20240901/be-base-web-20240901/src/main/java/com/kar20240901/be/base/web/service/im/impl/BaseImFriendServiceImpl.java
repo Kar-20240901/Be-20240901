@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -8,9 +9,11 @@ import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.im.BaseImFriendMapper;
 import com.kar20240901.be.base.web.model.domain.im.BaseImFriendDO;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImFriendPageDTO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImFriendPageVO;
 import com.kar20240901.be.base.web.service.im.BaseImFriendService;
+import com.kar20240901.be.base.web.util.base.MyPageUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import java.util.Date;
 import java.util.List;
@@ -81,7 +84,35 @@ public class BaseImFriendServiceImpl extends ServiceImpl<BaseImFriendMapper, Bas
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        return baseMapper.myPage(dto.createTimeDescDefaultOrderPage(), dto, currentUserId);
+        return baseMapper.myPage(dto.pageOrder(), dto, currentUserId);
+
+    }
+
+    /**
+     * 滚动加载
+     */
+    @Override
+    public List<BaseImFriendPageVO> scroll(ScrollListDTO dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        boolean backwardFlag = BooleanUtil.isTrue(dto.getBackwardFlag());
+
+        // 获取：滚动加载时的 id
+        Long friendUserId = MyPageUtil.getScrollId(dto);
+
+        BaseImFriendPageDTO pageDTO = new BaseImFriendPageDTO();
+
+        pageDTO.setFriendUserId(friendUserId);
+
+        pageDTO.setBackwardFlag(backwardFlag);
+
+        pageDTO.setSearchKey(dto.getSearchKey());
+
+        Page<BaseImFriendPageVO> resPage =
+            baseMapper.myPage(MyPageUtil.getScrollPage(dto.getPageSize()), pageDTO, currentUserId);
+
+        return resPage.getRecords();
 
     }
 
