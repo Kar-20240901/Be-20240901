@@ -6,13 +6,13 @@ import javax.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class BaseImGroupRefUserAddMuteDTO {
+public class BaseImGroupRefUserAddManageDTO {
 
     @NotNull
     @Schema(description = "群组主键 id")
     private Long groupId;
 
-    @Schema(description = "需要禁言的用户主键 id集合")
+    @Schema(description = "待新增管理员的用户主键 id集合")
     private Set<Long> userIdSet;
 
 }

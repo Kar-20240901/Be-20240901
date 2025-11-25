@@ -33,4 +33,10 @@ public class BaseImGroupDO extends TempEntityNoIdSuper {
     @Schema(description = "展示的 id")
     private String showId;
 
+    @Schema(description = "普通成员是否禁言")
+    private Boolean normalMuteFlag;
+
+    @Schema(description = "管理员是否禁言，群主不会被禁言")
+    private Boolean manageMuteFlag;
+
 }

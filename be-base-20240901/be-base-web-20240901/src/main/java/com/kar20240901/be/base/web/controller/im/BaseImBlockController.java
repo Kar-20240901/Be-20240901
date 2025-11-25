@@ -1,7 +1,7 @@
 package com.kar20240901.be.base.web.controller.im;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.im.BaseImBlockGroupAddUserDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImBlockGroupPageDTO;
 import com.kar20240901.be.base.web.model.vo.base.R;
@@ -26,7 +26,7 @@ public class BaseImBlockController {
 
     @Operation(summary = "拉黑好友")
     @PostMapping("/addFriend")
-    public R<String> addFriend(@RequestBody @Valid NotNullId dto) {
+    public R<String> addFriend(@RequestBody @Valid NotEmptyIdSet dto) {
         return R.okMsg(baseService.addFriend(dto));
     }
 
@@ -38,7 +38,7 @@ public class BaseImBlockController {
 
     @Operation(summary = "取消拉黑好友")
     @PostMapping("/cancelFriend")
-    public R<String> cancelFriend(@RequestBody @Valid NotNullId dto) {
+    public R<String> cancelFriend(@RequestBody @Valid NotEmptyIdSet dto) {
         return R.okMsg(baseService.cancelFriend(dto));
     }
 

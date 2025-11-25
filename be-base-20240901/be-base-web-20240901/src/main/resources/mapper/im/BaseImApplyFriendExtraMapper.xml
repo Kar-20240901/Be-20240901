@@ -4,7 +4,10 @@
 <mapper namespace="com.kar20240901.be.base.web.mapper.im.BaseImApplyFriendExtraMapper">
   <insert id="insertOrUpdateHiddenFlag">
     INSERT INTO base_im_apply_friend_extra (apply_friend_id, user_id, hidden_flag)
-    VALUES (#{applyFriendId}, #{userId}, #{hiddenFlag})
-    ON DUPLICATE KEY UPDATE hidden_flag = VALUES(hidden_flag);
+    VALUES
+    <foreach collection="applyFriendIdSet" item="item" index="index" separator=",">
+      (#{item}, #{userId}, #{hiddenFlag})
+    </foreach>
+    ON DUPLICATE KEY UPDATE hidden_flag = VALUES(hidden_flag)
   </insert>
 </mapper>

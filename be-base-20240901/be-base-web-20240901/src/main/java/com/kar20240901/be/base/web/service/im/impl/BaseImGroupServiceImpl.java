@@ -24,7 +24,6 @@ import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRemoveUserDTO;
 import com.kar20240901.be.base.web.model.enums.im.BaseImTypeEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.im.BaseImGroupPageVO;
-import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.service.im.BaseImGroupRefUserService;
 import com.kar20240901.be.base.web.service.im.BaseImGroupService;
 import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
@@ -58,9 +57,6 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
 
     @Resource
     BaseImGroupRefUserService baseImGroupRefUserService;
-
-    @Resource
-    BaseFileService baseFileService;
 
     /**
      * 新增/修改
@@ -103,7 +99,7 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
         } else {
 
             // 检查：是否有权限
-            BaseImGroupUtil.checkGroupAuth(dto.getId());
+            BaseImGroupUtil.checkGroupAuth(dto.getId(), false);
 
             baseImGroupDO.setId(dto.getId());
 
@@ -162,11 +158,17 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
     @DSTransactional
     public String removeUser(BaseImGroupRemoveUserDTO dto) {
 
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        if (dto.getUserIdSet().contains(currentUserId)) {
+            R.error(TempBizCodeEnum.ILLEGAL_REQUEST);
+        }
+
         // 检查：是否有权限
-        BaseImGroupUtil.checkGroupAuth(dto.getGroupId());
+        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), false);
 
         ChainWrappers.lambdaUpdateChain(baseImGroupRefUserMapper).eq(BaseImGroupRefUserDO::getGroupId, dto.getGroupId())
-            .eq(BaseImGroupRefUserDO::getUserId, dto.getUserId()).remove();
+            .in(BaseImGroupRefUserDO::getUserId, dto.getUserIdSet()).remove();
 
         return TempBizCodeEnum.OK;
 
@@ -176,6 +178,7 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
      * 修改群主
      */
     @Override
+    @DSTransactional
     public String changeBelongId(BaseImGroupChangeBelongIdDTO dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
@@ -185,7 +188,7 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
         }
 
         // 检查：是否有权限
-        BaseImGroupUtil.checkGroupAuth(dto.getGroupId());
+        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), true);
 
         boolean exists = ChainWrappers.lambdaQueryChain(baseImGroupRefUserMapper)
             .eq(BaseImGroupRefUserDO::getGroupId, dto.getGroupId())
@@ -205,6 +208,10 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
         lambdaUpdate().eq(BaseImGroupDO::getId, dto.getGroupId()).set(BaseImGroupDO::getBelongId, dto.getNewBelongId())
             .update();
 
+        baseImGroupRefUserService.lambdaUpdate().eq(BaseImGroupRefUserDO::getGroupId, dto.getGroupId())
+            .eq(BaseImGroupRefUserDO::getUserId, dto.getNewBelongId()).set(BaseImGroupRefUserDO::getManageFlag, false)
+            .set(BaseImGroupRefUserDO::getMuteFlag, false).update();
+
         return TempBizCodeEnum.OK;
 
     }
@@ -217,7 +224,7 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
     public String deleteById(NotNullId dto) {
 
         // 检查：是否有权限
-        BaseImGroupUtil.checkGroupAuth(dto.getId());
+        BaseImGroupUtil.checkGroupAuth(dto.getId(), true);
 
         lambdaUpdate().eq(BaseImGroupDO::getId, dto.getId()).remove();
 

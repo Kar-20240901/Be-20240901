@@ -21,4 +21,8 @@ public interface BaseImGroupRefUserService extends IService<BaseImGroupRefUserDO
 
     void addUser(Long sessionId, Long groupId, Long userId);
 
+    String addManage(BaseImGroupRefUserAddMuteDTO dto);
+
+    String deleteManage(BaseImGroupRefUserDeleteMuteDTO dto);
+
 }

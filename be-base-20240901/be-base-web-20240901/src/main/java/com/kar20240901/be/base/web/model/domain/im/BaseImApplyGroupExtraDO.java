@@ -16,9 +16,12 @@ public class BaseImApplyGroupExtraDO {
     private Long applyGroupId;
 
     @Schema(description = "用户主键 id")
-    private Long userId;
+    private Long userOrGroupId;
 
     @Schema(description = "是否隐藏")
-    private Integer hiddenFlag;
+    private Boolean hiddenFlag;
+
+    @Schema(description = "101 用户 201 群组")
+    private Integer type;
 
 }

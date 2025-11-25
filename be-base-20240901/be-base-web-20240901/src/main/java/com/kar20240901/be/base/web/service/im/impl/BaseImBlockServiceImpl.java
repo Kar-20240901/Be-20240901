@@ -12,7 +12,6 @@ import com.kar20240901.be.base.web.model.domain.im.BaseImApplyFriendDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
-import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.im.BaseImBlockGroupAddUserDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImBlockGroupPageDTO;
 import com.kar20240901.be.base.web.model.enums.im.BaseImTypeEnum;
@@ -21,6 +20,8 @@ import com.kar20240901.be.base.web.model.vo.im.BaseImBlockGroupPageVO;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.service.im.BaseImBlockService;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -44,11 +45,11 @@ public class BaseImBlockServiceImpl extends ServiceImpl<BaseImBlockMapper, BaseI
      * 拉黑好友
      */
     @Override
-    public String addFriend(NotNullId dto) {
+    public String addFriend(NotEmptyIdSet dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        if (dto.getId().equals(currentUserId)) {
+        if (dto.getIdSet().contains(currentUserId)) {
             R.error(TempBizCodeEnum.ILLEGAL_REQUEST);
         }
 
@@ -65,14 +66,23 @@ public class BaseImBlockServiceImpl extends ServiceImpl<BaseImBlockMapper, BaseI
 
         }
 
-        BaseImBlockDO baseImBlockDO = new BaseImBlockDO();
+        List<BaseImBlockDO> insertList = new ArrayList<>();
 
-        baseImBlockDO.setUserId(dto.getId());
-        baseImBlockDO.setSessionId(sessionId);
-        baseImBlockDO.setSourceId(currentUserId);
-        baseImBlockDO.setSourceType(BaseImTypeEnum.FRIEND.getCode());
+        for (Long item : dto.getIdSet()) {
 
-        save(baseImBlockDO);
+            BaseImBlockDO baseImBlockDO = new BaseImBlockDO();
+
+            baseImBlockDO.setCreateId(currentUserId);
+            baseImBlockDO.setUserId(item);
+            baseImBlockDO.setSessionId(sessionId);
+            baseImBlockDO.setSourceId(currentUserId);
+            baseImBlockDO.setSourceType(BaseImTypeEnum.FRIEND.getCode());
+
+            insertList.add(baseImBlockDO);
+
+        }
+
+        saveBatch(insertList);
 
         return TempBizCodeEnum.OK;
 
@@ -88,9 +98,9 @@ public class BaseImBlockServiceImpl extends ServiceImpl<BaseImBlockMapper, BaseI
 
         Long groupId = dto.getGroupId();
 
-        Long userId = dto.getUserId();
+        Set<Long> userIdSet = dto.getUserIdSet();
 
-        if (userId.equals(currentUserId)) {
+        if (userIdSet.contains(currentUserId)) {
             R.error(TempBizCodeEnum.ILLEGAL_REQUEST);
         }
 
@@ -102,15 +112,23 @@ public class BaseImBlockServiceImpl extends ServiceImpl<BaseImBlockMapper, BaseI
             R.error(TempBizCodeEnum.INSUFFICIENT_PERMISSIONS);
         }
 
-        BaseImBlockDO baseImBlockDO = new BaseImBlockDO();
+        List<BaseImBlockDO> insertList = new ArrayList<>();
 
-        baseImBlockDO.setCreateId(currentUserId);
-        baseImBlockDO.setUserId(userId);
-        baseImBlockDO.setSessionId(baseImGroupDO.getSessionId());
-        baseImBlockDO.setSourceId(groupId);
-        baseImBlockDO.setSourceType(BaseImTypeEnum.GROUP.getCode());
+        for (Long item : userIdSet) {
 
-        save(baseImBlockDO);
+            BaseImBlockDO baseImBlockDO = new BaseImBlockDO();
+
+            baseImBlockDO.setCreateId(currentUserId);
+            baseImBlockDO.setUserId(item);
+            baseImBlockDO.setSessionId(baseImGroupDO.getSessionId());
+            baseImBlockDO.setSourceId(groupId);
+            baseImBlockDO.setSourceType(BaseImTypeEnum.GROUP.getCode());
+
+            insertList.add(baseImBlockDO);
+
+        }
+
+        saveBatch(insertList);
 
         return TempBizCodeEnum.OK;
 
@@ -120,15 +138,15 @@ public class BaseImBlockServiceImpl extends ServiceImpl<BaseImBlockMapper, BaseI
      * 取消拉黑好友
      */
     @Override
-    public String cancelFriend(NotNullId dto) {
+    public String cancelFriend(NotEmptyIdSet dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        if (dto.getId().equals(currentUserId)) {
+        if (dto.getIdSet().contains(currentUserId)) {
             R.error(TempBizCodeEnum.ILLEGAL_REQUEST);
         }
 
-        lambdaUpdate().eq(BaseImBlockDO::getUserId, dto.getId()).eq(BaseImBlockDO::getSourceId, currentUserId)
+        lambdaUpdate().in(BaseImBlockDO::getUserId, dto.getIdSet()).eq(BaseImBlockDO::getSourceId, currentUserId)
             .eq(BaseImBlockDO::getSourceType, BaseImTypeEnum.FRIEND).remove();
 
         return TempBizCodeEnum.OK;
@@ -145,12 +163,6 @@ public class BaseImBlockServiceImpl extends ServiceImpl<BaseImBlockMapper, BaseI
 
         Long groupId = dto.getGroupId();
 
-        Long userId = dto.getUserId();
-
-        if (userId.equals(currentUserId)) {
-            R.error(TempBizCodeEnum.ILLEGAL_REQUEST);
-        }
-
         boolean exists = ChainWrappers.lambdaQueryChain(baseImGroupMapper).eq(BaseImGroupDO::getId, groupId)
             .eq(BaseImGroupDO::getBelongId, currentUserId).exists();
 
@@ -158,7 +170,7 @@ public class BaseImBlockServiceImpl extends ServiceImpl<BaseImBlockMapper, BaseI
             R.error(TempBizCodeEnum.INSUFFICIENT_PERMISSIONS);
         }
 
-        lambdaUpdate().eq(BaseImBlockDO::getUserId, userId).eq(BaseImBlockDO::getSourceId, groupId)
+        lambdaUpdate().in(BaseImBlockDO::getUserId, dto.getUserIdSet()).eq(BaseImBlockDO::getSourceId, groupId)
             .eq(BaseImBlockDO::getSourceType, BaseImTypeEnum.GROUP).remove();
 
         return TempBizCodeEnum.OK;

@@ -1,8 +1,10 @@
 package com.kar20240901.be.base.web.controller.im;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyFriendSearchApplyGroupDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupAgreeDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupHiddenGroupDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupPageGroupDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupPageSelfDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupRejectDTO;
@@ -56,7 +58,7 @@ public class BaseImApplyGroupController {
 
     @Operation(summary = "同意")
     @PostMapping("/agree")
-    public R<String> agree(@RequestBody @Valid NotNullId dto) {
+    public R<String> agree(@RequestBody @Valid BaseImApplyGroupAgreeDTO dto) {
         return R.okMsg(baseService.agree(dto));
     }
 
@@ -66,10 +68,16 @@ public class BaseImApplyGroupController {
         return R.okMsg(baseService.reject(dto));
     }
 
-    @Operation(summary = "隐藏")
-    @PostMapping("/hidden")
-    public R<String> hidden(@RequestBody @Valid NotNullId dto) {
-        return R.okMsg(baseService.hidden(dto));
+    @Operation(summary = "隐藏-自我")
+    @PostMapping("/hiddenSelf")
+    public R<String> hiddenSelf(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okMsg(baseService.hiddenSelf(dto));
+    }
+
+    @Operation(summary = "隐藏-群组")
+    @PostMapping("/hiddenGroup")
+    public R<String> hiddenGroup(@RequestBody @Valid BaseImApplyGroupHiddenGroupDTO dto) {
+        return R.okMsg(baseService.hiddenGroup(dto));
     }
 
 }

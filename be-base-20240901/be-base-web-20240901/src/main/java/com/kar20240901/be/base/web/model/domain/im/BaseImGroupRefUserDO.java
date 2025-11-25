@@ -30,4 +30,8 @@ public class BaseImGroupRefUserDO extends TempEntityNoIdSuper {
     @Schema(description = "是否禁言")
     private Boolean muteFlag;
 
+    @Schema(
+        description = "是否管理员：可以：审批入群，修改群名称，群头像，踢出群员，禁言群员，不能：赋权另外一个管理员，群组创建人不用该字段，并且该字段为 false")
+    private Boolean manageFlag;
+
 }

@@ -8,7 +8,7 @@ import lombok.Data;
 
 @TableName(value = "base_im_apply_friend_extra")
 @Data
-@Schema(description = "表：好友申请扩展表，主表：好友申请表")
+@Schema(description = "子表：好友申请扩展表，主表：好友申请表")
 public class BaseImApplyFriendExtraDO {
 
     @TableId(type = IdType.INPUT)
@@ -19,6 +19,6 @@ public class BaseImApplyFriendExtraDO {
     private Long userId;
 
     @Schema(description = "是否隐藏")
-    private Integer hiddenFlag;
+    private Boolean hiddenFlag;
 
 }

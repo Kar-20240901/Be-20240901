@@ -1,7 +1,6 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
@@ -14,7 +13,6 @@ import com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper;
 import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketStrEventBO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImFriendDO;
-import com.kar20240901.be.base.web.model.domain.im.BaseImGroupRefUserDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionContentDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionContentRefUserDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionRefUserDO;
@@ -31,6 +29,7 @@ import com.kar20240901.be.base.web.service.im.BaseImSessionContentRefUserService
 import com.kar20240901.be.base.web.service.im.BaseImSessionContentService;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
+import com.kar20240901.be.base.web.util.im.BaseImGroupUtil;
 import com.kar20240901.be.base.web.util.kafka.TempKafkaUtil;
 import java.util.ArrayList;
 import java.util.Date;
@@ -201,17 +200,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
      */
     private void insertTxtForGroupCheck(Long currentUserId, Long targetId, IBaseImType baseImTypeEnum) {
 
-        BaseImGroupRefUserDO baseImGroupRefUserDO =
-            ChainWrappers.lambdaQueryChain(baseImGroupRefUserMapper).eq(BaseImGroupRefUserDO::getUserId, currentUserId)
-                .eq(BaseImGroupRefUserDO::getGroupId, targetId).select(BaseImGroupRefUserDO::getMuteFlag).one();
-
-        if (baseImGroupRefUserDO == null) {
-            R.error("操作失败：您不是该群成员，无法发送消息", targetId);
-        }
-
-        if (BooleanUtil.isTrue(baseImGroupRefUserDO.getMuteFlag())) {
-            R.error("操作失败：您已被禁言，无法发送消息", targetId);
-        }
+        BaseImGroupUtil.checkMuteFlag(targetId);
 
         boolean exists = ChainWrappers.lambdaQueryChain(baseImBlockMapper).eq(BaseImBlockDO::getSourceId, targetId)
             .eq(BaseImBlockDO::getUserId, currentUserId).eq(BaseImBlockDO::getSourceType, baseImTypeEnum.getCode())

@@ -9,7 +9,8 @@
     FROM base_im_apply_group a
 
            LEFT JOIN base_im_apply_group_extra b
-                     ON b.apply_group_id = a.id AND b.user_id = #{currentUserId}
+                     ON b.apply_group_id = a.id AND b.user_or_group_id = #{currentUserId} AND
+                        b.type = 101
 
            LEFT JOIN base_im_group c ON c.id = a.target_group_id
 
@@ -42,7 +43,13 @@
 
            LEFT JOIN base_user_info b ON b.id = a.user_id
 
-    WHERE a.target_group_id = #{dto.groupId}
+           LEFT JOIN base_im_apply_group_extra c
+                     ON c.apply_group_id = a.id AND c.user_or_group_id = #{dto.groupId} AND
+                        c.type = 201
+
+    WHERE (c.hidden_flag IS NULL OR c.hidden_flag = FALSE)
+
+      AND a.target_group_id = #{dto.groupId}
 
       AND b.id IS NOT NULL
 

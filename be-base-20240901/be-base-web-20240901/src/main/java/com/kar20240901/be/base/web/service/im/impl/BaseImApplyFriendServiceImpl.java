@@ -17,7 +17,6 @@ import com.kar20240901.be.base.web.model.domain.im.BaseImApplyFriendExtraDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImFriendDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
-import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyFriendPageDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyFriendRejectDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyFriendSearchApplyFriendDTO;
@@ -244,65 +243,75 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
      */
     @Override
     @DSTransactional
-    public String agree(NotNullId dto) {
+    public String agree(NotEmptyIdSet dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        String lockKey = BaseRedisKeyEnum.PRE_IM_APPLY_FRIEND_ID + ":" + dto.getId();
+        RedissonUtil.doMultiLock(BaseRedisKeyEnum.PRE_IM_APPLY_FRIEND_ID + ":", dto.getIdSet(), () -> {
 
-        RedissonUtil.doLock(lockKey, () -> {
+            for (Long item : dto.getIdSet()) {
 
-            BaseImApplyFriendDO baseImApplyFriendDO =
-                lambdaQuery().eq(BaseImApplyFriendDO::getTargetUserId, currentUserId)
-                    .eq(BaseImApplyFriendDO::getId, dto.getId()).one();
+                BaseImApplyFriendDO baseImApplyFriendDO =
+                    lambdaQuery().eq(BaseImApplyFriendDO::getTargetUserId, currentUserId)
+                        .eq(BaseImApplyFriendDO::getId, item).one();
 
-            if (baseImApplyFriendDO == null) {
-                R.error("操作失败：好友申请不存在", dto.getId());
+                if (baseImApplyFriendDO == null) {
+                    if (dto.getIdSet().size() != 1) {
+                        continue;
+                    } else {
+                        R.error("操作失败：好友申请不存在", item);
+                    }
+                }
+
+                if (!BaseImApplyStatusEnum.APPLYING.equals(baseImApplyFriendDO.getStatus())) {
+                    if (dto.getIdSet().size() != 1) {
+                        continue;
+                    } else {
+                        R.error("操作失败：该好友申请状态已发生改变，请刷新再试", item);
+                    }
+                }
+
+                baseImApplyFriendDO.setRejectReason("");
+
+                baseImApplyFriendDO.setStatus(BaseImApplyStatusEnum.PASSED);
+
+                Long sessionId = baseImApplyFriendDO.getSessionId();
+
+                // 防止会话记录丢失，则采用历史的会话主键 id
+                boolean addFlag = sessionId.equals(TempConstant.NEGATIVE_ONE);
+
+                if (addFlag) {
+
+                    sessionId = IdGeneratorUtil.nextId();
+
+                }
+
+                baseImApplyFriendDO.setSessionId(sessionId);
+
+                // 更新数据
+                updateById(baseImApplyFriendDO);
+
+                // 显示好友申请
+                ChainWrappers.lambdaUpdateChain(baseImApplyFriendExtraMapper)
+                    .eq(BaseImApplyFriendExtraDO::getApplyFriendId, baseImApplyFriendDO.getId())
+                    .set(BaseImApplyFriendExtraDO::getHiddenFlag, false).update();
+
+                // 创建好友
+                baseImFriendService.addOrUpdateFriend(baseImApplyFriendDO.getUserId(),
+                    baseImApplyFriendDO.getTargetUserId(), sessionId, addFlag);
+
+                if (addFlag) {
+
+                    // 创建会话
+                    baseImSessionService.addSession(sessionId, baseImApplyFriendDO.getId(), BaseImTypeEnum.FRIEND);
+
+                }
+
+                // 创建会话关联用户
+                baseImSessionRefUserService.addOrUpdateSessionRefUserForFriend(sessionId,
+                    baseImApplyFriendDO.getUserId(), baseImApplyFriendDO.getTargetUserId(), addFlag);
+
             }
-
-            if (!BaseImApplyStatusEnum.APPLYING.equals(baseImApplyFriendDO.getStatus())) {
-                R.error("操作失败：该好友申请状态已发生改变，请刷新再试", dto.getId());
-            }
-
-            baseImApplyFriendDO.setRejectReason("");
-
-            baseImApplyFriendDO.setStatus(BaseImApplyStatusEnum.PASSED);
-
-            Long sessionId = baseImApplyFriendDO.getSessionId();
-
-            // 防止会话记录丢失，则采用历史的会话主键 id
-            boolean addFlag = sessionId.equals(TempConstant.NEGATIVE_ONE);
-
-            if (addFlag) {
-
-                sessionId = IdGeneratorUtil.nextId();
-
-            }
-
-            baseImApplyFriendDO.setSessionId(sessionId);
-
-            // 更新数据
-            updateById(baseImApplyFriendDO);
-
-            // 显示好友申请
-            ChainWrappers.lambdaUpdateChain(baseImApplyFriendExtraMapper)
-                .eq(BaseImApplyFriendExtraDO::getApplyFriendId, baseImApplyFriendDO.getId())
-                .set(BaseImApplyFriendExtraDO::getHiddenFlag, false).update();
-
-            // 创建好友
-            baseImFriendService.addOrUpdateFriend(baseImApplyFriendDO.getUserId(),
-                baseImApplyFriendDO.getTargetUserId(), sessionId, addFlag);
-
-            if (addFlag) {
-
-                // 创建会话
-                baseImSessionService.addSession(sessionId, baseImApplyFriendDO.getId(), BaseImTypeEnum.FRIEND);
-
-            }
-
-            // 创建会话关联用户
-            baseImSessionRefUserService.addOrUpdateSessionRefUserForFriend(sessionId, baseImApplyFriendDO.getUserId(),
-                baseImApplyFriendDO.getTargetUserId(), addFlag);
 
         });
 
@@ -319,33 +328,43 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        String lockKey = BaseRedisKeyEnum.PRE_IM_APPLY_FRIEND_ID + ":" + dto.getId();
+        RedissonUtil.doMultiLock(BaseRedisKeyEnum.PRE_IM_APPLY_FRIEND_ID + ":", dto.getIdSet(), () -> {
 
-        RedissonUtil.doLock(lockKey, () -> {
+            for (Long item : dto.getIdSet()) {
 
-            BaseImApplyFriendDO baseImApplyFriendDO =
-                lambdaQuery().eq(BaseImApplyFriendDO::getTargetUserId, currentUserId)
-                    .eq(BaseImApplyFriendDO::getId, dto.getId()).one();
+                BaseImApplyFriendDO baseImApplyFriendDO =
+                    lambdaQuery().eq(BaseImApplyFriendDO::getTargetUserId, currentUserId)
+                        .eq(BaseImApplyFriendDO::getId, item).one();
 
-            if (baseImApplyFriendDO == null) {
-                R.error("操作失败：好友申请不存在", dto.getId());
+                if (baseImApplyFriendDO == null) {
+                    if (dto.getIdSet().size() != 1) {
+                        continue;
+                    } else {
+                        R.error("操作失败：好友申请不存在", item);
+                    }
+                }
+
+                if (!BaseImApplyStatusEnum.APPLYING.equals(baseImApplyFriendDO.getStatus())) {
+                    if (dto.getIdSet().size() != 1) {
+                        continue;
+                    } else {
+                        R.error("操作失败：该好友申请状态已发生改变，请刷新再试", item);
+                    }
+                }
+
+                baseImApplyFriendDO.setRejectReason(MyEntityUtil.getNotNullStr(dto.getRejectReason()));
+
+                baseImApplyFriendDO.setStatus(BaseImApplyStatusEnum.REJECTED);
+
+                // 更新数据
+                updateById(baseImApplyFriendDO);
+
+                // 显示好友申请
+                ChainWrappers.lambdaUpdateChain(baseImApplyFriendExtraMapper)
+                    .eq(BaseImApplyFriendExtraDO::getApplyFriendId, baseImApplyFriendDO.getId())
+                    .set(BaseImApplyFriendExtraDO::getHiddenFlag, false).update();
+
             }
-
-            if (!BaseImApplyStatusEnum.APPLYING.equals(baseImApplyFriendDO.getStatus())) {
-                R.error("操作失败：该好友申请状态已发生改变，请刷新再试", dto.getId());
-            }
-
-            baseImApplyFriendDO.setRejectReason(MyEntityUtil.getNotNullStr(dto.getRejectReason()));
-
-            baseImApplyFriendDO.setStatus(BaseImApplyStatusEnum.REJECTED);
-
-            // 更新数据
-            updateById(baseImApplyFriendDO);
-
-            // 显示好友申请
-            ChainWrappers.lambdaUpdateChain(baseImApplyFriendExtraMapper)
-                .eq(BaseImApplyFriendExtraDO::getApplyFriendId, baseImApplyFriendDO.getId())
-                .set(BaseImApplyFriendExtraDO::getHiddenFlag, false).update();
 
         });
 
@@ -357,19 +376,19 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
      * 隐藏
      */
     @Override
-    public String hidden(NotNullId dto) {
+    public String hidden(NotEmptyIdSet dto) {
 
         Long userId = MyUserUtil.getCurrentUserId();
 
-        boolean exists = lambdaQuery().and(i -> i.eq(BaseImApplyFriendDO::getTargetUserId, userId)
-                .or(o -> o.eq(BaseImApplyFriendDO::getUserId, userId))).eq(BaseImApplyFriendDO::getId, dto.getId())
-            .exists();
+        Long count = lambdaQuery().and(i -> i.eq(BaseImApplyFriendDO::getTargetUserId, userId)
+                .or(o -> o.eq(BaseImApplyFriendDO::getUserId, userId))).in(BaseImApplyFriendDO::getId, dto.getIdSet())
+            .count();
 
-        if (!exists) {
+        if (count != dto.getIdSet().size()) {
             R.error(TempBizCodeEnum.ILLEGAL_REQUEST);
         }
 
-        baseImApplyFriendExtraMapper.insertOrUpdateHiddenFlag(dto.getId(), userId, true);
+        baseImApplyFriendExtraMapper.insertOrUpdateHiddenFlag(dto.getIdSet(), userId, true);
 
         return TempBizCodeEnum.OK;
 

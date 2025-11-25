@@ -49,4 +49,16 @@ public class BaseImGroupRefUserController {
         return R.okData(baseService.deleteMute(dto));
     }
 
+    @Operation(summary = "新增管理员")
+    @PostMapping("/addManage")
+    public R<String> addManage(@RequestBody @Valid BaseImGroupRefUserAddMuteDTO dto) {
+        return R.okData(baseService.addManage(dto));
+    }
+
+    @Operation(summary = "解除管理员")
+    @PostMapping("/deleteManage")
+    public R<String> deleteManage(@RequestBody @Valid BaseImGroupRefUserDeleteMuteDTO dto) {
+        return R.okData(baseService.deleteManage(dto));
+    }
+
 }

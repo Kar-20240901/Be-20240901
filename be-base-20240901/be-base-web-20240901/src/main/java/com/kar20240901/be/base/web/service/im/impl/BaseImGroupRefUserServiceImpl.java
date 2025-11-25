@@ -29,7 +29,6 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
 
     @Resource
     BaseFileService baseFileService;
-    ;
 
     /**
      * 群组分页排序查询群员
@@ -106,16 +105,17 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
     public String addMute(BaseImGroupRefUserAddMuteDTO dto) {
 
         // 检查：是否有权限
-        BaseImGroupUtil.checkGroupAuth(dto.getGroupId());
+        BaseImGroupUtil.checkForTargetUserId(dto.getGroupId(), dto.getUserIdSet());
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        if (currentUserId.equals(dto.getUserId())) {
+        if (dto.getUserIdSet().contains(currentUserId)) {
             R.errorMsg("操作失败：不能禁言自己");
         }
 
         lambdaUpdate().eq(BaseImGroupRefUserDO::getGroupId, dto.getGroupId())
-            .eq(BaseImGroupRefUserDO::getUserId, dto.getUserId()).set(BaseImGroupRefUserDO::getMuteFlag, true).update();
+            .in(BaseImGroupRefUserDO::getUserId, dto.getUserIdSet()).set(BaseImGroupRefUserDO::getMuteFlag, true)
+            .update();
 
         return TempBizCodeEnum.OK;
 
@@ -128,10 +128,16 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
     public String deleteMute(BaseImGroupRefUserDeleteMuteDTO dto) {
 
         // 检查：是否有权限
-        BaseImGroupUtil.checkGroupAuth(dto.getGroupId());
+        BaseImGroupUtil.checkForTargetUserId(dto.getGroupId(), dto.getUserIdSet());
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        if (dto.getUserIdSet().contains(currentUserId)) {
+            R.errorMsg("操作失败：不能解除自己的禁言");
+        }
 
         lambdaUpdate().eq(BaseImGroupRefUserDO::getGroupId, dto.getGroupId())
-            .eq(BaseImGroupRefUserDO::getUserId, dto.getUserId()).set(BaseImGroupRefUserDO::getMuteFlag, false)
+            .in(BaseImGroupRefUserDO::getUserId, dto.getUserIdSet()).set(BaseImGroupRefUserDO::getMuteFlag, false)
             .update();
 
         return TempBizCodeEnum.OK;
@@ -156,8 +162,55 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
         baseImGroupRefUserDO.setUserId(userId);
         baseImGroupRefUserDO.setMyNickname("");
         baseImGroupRefUserDO.setMuteFlag(false);
+        baseImGroupRefUserDO.setManageFlag(false);
 
         save(baseImGroupRefUserDO);
+
+    }
+
+    /**
+     * 新增管理员
+     */
+    @Override
+    public String addManage(BaseImGroupRefUserAddMuteDTO dto) {
+
+        // 检查：是否有权限
+        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), true);
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        if (dto.getUserIdSet().contains(currentUserId)) {
+            R.errorMsg("操作失败：不能新增自己为管理员");
+        }
+
+        lambdaUpdate().eq(BaseImGroupRefUserDO::getGroupId, dto.getGroupId())
+            .in(BaseImGroupRefUserDO::getUserId, dto.getUserIdSet()).set(BaseImGroupRefUserDO::getManageFlag, true)
+            .update();
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 解除管理员
+     */
+    @Override
+    public String deleteManage(BaseImGroupRefUserDeleteMuteDTO dto) {
+
+        // 检查：是否有权限
+        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), true);
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        if (dto.getUserIdSet().contains(currentUserId)) {
+            R.errorMsg("操作失败：不能解除自己的管理员");
+        }
+
+        lambdaUpdate().eq(BaseImGroupRefUserDO::getGroupId, dto.getGroupId())
+            .in(BaseImGroupRefUserDO::getUserId, dto.getUserIdSet()).set(BaseImGroupRefUserDO::getManageFlag, false)
+            .update();
+
+        return TempBizCodeEnum.OK;
 
     }
 

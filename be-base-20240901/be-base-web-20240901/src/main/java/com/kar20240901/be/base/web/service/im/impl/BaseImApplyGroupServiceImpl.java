@@ -18,8 +18,9 @@ import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupRefUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
-import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyFriendSearchApplyGroupDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupAgreeDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupHiddenGroupDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupPageGroupDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupPageSelfDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupRejectDTO;
@@ -188,7 +189,7 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
 
                 }
 
-                // 显示好友申请
+                // 显示群组申请
                 ChainWrappers.lambdaUpdateChain(baseImApplyGroupExtraMapper)
                     .eq(BaseImApplyGroupExtraDO::getApplyGroupId, baseImApplyGroupDO.getId())
                     .set(BaseImApplyGroupExtraDO::getHiddenFlag, false).update();
@@ -246,7 +247,7 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
     public Page<BaseImApplyGroupPageGroupVO> myPageGroup(BaseImApplyGroupPageGroupDTO dto) {
 
         // 检查：是否有权限
-        BaseImGroupUtil.checkGroupAuth(dto.getGroupId());
+        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), false);
 
         Page<BaseImApplyGroupPageGroupVO> page = baseMapper.myPageGroup(dto.pageOrder(), dto);
 
@@ -274,44 +275,55 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
      */
     @Override
     @DSTransactional
-    public String agree(NotNullId dto) {
+    public String agree(BaseImApplyGroupAgreeDTO dto) {
 
-        String lockKey = BaseRedisKeyEnum.PRE_IM_APPLY_GROUP_ID + ":" + dto.getId();
+        // 检查：是否有权限
+        BaseImGroupUtil.checkForTargetUserId(dto.getGroupId(), dto.getIdSet());
 
-        RedissonUtil.doLock(lockKey, () -> {
+        RedissonUtil.doMultiLock(BaseRedisKeyEnum.PRE_IM_APPLY_GROUP_ID + ":", dto.getIdSet(), () -> {
 
-            BaseImApplyGroupDO baseImApplyGroupDO = lambdaQuery().eq(BaseImApplyGroupDO::getId, dto.getId()).one();
+            for (Long item : dto.getIdSet()) {
 
-            if (baseImApplyGroupDO == null) {
-                R.error("操作失败：入群申请不存在", dto.getId());
+                BaseImApplyGroupDO baseImApplyGroupDO = lambdaQuery().eq(BaseImApplyGroupDO::getId, item)
+                    .eq(BaseImApplyGroupDO::getTargetGroupId, dto.getGroupId()).one();
+
+                if (baseImApplyGroupDO == null) {
+                    if (dto.getIdSet().size() != 1) {
+                        continue;
+                    } else {
+                        R.error("操作失败：入群申请不存在", item);
+                    }
+                }
+
+                if (!BaseImApplyStatusEnum.APPLYING.equals(baseImApplyGroupDO.getStatus())) {
+                    if (dto.getIdSet().size() != 1) {
+                        continue;
+                    } else {
+                        R.error("操作失败：该入群申请状态已发生改变，请刷新再试", item);
+                    }
+                }
+
+                baseImApplyGroupDO.setRejectReason("");
+
+                baseImApplyGroupDO.setStatus(BaseImApplyStatusEnum.PASSED);
+
+                // 更新数据
+                updateById(baseImApplyGroupDO);
+
+                // 显示入群申请
+                ChainWrappers.lambdaUpdateChain(baseImApplyGroupExtraMapper)
+                    .eq(BaseImApplyGroupExtraDO::getApplyGroupId, baseImApplyGroupDO.getId())
+                    .set(BaseImApplyGroupExtraDO::getHiddenFlag, false).update();
+
+                // 创建会话关联用户
+                baseImSessionRefUserService.addOrUpdateSessionRefUserForGroup(baseImApplyGroupDO.getSessionId(),
+                    baseImApplyGroupDO.getTargetGroupId(), baseImApplyGroupDO.getUserId());
+
+                // 添加群员
+                baseImGroupRefUserService.addUser(baseImApplyGroupDO.getSessionId(),
+                    baseImApplyGroupDO.getTargetGroupId(), baseImApplyGroupDO.getUserId());
+
             }
-
-            // 检查：是否有权限
-            BaseImGroupUtil.checkGroupAuth(baseImApplyGroupDO.getTargetGroupId());
-
-            if (!BaseImApplyStatusEnum.APPLYING.equals(baseImApplyGroupDO.getStatus())) {
-                R.error("操作失败：该入群申请状态已发生改变，请刷新再试", dto.getId());
-            }
-
-            baseImApplyGroupDO.setRejectReason("");
-
-            baseImApplyGroupDO.setStatus(BaseImApplyStatusEnum.PASSED);
-
-            // 更新数据
-            updateById(baseImApplyGroupDO);
-
-            // 显示入群申请
-            ChainWrappers.lambdaUpdateChain(baseImApplyGroupExtraMapper)
-                .eq(BaseImApplyGroupExtraDO::getApplyGroupId, baseImApplyGroupDO.getId())
-                .set(BaseImApplyGroupExtraDO::getHiddenFlag, false).update();
-
-            // 创建会话关联用户
-            baseImSessionRefUserService.addOrUpdateSessionRefUserForGroup(baseImApplyGroupDO.getSessionId(),
-                baseImApplyGroupDO.getTargetGroupId(), baseImApplyGroupDO.getUserId());
-
-            // 添加群员
-            baseImGroupRefUserService.addUser(baseImApplyGroupDO.getSessionId(), baseImApplyGroupDO.getTargetGroupId(),
-                baseImApplyGroupDO.getUserId());
 
         });
 
@@ -326,34 +338,45 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
     @DSTransactional
     public String reject(BaseImApplyGroupRejectDTO dto) {
 
-        String lockKey = BaseRedisKeyEnum.PRE_IM_APPLY_GROUP_ID + ":" + dto.getId();
+        // 检查：是否有权限
+        BaseImGroupUtil.checkForTargetUserId(dto.getGroupId(), dto.getIdSet());
 
-        RedissonUtil.doLock(lockKey, () -> {
+        RedissonUtil.doMultiLock(BaseRedisKeyEnum.PRE_IM_APPLY_GROUP_ID + ":", dto.getIdSet(), () -> {
 
-            BaseImApplyGroupDO baseImApplyGroupDO = lambdaQuery().eq(BaseImApplyGroupDO::getId, dto.getId()).one();
+            for (Long item : dto.getIdSet()) {
 
-            if (baseImApplyGroupDO == null) {
-                R.error("操作失败：入群申请不存在", dto.getId());
+                BaseImApplyGroupDO baseImApplyGroupDO = lambdaQuery().eq(BaseImApplyGroupDO::getId, item)
+                    .eq(BaseImApplyGroupDO::getTargetGroupId, dto.getGroupId()).one();
+
+                if (baseImApplyGroupDO == null) {
+                    if (dto.getIdSet().size() != 1) {
+                        continue;
+                    } else {
+                        R.error("操作失败：入群申请不存在", item);
+                    }
+                }
+
+                if (!BaseImApplyStatusEnum.APPLYING.equals(baseImApplyGroupDO.getStatus())) {
+                    if (dto.getIdSet().size() != 1) {
+                        continue;
+                    } else {
+                        R.error("操作失败：该入群申请状态已发生改变，请刷新再试", item);
+                    }
+                }
+
+                baseImApplyGroupDO.setRejectReason(MyEntityUtil.getNotNullStr(dto.getRejectReason()));
+
+                baseImApplyGroupDO.setStatus(BaseImApplyStatusEnum.REJECTED);
+
+                // 更新数据
+                updateById(baseImApplyGroupDO);
+
+                // 显示入群申请
+                ChainWrappers.lambdaUpdateChain(baseImApplyGroupExtraMapper)
+                    .eq(BaseImApplyGroupExtraDO::getApplyGroupId, baseImApplyGroupDO.getId())
+                    .set(BaseImApplyGroupExtraDO::getHiddenFlag, false).update();
+
             }
-
-            // 检查：是否有权限
-            BaseImGroupUtil.checkGroupAuth(baseImApplyGroupDO.getTargetGroupId());
-
-            if (!BaseImApplyStatusEnum.APPLYING.equals(baseImApplyGroupDO.getStatus())) {
-                R.error("操作失败：该入群申请状态已发生改变，请刷新再试", dto.getId());
-            }
-
-            baseImApplyGroupDO.setRejectReason(MyEntityUtil.getNotNullStr(dto.getRejectReason()));
-
-            baseImApplyGroupDO.setStatus(BaseImApplyStatusEnum.REJECTED);
-
-            // 更新数据
-            updateById(baseImApplyGroupDO);
-
-            // 显示入群申请
-            ChainWrappers.lambdaUpdateChain(baseImApplyGroupExtraMapper)
-                .eq(BaseImApplyGroupExtraDO::getApplyGroupId, baseImApplyGroupDO.getId())
-                .set(BaseImApplyGroupExtraDO::getHiddenFlag, false).update();
 
         });
 
@@ -362,22 +385,44 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
     }
 
     /**
-     * 隐藏
+     * 隐藏-自我
      */
     @Override
-    public String hidden(NotNullId dto) {
+    public String hiddenSelf(NotEmptyIdSet dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        boolean exists =
-            lambdaQuery().eq(BaseImApplyGroupDO::getUserId, currentUserId).eq(BaseImApplyGroupDO::getId, dto.getId())
-                .exists();
+        Long count =
+            lambdaQuery().eq(BaseImApplyGroupDO::getUserId, currentUserId).in(BaseImApplyGroupDO::getId, dto.getIdSet())
+                .count();
 
-        if (!exists) {
+        if (count != dto.getIdSet().size()) {
             R.error(TempBizCodeEnum.ILLEGAL_REQUEST);
         }
 
-        baseImApplyGroupExtraMapper.insertOrUpdateHiddenFlag(dto.getId(), currentUserId, true);
+        baseImApplyGroupExtraMapper.insertOrUpdateHiddenFlag(dto.getIdSet(), currentUserId, true, 101);
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 隐藏-群组
+     */
+    @Override
+    public String hiddenGroup(BaseImApplyGroupHiddenGroupDTO dto) {
+
+        // 检查：是否有权限
+        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), false);
+
+        Long count = lambdaQuery().eq(BaseImApplyGroupDO::getTargetGroupId, dto.getGroupId())
+            .in(BaseImApplyGroupDO::getId, dto.getIdSet()).count();
+
+        if (count != dto.getIdSet().size()) {
+            R.error(TempBizCodeEnum.ILLEGAL_REQUEST);
+        }
+
+        baseImApplyGroupExtraMapper.insertOrUpdateHiddenFlag(dto.getIdSet(), dto.getGroupId(), true, 201);
 
         return TempBizCodeEnum.OK;
 
