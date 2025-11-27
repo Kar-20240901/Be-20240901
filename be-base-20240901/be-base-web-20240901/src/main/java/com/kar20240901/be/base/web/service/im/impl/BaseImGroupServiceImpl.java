@@ -165,7 +165,7 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
         }
 
         // 检查：是否有权限
-        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), false);
+        BaseImGroupUtil.checkForTargetUserId(dto.getGroupId(), dto.getUserIdSet());
 
         ChainWrappers.lambdaUpdateChain(baseImGroupRefUserMapper).eq(BaseImGroupRefUserDO::getGroupId, dto.getGroupId())
             .in(BaseImGroupRefUserDO::getUserId, dto.getUserIdSet()).remove();

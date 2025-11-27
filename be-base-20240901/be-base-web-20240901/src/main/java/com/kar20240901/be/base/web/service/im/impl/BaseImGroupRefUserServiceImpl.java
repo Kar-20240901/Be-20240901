@@ -70,14 +70,8 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
     @Override
     public Page<BaseImGroupRefUserPageVO> pageMute(BaseImGroupRefUserMutePageDTO dto) {
 
-        Long currentUserId = MyUserUtil.getCurrentUserId();
-
-        boolean exists = lambdaQuery().eq(BaseImGroupRefUserDO::getUserId, currentUserId)
-            .eq(BaseImGroupRefUserDO::getGroupId, dto.getGroupId()).exists();
-
-        if (!exists) {
-            R.error(TempBizCodeEnum.ILLEGAL_REQUEST, dto.getGroupId());
-        }
+        // 检测权限
+        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), false);
 
         Page<BaseImGroupRefUserPageVO> page = baseMapper.pageMute(dto.updateTimeDescDefaultOrderPage(), dto);
 

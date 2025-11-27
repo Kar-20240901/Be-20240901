@@ -16,7 +16,7 @@ public class BaseImBlockGroupPageVO {
     @Schema(description = "拉黑时间")
     private Date createTime;
 
-    @Schema(description = "头像文件主键 id", hidden = true)
+    @Schema(description = "头像文件主键 id，后端用", hidden = true)
     private Long avatarFileId;
 
     @Schema(description = "头像地址")

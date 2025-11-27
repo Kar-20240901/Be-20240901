@@ -23,7 +23,7 @@ public class BaseImApplyFriendPageVO {
     @Schema(description = "目标用户昵称")
     private String nickname;
 
-    @Schema(description = "目标用户头像文件 id")
+    @Schema(description = "目标用户头像文件 id，后端用", hidden = true)
     private Long avatarFileId;
 
     @Schema(description = "目标用户头像")

@@ -20,6 +20,7 @@ import com.kar20240901.be.base.web.model.vo.im.BaseImBlockGroupPageVO;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.service.im.BaseImBlockService;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
+import com.kar20240901.be.base.web.util.im.BaseImGroupUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -104,9 +105,12 @@ public class BaseImBlockServiceImpl extends ServiceImpl<BaseImBlockMapper, BaseI
             R.error(TempBizCodeEnum.ILLEGAL_REQUEST);
         }
 
+        // 检测权限
+        BaseImGroupUtil.checkForTargetUserId(dto.getGroupId(), dto.getUserIdSet());
+
         BaseImGroupDO baseImGroupDO =
             ChainWrappers.lambdaQueryChain(baseImGroupMapper).eq(BaseImGroupDO::getId, groupId)
-                .eq(BaseImGroupDO::getBelongId, currentUserId).select(BaseImGroupDO::getSessionId).one();
+                .select(BaseImGroupDO::getSessionId).one();
 
         if (baseImGroupDO == null) {
             R.error(TempBizCodeEnum.INSUFFICIENT_PERMISSIONS);
@@ -159,18 +163,10 @@ public class BaseImBlockServiceImpl extends ServiceImpl<BaseImBlockMapper, BaseI
     @Override
     public String groupCancelUser(BaseImBlockGroupAddUserDTO dto) {
 
-        Long currentUserId = MyUserUtil.getCurrentUserId();
+        // 检测权限
+        BaseImGroupUtil.checkForTargetUserId(dto.getGroupId(), dto.getUserIdSet());
 
-        Long groupId = dto.getGroupId();
-
-        boolean exists = ChainWrappers.lambdaQueryChain(baseImGroupMapper).eq(BaseImGroupDO::getId, groupId)
-            .eq(BaseImGroupDO::getBelongId, currentUserId).exists();
-
-        if (!exists) {
-            R.error(TempBizCodeEnum.INSUFFICIENT_PERMISSIONS);
-        }
-
-        lambdaUpdate().in(BaseImBlockDO::getUserId, dto.getUserIdSet()).eq(BaseImBlockDO::getSourceId, groupId)
+        lambdaUpdate().in(BaseImBlockDO::getUserId, dto.getUserIdSet()).eq(BaseImBlockDO::getSourceId, dto.getGroupId())
             .eq(BaseImBlockDO::getSourceType, BaseImTypeEnum.GROUP).remove();
 
         return TempBizCodeEnum.OK;
@@ -183,16 +179,8 @@ public class BaseImBlockServiceImpl extends ServiceImpl<BaseImBlockMapper, BaseI
     @Override
     public Page<BaseImBlockGroupPageVO> groupPage(BaseImBlockGroupPageDTO dto) {
 
-        Long currentUserId = MyUserUtil.getCurrentUserId();
-
-        Long groupId = dto.getGroupId();
-
-        boolean exists = ChainWrappers.lambdaQueryChain(baseImGroupMapper).eq(BaseImGroupDO::getId, groupId)
-            .eq(BaseImGroupDO::getBelongId, currentUserId).exists();
-
-        if (!exists) {
-            R.error(TempBizCodeEnum.INSUFFICIENT_PERMISSIONS);
-        }
+        // 检测权限
+        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), false);
 
         dto.setSourceType(BaseImTypeEnum.GROUP.getCode());
 
