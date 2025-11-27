@@ -180,9 +180,7 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
                             .eq(BaseImFriendDO::getFriendId, dto.getId()).exists();
 
                     if (existsFriend) {
-
                         R.error("操作失败：对方已经是您的好友了", dto.getId());
-
                     }
 
                 }
@@ -271,10 +269,6 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
                     }
                 }
 
-                baseImApplyFriendDO.setRejectReason("");
-
-                baseImApplyFriendDO.setStatus(BaseImApplyStatusEnum.PASSED);
-
                 Long sessionId = baseImApplyFriendDO.getSessionId();
 
                 // 防止会话记录丢失，则采用历史的会话主键 id
@@ -286,12 +280,16 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
                 }
 
-                baseImApplyFriendDO.setSessionId(sessionId);
+                // 更新数据：两个申请同时更新
+                lambdaUpdate().eq(BaseImApplyFriendDO::getUserId, baseImApplyFriendDO.getTargetUserId())
+                    .eq(BaseImApplyFriendDO::getTargetUserId, currentUserId)
+                    .or(i -> i.eq(BaseImApplyFriendDO::getUserId, currentUserId)
+                        .eq(BaseImApplyFriendDO::getTargetUserId, baseImApplyFriendDO.getTargetUserId()))
+                    .set(BaseImApplyFriendDO::getStatus, BaseImApplyStatusEnum.PASSED)
+                    .set(BaseImApplyFriendDO::getRejectReason, "").set(BaseImApplyFriendDO::getSessionId, sessionId)
+                    .update();
 
-                // 更新数据
-                updateById(baseImApplyFriendDO);
-
-                // 显示好友申请
+                // 显示好友申请：两个申请同时显示
                 ChainWrappers.lambdaUpdateChain(baseImApplyFriendExtraMapper)
                     .eq(BaseImApplyFriendExtraDO::getApplyFriendId, baseImApplyFriendDO.getId())
                     .set(BaseImApplyFriendExtraDO::getHiddenFlag, false).update();
