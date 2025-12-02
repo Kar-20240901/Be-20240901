@@ -7,11 +7,51 @@ import com.kar20240901.be.base.web.model.vo.base.R;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 public class ResponseUtil {
+
+    /**
+     * 获取响应的 header信息
+     */
+    public static Map<String, String> getHeaderMap(HttpServletResponse response) {
+
+        final Map<String, String> headerMap = new HashMap<>();
+
+        final Collection<String> headerNames = response.getHeaderNames();
+
+        for (String name : headerNames) {
+            headerMap.put(name, response.getHeader(name));
+        }
+
+        return headerMap;
+
+    }
+
+    /**
+     * 获取当前上下文的 response对象
+     */
+    @Nullable
+    public static HttpServletResponse getResponse() {
+
+        ServletRequestAttributes requestAttributes =
+            (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
+
+        if (requestAttributes == null) {
+            return null;
+        }
+
+        return requestAttributes.getResponse();
+
+    }
 
     @SneakyThrows
     public static R<?> out(HttpServletResponse response, IBizCode iBizCode) {

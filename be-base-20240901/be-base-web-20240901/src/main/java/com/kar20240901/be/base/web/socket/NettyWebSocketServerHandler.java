@@ -51,6 +51,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
@@ -60,7 +61,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -784,8 +788,32 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
         baseRequestInfoDO.setRequestParam(requestParam);
         baseRequestInfoDO.setResponseValue("");
 
+        baseRequestInfoDO.setRequestHeader(JSONUtil.toJsonStr(getHeaderMap(fullHttpRequest.headers())));
+        baseRequestInfoDO.setResponseHeader("");
+
         // 添加一个：请求数据
         RequestUtil.add(baseRequestDO, baseRequestInfoDO);
+
+    }
+
+    /**
+     * 获取请求的 header信息
+     */
+    public static Map<String, String> getHeaderMap(HttpHeaders httpHeaders) {
+
+        final Map<String, String> headerMap = new HashMap<>();
+
+        if (CollUtil.isEmpty(httpHeaders)) {
+            return headerMap;
+        }
+
+        final Set<String> names = httpHeaders.names();
+
+        for (String name : names) {
+            headerMap.put(name, httpHeaders.get(name));
+        }
+
+        return headerMap;
 
     }
 

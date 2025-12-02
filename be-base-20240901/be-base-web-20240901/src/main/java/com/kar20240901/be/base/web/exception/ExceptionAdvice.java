@@ -4,6 +4,7 @@ import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.extra.servlet.ServletUtil;
 import cn.hutool.json.JSONUtil;
+import com.kar20240901.be.base.web.aop.BaseRequestAop;
 import com.kar20240901.be.base.web.model.domain.request.BaseRequestDO;
 import com.kar20240901.be.base.web.model.domain.request.BaseRequestInfoDO;
 import com.kar20240901.be.base.web.model.enums.base.BaseRequestMethodEnum;
@@ -199,6 +200,9 @@ public class ExceptionAdvice {
         baseRequestInfoDO.setErrorMsg(MyEntityUtil.getNotNullStr(errorMsg));
         baseRequestInfoDO.setRequestParam(MyEntityUtil.getNotNullStr(requestParam));
         baseRequestInfoDO.setResponseValue(MyEntityUtil.getNotNullStr(responseValue));
+
+        baseRequestInfoDO.setRequestHeader(JSONUtil.toJsonStr(ServletUtil.getHeaderMap(httpServletRequest)));
+        BaseRequestAop.setResponseHeader(baseRequestInfoDO); // 设置：响应头
 
         // 添加一个：请求数据
         RequestUtil.add(baseRequestDO, baseRequestInfoDO);

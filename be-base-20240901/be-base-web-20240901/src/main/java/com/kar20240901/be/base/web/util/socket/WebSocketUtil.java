@@ -285,6 +285,9 @@ public class WebSocketUtil {
         baseRequestInfoDO.setRequestParam(text);
         baseRequestInfoDO.setResponseValue(jsonStr);
 
+        baseRequestInfoDO.setRequestHeader("");
+        baseRequestInfoDO.setResponseHeader("");
+
         // 添加一个：请求数据
         RequestUtil.add(baseRequestDO, baseRequestInfoDO);
 

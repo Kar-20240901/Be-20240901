@@ -33,4 +33,10 @@ public class BaseRequestInfoDO {
     @Schema(description = "请求返回的值")
     private String responseValue;
 
+    @Schema(description = "请求的 header")
+    private String requestHeader;
+
+    @Schema(description = "响应的 header")
+    private String responseHeader;
+
 }

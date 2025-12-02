@@ -23,10 +23,12 @@ import com.kar20240901.be.base.web.util.base.MyJwtUtil;
 import com.kar20240901.be.base.web.util.base.MyUserInfoUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import com.kar20240901.be.base.web.util.base.RequestUtil;
+import com.kar20240901.be.base.web.util.base.ResponseUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -112,6 +114,10 @@ public class BaseRequestAop {
 
         baseRequestInfoDO.setResponseValue("");
 
+        baseRequestInfoDO.setRequestHeader(JSONUtil.toJsonStr(ServletUtil.getHeaderMap(httpServletRequest)));
+
+        baseRequestInfoDO.setResponseHeader("");
+
         JSONObject jsonObject = JSONUtil.createObj();
 
         for (Object item : proceedingJoinPoint.getArgs()) {
@@ -137,6 +143,8 @@ public class BaseRequestAop {
                 baseRequestInfoDO.setResponseValue(MyEntityUtil.getNotNullStr(JSONUtil.toJsonStr(object)));
 
             }
+
+            setResponseHeader(baseRequestInfoDO); // 设置：响应头
 
         } catch (Throwable e) {
 
@@ -190,6 +198,21 @@ public class BaseRequestAop {
     }
 
     /**
+     * 设置：响应头
+     */
+    public static void setResponseHeader(BaseRequestInfoDO baseRequestInfoDO) {
+
+        HttpServletResponse httpServletResponse = ResponseUtil.getResponse();
+
+        if (httpServletResponse == null) {
+            return;
+        }
+
+        baseRequestInfoDO.setResponseHeader(JSONUtil.toJsonStr(ResponseUtil.getHeaderMap(httpServletResponse)));
+
+    }
+
+    /**
      * 处理：耗时相关
      */
     private void handleCostMs(long costMs, BaseRequestDO baseRequestDO) {
@@ -211,6 +234,8 @@ public class BaseRequestAop {
         String errorMsg = ExceptionUtil.stacktraceToString(e);
 
         baseRequestInfoDO.setErrorMsg(errorMsg);
+
+        setResponseHeader(baseRequestInfoDO); // 设置：响应头
 
         // 处理：耗时相关
         handleCostMs(costMs, baseRequestDO);
