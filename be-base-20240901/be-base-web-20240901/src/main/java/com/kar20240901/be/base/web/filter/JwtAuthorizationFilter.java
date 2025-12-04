@@ -17,13 +17,12 @@ import com.kar20240901.be.base.web.model.domain.base.BaseApiTokenDO;
 import com.kar20240901.be.base.web.model.interfaces.base.IBizCode;
 import com.kar20240901.be.base.web.model.interfaces.base.IJwtFilterHandler;
 import com.kar20240901.be.base.web.model.vo.base.SignInVO;
+import com.kar20240901.be.base.web.service.base.impl.BaseApiTokenServiceImpl;
 import com.kar20240901.be.base.web.util.base.BaseJwtUtil;
 import com.kar20240901.be.base.web.util.base.MyExceptionUtil;
 import com.kar20240901.be.base.web.util.base.MyJwtUtil;
-import com.kar20240901.be.base.web.util.base.MyThreadUtil;
 import com.kar20240901.be.base.web.util.base.RequestUtil;
 import com.kar20240901.be.base.web.util.base.ResponseUtil;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -152,13 +151,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         }
 
-        MyThreadUtil.execute(() -> {
-
-            // 更新：最新使用时间
-            ChainWrappers.lambdaUpdateChain(baseApiTokenMapper).eq(BaseApiTokenDO::getId, baseApiTokenDO.getId())
-                .set(BaseApiTokenDO::getLastUseTime, new Date()).update();
-
-        });
+        // 更新：最新使用时间
+        BaseApiTokenServiceImpl.add(CollUtil.newHashSet(baseApiTokenDO.getId()));
 
         Long userId = baseApiTokenDO.getUserId();
 

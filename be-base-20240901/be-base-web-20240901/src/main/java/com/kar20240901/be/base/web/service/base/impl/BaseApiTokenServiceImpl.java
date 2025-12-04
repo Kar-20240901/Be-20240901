@@ -16,13 +16,73 @@ import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.base.BaseApiTokenService;
+import com.kar20240901.be.base.web.util.base.MyThreadUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
+import java.util.Date;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.PreDestroy;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
 public class BaseApiTokenServiceImpl extends ServiceImpl<BaseApiTokenMapper, BaseApiTokenDO>
     implements BaseApiTokenService {
+
+    private static ConcurrentHashMap<Long, BaseApiTokenDO> API_TOKEN_DO_MAP = new ConcurrentHashMap<>();
+
+    /**
+     * 添加
+     */
+    public static void add(Set<Long> apiTokenIdSet) {
+
+        if (CollUtil.isEmpty(apiTokenIdSet)) {
+            return;
+        }
+
+        Date date = new Date();
+
+        for (Long item : apiTokenIdSet) {
+
+            BaseApiTokenDO baseApiTokenDO = new BaseApiTokenDO();
+
+            baseApiTokenDO.setId(item);
+            baseApiTokenDO.setLastUseTime(date);
+
+            API_TOKEN_DO_MAP.put(item, baseApiTokenDO);
+
+        }
+
+    }
+
+    /**
+     * 定时任务，保存数据
+     */
+    @PreDestroy
+    @Scheduled(fixedDelay = 5000)
+    public void scheduledSava() {
+
+        ConcurrentHashMap<Long, BaseApiTokenDO> tempApiTokenDoMap;
+
+        synchronized (API_TOKEN_DO_MAP) {
+
+            if (CollUtil.isEmpty(API_TOKEN_DO_MAP)) {
+                return;
+            }
+
+            tempApiTokenDoMap = API_TOKEN_DO_MAP;
+            API_TOKEN_DO_MAP = new ConcurrentHashMap<>();
+
+        }
+
+        // 目的：防止还有程序往：tempMap，里面添加数据，所以这里等待一会
+        MyThreadUtil.schedule(() -> {
+
+            updateBatchById(tempApiTokenDoMap.values());
+
+        }, DateUtil.offsetMillisecond(new Date(), 1500));
+
+    }
 
     /**
      * 新增/修改
