@@ -86,7 +86,7 @@ public class RequestUtil {
 
         baseRequestService.lambdaUpdate().in(BaseRequestDO::getId, requestIdList).remove();
 
-        baseRequestInfoService.lambdaUpdate().le(BaseRequestInfoDO::getId, requestIdList).remove();
+        baseRequestInfoService.lambdaUpdate().in(BaseRequestInfoDO::getId, requestIdList).remove();
 
     }
 

@@ -33,6 +33,9 @@ public class BaseRequestServiceImpl extends ServiceImpl<BaseRequestMapper, BaseR
 
     }
 
+    /**
+     * 获取：查询对象
+     */
     private LambdaQueryChainWrapper<BaseRequestDO> getMyPageLambdaQueryChainWrapper(BaseRequestPageDTO dto) {
 
         return lambdaQuery().like(StrUtil.isNotBlank(dto.getUri()), BaseRequestDO::getUri, dto.getUri()) //

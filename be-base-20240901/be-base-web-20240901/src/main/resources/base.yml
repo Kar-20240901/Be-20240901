@@ -14,3 +14,7 @@ notLogTopicSet:
   - com.kar20240901.be.base.web.mapper.live.BaseLiveRoomDataMapper.insert
   - com.kar20240901.be.base.web.mapper.live.BaseLiveRoomUserMapper.checkRoomUser
   - com.kar20240901.be.base.web.mapper.live.BaseLiveRoomUserMapper.selectList
+  - com.kar20240901.be.base.web.mapper.sql.BaseSqlSlowMapper.delete
+  - com.kar20240901.be.base.web.mapper.request.BaseRequestMapper.selectList
+  - com.kar20240901.be.base.web.mapper.request.BaseRequestMapper.delete
+  - com.kar20240901.be.base.web.mapper.request.BaseRequestInfoMapper.delete
