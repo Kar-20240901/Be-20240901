@@ -10,6 +10,7 @@ import cn.hutool.jwt.JWT;
 import com.kar20240901.be.base.web.exception.NoLogException;
 import com.kar20240901.be.base.web.exception.TempException;
 import com.kar20240901.be.base.web.model.constant.base.OperationDescriptionConstant;
+import com.kar20240901.be.base.web.model.constant.base.SecurityConstant;
 import com.kar20240901.be.base.web.model.domain.request.BaseRequestDO;
 import com.kar20240901.be.base.web.model.domain.request.BaseRequestInfoDO;
 import com.kar20240901.be.base.web.model.enums.base.BaseRequestMethodEnum;
@@ -209,6 +210,8 @@ public class BaseRequestAop {
         }
 
         baseRequestInfoDO.setResponseHeader(JSONUtil.toJsonStr(ResponseUtil.getHeaderMap(httpServletResponse)));
+
+        httpServletResponse.setHeader(SecurityConstant.BE_REQUEST_ID, baseRequestInfoDO.getId().toString());
 
     }
 

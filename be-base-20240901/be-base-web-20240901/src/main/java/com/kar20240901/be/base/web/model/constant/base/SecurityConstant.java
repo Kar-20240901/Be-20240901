@@ -10,4 +10,6 @@ public interface SecurityConstant {
 
     String REQUEST_HEADER_CATEGORY = "category"; // 请求类别
 
+    String BE_REQUEST_ID = "BeRequestId"; // 请求的 id
+
 }
