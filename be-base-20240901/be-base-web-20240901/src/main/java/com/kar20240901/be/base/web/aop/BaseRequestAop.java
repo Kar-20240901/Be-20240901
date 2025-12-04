@@ -209,9 +209,9 @@ public class BaseRequestAop {
             return;
         }
 
-        baseRequestInfoDO.setResponseHeader(JSONUtil.toJsonStr(ResponseUtil.getHeaderMap(httpServletResponse)));
-
         httpServletResponse.setHeader(SecurityConstant.BE_REQUEST_ID, baseRequestInfoDO.getId().toString());
+
+        baseRequestInfoDO.setResponseHeader(JSONUtil.toJsonStr(ResponseUtil.getHeaderMap(httpServletResponse)));
 
     }
 
