@@ -3,6 +3,7 @@ package com.kar20240901.be.base.web.model.dto.base;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.kar20240901.be.base.web.util.base.MyPageUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
@@ -19,6 +20,20 @@ public class MyPageDTO {
 
     @Schema(description = "排序字段")
     private MyOrderDTO order;
+
+    public long getPageSize() {
+
+        if (pageSize < 1) {
+            return 10;
+        }
+
+        if (pageSize > MyPageUtil.MAX_PAGE_SIZE) {
+            return MyPageUtil.MAX_PAGE_SIZE;
+        }
+
+        return pageSize;
+
+    }
 
     /**
      * 判断前端是否，传递了 order字段

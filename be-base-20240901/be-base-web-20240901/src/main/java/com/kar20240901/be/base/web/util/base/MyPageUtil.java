@@ -7,6 +7,9 @@ import org.jetbrains.annotations.Nullable;
 
 public class MyPageUtil {
 
+    // 可以等于，但是不能大于
+    public static final long MAX_PAGE_SIZE = 100;
+
     /**
      * 将页数和每页条目数转换为开始位置<br> 此方法用于不包括结束位置的分页方法<br> 例如：
      * <p>
@@ -61,9 +64,9 @@ public class MyPageUtil {
 
             size = 20L;
 
-        } else if (size > 100) {
+        } else if (size > MAX_PAGE_SIZE) {
 
-            size = 100L;
+            size = MAX_PAGE_SIZE;
 
         }
 

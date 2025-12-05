@@ -83,10 +83,6 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
         Page<BaseImApplyFriendSearchApplyFriendVO> resPage = new Page<>();
 
-        if (StrUtil.isBlank(nickname) && StrUtil.isBlank(uuid)) {
-            return resPage;
-        }
-
         Page<TempUserInfoDO> page = ChainWrappers.lambdaQueryChain(baseUserInfoMapper)
             .like(StrUtil.isNotBlank(nickname), TempUserInfoDO::getNickname, nickname)
             .like(StrUtil.isNotBlank(uuid), TempUserInfoDO::getUuid, uuid)
