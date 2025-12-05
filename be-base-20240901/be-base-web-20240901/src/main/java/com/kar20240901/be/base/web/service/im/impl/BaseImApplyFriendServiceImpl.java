@@ -403,7 +403,43 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
      * 取消
      */
     @Override
+    @DSTransactional
     public String cancel(NotEmptyIdSet dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        RedissonUtil.doMultiLock(BaseRedisKeyEnum.PRE_IM_APPLY_FRIEND_ID + ":", dto.getIdSet(), () -> {
+
+            for (Long item : dto.getIdSet()) {
+
+                BaseImApplyFriendDO baseImApplyFriendDO =
+                    lambdaQuery().eq(BaseImApplyFriendDO::getUserId, currentUserId).eq(BaseImApplyFriendDO::getId, item)
+                        .one();
+
+                if (baseImApplyFriendDO == null) {
+                    if (dto.getIdSet().size() != 1) {
+                        continue;
+                    } else {
+                        R.error("操作失败：好友申请不存在", item);
+                    }
+                }
+
+                if (!BaseImApplyStatusEnum.APPLYING.equals(baseImApplyFriendDO.getStatus())) {
+                    if (dto.getIdSet().size() != 1) {
+                        continue;
+                    } else {
+                        R.error("操作失败：该好友申请状态已发生改变，请刷新再试", item);
+                    }
+                }
+
+                baseImApplyFriendDO.setStatus(BaseImApplyStatusEnum.CANCELLED);
+
+                // 更新数据
+                updateById(baseImApplyFriendDO);
+
+            }
+
+        });
 
         return TempBizCodeEnum.OK;
 
