@@ -18,6 +18,8 @@ public enum BaseImApplyStatusEnum {
 
     REJECTED(301), // 已拒绝
 
+    CANCELLED(401), // 已取消
+
     ;
 
     @EnumValue

@@ -64,4 +64,10 @@ public class BaseImApplyFriendController {
         return R.okMsg(baseService.hidden(dto));
     }
 
+    @Operation(summary = "取消")
+    @PostMapping("/cancel")
+    public R<String> cancel(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okMsg(baseService.cancel(dto));
+    }
+
 }

@@ -218,6 +218,10 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
         dto.setToMeFlag(!BooleanUtil.isFalse(dto.getToMeFlag()));
 
+        if (dto.getToMeFlag()) {
+            dto.setStatusTemp(BaseImApplyStatusEnum.CANCELLED);
+        }
+
         Page<BaseImApplyFriendPageVO> page = baseMapper.myPage(dto.pageOrder(), dto, currentUserId);
 
         Set<Long> avatarFileIdSet =
@@ -390,6 +394,16 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
         }
 
         baseImApplyFriendExtraMapper.insertOrUpdateHiddenFlag(dto.getIdSet(), userId, true);
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 取消
+     */
+    @Override
+    public String cancel(NotEmptyIdSet dto) {
 
         return TempBizCodeEnum.OK;
 
