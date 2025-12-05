@@ -18,4 +18,7 @@ public class BaseImApplyFriendPageDTO extends MyPageDTO {
     @Schema(description = "搜索关键字")
     private String searchKey;
 
+    @Schema(description = "true 查询对我的申请（默认），false 查询我发起的申请")
+    private Boolean toMeFlag;
+
 }

@@ -7,18 +7,25 @@
 
     FROM base_im_apply_friend a
 
-    LEFT JOIN base_im_apply_friend_extra b
-    ON b.apply_friend_id = a.id AND b.user_id = #{currentUserId}
+           LEFT JOIN base_im_apply_friend_extra b
+                     ON b.apply_friend_id = a.id AND b.user_id = #{currentUserId}
 
-    LEFT JOIN base_user_info c ON c.id = (IF(a.user_id = #{currentUserId}, a.target_user_id,
-    a.user_id)
-    )
+           LEFT JOIN base_user_info c ON c.id = (IF(a.user_id = #{currentUserId}, a.target_user_id,
+                                                    a.user_id)
+      )
 
     WHERE (b.hidden_flag IS NULL OR b.hidden_flag = FALSE)
 
-    AND c.id IS NOT NULL
+      AND c.id IS NOT NULL
 
-    AND (a.user_id = #{currentUserId} OR a.target_user_id = #{currentUserId})
+    <if test="dto.toMeFlag != null">
+      <if test="dto.toMeFlag">
+        AND a.target_user_id = #{currentUserId}
+      </if>
+      <if test="!dto.toMeFlag">
+        AND a.user_id = #{currentUserId}
+      </if>
+    </if>
 
     <if test="dto.nickname != null and dto.nickname != ''">
       AND c.nickname LIKE CONCAT('%', #{dto.nickname}, '%')
@@ -30,8 +37,8 @@
 
     <if test="dto.searchKey != null and dto.searchKey != ''">
       AND (c.nickname LIKE CONCAT('%', #{dto.searchKey}, '%') OR a.apply_content LIKE CONCAT('%',
-      #{dto.searchKey},
-      '%'))
+                                                                                             #{dto.searchKey},
+                                                                                             '%'))
     </if>
 
     ORDER BY a.update_time DESC

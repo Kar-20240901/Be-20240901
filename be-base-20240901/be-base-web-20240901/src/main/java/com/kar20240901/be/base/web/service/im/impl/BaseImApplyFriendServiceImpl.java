@@ -1,5 +1,6 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -214,6 +215,8 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
     public Page<BaseImApplyFriendPageVO> myPage(BaseImApplyFriendPageDTO dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        dto.setToMeFlag(!BooleanUtil.isFalse(dto.getToMeFlag()));
 
         Page<BaseImApplyFriendPageVO> page = baseMapper.myPage(dto.pageOrder(), dto, currentUserId);
 
