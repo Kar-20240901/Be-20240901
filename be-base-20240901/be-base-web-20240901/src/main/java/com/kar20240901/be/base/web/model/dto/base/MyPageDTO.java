@@ -15,7 +15,7 @@ public class MyPageDTO {
     @Schema(description = "第几页")
     private long current = 1;
 
-    @Schema(description = "每页显示条数")
+    @Schema(description = "每页显示条数，不能小于 1，并且不能大于 100")
     private long pageSize = 10;
 
     @Schema(description = "排序字段")
