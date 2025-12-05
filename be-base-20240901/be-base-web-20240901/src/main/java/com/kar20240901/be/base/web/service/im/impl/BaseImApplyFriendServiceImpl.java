@@ -134,75 +134,93 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        if (dto.getId().equals(currentUserId)) {
-            R.error("操作失败：不能给自己发送好友申请", dto.getId());
+        if (dto.getIdSet().contains(currentUserId)) {
+            R.error("操作失败：不能给自己发送好友申请", dto.getIdSet());
         }
 
-        boolean exists =
-            ChainWrappers.lambdaQueryChain(baseUserInfoMapper).eq(TempUserInfoDO::getId, dto.getId()).exists();
+        Long count =
+            ChainWrappers.lambdaQueryChain(baseUserInfoMapper).in(TempUserInfoDO::getId, dto.getIdSet()).count();
 
-        if (!exists) {
-            R.error("操作失败：该用户不存在", dto.getId());
+        boolean singleFlag = dto.getIdSet().size() == 1;
+
+        if (count != dto.getIdSet().size()) {
+            if (singleFlag) {
+                R.error("操作失败：该用户不存在", dto.getIdSet());
+            } else {
+                R.error("操作失败：用户不存在，请刷新", dto.getIdSet());
+            }
         }
 
         boolean existsBlock =
-            ChainWrappers.lambdaQueryChain(baseImBlockMapper).eq(BaseImBlockDO::getUserId, dto.getId())
+            ChainWrappers.lambdaQueryChain(baseImBlockMapper).in(BaseImBlockDO::getUserId, dto.getIdSet())
                 .eq(BaseImBlockDO::getSourceId, currentUserId).eq(BaseImBlockDO::getSourceType, BaseImTypeEnum.FRIEND)
                 .exists();
 
         if (existsBlock) {
-            R.error("操作失败：您已被对方拉黑，无法添加", dto.getId());
+            if (singleFlag) {
+                R.error("操作失败：您已被对方拉黑，无法添加", dto.getIdSet());
+            } else {
+                R.error("操作失败：您已被对方拉黑，无法添加", dto.getIdSet());
+            }
         }
 
-        String lockKey = BaseRedisKeyEnum.PRE_IM_APPLY_FRIEND + ":" + currentUserId + ":" + dto.getId();
+        RedissonUtil.doMultiLock(BaseRedisKeyEnum.PRE_IM_APPLY_FRIEND + ":" + currentUserId + ":", dto.getIdSet(),
+            () -> {
 
-        RedissonUtil.doLock(lockKey, () -> {
+                for (Long item : dto.getIdSet()) {
 
-            BaseImApplyFriendDO baseImApplyFriendDO = lambdaQuery().eq(BaseImApplyFriendDO::getUserId, currentUserId)
-                .eq(BaseImApplyFriendDO::getTargetUserId, dto.getId()).one();
+                    BaseImApplyFriendDO baseImApplyFriendDO =
+                        lambdaQuery().eq(BaseImApplyFriendDO::getUserId, currentUserId)
+                            .eq(BaseImApplyFriendDO::getTargetUserId, item).one();
 
-            if (baseImApplyFriendDO == null) {
+                    if (baseImApplyFriendDO == null) {
 
-                baseImApplyFriendDO = new BaseImApplyFriendDO();
+                        baseImApplyFriendDO = new BaseImApplyFriendDO();
 
-                baseImApplyFriendDO.setUserId(currentUserId);
-                baseImApplyFriendDO.setTargetUserId(dto.getId());
-                baseImApplyFriendDO.setSessionId(TempConstant.NEGATIVE_ONE);
+                        baseImApplyFriendDO.setUserId(currentUserId);
+                        baseImApplyFriendDO.setTargetUserId(item);
+                        baseImApplyFriendDO.setSessionId(TempConstant.NEGATIVE_ONE);
 
-            } else {
+                    } else {
 
-                BaseImApplyStatusEnum baseImApplyStatusEnum = baseImApplyFriendDO.getStatus();
+                        BaseImApplyStatusEnum baseImApplyStatusEnum = baseImApplyFriendDO.getStatus();
 
-                if (BaseImApplyStatusEnum.PASSED.equals(baseImApplyStatusEnum)) {
+                        if (BaseImApplyStatusEnum.PASSED.equals(baseImApplyStatusEnum)) {
 
-                    // 查询：是否存在于好友列表里面
-                    boolean existsFriend =
-                        baseImFriendService.lambdaQuery().eq(BaseImFriendDO::getBelongId, currentUserId)
-                            .eq(BaseImFriendDO::getFriendId, dto.getId()).exists();
+                            // 查询：是否存在于好友列表里面
+                            boolean existsFriend =
+                                baseImFriendService.lambdaQuery().eq(BaseImFriendDO::getBelongId, currentUserId)
+                                    .eq(BaseImFriendDO::getFriendId, item).exists();
 
-                    if (existsFriend) {
-                        R.error("操作失败：对方已经是您的好友了", dto.getId());
+                            if (existsFriend) {
+                                if (singleFlag) {
+                                    R.error("操作失败：对方已经是您的好友了", item);
+                                } else {
+                                    continue;
+                                }
+                            }
+
+                        }
+
+                        // 显示好友申请
+                        ChainWrappers.lambdaUpdateChain(baseImApplyFriendExtraMapper)
+                            .eq(BaseImApplyFriendExtraDO::getApplyFriendId, baseImApplyFriendDO.getId())
+                            .set(BaseImApplyFriendExtraDO::getHiddenFlag, false).update();
+
                     }
+
+                    baseImApplyFriendDO.setStatus(BaseImApplyStatusEnum.APPLYING);
+                    baseImApplyFriendDO.setRejectReason("");
+                    baseImApplyFriendDO.setApplyTime(new Date());
+                    baseImApplyFriendDO.setApplyContent(dto.getApplyContent());
+
+                    saveOrUpdate(baseImApplyFriendDO);
+
+                    // 通知：您有新的好友申请
 
                 }
 
-                // 显示好友申请
-                ChainWrappers.lambdaUpdateChain(baseImApplyFriendExtraMapper)
-                    .eq(BaseImApplyFriendExtraDO::getApplyFriendId, baseImApplyFriendDO.getId())
-                    .set(BaseImApplyFriendExtraDO::getHiddenFlag, false).update();
-
-            }
-
-            baseImApplyFriendDO.setStatus(BaseImApplyStatusEnum.APPLYING);
-            baseImApplyFriendDO.setRejectReason("");
-            baseImApplyFriendDO.setApplyTime(new Date());
-            baseImApplyFriendDO.setApplyContent(dto.getApplyContent());
-
-            saveOrUpdate(baseImApplyFriendDO);
-
-        });
-
-        // 通知：您有新的好友申请
+            });
 
         return TempBizCodeEnum.OK;
 
