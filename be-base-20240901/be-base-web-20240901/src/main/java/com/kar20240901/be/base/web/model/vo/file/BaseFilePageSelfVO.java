@@ -21,4 +21,10 @@ public class BaseFilePageSelfVO {
     @Schema(description = "返回上一级的 pid")
     private Long backUpPid;
 
+    @Schema(description = "文件总数")
+    private Long fileTotal;
+
+    @Schema(description = "文件总大小")
+    private Long fileTotalSize;
+
 }

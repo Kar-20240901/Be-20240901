@@ -11,6 +11,7 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
@@ -306,7 +307,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
      */
     @Override
     public BaseFilePageSelfVO myPage(BaseFilePageDTO dto, boolean folderSizeFlag, boolean pidPathStrFlag,
-        boolean treeFlag) {
+        boolean treeFlag, boolean scrollFlag) {
 
         if (BooleanUtil.isTrue(dto.getGlobalFlag())) {
 
@@ -348,7 +349,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         }
 
-        Page<BaseFileDO> page = lambdaQuery() //
+        LambdaQueryChainWrapper<BaseFileDO> lambdaQueryChainWrapper = lambdaQuery() //
             .like(StrUtil.isNotBlank(dto.getShowFileName()), BaseFileDO::getShowFileName, dto.getShowFileName()) //
             .like(StrUtil.isNotBlank(dto.getRemark()), TempEntityNoId::getRemark, dto.getRemark()) //
             .eq(dto.getBelongId() != null, BaseFileDO::getBelongId, dto.getBelongId()) //
@@ -361,15 +362,52 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
             .eq(BaseFileDO::getUploadType, BaseFileUploadTypeEnum.FILE_SYSTEM) //
             .lt(BooleanUtil.isFalse(dto.getBackwardFlag()), BaseFileDO::getId, dto.getScrollId()) //
             .gt(BooleanUtil.isTrue(dto.getBackwardFlag()), BaseFileDO::getId, dto.getScrollId()) //
-            .select(true, getMyPageSelectList(folderSizeFlag, treeFlag, true))
+            .select(true, getMyPageSelectList(folderSizeFlag, treeFlag, true));
+
+        Page<BaseFileDO> page = lambdaQueryChainWrapper //
             .page(dto.createTimeDescDefaultOrderPage());
 
         // 后续处理
         myPageSuf(dto.getPid(), pidPathStrFlag, baseFilePageSelfVO);
 
+        // 后续处理-滚动加载
+        myPageSufForScroll(scrollFlag, baseFilePageSelfVO, lambdaQueryChainWrapper);
+
         baseFilePageSelfVO.setRecords(page.getRecords());
 
         return baseFilePageSelfVO;
+
+    }
+
+    /**
+     * 后续处理
+     */
+    private void myPageSufForScroll(boolean scrollFlag, BaseFilePageSelfVO baseFilePageSelfVO,
+        LambdaQueryChainWrapper<BaseFileDO> lambdaQueryChainWrapper) {
+
+        if (!scrollFlag) {
+            return;
+        }
+
+        List<BaseFileDO> baseFileDoList = lambdaQueryChainWrapper.list();
+
+        long fileTotal = baseFileDoList.size();
+
+        long fileTotalSize = 0L;
+
+        for (BaseFileDO item : baseFileDoList) {
+
+            long fileSize = item.getFileSize() == null ? 0 : item.getFileSize();
+
+            long folderSize = item.getFolderSize() == null ? 0 : item.getFolderSize();
+
+            fileTotalSize = fileTotalSize + fileSize + folderSize;
+
+        }
+
+        baseFilePageSelfVO.setFileTotal(fileTotal);
+
+        baseFilePageSelfVO.setFileTotalSize(fileTotalSize);
 
     }
 
@@ -502,7 +540,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         baseFilePageDTO.setBelongId(currentUserId); // 设置为：当前用户
 
         // 执行
-        return myPage(baseFilePageDTO, true, true, false);
+        return myPage(baseFilePageDTO, true, true, false, false);
 
     }
 
@@ -529,7 +567,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         baseFilePageDTO.setCurrent(1);
 
-        return myPage(baseFilePageDTO, true, true, false);
+        return myPage(baseFilePageDTO, true, true, false, false);
 
     }
 
@@ -559,7 +597,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         }, countDownLatch);
 
         // 根据条件进行筛选，得到符合条件的数据，然后再逆向生成整棵树，并返回这个树结构
-        List<BaseFileDO> baseFileDoList = myPage(dto, false, false, true).getRecords();
+        List<BaseFileDO> baseFileDoList = myPage(dto, false, false, true, false).getRecords();
 
         countDownLatch.await();
 
