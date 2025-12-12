@@ -275,14 +275,16 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
                 // 新增数据到子表
                 insertOrUpdateSub(tempUserDO, dto);
 
+                Set<String> authSet = baseAuthMapper.getAuthSetByUserId(dto.getId());
+
                 if (userAdminFlagOld) {
-
-                    Set<String> authSet = baseAuthMapper.getAuthSetByUserId(dto.getId());
-
                     if (!authSet.contains(BaseJwtUtil.ADMIN_FLAG)) {
                         deleteJwtFlagCallBack.setValue(true); // 清除 jwt
                     }
-
+                } else {
+                    if (authSet.contains(BaseJwtUtil.ADMIN_FLAG)) {
+                        deleteJwtFlagCallBack.setValue(true); // 清除 jwt
+                    }
                 }
 
                 TempUserInfoDO tempUserInfoDO = new TempUserInfoDO();
