@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.base.BaseApiTokenMapper;
+import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.base.BaseApiTokenDO;
 import com.kar20240901.be.base.web.model.dto.base.BaseApiTokenInsertOrUpdateDTO;
 import com.kar20240901.be.base.web.model.dto.base.BaseApiTokenPageDTO;
@@ -92,15 +93,9 @@ public class BaseApiTokenServiceImpl extends ServiceImpl<BaseApiTokenMapper, Bas
 
         Long userId = MyUserUtil.getCurrentUserId();
 
-        if (MyUserUtil.getCurrentUserAdminFlag()) {
+        boolean currentUserAdminFlag = MyUserUtil.getCurrentUserAdminFlag();
 
-            if (dto.getUserId() == null) {
-
-                dto.setUserId(userId);
-
-            }
-
-        } else {
+        if (!currentUserAdminFlag) {
 
             dto.setUserId(userId);
 
@@ -120,13 +115,17 @@ public class BaseApiTokenServiceImpl extends ServiceImpl<BaseApiTokenMapper, Bas
         BaseApiTokenDO baseApiTokenDO = new BaseApiTokenDO();
 
         baseApiTokenDO.setId(dto.getId());
-        baseApiTokenDO.setUserId(userId);
+
+        if (!currentUserAdminFlag) {
+            baseApiTokenDO.setUserId(userId);
+        }
+
         baseApiTokenDO.setEnableFlag(BooleanUtil.isTrue(dto.getEnableFlag()));
 
         if (dto.getId() == null) {
 
             baseApiTokenDO.setToken(IdUtil.simpleUUID());
-            baseApiTokenDO.setLastUseTime(DateUtil.parseDateTime("1970-01-01 00:00:00"));
+            baseApiTokenDO.setLastUseTime(DateUtil.parseDateTime(TempConstant.DEFAULT_DATE));
 
         }
 

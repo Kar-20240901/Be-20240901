@@ -11,6 +11,8 @@ public interface TempConstant {
 
     String ASTERISK = "*";
 
+    String DEFAULT_DATE = "1970-01-01 00:00:00";
+
     // 过期时间相关 ↓
 
     long ZERO = 0; // 0
