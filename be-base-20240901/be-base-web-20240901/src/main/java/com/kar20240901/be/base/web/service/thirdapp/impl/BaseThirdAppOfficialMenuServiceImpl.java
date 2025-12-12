@@ -150,7 +150,8 @@ public class BaseThirdAppOfficialMenuServiceImpl
     public List<BaseThirdAppOfficialMenuDO> tree(BaseThirdAppOfficialMenuPageDTO dto) {
 
         // 根据条件进行筛选，得到符合条件的数据，然后再逆向生成整棵树，并返回这个树结构
-        dto.setPageSize(-1); // 不分页
+        dto.setPageSizeAll(); // 不分页
+
         List<BaseThirdAppOfficialMenuDO> baseThirdAppOfficialMenuDOList = myPage(dto).getRecords();
 
         if (baseThirdAppOfficialMenuDOList.size() == 0) {

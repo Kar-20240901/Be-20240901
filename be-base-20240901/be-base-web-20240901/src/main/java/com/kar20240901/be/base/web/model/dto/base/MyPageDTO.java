@@ -21,17 +21,26 @@ public class MyPageDTO {
     @Schema(description = "排序字段")
     private MyOrderDTO order;
 
-    public long getPageSize() {
+    public void setPageSize(long pageSize) {
 
         if (pageSize < 1) {
-            return 10;
+            pageSize = 10;
         }
 
         if (pageSize > MyPageUtil.MAX_PAGE_SIZE) {
-            return MyPageUtil.MAX_PAGE_SIZE;
+            pageSize = MyPageUtil.MAX_PAGE_SIZE;
         }
 
-        return pageSize;
+        this.pageSize = pageSize;
+
+    }
+
+    /**
+     * 查询所有
+     */
+    public void setPageSizeAll() {
+
+        this.pageSize = -1;
 
     }
 

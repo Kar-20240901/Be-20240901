@@ -15,6 +15,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.exception.base.BaseBizCodeEnum;
+import com.kar20240901.be.base.web.mapper.base.BaseAuthMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseUserMapper;
 import com.kar20240901.be.base.web.model.constant.base.ParamConstant;
@@ -37,6 +38,8 @@ import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.base.TempUserInfoByIdVO;
 import com.kar20240901.be.base.web.service.base.BaseRoleRefUserService;
 import com.kar20240901.be.base.web.service.base.BaseUserService;
+import com.kar20240901.be.base.web.util.base.BaseJwtUtil;
+import com.kar20240901.be.base.web.util.base.CallBack;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyMapUtil;
 import com.kar20240901.be.base.web.util.base.MyParamUtil;
@@ -73,6 +76,9 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
 
     @Resource
     BaseUserInfoMapper baseUserInfoMapper;
+
+    @Resource
+    BaseAuthMapper baseAuthMapper;
 
     /**
      * 分页排序查询
@@ -194,12 +200,18 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
             redisKeyEnumSet.add(BaseRedisKeyEnum.PRE_WX_OPEN_ID);
         }
 
+        CallBack<Boolean> deleteJwtFlagCallBack = new CallBack<>(false);
+
         // 执行
-        Long userId = doInsertOrUpdate(dto, redisKeyEnumSet);
+        Long userId = doInsertOrUpdate(dto, redisKeyEnumSet, deleteJwtFlagCallBack);
 
         BaseRoleServiceImpl.deleteAuthCache(CollUtil.newHashSet(userId)); // 删除权限缓存
 
         BaseRoleServiceImpl.deleteMenuCache(CollUtil.newHashSet(userId)); // 删除菜单缓存
+
+        if (deleteJwtFlagCallBack.getValue()) { // 删除 jwt
+            SignUtil.removeJwt(CollUtil.newHashSet(userId));  // 删除：jwt相关
+        }
 
         return TempBizCodeEnum.OK;
 
@@ -208,7 +220,8 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
     /**
      * 执行：新增/修改
      */
-    private Long doInsertOrUpdate(BaseUserInsertOrUpdateDTO dto, Set<Enum<? extends IRedisKey>> redisKeyEnumSet) {
+    private Long doInsertOrUpdate(BaseUserInsertOrUpdateDTO dto, Set<Enum<? extends IRedisKey>> redisKeyEnumSet,
+        CallBack<Boolean> deleteJwtFlagCallBack) {
 
         return RedissonUtil.doMultiLock(null, redisKeyEnumSet, () -> {
 
@@ -241,6 +254,8 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
 
             } else { // 修改：用户
 
+                boolean userAdminFlagOld = MyUserUtil.getUserAdminFlag(dto.getId());
+
                 // 删除子表数据
                 SignUtil.doSignDeleteSub(CollUtil.newHashSet(dto.getId()), false);
 
@@ -259,6 +274,16 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
 
                 // 新增数据到子表
                 insertOrUpdateSub(tempUserDO, dto);
+
+                if (userAdminFlagOld) {
+
+                    Set<String> authSet = baseAuthMapper.getAuthSetByUserId(dto.getId());
+
+                    if (!authSet.contains(BaseJwtUtil.ADMIN_FLAG)) {
+                        deleteJwtFlagCallBack.setValue(true); // 清除 jwt
+                    }
+
+                }
 
                 TempUserInfoDO tempUserInfoDO = new TempUserInfoDO();
 
@@ -440,7 +465,7 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        if (MyUserUtil.getCurrentUserSuperAdminFlag(currentUserId)) {
+        if (MyUserUtil.getUserSuperAdminFlag(currentUserId)) {
             return true;
         }
 

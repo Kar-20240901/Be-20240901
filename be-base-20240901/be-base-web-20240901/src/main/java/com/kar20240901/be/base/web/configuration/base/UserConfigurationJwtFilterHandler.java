@@ -18,7 +18,7 @@ public class UserConfigurationJwtFilterHandler implements IJwtFilterHandler {
     @Override
     public IBizCode handleJwt(Long userId, String ip, JSONObject claimsJson, HttpServletRequest request) {
 
-        if (MyUserUtil.getCurrentUserSuperAdminFlag(userId)) {
+        if (MyUserUtil.getUserSuperAdminFlag(userId)) {
             return null;
         }
 

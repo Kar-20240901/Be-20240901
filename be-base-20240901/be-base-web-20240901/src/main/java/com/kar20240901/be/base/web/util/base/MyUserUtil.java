@@ -85,7 +85,7 @@ public class MyUserUtil {
 
         Long currentUserId = getCurrentUserId();
 
-        if (MyUserUtil.getCurrentUserSuperAdminFlag(currentUserId)) {
+        if (MyUserUtil.getUserSuperAdminFlag(currentUserId)) {
             R.error(TempBizCodeEnum.THE_ADMIN_ACCOUNT_DOES_NOT_SUPPORT_THIS_OPERATION);
         }
 
@@ -130,16 +130,32 @@ public class MyUserUtil {
      */
     public static boolean getCurrentUserSuperAdminFlag() {
 
-        return getCurrentUserSuperAdminFlag(getCurrentUserIdDefault());
+        return getUserSuperAdminFlag(getCurrentUserIdDefault());
 
     }
 
     /**
      * 用户是否是超级管理员
      */
-    public static boolean getCurrentUserSuperAdminFlag(Long userId) {
+    public static boolean getUserSuperAdminFlag(Long userId) {
 
         return TempConstant.ADMIN_ID.equals(userId);
+
+    }
+
+    /**
+     * 获取当前是否是管理员，目前用于：修改用户信息之后，如果去除了管理员身份，则会清除该用户的所有 jwt
+     */
+    public static boolean getUserAdminFlag(Long userId) {
+
+        // admin账号，返回：false
+        if (MyUserUtil.getUserSuperAdminFlag(userId)) {
+            return false;
+        }
+
+        Set<String> authSet = MyJwtUtil.getAuthSetByUserId(userId);
+
+        return authSet.contains(BaseJwtUtil.ADMIN_FLAG);
 
     }
 

@@ -161,7 +161,7 @@ public class BaseDeptServiceImpl extends ServiceImpl<BaseDeptMapper, BaseDeptDO>
     @Override
     public List<BaseDeptDO> tree(BaseDeptPageDTO dto) {
 
-        dto.setPageSize(-1); // 不分页
+        dto.setPageSizeAll(); // 不分页
 
         CountDownLatch countDownLatch = ThreadUtil.newCountDownLatch(1);
 

@@ -157,7 +157,8 @@ public class BaseDictServiceImpl extends ServiceImpl<BaseDictMapper, BaseDictDO>
     @Override
     public List<BaseDictDO> tree(BaseDictPageDTO dto) {
 
-        dto.setPageSize(-1); // 不分页
+        dto.setPageSizeAll(); // 不分页
+
         List<BaseDictDO> records = myPage(dto).getRecords();
 
         if (records.size() == 0) {

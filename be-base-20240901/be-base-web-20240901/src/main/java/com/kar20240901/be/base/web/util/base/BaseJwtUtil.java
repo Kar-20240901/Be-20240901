@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 public class BaseJwtUtil {
 
     // 是否是：管理员，备注：只要权限里面有该值，则表示是管理员，并且超级管理员只有一个，管理员可以有很多个
-    private static final String ADMIN_FLAG = "baseRoleKey:admin";
+    public static final String ADMIN_FLAG = "baseRoleKey:admin";
 
     /**
      * 统一生成 jwt
@@ -120,7 +120,7 @@ public class BaseJwtUtil {
 
         boolean adminFlag = false;
 
-        if (MyUserUtil.getCurrentUserSuperAdminFlag(userId)) {
+        if (MyUserUtil.getUserSuperAdminFlag(userId)) {
 
             adminFlag = true;
 

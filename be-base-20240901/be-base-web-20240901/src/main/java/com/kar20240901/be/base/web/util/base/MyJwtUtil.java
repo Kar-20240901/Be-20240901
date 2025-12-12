@@ -44,8 +44,8 @@ public class MyJwtUtil {
 
     public static final String PAYLOAD_MAP_WX_OPEN_ID_KEY = "wxOpenId";
 
-    public static final String PAYLOAD_MAP_ADMIN_FLAG_KEY = "adminFlag";
     // 管理员标识，判断逻辑：权限里面是否有：baseRoleKey:admin，或者是超级管理员
+    public static final String PAYLOAD_MAP_ADMIN_FLAG_KEY = "adminFlag";
 
     private static BaseSecurityProperties baseSecurityProperties;
 
@@ -278,7 +278,7 @@ public class MyJwtUtil {
         }
 
         // admin账号，自带所有权限
-        if (MyUserUtil.getCurrentUserSuperAdminFlag(userId)) {
+        if (MyUserUtil.getUserSuperAdminFlag(userId)) {
             return new HashSet<>();
         }
 

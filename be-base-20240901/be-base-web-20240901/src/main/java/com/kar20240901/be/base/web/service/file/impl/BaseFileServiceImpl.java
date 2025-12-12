@@ -540,7 +540,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
     @Override
     public List<BaseFileDO> tree(BaseFilePageDTO dto) {
 
-        dto.setPageSize(-1); // 不分页
+        dto.setPageSizeAll(); // 不分页
 
         dto.setGlobalFlag(true); // 防止只查询顶层
 
