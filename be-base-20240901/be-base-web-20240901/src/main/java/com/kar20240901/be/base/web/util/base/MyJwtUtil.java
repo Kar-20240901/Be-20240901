@@ -44,9 +44,6 @@ public class MyJwtUtil {
 
     public static final String PAYLOAD_MAP_WX_OPEN_ID_KEY = "wxOpenId";
 
-    // 管理员标识，判断逻辑：权限里面是否有：baseRoleKey:admin，或者是超级管理员
-    public static final String PAYLOAD_MAP_ADMIN_FLAG_KEY = "adminFlag";
-
     private static BaseSecurityProperties baseSecurityProperties;
 
     @Resource
@@ -87,19 +84,6 @@ public class MyJwtUtil {
     @Resource
     public void setBaseAuthMapper(BaseAuthMapper baseAuthMapper) {
         MyJwtUtil.baseAuthMapper = baseAuthMapper;
-    }
-
-    /**
-     * 获取：jwt中的 是否是管理员
-     */
-    public static boolean getPayloadMapAdminFlagValue(@Nullable JSONObject claimsJson) {
-
-        if (claimsJson == null) {
-            return false;
-        }
-
-        return claimsJson.getBool(MyJwtUtil.PAYLOAD_MAP_ADMIN_FLAG_KEY, false);
-
     }
 
     /**

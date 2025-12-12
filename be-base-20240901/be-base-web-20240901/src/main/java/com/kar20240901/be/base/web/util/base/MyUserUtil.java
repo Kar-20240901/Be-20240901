@@ -144,13 +144,13 @@ public class MyUserUtil {
     }
 
     /**
-     * 获取当前是否是管理员，目前用于：修改用户信息之后，如果去除了管理员身份，则会清除该用户的所有 jwt
+     * 获取当前是否是管理员
      */
     public static boolean getUserAdminFlag(Long userId) {
 
-        // admin账号，返回：false
+        // admin账号，返回：true
         if (MyUserUtil.getUserSuperAdminFlag(userId)) {
-            return false;
+            return true;
         }
 
         Set<String> authSet = MyJwtUtil.getAuthSetByUserId(userId);
@@ -164,8 +164,9 @@ public class MyUserUtil {
      */
     public static boolean getCurrentUserAdminFlag() {
 
-        return MyJwtUtil.getPayloadMapAdminFlagValue(
-            getSecurityContextHolderContextAuthenticationPrincipalJsonObject());
+        Long currentUserId = getCurrentUserId();
+
+        return getUserAdminFlag(currentUserId);
 
     }
 

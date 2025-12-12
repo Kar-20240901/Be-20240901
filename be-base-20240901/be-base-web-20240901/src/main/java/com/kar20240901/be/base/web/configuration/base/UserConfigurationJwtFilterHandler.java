@@ -2,12 +2,12 @@ package com.kar20240901.be.base.web.configuration.base;
 
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.json.JSONObject;
+import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.exception.base.BaseBizCodeEnum;
 import com.kar20240901.be.base.web.model.domain.base.BaseUserConfigurationDO;
 import com.kar20240901.be.base.web.model.interfaces.base.IBizCode;
 import com.kar20240901.be.base.web.model.interfaces.base.IJwtFilterHandler;
 import com.kar20240901.be.base.web.util.base.BaseUserConfigurationUtil;
-import com.kar20240901.be.base.web.util.base.MyJwtUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;
@@ -22,9 +22,13 @@ public class UserConfigurationJwtFilterHandler implements IJwtFilterHandler {
             return null;
         }
 
+        if (MyUserUtil.getDisable(userId)) {
+            return TempBizCodeEnum.ACCOUNT_IS_DISABLED;
+        }
+
         BaseUserConfigurationDO baseUserConfigurationDO = BaseUserConfigurationUtil.getBaseUserConfigurationDo();
 
-        if (MyJwtUtil.getPayloadMapAdminFlagValue(claimsJson)) {
+        if (MyUserUtil.getUserAdminFlag(userId)) {
 
             if (BooleanUtil.isFalse(baseUserConfigurationDO.getManageOperateEnable())) {
 
