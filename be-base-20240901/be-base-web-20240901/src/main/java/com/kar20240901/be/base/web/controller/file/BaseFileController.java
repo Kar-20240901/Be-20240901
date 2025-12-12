@@ -8,6 +8,7 @@ import com.kar20240901.be.base.web.model.dto.file.BaseFileCreateFolderSelfSelfDT
 import com.kar20240901.be.base.web.model.dto.file.BaseFileMoveSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageSelfDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileScrollSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUpdateSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadFileSystemChunkComposeDTO;
@@ -119,6 +120,12 @@ public class BaseFileController {
     @PostMapping("/page/self")
     public R<BaseFilePageSelfVO> myPageSelf(@RequestBody @Valid BaseFilePageSelfDTO dto) {
         return R.okData(baseService.myPageSelf(dto));
+    }
+
+    @Operation(summary = "滚动加载-自我")
+    @PostMapping("/scroll/self")
+    public R<BaseFilePageSelfVO> scrollSelf(@RequestBody @Valid BaseFileScrollSelfDTO dto) {
+        return R.okData(baseService.scrollSelf(dto));
     }
 
     @Operation(summary = "查询：树结构")

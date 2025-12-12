@@ -9,6 +9,7 @@ import com.kar20240901.be.base.web.model.dto.file.BaseFileCreateFolderSelfSelfDT
 import com.kar20240901.be.base.web.model.dto.file.BaseFileMoveSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageSelfDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileScrollSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUpdateSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadFileSystemChunkComposeDTO;
@@ -47,6 +48,8 @@ public interface BaseFileService extends IService<BaseFileDO> {
     BaseFilePageSelfVO myPage(BaseFilePageDTO dto, boolean folderSizeFlag, boolean pidPathStrFlag, boolean treeFlag);
 
     BaseFilePageSelfVO myPageSelf(BaseFilePageSelfDTO dto);
+
+    BaseFilePageSelfVO scrollSelf(BaseFileScrollSelfDTO dto);
 
     List<BaseFileDO> tree(BaseFilePageDTO dto);
 

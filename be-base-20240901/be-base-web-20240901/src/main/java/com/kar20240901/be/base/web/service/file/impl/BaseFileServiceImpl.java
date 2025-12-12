@@ -30,6 +30,7 @@ import com.kar20240901.be.base.web.model.dto.file.BaseFileCreateFolderSelfSelfDT
 import com.kar20240901.be.base.web.model.dto.file.BaseFileMoveSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageSelfDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFileScrollSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUpdateSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadFileSystemChunkComposeDTO;
@@ -50,6 +51,7 @@ import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.util.base.CallBack;
 import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
+import com.kar20240901.be.base.web.util.base.MyPageUtil;
 import com.kar20240901.be.base.web.util.base.MyStrUtil;
 import com.kar20240901.be.base.web.util.base.MyThreadUtil;
 import com.kar20240901.be.base.web.util.base.MyTreeUtil;
@@ -350,7 +352,6 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
             .like(StrUtil.isNotBlank(dto.getShowFileName()), BaseFileDO::getShowFileName, dto.getShowFileName()) //
             .like(StrUtil.isNotBlank(dto.getRemark()), TempEntityNoId::getRemark, dto.getRemark()) //
             .eq(dto.getBelongId() != null, BaseFileDO::getBelongId, dto.getBelongId()) //
-            .eq(dto.getUploadType() != null, BaseFileDO::getUploadType, dto.getUploadType()) //
             .eq(dto.getStorageType() != null, BaseFileDO::getStorageType, dto.getStorageType()) //
             .eq(dto.getPublicFlag() != null, BaseFileDO::getPublicFlag, dto.getPublicFlag()) //
             .eq(dto.getEnableFlag() != null, TempEntity::getEnableFlag, dto.getEnableFlag()) //
@@ -358,6 +359,8 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
             .eq(dto.getPid() != null, BaseFileDO::getPid, dto.getPid()) //
             .eq(dto.getType() != null, BaseFileDO::getType, dto.getType()) //
             .eq(BaseFileDO::getUploadType, BaseFileUploadTypeEnum.FILE_SYSTEM) //
+            .lt(BooleanUtil.isFalse(dto.getBackwardFlag()), BaseFileDO::getId, dto.getScrollId()) //
+            .gt(BooleanUtil.isTrue(dto.getBackwardFlag()), BaseFileDO::getId, dto.getScrollId()) //
             .select(true, getMyPageSelectList(folderSizeFlag, treeFlag, true))
             .page(dto.createTimeDescDefaultOrderPage());
 
@@ -499,6 +502,33 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         baseFilePageDTO.setBelongId(currentUserId); // 设置为：当前用户
 
         // 执行
+        return myPage(baseFilePageDTO, true, true, false);
+
+    }
+
+    /**
+     * 滚动加载-自我
+     */
+    @Override
+    public BaseFilePageSelfVO scrollSelf(BaseFileScrollSelfDTO dto) {
+
+        BaseFilePageDTO baseFilePageDTO = BeanUtil.copyProperties(dto, BaseFilePageDTO.class);
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        baseFilePageDTO.setBelongId(currentUserId); // 设置为：当前用户
+
+        boolean backwardFlag = BooleanUtil.isTrue(dto.getBackwardFlag());
+
+        // 获取：滚动加载时的 id
+        Long scrollId = MyPageUtil.getScrollId(dto);
+
+        baseFilePageDTO.setBackwardFlag(backwardFlag);
+
+        baseFilePageDTO.setScrollId(scrollId);
+
+        baseFilePageDTO.setCurrent(1);
+
         return myPage(baseFilePageDTO, true, true, false);
 
     }
