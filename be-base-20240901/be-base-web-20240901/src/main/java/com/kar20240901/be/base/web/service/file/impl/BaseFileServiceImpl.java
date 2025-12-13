@@ -307,7 +307,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
      */
     @Override
     public BaseFilePageSelfVO myPage(BaseFilePageDTO dto, boolean folderSizeFlag, boolean pidPathStrFlag,
-        boolean treeFlag, boolean scrollFlag) {
+        boolean treeFlag, boolean scrollFlag, boolean queryTotalFlag) {
 
         if (BooleanUtil.isTrue(dto.getGlobalFlag())) {
 
@@ -362,16 +362,17 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
             .eq(BaseFileDO::getUploadType, BaseFileUploadTypeEnum.FILE_SYSTEM) //
             .lt(BooleanUtil.isFalse(dto.getBackwardFlag()), BaseFileDO::getId, dto.getScrollId()) //
             .gt(BooleanUtil.isTrue(dto.getBackwardFlag()), BaseFileDO::getId, dto.getScrollId()) //
-            .select(true, getMyPageSelectList(folderSizeFlag, treeFlag, true));
+            .select(true, getMyPageSelectList(folderSizeFlag, treeFlag, true))
+            .orderByDesc(TempEntityNoIdSuper::getCreateTime).orderByDesc(BaseFileDO::getId);
 
         Page<BaseFileDO> page = lambdaQueryChainWrapper //
-            .page(dto.createTimeDescDefaultOrderPage());
+            .page(dto.page());
 
         // 后续处理
         myPageSuf(dto.getPid(), pidPathStrFlag, baseFilePageSelfVO);
 
         // 后续处理-滚动加载
-        myPageSufForScroll(scrollFlag, baseFilePageSelfVO, lambdaQueryChainWrapper);
+        myPageSufForScroll(scrollFlag, baseFilePageSelfVO, lambdaQueryChainWrapper, queryTotalFlag);
 
         baseFilePageSelfVO.setRecords(page.getRecords());
 
@@ -383,9 +384,9 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
      * 后续处理
      */
     private void myPageSufForScroll(boolean scrollFlag, BaseFilePageSelfVO baseFilePageSelfVO,
-        LambdaQueryChainWrapper<BaseFileDO> lambdaQueryChainWrapper) {
+        LambdaQueryChainWrapper<BaseFileDO> lambdaQueryChainWrapper, boolean queryTotalFlag) {
 
-        if (!scrollFlag) {
+        if (!scrollFlag || !queryTotalFlag) {
             return;
         }
 
@@ -540,7 +541,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         baseFilePageDTO.setBelongId(currentUserId); // 设置为：当前用户
 
         // 执行
-        return myPage(baseFilePageDTO, true, true, false, false);
+        return myPage(baseFilePageDTO, true, true, false, false, false);
 
     }
 
@@ -567,7 +568,9 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         baseFilePageDTO.setCurrent(1);
 
-        return myPage(baseFilePageDTO, true, true, false, false);
+        boolean queryTotalFlag = BooleanUtil.isTrue(dto.getQueryTotalFlag());
+
+        return myPage(baseFilePageDTO, true, true, false, true, queryTotalFlag);
 
     }
 
@@ -597,7 +600,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         }, countDownLatch);
 
         // 根据条件进行筛选，得到符合条件的数据，然后再逆向生成整棵树，并返回这个树结构
-        List<BaseFileDO> baseFileDoList = myPage(dto, false, false, true, false).getRecords();
+        List<BaseFileDO> baseFileDoList = myPage(dto, false, false, true, false, false).getRecords();
 
         countDownLatch.await();
 

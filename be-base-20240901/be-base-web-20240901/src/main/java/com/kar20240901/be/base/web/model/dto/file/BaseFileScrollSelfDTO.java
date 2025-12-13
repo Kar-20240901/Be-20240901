@@ -50,4 +50,7 @@ public class BaseFileScrollSelfDTO extends ScrollListDTO {
     @Schema(description = "归属者用户主键 id，只用于删除操作，后端用", hidden = true)
     private Long belongId;
 
+    @Schema(description = "是否查询：总文件数和总文件大小，默认：false")
+    private Boolean queryTotalFlag;
+
 }
