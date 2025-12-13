@@ -91,18 +91,19 @@ public class BaseApiTokenServiceImpl extends ServiceImpl<BaseApiTokenMapper, Bas
     @Override
     public String insertOrUpdate(BaseApiTokenInsertOrUpdateDTO dto) {
 
-        Long userId = MyUserUtil.getCurrentUserId();
+        Long currentUserId = MyUserUtil.getCurrentUserId();
 
         boolean currentUserAdminFlag = MyUserUtil.getCurrentUserAdminFlag();
 
         if (!currentUserAdminFlag) {
 
-            dto.setUserId(userId);
+            dto.setUserId(currentUserId);
 
             if (dto.getId() != null) {
 
                 boolean exists =
-                    lambdaQuery().eq(BaseApiTokenDO::getId, dto.getId()).eq(BaseApiTokenDO::getUserId, userId).exists();
+                    lambdaQuery().eq(BaseApiTokenDO::getId, dto.getId()).eq(BaseApiTokenDO::getUserId, currentUserId)
+                        .exists();
 
                 if (!exists) {
                     R.error(TempBizCodeEnum.ILLEGAL_REQUEST);
@@ -116,14 +117,11 @@ public class BaseApiTokenServiceImpl extends ServiceImpl<BaseApiTokenMapper, Bas
 
         baseApiTokenDO.setId(dto.getId());
 
-        if (!currentUserAdminFlag) {
-            baseApiTokenDO.setUserId(userId);
-        }
-
         baseApiTokenDO.setEnableFlag(BooleanUtil.isTrue(dto.getEnableFlag()));
 
         if (dto.getId() == null) {
 
+            baseApiTokenDO.setUserId(currentUserId);
             baseApiTokenDO.setToken(IdUtil.simpleUUID());
             baseApiTokenDO.setLastUseTime(DateUtil.parseDateTime(TempConstant.DEFAULT_DATE));
 
