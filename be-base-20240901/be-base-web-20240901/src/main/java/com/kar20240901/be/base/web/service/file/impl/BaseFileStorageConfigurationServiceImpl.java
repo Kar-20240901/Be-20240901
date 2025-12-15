@@ -58,6 +58,8 @@ public class BaseFileStorageConfigurationServiceImpl
         baseFileStorageConfigurationDO.setEnableFlag(BooleanUtil.isTrue(dto.getEnableFlag()));
         baseFileStorageConfigurationDO.setRemark(MyEntityUtil.getNotNullStr(dto.getRemark()));
 
+        baseFileStorageConfigurationDO.setCustomDomain(MyEntityUtil.getNotNullStr(dto.getCustomDomain()));
+
         saveOrUpdate(baseFileStorageConfigurationDO);
 
         return TempBizCodeEnum.OK;

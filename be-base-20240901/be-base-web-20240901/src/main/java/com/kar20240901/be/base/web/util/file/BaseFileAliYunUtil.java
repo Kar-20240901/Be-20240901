@@ -3,10 +3,12 @@ package com.kar20240901.be.base.web.util.file;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
+import com.aliyun.oss.HttpMethod;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.CompleteMultipartUploadRequest;
 import com.aliyun.oss.model.DeleteObjectsRequest;
+import com.aliyun.oss.model.GeneratePresignedUrlRequest;
 import com.aliyun.oss.model.GetObjectRequest;
 import com.aliyun.oss.model.PartETag;
 import com.aliyun.oss.model.UploadPartRequest;
@@ -14,10 +16,13 @@ import com.aliyun.oss.model.UploadPartResult;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileComposeBO;
 import com.kar20240901.be.base.web.model.bo.file.BaseFilePrivateDownloadBO;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadChunkBO;
+import com.kar20240901.be.base.web.model.configuration.file.IBaseFileStorage;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
 import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadFileSystemChunkVO;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import lombok.SneakyThrows;
@@ -154,6 +159,41 @@ public class BaseFileAliYunUtil {
             baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey());
 
         oss.deleteObject(deleteObjectsRequest);
+
+    }
+
+    /**
+     * 获取：文件预览地址-临时
+     */
+    public static String getExpireUrl(String uri, String bucketName,
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+
+        OSS oss = new OSSClientBuilder().build(baseFileStorageConfigurationDO.getUploadEndpoint(),
+            baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey());
+
+        Date expireDate = new Date(System.currentTimeMillis() + IBaseFileStorage.EXPIRE_TIME);
+
+        GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(bucketName, uri);
+
+        request.setExpiration(expireDate);
+
+        request.setMethod(HttpMethod.GET);
+
+        URL presignedUrl = oss.generatePresignedUrl(request);
+
+        String rawUrl = presignedUrl.toString();
+
+        String customDomain = baseFileStorageConfigurationDO.getCustomDomain();
+
+        if (StrUtil.isBlank(customDomain)) {
+            return rawUrl;
+        }
+
+        String ossDomain = presignedUrl.getHost();
+
+        rawUrl = rawUrl.replace("https://" + bucketName + "." + ossDomain, customDomain);
+
+        return rawUrl;
 
     }
 

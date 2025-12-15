@@ -3,6 +3,7 @@ package com.kar20240901.be.base.web.model.configuration.file;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileComposeBO;
 import com.kar20240901.be.base.web.model.bo.file.BaseFilePrivateDownloadBO;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadChunkBO;
+import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
 import com.kar20240901.be.base.web.model.interfaces.file.IBaseFileStorageType;
 import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadFileSystemChunkVO;
@@ -13,6 +14,9 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface IBaseFileStorage {
+
+    // 过期时间，单位：毫秒
+    Integer EXPIRE_TIME = TempConstant.MINUTE_10_EXPIRE_TIME;
 
     /**
      * 存放文件的服务器类型
@@ -52,12 +56,20 @@ public interface IBaseFileStorage {
         BaseFileStorageConfigurationDO baseFileStorageConfigurationDO);
 
     /**
-     * 获取：文件预览地址
+     * 获取：文件预览地址-永久
      *
      * @param uri        例如：avatar/uuid.xxx，备注：不要在最前面加 /
      * @param bucketName 桶名，例如：be-public-bucket，备注：不要在最前面加 /
      */
     String getUrl(String uri, String bucketName, BaseFileStorageConfigurationDO baseFileStorageConfigurationDO);
+
+    /**
+     * 获取：文件预览地址-临时
+     *
+     * @param uri        例如：avatar/uuid.xxx，备注：不要在最前面加 /
+     * @param bucketName 桶名，例如：be-public-bucket，备注：不要在最前面加 /
+     */
+    String getExpireUrl(String uri, String bucketName, BaseFileStorageConfigurationDO baseFileStorageConfigurationDO);
 
     /**
      * 合并文件

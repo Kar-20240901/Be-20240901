@@ -56,4 +56,7 @@ public class BaseFileStorageConfigurationInsertOrUpdateDTO extends TempInsertOrU
     @Schema(description = "备注")
     private String remark;
 
+    @Schema(description = "自定义域名")
+    private String customDomain;
+
 }

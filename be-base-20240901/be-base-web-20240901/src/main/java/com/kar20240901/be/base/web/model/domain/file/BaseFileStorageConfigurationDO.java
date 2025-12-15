@@ -43,4 +43,7 @@ public class BaseFileStorageConfigurationDO extends TempEntity {
     @Schema(description = "是否是默认存储，备注：只会有一个默认存储")
     private Boolean defaultFlag;
 
+    @Schema(description = "自定义域名")
+    private String customDomain;
+
 }

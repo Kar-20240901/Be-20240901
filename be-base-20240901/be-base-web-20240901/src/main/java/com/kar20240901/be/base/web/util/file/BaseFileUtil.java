@@ -1365,7 +1365,7 @@ public class BaseFileUtil {
     }
 
     /**
-     * 获取：公开文件的 url
+     * 获取：公开文件的 url-永久
      */
     @NotNull
     public static Map<Long, String> getPublicUrl(Set<Long> fileIdSet) {

@@ -66,6 +66,12 @@ public class BaseFileStorageMinioConfiguration implements IBaseFileStorage {
     }
 
     @Override
+    public String getExpireUrl(String uri, String bucketName,
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+        return BaseFileMinioUtil.getExpireUrl(uri, bucketName, baseFileStorageConfigurationDO);
+    }
+
+    @Override
     public void compose(String bucketName, BaseFileComposeBO baseFileComposeBO,
         BaseFileStorageConfigurationDO baseFileStorageConfigurationDO, String newObjectName) {
         BaseFileMinioUtil.compose(bucketName, baseFileComposeBO, baseFileStorageConfigurationDO, newObjectName);

@@ -299,12 +299,22 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
     }
 
     /**
-     * 批量获取：公开文件的 url
+     * 批量获取：公开文件的 url-永久
      */
     @Override
     public LongObjectMapVO<String> getPublicUrl(NotEmptyIdSet notEmptyIdSet) {
 
         return new LongObjectMapVO<>(BaseFileUtil.getPublicUrl(notEmptyIdSet.getIdSet()));
+
+    }
+
+    /**
+     * 批量获取：文件的 url-临时
+     */
+    @Override
+    public LongObjectMapVO<String> getExpireUrl(NotEmptyIdSet notEmptyIdSet) {
+
+        return null;
 
     }
 

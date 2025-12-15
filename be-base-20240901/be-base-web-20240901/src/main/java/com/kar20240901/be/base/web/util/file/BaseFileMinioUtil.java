@@ -6,6 +6,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.kar20240901.be.base.web.model.bo.file.BaseFileComposeBO;
 import com.kar20240901.be.base.web.model.bo.file.BaseFilePrivateDownloadBO;
+import com.kar20240901.be.base.web.model.configuration.file.IBaseFileStorage;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
 import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadFileSystemChunkVO;
 import io.minio.ComposeObjectArgs;
@@ -14,17 +15,20 @@ import io.minio.CopyObjectArgs;
 import io.minio.CopySource;
 import io.minio.GetObjectArgs;
 import io.minio.GetObjectArgs.Builder;
+import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.ObjectWriteArgs;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectsArgs;
 import io.minio.Result;
+import io.minio.http.Method;
 import io.minio.messages.DeleteError;
 import io.minio.messages.DeleteObject;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -160,6 +164,25 @@ public class BaseFileMinioUtil {
         }
 
         log.info("minio批量删除文件错误，bucketName：{}，reason：{}", bucketName, errorList);
+
+    }
+
+    /**
+     * 获取：文件预览地址-临时
+     */
+    @SneakyThrows
+    public static String getExpireUrl(String uri, String bucketName,
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+
+        MinioClient minioClient = MinioClient.builder().endpoint(baseFileStorageConfigurationDO.getUploadEndpoint())
+            .credentials(baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey())
+            .build();
+
+        GetPresignedObjectUrlArgs args =
+            GetPresignedObjectUrlArgs.builder().bucket(bucketName).object(uri).method(Method.GET)
+                .expiry(IBaseFileStorage.EXPIRE_TIME, TimeUnit.MILLISECONDS).build();
+
+        return minioClient.getPresignedObjectUrl(args);
 
     }
 

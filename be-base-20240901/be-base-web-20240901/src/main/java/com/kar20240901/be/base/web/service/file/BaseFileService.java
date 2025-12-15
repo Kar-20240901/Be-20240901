@@ -45,6 +45,8 @@ public interface BaseFileService extends IService<BaseFileDO> {
 
     LongObjectMapVO<String> getPublicUrl(NotEmptyIdSet notEmptyIdSet);
 
+    LongObjectMapVO<String> getExpireUrl(NotEmptyIdSet notEmptyIdSet);
+
     BaseFilePageSelfVO myPage(BaseFilePageDTO dto, boolean folderSizeFlag, boolean pidPathStrFlag, boolean treeFlag,
         boolean scrollFlag, boolean queryTotalFlag);
 

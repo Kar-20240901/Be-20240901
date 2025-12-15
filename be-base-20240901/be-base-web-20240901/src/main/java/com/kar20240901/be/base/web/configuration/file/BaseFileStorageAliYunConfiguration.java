@@ -67,6 +67,12 @@ public class BaseFileStorageAliYunConfiguration implements IBaseFileStorage {
     }
 
     @Override
+    public String getExpireUrl(String uri, String bucketName,
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+        return BaseFileAliYunUtil.getExpireUrl(uri, bucketName, baseFileStorageConfigurationDO);
+    }
+
+    @Override
     public void compose(String bucketName, BaseFileComposeBO baseFileComposeBO,
         BaseFileStorageConfigurationDO baseFileStorageConfigurationDO, String newObjectName) {
         BaseFileAliYunUtil.compose(bucketName, baseFileComposeBO, baseFileStorageConfigurationDO, newObjectName);

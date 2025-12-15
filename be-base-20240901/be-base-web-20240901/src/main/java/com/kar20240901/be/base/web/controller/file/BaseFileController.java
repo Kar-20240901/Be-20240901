@@ -102,10 +102,16 @@ public class BaseFileController {
         return R.okMsg(baseService.removeByFileIdSet(notEmptyIdSet, true));
     }
 
-    @Operation(summary = "批量获取：公开文件的 url")
+    @Operation(summary = "批量获取：公开文件的 url-永久")
     @PostMapping("/getPublicUrl")
     public R<LongObjectMapVO<String>> getPublicUrl(@RequestBody @Valid NotEmptyIdSet notEmptyIdSet) {
         return R.okData(baseService.getPublicUrl(notEmptyIdSet));
+    }
+
+    @Operation(summary = "批量获取：文件的 url-临时")
+    @PostMapping("/getExpireUrl")
+    public R<LongObjectMapVO<String>> getExpireUrl(@RequestBody @Valid NotEmptyIdSet notEmptyIdSet) {
+        return R.okData(baseService.getExpireUrl(notEmptyIdSet));
     }
 
     @Operation(summary = "分页排序查询")
