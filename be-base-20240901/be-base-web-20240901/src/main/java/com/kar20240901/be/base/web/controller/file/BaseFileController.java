@@ -2,12 +2,12 @@ package com.kar20240901.be.base.web.controller.file;
 
 import com.kar20240901.be.base.web.model.domain.file.BaseFileDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
-import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileCopySelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileCreateFolderSelfSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileMoveSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageSelfDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFilePrivateDownloadDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileScrollSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUpdateSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadDTO;
@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -84,17 +83,17 @@ public class BaseFileController {
     }
 
     @Operation(summary = "下载文件：私有")
-    @GetMapping("/privateDownload/{id}")
-    public void privateDownload(@PathVariable(value = "id") Long id, HttpServletResponse response,
-        HttpServletRequest request) {
-        baseService.privateDownload(new NotNullId(id), response, request);
+    @GetMapping("/privateDownload")
+    public void privateDownload(BaseFilePrivateDownloadDTO dto, HttpServletRequest request,
+        HttpServletResponse response) {
+        baseService.privateDownload(dto, response, request);
     }
 
     @Operation(summary = "下载文件：私有")
     @PostMapping("/privateDownload")
-    public void privateDownload(@RequestBody @Valid NotNullId notNullId, HttpServletResponse response,
+    public void privateDownload(@RequestBody @Valid BaseFilePrivateDownloadDTO dto, HttpServletResponse response,
         HttpServletRequest request) {
-        baseService.privateDownload(notNullId, response, request);
+        baseService.privateDownload(dto, response, request);
     }
 
     @Operation(summary = "批量删除文件：公有和私有，文件和文件夹")

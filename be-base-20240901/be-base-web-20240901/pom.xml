@@ -16,6 +16,11 @@
   <dependencies>
 
     <dependency>
+      <groupId>net.coobird</groupId>
+      <artifactId>thumbnailator</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>ws.schild</groupId>
       <artifactId>jave-all-deps</artifactId>
     </dependency>

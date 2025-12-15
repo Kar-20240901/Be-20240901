@@ -3,12 +3,12 @@ package com.kar20240901.be.base.web.service.file;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
-import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileCopySelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileCreateFolderSelfSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileMoveSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageSelfDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFilePrivateDownloadDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileScrollSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUpdateSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadDTO;
@@ -39,7 +39,7 @@ public interface BaseFileService extends IService<BaseFileDO> {
 
     String uploadFileSystemChunkCompose(BaseFileUploadFileSystemChunkComposeDTO dto);
 
-    void privateDownload(NotNullId notNullId, HttpServletResponse response, HttpServletRequest request);
+    void privateDownload(BaseFilePrivateDownloadDTO dto, HttpServletResponse response, HttpServletRequest request);
 
     String removeByFileIdSet(NotEmptyIdSet notEmptyIdSet, boolean checkBelongFlag);
 

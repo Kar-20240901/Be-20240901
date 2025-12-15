@@ -23,4 +23,16 @@ public class BaseFilePrivateDownloadBO {
     @Schema(description = "文件对象")
     private BaseFileDO baseFileDO;
 
+    @Schema(description = "是否返回缩略图，默认：true")
+    private Boolean thumbnailFlag;
+
+    @Schema(description = "缩略图宽度")
+    private Integer thumbnailWidth;
+
+    @Schema(description = "缩略图高度")
+    private Integer thumbnailHeight;
+
+    @Schema(description = "缩略图质量")
+    private Double thumbnailQuality;
+
 }

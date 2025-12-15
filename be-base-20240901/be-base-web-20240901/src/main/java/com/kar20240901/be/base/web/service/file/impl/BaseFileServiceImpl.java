@@ -25,12 +25,12 @@ import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoIdSuper;
 import com.kar20240901.be.base.web.model.domain.file.BaseFileDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
-import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileCopySelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileCreateFolderSelfSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileMoveSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFilePageSelfDTO;
+import com.kar20240901.be.base.web.model.dto.file.BaseFilePrivateDownloadDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileScrollSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUpdateSelfDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileUploadDTO;
@@ -191,11 +191,17 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
      */
     @SneakyThrows
     @Override
-    public void privateDownload(NotNullId notNullId, HttpServletResponse response, HttpServletRequest request) {
+    public void privateDownload(BaseFilePrivateDownloadDTO dto, HttpServletResponse response,
+        HttpServletRequest request) {
 
         BaseFilePrivateDownloadBO baseFilePrivateDownloadBO = new BaseFilePrivateDownloadBO();
 
-        baseFilePrivateDownloadBO.setFileId(notNullId.getId());
+        baseFilePrivateDownloadBO.setFileId(dto.getId());
+
+        baseFilePrivateDownloadBO.setThumbnailFlag(dto.getThumbnailFlag());
+        baseFilePrivateDownloadBO.setThumbnailWidth(dto.getThumbnailWidth());
+        baseFilePrivateDownloadBO.setThumbnailHeight(dto.getThumbnailHeight());
+        baseFilePrivateDownloadBO.setThumbnailQuality(dto.getThumbnailQuality());
 
         // 处理 baseFilePrivateDownloadBO对象
         handleBaseFilePrivateDownloadBO(request, baseFilePrivateDownloadBO);
@@ -510,7 +516,7 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
 
         ArrayList<SFunction<BaseFileDO, ?>> arrayList =
             CollUtil.newArrayList(TempEntity::getId, TempEntityNoId::getCreateTime, BaseFileDO::getFileSize,
-                BaseFileDO::getShowFileName, BaseFileDO::getPid, BaseFileDO::getType);
+                BaseFileDO::getShowFileName, BaseFileDO::getPid, BaseFileDO::getType, BaseFileDO::getFileExtName);
 
         if (folderSizeFlag) {
 

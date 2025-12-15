@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.util.file;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileMagicNumber;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.io.file.FileNameUtil;
@@ -73,6 +74,7 @@ import com.kar20240901.be.base.web.util.base.SeparatorUtil;
 import com.kar20240901.be.base.web.util.base.TransactionUtil;
 import com.kar20240901.be.base.web.util.base.VoidFunc3;
 import com.kar20240901.be.base.web.util.im.BaseImGroupUtil;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -90,6 +92,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import lombok.SneakyThrows;
+import net.coobird.thumbnailator.Thumbnails;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1169,6 +1172,19 @@ public class BaseFileUtil {
 
     }
 
+    // 缩略图支持的图片类型
+    public static final Set<String> THUMBNAIL_ACCEPT_IMAGE_TYPE_SET = new HashSet<>();
+
+    static {
+
+        THUMBNAIL_ACCEPT_IMAGE_TYPE_SET.add(FileMagicNumber.JPEG.getExtension());
+
+        THUMBNAIL_ACCEPT_IMAGE_TYPE_SET.add(FileMagicNumber.PNG.getExtension());
+
+        THUMBNAIL_ACCEPT_IMAGE_TYPE_SET.add(FileMagicNumber.BMP.getExtension());
+
+    }
+
     /**
      * 下载文件：私有
      */
@@ -1215,9 +1231,20 @@ public class BaseFileUtil {
         baseFilePrivateDownloadBO.setBaseFileDO(baseFileDO);
 
         // 执行下载
-        InputStream inputStream =
+        InputStream originalStream =
             iBaseFileStorage.download(baseFileDO.getBucketName(), baseFileDO.getUri(), baseFileStorageConfigurationDO,
                 baseFilePrivateDownloadBO);
+
+        InputStream inputStream = originalStream;
+
+        boolean thumbnailFlag = !BooleanUtil.isFalse(baseFilePrivateDownloadBO.getThumbnailFlag());
+
+        if (thumbnailFlag && THUMBNAIL_ACCEPT_IMAGE_TYPE_SET.contains(baseFileDO.getFileExtName())) {
+
+            // 处理：缩略图
+            inputStream = handleThumbnail(baseFilePrivateDownloadBO, originalStream);
+
+        }
 
         BaseFilePrivateDownloadVO baseFilePrivateDownloadVO = new BaseFilePrivateDownloadVO();
 
@@ -1229,6 +1256,48 @@ public class BaseFileUtil {
         handleBaseFilePrivateDownloadVO(baseFilePrivateDownloadBO, baseFileDO, baseFilePrivateDownloadVO);
 
         return baseFilePrivateDownloadVO;
+
+    }
+
+    /**
+     * 处理：缩略图
+     */
+    @SneakyThrows
+    private static @NotNull InputStream handleThumbnail(BaseFilePrivateDownloadBO baseFilePrivateDownloadBO,
+        InputStream originalStream) {
+
+        try {
+
+            Integer thumbnailWidth = baseFilePrivateDownloadBO.getThumbnailWidth();
+
+            Integer thumbnailHeight = baseFilePrivateDownloadBO.getThumbnailHeight();
+
+            Double thumbnailQuality = baseFilePrivateDownloadBO.getThumbnailQuality();
+
+            if (thumbnailWidth == null || thumbnailWidth < 1) {
+                thumbnailWidth = 50;
+            }
+
+            if (thumbnailHeight == null || thumbnailHeight < 1) {
+                thumbnailHeight = thumbnailWidth;
+            }
+
+            if (thumbnailQuality == null || thumbnailQuality < 1) {
+                thumbnailQuality = 0.8d;
+            }
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+            Thumbnails.of(originalStream).size(thumbnailWidth, thumbnailHeight).outputQuality(thumbnailQuality)
+                .toOutputStream(outputStream);
+
+            return IoUtil.toStream(outputStream);
+
+        } catch (Exception e) {
+
+            return originalStream;
+
+        }
 
     }
 
