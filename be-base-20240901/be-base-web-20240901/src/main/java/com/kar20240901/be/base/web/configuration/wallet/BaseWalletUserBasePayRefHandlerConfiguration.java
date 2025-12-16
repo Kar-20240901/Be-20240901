@@ -88,8 +88,8 @@ public class BaseWalletUserBasePayRefHandlerConfiguration implements IBasePayRef
 
                     // 增加用户的：可提现余额
                     baseUserWalletService.doAddWithdrawableMoney(userId, date, CollUtil.newHashSet(refId),
-                        basePayDO.getOriginalPrice(), BaseUserWalletLogTypeEnum.ADD_PAY, false, false, refId, refData,
-                        true, null);
+                        basePayDO.getOriginalPrice(), BaseUserWalletLogTypeEnum.ADD_PAY, true, false, refId, refData,
+                        true);
 
                     basePayDO.setRefStatus(BasePayRefStatusEnum.FINISHED.getCode());
 

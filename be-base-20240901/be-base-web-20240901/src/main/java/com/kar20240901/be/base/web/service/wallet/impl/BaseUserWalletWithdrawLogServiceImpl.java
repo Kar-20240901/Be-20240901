@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.jetbrains.annotations.NotNull;
@@ -91,10 +90,10 @@ public class BaseUserWalletWithdrawLogServiceImpl
      */
     @Override
     @DSTransactional
-    public String cancel(NotNullId notNullId) {
+    public String cancel(NotNullId dto) {
 
         // 执行
-        return doCancel(notNullId, false);
+        return doCancel(dto, false);
 
     }
 
@@ -238,7 +237,7 @@ public class BaseUserWalletWithdrawLogServiceImpl
         // 检查和增加：用户钱包的可提现余额
         baseUserWalletService.doAddWithdrawableMoney(currentUserId, new Date(), CollUtil.newHashSet(id),
             baseUserWalletWithdrawLogDO.getWithdrawMoney().negate(), BaseUserWalletLogTypeEnum.REDUCE_WITHDRAW, true,
-            true, null, null, true, null);
+            true, null, null, true);
 
         return TempBizCodeEnum.OK;
 
@@ -259,42 +258,39 @@ public class BaseUserWalletWithdrawLogServiceImpl
     /**
      * 执行：取消
      */
-    private String doCancel(NotNullId notNullId, boolean userSelfFlag) {
+    private String doCancel(NotNullId dto, boolean userSelfFlag) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        return RedissonUtil.doLock(BaseRedisKeyEnum.PRE_USER_WALLET_WITHDRAW_LOG.name() + ":" + notNullId.getId(),
-            () -> {
+        return RedissonUtil.doLock(BaseRedisKeyEnum.PRE_USER_WALLET_WITHDRAW_LOG.name() + ":" + dto.getId(), () -> {
 
-                BaseUserWalletWithdrawLogDO baseUserWalletWithdrawLogDO =
-                    lambdaQuery().eq(TempEntity::getId, notNullId.getId())
-                        .eq(userSelfFlag, BaseUserWalletWithdrawLogDO::getUserId, currentUserId)
-                        .select(TempEntity::getId, BaseUserWalletWithdrawLogDO::getWithdrawMoney,
-                            BaseUserWalletWithdrawLogDO::getWithdrawStatus, BaseUserWalletWithdrawLogDO::getUserId)
-                        .one();
+            BaseUserWalletWithdrawLogDO baseUserWalletWithdrawLogDO = lambdaQuery().eq(TempEntity::getId, dto.getId())
+                .eq(userSelfFlag, BaseUserWalletWithdrawLogDO::getUserId, currentUserId)
+                .select(TempEntity::getId, BaseUserWalletWithdrawLogDO::getWithdrawMoney,
+                    BaseUserWalletWithdrawLogDO::getWithdrawStatus, BaseUserWalletWithdrawLogDO::getUserId).one();
 
-                if (baseUserWalletWithdrawLogDO == null) {
-                    R.error(TempBizCodeEnum.ILLEGAL_REQUEST, notNullId.getId());
-                }
+            if (baseUserWalletWithdrawLogDO == null) {
+                R.error(TempBizCodeEnum.ILLEGAL_REQUEST, dto.getId());
+            }
 
-                // 只有待受理状态的提现记录，才可以取消
-                if (!BaseUserWalletWithdrawStatusEnum.COMMIT.equals(baseUserWalletWithdrawLogDO.getWithdrawStatus())) {
-                    R.error("操作失败：只能取消待受理状态的提现记录", notNullId.getId());
-                }
+            // 只有待受理状态的提现记录，才可以取消
+            if (!BaseUserWalletWithdrawStatusEnum.COMMIT.equals(baseUserWalletWithdrawLogDO.getWithdrawStatus())) {
+                R.error("操作失败：只能取消待受理状态的提现记录", dto.getId());
+            }
 
-                baseUserWalletWithdrawLogDO.setWithdrawStatus(BaseUserWalletWithdrawStatusEnum.CANCEL);
+            baseUserWalletWithdrawLogDO.setWithdrawStatus(BaseUserWalletWithdrawStatusEnum.CANCEL);
 
-                updateById(baseUserWalletWithdrawLogDO); // 先更新提现记录状态，原因：如果后面报错了，则会回滚该更新
+            updateById(baseUserWalletWithdrawLogDO); // 先更新提现记录状态，原因：如果后面报错了，则会回滚该更新
 
-                // 检查和增加：用户钱包的可提现余额
-                baseUserWalletService.doAddWithdrawableMoney(currentUserId, new Date(),
-                    CollUtil.newHashSet(baseUserWalletWithdrawLogDO.getUserId()),
-                    baseUserWalletWithdrawLogDO.getWithdrawMoney(), BaseUserWalletLogTypeEnum.REDUCE_WITHDRAW, true,
-                    true, null, null, true, null);
+            // 检查和增加：用户钱包的可提现余额
+            baseUserWalletService.doAddWithdrawableMoney(currentUserId, new Date(),
+                CollUtil.newHashSet(baseUserWalletWithdrawLogDO.getUserId()),
+                baseUserWalletWithdrawLogDO.getWithdrawMoney(), BaseUserWalletLogTypeEnum.REDUCE_WITHDRAW, true, true,
+                null, null, true);
 
-                return TempBizCodeEnum.OK;
+            return TempBizCodeEnum.OK;
 
-            });
+        });
 
     }
 
@@ -303,13 +299,13 @@ public class BaseUserWalletWithdrawLogServiceImpl
      */
     @Override
     @DSTransactional
-    public String accept(NotEmptyIdSet notEmptyIdSet) {
+    public String accept(NotEmptyIdSet dto) {
 
-        return RedissonUtil.doMultiLock(BaseRedisKeyEnum.PRE_USER_WALLET_WITHDRAW_LOG.name() + ":",
-            notEmptyIdSet.getIdSet(), () -> {
+        return RedissonUtil.doMultiLock(BaseRedisKeyEnum.PRE_USER_WALLET_WITHDRAW_LOG.name() + ":", dto.getIdSet(),
+            () -> {
 
                 List<BaseUserWalletWithdrawLogDO> baseUserWalletWithdrawLogDOList =
-                    lambdaQuery().in(TempEntity::getId, notEmptyIdSet.getIdSet())
+                    lambdaQuery().in(TempEntity::getId, dto.getIdSet())
                         .eq(BaseUserWalletWithdrawLogDO::getWithdrawStatus, BaseUserWalletWithdrawStatusEnum.COMMIT)
                         .list();
 
@@ -321,8 +317,7 @@ public class BaseUserWalletWithdrawLogServiceImpl
                     .collect(Collectors.groupingBy(BaseUserWalletWithdrawLogDO::getUserId));
 
                 // 检查：用户钱包是否被冻结
-                String resStr =
-                    checkUserWallet(baseUserWalletWithdrawLogDOList, groupMap, notEmptyIdSet.getIdSet().size() == 1);
+                String resStr = checkUserWallet(baseUserWalletWithdrawLogDOList, groupMap, dto.getIdSet().size() == 1);
 
                 if (StrUtil.isNotBlank(resStr)) {
                     return resStr;
@@ -387,38 +382,34 @@ public class BaseUserWalletWithdrawLogServiceImpl
      */
     @Override
     @DSTransactional
-    public String success(NotNullId notNullId) {
+    public String success(NotNullId dto) {
 
-        Set<Long> idSet = CollUtil.newHashSet(notNullId.getId());
+        return RedissonUtil.doLock(BaseRedisKeyEnum.PRE_USER_WALLET_WITHDRAW_LOG.name() + ":" + dto.getId(), () -> {
 
-        return RedissonUtil.doLock(BaseRedisKeyEnum.PRE_USER_WALLET_WITHDRAW_LOG.name() + ":" + notNullId.getId(),
-            () -> {
+            BaseUserWalletWithdrawLogDO baseUserWalletWithdrawLogDO = lambdaQuery().eq(TempEntity::getId, dto.getId())
+                .eq(BaseUserWalletWithdrawLogDO::getWithdrawStatus, BaseUserWalletWithdrawStatusEnum.ACCEPT)
+                .select(TempEntity::getId, BaseUserWalletWithdrawLogDO::getUserId).one();
 
-                BaseUserWalletWithdrawLogDO baseUserWalletWithdrawLogDO =
-                    lambdaQuery().eq(TempEntity::getId, notNullId.getId())
-                        .eq(BaseUserWalletWithdrawLogDO::getWithdrawStatus, BaseUserWalletWithdrawStatusEnum.ACCEPT)
-                        .select(TempEntity::getId, BaseUserWalletWithdrawLogDO::getUserId).one();
+            if (baseUserWalletWithdrawLogDO == null) {
+                R.error("操作失败：只能成功受理中状态的提现记录", dto.getId());
+            }
 
-                if (baseUserWalletWithdrawLogDO == null) {
-                    R.error("操作失败：只能成功受理中状态的提现记录", notNullId.getId());
-                }
-
-                // 只要：没有被冻结的钱包
-                boolean userWalletEnableFlag = baseUserWalletService.lambdaQuery()
-                    .eq(BaseUserWalletDO::getId, baseUserWalletWithdrawLogDO.getUserId())
+            // 只要：没有被冻结的钱包
+            boolean userWalletEnableFlag =
+                baseUserWalletService.lambdaQuery().eq(BaseUserWalletDO::getId, baseUserWalletWithdrawLogDO.getUserId())
                     .eq(TempEntityNoId::getEnableFlag, true).exists();
 
-                if (!userWalletEnableFlag) {
-                    R.error("操作失败：钱包已被冻结，请联系管理员", baseUserWalletWithdrawLogDO.getUserId());
-                }
+            if (!userWalletEnableFlag) {
+                R.error("操作失败：钱包已被冻结，请联系管理员", baseUserWalletWithdrawLogDO.getUserId());
+            }
 
-                baseUserWalletWithdrawLogDO.setWithdrawStatus(BaseUserWalletWithdrawStatusEnum.SUCCESS);
+            baseUserWalletWithdrawLogDO.setWithdrawStatus(BaseUserWalletWithdrawStatusEnum.SUCCESS);
 
-                updateById(baseUserWalletWithdrawLogDO); // 先更新提现记录状态，原因：如果后面报错了，则会回滚该更新
+            updateById(baseUserWalletWithdrawLogDO); // 先更新提现记录状态，原因：如果后面报错了，则会回滚该更新
 
-                return TempBizCodeEnum.OK;
+            return TempBizCodeEnum.OK;
 
-            });
+        });
 
     }
 
@@ -427,37 +418,35 @@ public class BaseUserWalletWithdrawLogServiceImpl
      */
     @Override
     @DSTransactional
-    public String reject(NotNullIdAndStringValue notNullIdAndStringValue) {
+    public String reject(NotNullIdAndStringValue dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        return RedissonUtil.doLock(
-            BaseRedisKeyEnum.PRE_USER_WALLET_WITHDRAW_LOG.name() + ":" + notNullIdAndStringValue.getId(), () -> {
+        return RedissonUtil.doLock(BaseRedisKeyEnum.PRE_USER_WALLET_WITHDRAW_LOG.name() + ":" + dto.getId(), () -> {
 
-                BaseUserWalletWithdrawLogDO baseUserWalletWithdrawLogDO =
-                    lambdaQuery().eq(TempEntity::getId, notNullIdAndStringValue.getId())
-                        .eq(BaseUserWalletWithdrawLogDO::getWithdrawStatus, BaseUserWalletWithdrawStatusEnum.ACCEPT)
-                        .select(TempEntity::getId, BaseUserWalletWithdrawLogDO::getWithdrawMoney,
-                            BaseUserWalletWithdrawLogDO::getUserId).one();
+            BaseUserWalletWithdrawLogDO baseUserWalletWithdrawLogDO = lambdaQuery().eq(TempEntity::getId, dto.getId())
+                .eq(BaseUserWalletWithdrawLogDO::getWithdrawStatus, BaseUserWalletWithdrawStatusEnum.ACCEPT)
+                .select(TempEntity::getId, BaseUserWalletWithdrawLogDO::getWithdrawMoney,
+                    BaseUserWalletWithdrawLogDO::getUserId).one();
 
-                if (baseUserWalletWithdrawLogDO == null) {
-                    R.error("操作失败：只能拒绝受理中状态的提现记录", notNullIdAndStringValue.getId());
-                }
+            if (baseUserWalletWithdrawLogDO == null) {
+                R.error("操作失败：只能拒绝受理中状态的提现记录", dto.getId());
+            }
 
-                baseUserWalletWithdrawLogDO.setWithdrawStatus(BaseUserWalletWithdrawStatusEnum.REJECT);
-                baseUserWalletWithdrawLogDO.setRejectReason(notNullIdAndStringValue.getValue());
+            baseUserWalletWithdrawLogDO.setWithdrawStatus(BaseUserWalletWithdrawStatusEnum.REJECT);
+            baseUserWalletWithdrawLogDO.setRejectReason(dto.getValue());
 
-                updateById(baseUserWalletWithdrawLogDO); // 先更新提现记录状态，原因：如果后面报错了，则会回滚该更新
+            updateById(baseUserWalletWithdrawLogDO); // 先更新提现记录状态，原因：如果后面报错了，则会回滚该更新
 
-                // 检查和增加：用户钱包的可提现余额
-                baseUserWalletService.doAddWithdrawableMoney(currentUserId, new Date(),
-                    CollUtil.newHashSet(baseUserWalletWithdrawLogDO.getUserId()),
-                    baseUserWalletWithdrawLogDO.getWithdrawMoney(), BaseUserWalletLogTypeEnum.REDUCE_WITHDRAW, true,
-                    true, null, null, true, null);
+            // 检查和增加：用户钱包的可提现余额
+            baseUserWalletService.doAddWithdrawableMoney(currentUserId, new Date(),
+                CollUtil.newHashSet(baseUserWalletWithdrawLogDO.getUserId()),
+                baseUserWalletWithdrawLogDO.getWithdrawMoney(), BaseUserWalletLogTypeEnum.REDUCE_WITHDRAW, true, true,
+                null, null, true);
 
-                return TempBizCodeEnum.OK;
+            return TempBizCodeEnum.OK;
 
-            });
+        });
 
     }
 

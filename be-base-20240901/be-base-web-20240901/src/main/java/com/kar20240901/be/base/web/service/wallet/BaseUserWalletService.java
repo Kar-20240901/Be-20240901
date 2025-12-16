@@ -31,7 +31,7 @@ public interface BaseUserWalletService extends IService<BaseUserWalletDO> {
 
     String doAddWithdrawableMoney(Long currentUserId, Date date, Set<Long> idSet, BigDecimal addNumber,
         IBaseUserWalletLogType iBaseUserWalletLogType, boolean lowErrorFlag, boolean checkWalletEnableFlag,
-        @Nullable Long refId, @Nullable String refData, boolean withdrawableMoneyFlag, Integer reduceFrozenMoneyType);
+        @Nullable Long refId, @Nullable String refData, boolean highErrorFlag);
 
     BuyVO rechargeUserSelf(BaseUserWalletRechargeUserSelfDTO dto);
 

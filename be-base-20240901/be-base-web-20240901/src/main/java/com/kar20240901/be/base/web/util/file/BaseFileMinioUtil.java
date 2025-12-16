@@ -43,6 +43,39 @@ import org.springframework.web.multipart.MultipartFile;
 public class BaseFileMinioUtil {
 
     /**
+     * 获取：客户端对象
+     */
+    private static MinioClient getMinioClient(BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+
+        // 获取：客户端对象
+        Object clientObject = getClientObject(baseFileStorageConfigurationDO);
+
+        if (clientObject instanceof MinioClient) {
+            return (MinioClient)clientObject;
+        }
+
+        BaseFileUtil.clearByIdBaseFileStorageClientMap(baseFileStorageConfigurationDO.getId());
+
+        return (MinioClient)getClientObject(baseFileStorageConfigurationDO);
+
+    }
+
+    /**
+     * 获取：客户端对象
+     */
+    private static Object getClientObject(BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+
+        return BaseFileUtil.getOrSetBaseFileStorageClientMap(baseFileStorageConfigurationDO.getId(), () -> {
+
+            return MinioClient.builder().endpoint(baseFileStorageConfigurationDO.getUploadEndpoint())
+                .credentials(baseFileStorageConfigurationDO.getAccessKey(),
+                    baseFileStorageConfigurationDO.getSecretKey()).build();
+
+        });
+
+    }
+
+    /**
      * 上传文件 备注：objectName 相同会被覆盖掉
      */
     @SneakyThrows
@@ -51,9 +84,7 @@ public class BaseFileMinioUtil {
 
         InputStream inputStream = file.getInputStream();
 
-        MinioClient minioClient = MinioClient.builder().endpoint(baseFileStorageConfigurationDO.getUploadEndpoint())
-            .credentials(baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey())
-            .build();
+        MinioClient minioClient = getMinioClient(baseFileStorageConfigurationDO);
 
         minioClient.putObject(PutObjectArgs.builder().bucket(bucketName).object(objectName)
             .stream(inputStream, -1, ObjectWriteArgs.MAX_PART_SIZE).build());
@@ -72,9 +103,7 @@ public class BaseFileMinioUtil {
         BaseFileStorageConfigurationDO baseFileStorageConfigurationDO,
         @Nullable BaseFilePrivateDownloadBO baseFilePrivateDownloadBO) {
 
-        MinioClient minioClient = MinioClient.builder().endpoint(baseFileStorageConfigurationDO.getUploadEndpoint())
-            .credentials(baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey())
-            .build();
+        MinioClient minioClient = getMinioClient(baseFileStorageConfigurationDO);
 
         Builder builder = GetObjectArgs.builder().bucket(bucketName).object(objectName);
 
@@ -116,9 +145,7 @@ public class BaseFileMinioUtil {
     public static void copy(String sourceBucketName, String sourceObjectName, String toBucketName, String toObjectName,
         BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
 
-        MinioClient minioClient = MinioClient.builder().endpoint(baseFileStorageConfigurationDO.getUploadEndpoint())
-            .credentials(baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey())
-            .build();
+        MinioClient minioClient = getMinioClient(baseFileStorageConfigurationDO);
 
         CopySource copySource = CopySource.builder().bucket(sourceBucketName).object(sourceObjectName).build();
 
@@ -138,9 +165,7 @@ public class BaseFileMinioUtil {
             return;
         }
 
-        MinioClient minioClient = MinioClient.builder().endpoint(baseFileStorageConfigurationDO.getUploadEndpoint())
-            .credentials(baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey())
-            .build();
+        MinioClient minioClient = getMinioClient(baseFileStorageConfigurationDO);
 
         List<DeleteObject> deleteObjectList = new ArrayList<>();
 
@@ -174,9 +199,7 @@ public class BaseFileMinioUtil {
     public static String getExpireUrl(String uri, String bucketName,
         BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
 
-        MinioClient minioClient = MinioClient.builder().endpoint(baseFileStorageConfigurationDO.getUploadEndpoint())
-            .credentials(baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey())
-            .build();
+        MinioClient minioClient = getMinioClient(baseFileStorageConfigurationDO);
 
         GetPresignedObjectUrlArgs args =
             GetPresignedObjectUrlArgs.builder().bucket(bucketName).object(uri).method(Method.GET)
@@ -199,9 +222,7 @@ public class BaseFileMinioUtil {
             return;
         }
 
-        MinioClient minioClient = MinioClient.builder().endpoint(baseFileStorageConfigurationDO.getUploadEndpoint())
-            .credentials(baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey())
-            .build();
+        MinioClient minioClient = getMinioClient(baseFileStorageConfigurationDO);
 
         List<ComposeSource> composeSourceList = new ArrayList<>();
 

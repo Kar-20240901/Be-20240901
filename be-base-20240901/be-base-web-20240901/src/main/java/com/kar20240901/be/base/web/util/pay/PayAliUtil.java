@@ -23,11 +23,14 @@ import com.alipay.api.response.AlipayTradePrecreateResponse;
 import com.alipay.api.response.AlipayTradeQueryResponse;
 import com.alipay.api.response.AlipayTradeWapPayResponse;
 import com.kar20240901.be.base.web.model.bo.pay.BasePayReturnBO;
+import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
 import com.kar20240901.be.base.web.model.domain.pay.BasePayConfigurationDO;
 import com.kar20240901.be.base.web.model.dto.pay.PayDTO;
 import com.kar20240901.be.base.web.model.enums.pay.BasePayTradeStatusEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.util.base.MyNumberUtil;
+import com.kar20240901.be.base.web.util.file.BaseFileUtil;
+import io.minio.MinioClient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -40,6 +43,39 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class PayAliUtil {
+
+    /**
+     * 获取：客户端对象
+     */
+    private static MinioClient getMinioClient(BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+
+        // 获取：客户端对象
+        Object clientObject = getClientObject(baseFileStorageConfigurationDO);
+
+        if (clientObject instanceof MinioClient) {
+            return (MinioClient)clientObject;
+        }
+
+        BaseFileUtil.clearByIdBaseFileStorageClientMap(baseFileStorageConfigurationDO.getId());
+
+        return (MinioClient)getClientObject(baseFileStorageConfigurationDO);
+
+    }
+
+    /**
+     * 获取：客户端对象
+     */
+    private static Object getClientObject(BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+
+        return BaseFileUtil.getOrSetBaseFileStorageClientMap(baseFileStorageConfigurationDO.getId(), () -> {
+
+            return MinioClient.builder().endpoint(baseFileStorageConfigurationDO.getUploadEndpoint())
+                .credentials(baseFileStorageConfigurationDO.getAccessKey(),
+                    baseFileStorageConfigurationDO.getSecretKey()).build();
+
+        });
+
+    }
 
     /**
      * 获取：支付相关配置对象

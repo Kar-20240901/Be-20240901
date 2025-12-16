@@ -46,8 +46,8 @@ public class BaseUserWalletWithdrawLogController {
     @Operation(summary = "取消")
     @PostMapping("/cancel")
     @PreAuthorize("hasAuthority('baseUserWalletWithdrawLog:cancel')")
-    public R<String> cancel(@RequestBody @Valid NotNullId notNullId) {
-        return R.okMsg(baseService.cancel(notNullId));
+    public R<String> cancel(@RequestBody @Valid NotNullId dto) {
+        return R.okMsg(baseService.cancel(dto));
     }
 
     @Operation(summary = "分页排序查询")
@@ -60,8 +60,8 @@ public class BaseUserWalletWithdrawLogController {
     @Operation(summary = "通过主键id，查看详情")
     @PostMapping("/infoById")
     @PreAuthorize("hasAuthority('baseUserWalletWithdrawLog:infoById')")
-    public R<BaseUserWalletWithdrawLogDO> infoById(@RequestBody @Valid NotNullId notNullId) {
-        return R.okData(baseService.infoById(notNullId));
+    public R<BaseUserWalletWithdrawLogDO> infoById(@RequestBody @Valid NotNullId dto) {
+        return R.okData(baseService.infoById(dto));
     }
 
     @Operation(summary = "分页排序查询-用户")
@@ -80,29 +80,29 @@ public class BaseUserWalletWithdrawLogController {
 
     @Operation(summary = "取消-用户")
     @PostMapping("/cancel/userSelf")
-    public R<String> cancelUserSelf(@RequestBody @Valid NotNullId notNullId) {
-        return R.okMsg(baseService.cancelUserSelf(notNullId));
+    public R<String> cancelUserSelf(@RequestBody @Valid NotNullId dto) {
+        return R.okMsg(baseService.cancelUserSelf(dto));
     }
 
     @Operation(summary = "受理-用户的提现记录")
     @PostMapping("/accept")
     @PreAuthorize("hasAuthority('baseUserWalletWithdrawLog:accept')")
-    public R<String> accept(@RequestBody @Valid NotEmptyIdSet notEmptyIdSet) {
-        return R.okMsg(baseService.accept(notEmptyIdSet));
+    public R<String> accept(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okMsg(baseService.accept(dto));
     }
 
     @Operation(summary = "成功-用户的提现记录")
     @PostMapping("/success")
     @PreAuthorize("hasAuthority('baseUserWalletWithdrawLog:success')")
-    public R<String> success(@RequestBody @Valid NotNullId notNullId) {
-        return R.okMsg(baseService.success(notNullId));
+    public R<String> success(@RequestBody @Valid NotNullId dto) {
+        return R.okMsg(baseService.success(dto));
     }
 
     @Operation(summary = "拒绝-用户的提现记录")
     @PostMapping("/reject")
     @PreAuthorize("hasAuthority('baseUserWalletWithdrawLog:reject')")
-    public R<String> reject(@RequestBody @Valid NotNullIdAndStringValue notNullIdAndStringValue) {
-        return R.okMsg(baseService.reject(notNullIdAndStringValue));
+    public R<String> reject(@RequestBody @Valid NotNullIdAndStringValue dto) {
+        return R.okMsg(baseService.reject(dto));
     }
 
 }

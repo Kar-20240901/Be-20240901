@@ -41,13 +41,4 @@ public class BaseUserWalletLogDO extends TempEntity {
     @Schema(description = "可提现的钱，后")
     private BigDecimal withdrawableMoneySuf;
 
-    @Schema(description = "可提现的钱，预使用，前")
-    private BigDecimal withdrawablePreUseMoneyPre;
-
-    @Schema(description = "可提现的钱，预使用，变")
-    private BigDecimal withdrawablePreUseMoneyChange;
-
-    @Schema(description = "可提现的钱，预使用，后")
-    private BigDecimal withdrawablePreUseMoneySuf;
-
 }

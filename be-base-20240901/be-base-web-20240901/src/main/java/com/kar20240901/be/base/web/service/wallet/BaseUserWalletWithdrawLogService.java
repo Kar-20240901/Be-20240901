@@ -18,22 +18,22 @@ public interface BaseUserWalletWithdrawLogService extends IService<BaseUserWalle
 
     String insertOrUpdate(BaseUserWalletWithdrawLogInsertOrUpdateDTO dto);
 
-    String cancel(NotNullId notNullId);
+    String cancel(NotNullId dto);
 
     Page<BaseUserWalletWithdrawLogDO> myPage(BaseUserWalletWithdrawLogPageDTO dto);
 
-    BaseUserWalletWithdrawLogDO infoById(NotNullId notNullId);
+    BaseUserWalletWithdrawLogDO infoById(NotNullId dto);
 
     Page<BaseUserWalletWithdrawLogDO> myPageUserSelf(BaseUserWalletWithdrawLogPageUserSelfDTO dto);
 
     String insertOrUpdateUserSelf(BaseUserWalletWithdrawLogInsertOrUpdateUserSelfDTO dto);
 
-    String cancelUserSelf(NotNullId notNullId);
+    String cancelUserSelf(NotNullId dto);
 
-    String accept(NotEmptyIdSet notEmptyIdSet);
+    String accept(NotEmptyIdSet dto);
 
-    String success(NotNullId notNullId);
+    String success(NotNullId dto);
 
-    String reject(NotNullIdAndStringValue notNullIdAndStringValue);
+    String reject(NotNullIdAndStringValue dto);
 
 }

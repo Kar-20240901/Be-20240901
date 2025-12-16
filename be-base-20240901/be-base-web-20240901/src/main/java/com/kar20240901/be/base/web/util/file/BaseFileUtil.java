@@ -6,6 +6,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.io.file.FileNameUtil;
 import cn.hutool.core.io.unit.DataSizeUtil;
+import cn.hutool.core.lang.func.Func0;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.BooleanUtil;
@@ -14,6 +15,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.MD5;
 import cn.hutool.json.JSONUtil;
+import com.aliyun.oss.OSS;
 import com.aliyun.oss.model.PartETag;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
@@ -74,6 +76,7 @@ import com.kar20240901.be.base.web.util.base.SeparatorUtil;
 import com.kar20240901.be.base.web.util.base.TransactionUtil;
 import com.kar20240901.be.base.web.util.base.VoidFunc3;
 import com.kar20240901.be.base.web.util.im.BaseImGroupUtil;
+import io.minio.MinioClient;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -88,6 +91,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
@@ -162,6 +166,44 @@ public class BaseFileUtil {
     @Resource
     public void setBaseImGroupMapper(BaseImGroupMapper baseImGroupMapper) {
         BaseFileUtil.baseImGroupMapper = baseImGroupMapper;
+    }
+
+    // key：BaseFileStorageConfigurationId，value：客户端
+    private static final ConcurrentHashMap<Long, Object> BASE_FILE_STORAGE_CLIENT_MAP = new ConcurrentHashMap<>();
+
+    /**
+     * 获取或者设置客户端
+     */
+    public static Object getOrSetBaseFileStorageClientMap(Long baseFileStorageConfigurationId,
+        Func0<Object> getDefaultObject) {
+
+        return BASE_FILE_STORAGE_CLIENT_MAP.computeIfAbsent(baseFileStorageConfigurationId,
+            k -> getDefaultObject.callWithRuntimeException());
+
+    }
+
+    /**
+     * 移除客户端
+     */
+    @SneakyThrows
+    public static void clearByIdBaseFileStorageClientMap(Long baseFileStorageConfigurationId) {
+
+        Object object = BASE_FILE_STORAGE_CLIENT_MAP.remove(baseFileStorageConfigurationId);
+
+        if (object == null) {
+            return;
+        }
+
+        if (object instanceof MinioClient) {
+
+            ((MinioClient)object).close();
+
+        } else if (object instanceof OSS) {
+
+            ((OSS)object).shutdown();
+
+        }
+
     }
 
     /**

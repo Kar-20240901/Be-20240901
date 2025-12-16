@@ -1,7 +1,6 @@
 package com.kar20240901.be.base.web.service.wallet.impl;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
@@ -11,9 +10,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.configuration.wallet.BaseUserWalletUserSignConfiguration;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.wallet.BaseUserWalletMapper;
-import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
-import com.kar20240901.be.base.web.model.domain.base.TempEntityNoIdSuper;
 import com.kar20240901.be.base.web.model.domain.pay.BasePayDO;
 import com.kar20240901.be.base.web.model.domain.wallet.BaseUserWalletDO;
 import com.kar20240901.be.base.web.model.domain.wallet.BaseUserWalletLogDO;
@@ -33,7 +30,6 @@ import com.kar20240901.be.base.web.model.vo.pay.BuyVO;
 import com.kar20240901.be.base.web.service.wallet.BaseUserWalletService;
 import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
-import com.kar20240901.be.base.web.util.base.MyTryUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import com.kar20240901.be.base.web.util.base.RedissonUtil;
 import com.kar20240901.be.base.web.util.pay.PayUtil;
@@ -42,11 +38,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -55,72 +49,6 @@ public class BaseUserWalletServiceImpl extends ServiceImpl<BaseUserWalletMapper,
 
     @Resource
     BaseUserWalletUserSignConfiguration baseUserWalletUserSignConfiguration;
-
-    /**
-     * 定时任务，可提现余额，预使用，检查
-     */
-    @PreDestroy
-    @Scheduled(fixedDelay = TempConstant.MINUTE_5_EXPIRE_TIME)
-    public void scheduledCheckWithdrawablePreUseMoney() {
-
-        Date date = new Date();
-
-        DateTime checkDateTime = DateUtil.offsetMinute(date, -30);
-
-        List<BaseUserWalletDO> baseUserWalletDOList = lambdaQuery().gt(BaseUserWalletDO::getWithdrawablePreUseMoney, 0)
-            .le(TempEntityNoIdSuper::getUpdateTime, checkDateTime).select(BaseUserWalletDO::getId).list();
-
-        if (CollUtil.isEmpty(baseUserWalletDOList)) {
-            return;
-        }
-
-        for (BaseUserWalletDO item : baseUserWalletDOList) {
-
-            MyTryUtil.tryCatch(() -> {
-
-                Long id = item.getId();
-
-                RedissonUtil.doLock(BaseRedisKeyEnum.PRE_USER_WALLET.name() + ":" + id, () -> {
-
-                    // 再次查询，目的：防止出现并发问题
-                    BaseUserWalletDO baseUserWalletDO = lambdaQuery().eq(BaseUserWalletDO::getId, id).one();
-
-                    // 如果：预使用可提现的钱，已经小于等于 0了，则不进行处理
-                    if (baseUserWalletDO.getWithdrawablePreUseMoney().compareTo(BigDecimal.ZERO) <= 0) {
-                        return;
-                    }
-
-                    // 如果：已经被更新了，则不进行处理
-                    if (baseUserWalletDO.getUpdateTime().compareTo(checkDateTime) > 0) {
-                        return;
-                    }
-
-                    BigDecimal preWithdrawableMoney = baseUserWalletDO.getWithdrawableMoney();
-                    BigDecimal preWithdrawablePreUseMoney = baseUserWalletDO.getWithdrawablePreUseMoney();
-
-                    baseUserWalletDO.setWithdrawableMoney(
-                        baseUserWalletDO.getWithdrawableMoney().add(preWithdrawablePreUseMoney));
-
-                    baseUserWalletDO.setWithdrawablePreUseMoney(BigDecimal.ZERO);
-
-                    baseUserWalletDO.setUpdateId(null);
-                    baseUserWalletDO.setUpdateTime(null);
-
-                    updateById(baseUserWalletDO); // 操作数据库
-
-                    // 新增日志
-                    BaseUserWalletLogServiceImpl.add(
-                        addBaseUserWalletLogDO(TempConstant.SYS_ID, date, BaseUserWalletLogTypeEnum.ADD_TIME_CHECK,
-                            null,
-                            null, baseUserWalletDO, preWithdrawableMoney, preWithdrawablePreUseMoney));
-
-                });
-
-            });
-
-        }
-
-    }
 
     /**
      * 批量冻结
@@ -243,24 +171,21 @@ public class BaseUserWalletServiceImpl extends ServiceImpl<BaseUserWalletMapper,
 
         // 执行
         return doAddWithdrawableMoney(currentUserId, new Date(), dto.getIdSet(), addNumber, baseUserWalletLogTypeEnum,
-            false, false, null, null, true, null);
+            false, false, null, null, false);
 
     }
 
     /**
      * 执行：通过主键 idSet，加减可提现的钱
      *
-     * @param idSet                 用户主键 idSet
-     * @param withdrawableMoneyFlag true 操作可提现的钱 false 操作预使用可提现的钱
-     * @param reduceFrozenMoneyType 如果 withdrawableMoneyFlag == false 时，并且是减少时：1 （默认）扣除预使用可提现的钱，并减少可提现的钱 2 扣除预使用可提现的钱
+     * @param idSet 用户主键 idSet
      */
     @Override
     @NotNull
     @DSTransactional
     public String doAddWithdrawableMoney(Long currentUserId, Date date, Set<Long> idSet, BigDecimal addNumber,
         IBaseUserWalletLogType iBaseUserWalletLogType, boolean lowErrorFlag, boolean checkWalletEnableFlag,
-        @Nullable Long refId, @Nullable String refData, boolean withdrawableMoneyFlag,
-        @Nullable Integer reduceFrozenMoneyType) {
+        @Nullable Long refId, @Nullable String refData, boolean highErrorFlag) {
 
         if (addNumber.equals(BigDecimal.ZERO)) {
             return TempBizCodeEnum.OK;
@@ -272,13 +197,12 @@ public class BaseUserWalletServiceImpl extends ServiceImpl<BaseUserWalletMapper,
         RedissonUtil.doMultiLock(BaseRedisKeyEnum.PRE_USER_WALLET.name() + ":", idSet, () -> {
 
             List<BaseUserWalletDO> baseUserWalletDOList = lambdaQuery().in(BaseUserWalletDO::getId, idSet)
-                .select(BaseUserWalletDO::getId, BaseUserWalletDO::getWithdrawableMoney,
-                    BaseUserWalletDO::getWithdrawablePreUseMoney, TempEntityNoId::getEnableFlag).list();
+                .select(BaseUserWalletDO::getId, BaseUserWalletDO::getWithdrawableMoney, TempEntityNoId::getEnableFlag)
+                .list();
 
             // 处理：baseUserWalletDOList
             handleBaseUserWalletDOList(currentUserId, date, addNumber, iBaseUserWalletLogType, lowErrorFlag,
-                checkWalletEnableFlag, baseUserWalletLogDoList, baseUserWalletDOList, refId, refData,
-                withdrawableMoneyFlag, reduceFrozenMoneyType);
+                checkWalletEnableFlag, baseUserWalletLogDoList, baseUserWalletDOList, refId, refData, highErrorFlag);
 
             // 操作数据库
             updateBatchById(baseUserWalletDOList);
@@ -348,15 +272,11 @@ public class BaseUserWalletServiceImpl extends ServiceImpl<BaseUserWalletMapper,
 
     /**
      * 处理：baseUserWalletDOList
-     *
-     * @param withdrawableMoneyFlag true 操作可提现的钱 false 操作预使用可提现的钱
-     * @param reduceFrozenMoneyType 如果 withdrawableMoneyFlag == false 时，并且是减少时：1 （默认）扣除预使用可提现的钱，并减少可提现的钱 2 扣除预使用可提现的钱
      */
     private void handleBaseUserWalletDOList(Long currentUserId, Date date, BigDecimal addNumber,
         IBaseUserWalletLogType iBaseUserWalletLogType, boolean lowErrorFlag, boolean checkWalletEnableFlag,
         List<BaseUserWalletLogDO> baseUserWalletLogDoList, List<BaseUserWalletDO> baseUserWalletDOList,
-        @Nullable Long refId, @Nullable String refData, boolean withdrawableMoneyFlag,
-        @Nullable Integer reduceFrozenMoneyType) {
+        @Nullable Long refId, @Nullable String refData, boolean highErrorFlag) {
 
         for (BaseUserWalletDO item : baseUserWalletDOList) {
 
@@ -367,24 +287,36 @@ public class BaseUserWalletServiceImpl extends ServiceImpl<BaseUserWalletMapper,
             }
 
             BigDecimal preWithdrawableMoney = item.getWithdrawableMoney();
-            BigDecimal preWithdrawablePreUseMoney = item.getWithdrawablePreUseMoney();
 
             // 处理：需要增加的钱
-            handleAddNumber(addNumber, withdrawableMoneyFlag, reduceFrozenMoneyType, item);
+            handleAddNumber(addNumber, item);
 
             item.setUpdateId(null);
             item.setUpdateTime(null);
 
-            if (item.getWithdrawableRealMoney().compareTo(BigDecimal.ZERO) < 0) {
+            if (item.getWithdrawableMoney().compareTo(BigDecimal.ZERO) < 0) {
 
                 if (lowErrorFlag) {
 
-                    R.error("操作失败：可提现余额不足", StrUtil.format("id：{}，withdrawableRealMoney：{}", item.getId(),
-                        item.getWithdrawableRealMoney()));
+                    R.error("操作失败：可提现余额不足",
+                        StrUtil.format("id：{}，withdrawableMoney：{}", item.getId(), item.getWithdrawableMoney()));
 
                 } else {
 
                     item.setWithdrawableMoney(BigDecimal.ZERO);
+
+                }
+
+            } else if (item.getWithdrawableMoney().compareTo(MAX_MONEY) > 0) {
+
+                if (highErrorFlag) {
+
+                    R.error("操作失败：超过最大值",
+                        StrUtil.format("id：{}，withdrawableMoney：{}", item.getId(), item.getWithdrawableMoney()));
+
+                } else {
+
+                    item.setWithdrawableMoney(MAX_MONEY);
 
                 }
 
@@ -393,7 +325,7 @@ public class BaseUserWalletServiceImpl extends ServiceImpl<BaseUserWalletMapper,
             // 新增日志
             baseUserWalletLogDoList.add(
                 addBaseUserWalletLogDO(currentUserId, date, iBaseUserWalletLogType, refId, refData, item,
-                    preWithdrawableMoney, preWithdrawablePreUseMoney));
+                    preWithdrawableMoney));
 
         }
 
@@ -404,7 +336,7 @@ public class BaseUserWalletServiceImpl extends ServiceImpl<BaseUserWalletMapper,
      */
     public static BaseUserWalletLogDO addBaseUserWalletLogDO(Long currentUserId, Date date,
         IBaseUserWalletLogType iBaseUserWalletLogType, @Nullable Long refId, @Nullable String refData,
-        BaseUserWalletDO item, BigDecimal preWithdrawableMoney, BigDecimal preWithdrawablePreUseMoney) {
+        BaseUserWalletDO item, BigDecimal preWithdrawableMoney) {
 
         BaseUserWalletLogDO baseUserWalletLogDO = new BaseUserWalletLogDO();
 
@@ -419,9 +351,6 @@ public class BaseUserWalletServiceImpl extends ServiceImpl<BaseUserWalletMapper,
 
         baseUserWalletLogDO.setWithdrawableMoneyPre(preWithdrawableMoney);
         baseUserWalletLogDO.setWithdrawableMoneySuf(item.getWithdrawableMoney());
-
-        baseUserWalletLogDO.setWithdrawablePreUseMoneyPre(preWithdrawablePreUseMoney);
-        baseUserWalletLogDO.setWithdrawablePreUseMoneySuf(item.getWithdrawablePreUseMoney());
 
         baseUserWalletLogDO.setId(IdGeneratorUtil.nextId());
         baseUserWalletLogDO.setEnableFlag(true);
@@ -438,38 +367,15 @@ public class BaseUserWalletServiceImpl extends ServiceImpl<BaseUserWalletMapper,
 
     }
 
+    public static final BigDecimal MAX_MONEY = new BigDecimal("9999999999.999");
+
     /**
      * 处理：需要增加的钱
      */
-    private void handleAddNumber(BigDecimal addNumber, boolean withdrawableMoneyFlag,
-        @Nullable Integer reduceFrozenMoneyType, BaseUserWalletDO item) {
+    private void handleAddNumber(BigDecimal addNumber, BaseUserWalletDO item) {
 
-        if (withdrawableMoneyFlag) {
-
-            item.setWithdrawableMoney(item.getWithdrawableMoney().add(addNumber));
-
-        } else {
-
-            if (addNumber.compareTo(BigDecimal.ZERO) < 0) {
-
-                if (reduceFrozenMoneyType != null && reduceFrozenMoneyType == 2) { // 2 扣除预使用可提现的钱
-
-                    item.setWithdrawablePreUseMoney(item.getWithdrawablePreUseMoney().add(addNumber));
-
-                } else { // 1 （默认）扣除预使用可提现的钱，并减少可提现的钱
-
-                    item.setWithdrawableMoney(item.getWithdrawableMoney().add(addNumber));
-                    item.setWithdrawablePreUseMoney(item.getWithdrawablePreUseMoney().add(addNumber));
-
-                }
-
-            } else {
-
-                item.setWithdrawablePreUseMoney(item.getWithdrawablePreUseMoney().add(addNumber));
-
-            }
-
-        }
+        // 9999999999.999：九十九亿...
+        item.setWithdrawableMoney(item.getWithdrawableMoney().add(addNumber));
 
     }
 
@@ -480,9 +386,6 @@ public class BaseUserWalletServiceImpl extends ServiceImpl<BaseUserWalletMapper,
 
         baseUserWalletLogDO.setWithdrawableMoneyChange(
             baseUserWalletLogDO.getWithdrawableMoneySuf().subtract(baseUserWalletLogDO.getWithdrawableMoneyPre()));
-
-        baseUserWalletLogDO.setWithdrawablePreUseMoneyChange(baseUserWalletLogDO.getWithdrawablePreUseMoneySuf()
-            .subtract(baseUserWalletLogDO.getWithdrawablePreUseMoneyPre()));
 
     }
 

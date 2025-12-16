@@ -38,7 +38,6 @@ public class BaseUserWalletUserSignConfiguration implements IUserSignConfigurati
         baseUserWalletDO.setId(userId);
 
         baseUserWalletDO.setWithdrawableMoney(BigDecimal.ZERO);
-        baseUserWalletDO.setWithdrawablePreUseMoney(BigDecimal.ZERO);
 
         baseUserWalletDO.setEnableFlag(true);
         baseUserWalletDO.setRemark("");
@@ -47,6 +46,9 @@ public class BaseUserWalletUserSignConfiguration implements IUserSignConfigurati
 
     }
 
+    /**
+     * 用户注销时
+     */
     @Override
     public void delete(Set<Long> userIdSet) {
 

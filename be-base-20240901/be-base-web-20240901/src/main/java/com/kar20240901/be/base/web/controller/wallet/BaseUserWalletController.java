@@ -31,15 +31,15 @@ public class BaseUserWalletController {
     @Operation(summary = "批量冻结")
     @PostMapping("/frozenByIdSet")
     @PreAuthorize("hasAuthority('baseUserWallet:frozenByIdSet')")
-    public R<String> frozenByIdSet(@RequestBody @Valid NotEmptyIdSet notEmptyIdSet) {
-        return R.okData(baseService.frozenByIdSet(notEmptyIdSet));
+    public R<String> frozenByIdSet(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okData(baseService.frozenByIdSet(dto));
     }
 
     @Operation(summary = "批量解冻")
     @PostMapping("/thawByIdSet")
     @PreAuthorize("hasAuthority('baseUserWallet:thawByIdSet')")
-    public R<String> thawByIdSet(@RequestBody @Valid NotEmptyIdSet notEmptyIdSet) {
-        return R.okData(baseService.thawByIdSet(notEmptyIdSet));
+    public R<String> thawByIdSet(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okData(baseService.thawByIdSet(dto));
     }
 
     @Operation(summary = "分页排序查询")
@@ -52,8 +52,8 @@ public class BaseUserWalletController {
     @Operation(summary = "通过主键id，查看详情")
     @PostMapping("/infoById")
     @PreAuthorize("hasAuthority('baseUserWallet:infoById')")
-    public R<BaseUserWalletDO> infoById(@RequestBody @Valid NotNullLong notNullLong) {
-        return R.okData(baseService.infoById(notNullLong));
+    public R<BaseUserWalletDO> infoById(@RequestBody @Valid NotNullLong dto) {
+        return R.okData(baseService.infoById(dto));
     }
 
     @Operation(summary = "通过主键 idSet，加减可提现的钱")

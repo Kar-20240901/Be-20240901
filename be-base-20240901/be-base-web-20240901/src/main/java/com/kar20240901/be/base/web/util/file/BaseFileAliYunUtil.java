@@ -37,6 +37,38 @@ import org.springframework.web.multipart.MultipartFile;
 public class BaseFileAliYunUtil {
 
     /**
+     * 获取：客户端对象
+     */
+    private static OSS getOss(BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+
+        // 获取：客户端对象
+        Object clientObject = getClientObject(baseFileStorageConfigurationDO);
+
+        if (clientObject instanceof OSS) {
+            return (OSS)clientObject;
+        }
+
+        BaseFileUtil.clearByIdBaseFileStorageClientMap(baseFileStorageConfigurationDO.getId());
+
+        return (OSS)getClientObject(baseFileStorageConfigurationDO);
+
+    }
+
+    /**
+     * 获取：客户端对象
+     */
+    private static Object getClientObject(BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+
+        return BaseFileUtil.getOrSetBaseFileStorageClientMap(baseFileStorageConfigurationDO.getId(), () -> {
+
+            return new OSSClientBuilder().build(baseFileStorageConfigurationDO.getUploadEndpoint(),
+                baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey());
+
+        });
+
+    }
+
+    /**
      * 上传文件 备注：objectName 相同会被覆盖掉
      */
     @SneakyThrows
@@ -45,8 +77,7 @@ public class BaseFileAliYunUtil {
 
         InputStream inputStream = file.getInputStream();
 
-        OSS oss = new OSSClientBuilder().build(baseFileStorageConfigurationDO.getUploadEndpoint(),
-            baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey());
+        OSS oss = getOss(baseFileStorageConfigurationDO);
 
         oss.putObject(bucketName, objectName, inputStream);
 
@@ -63,8 +94,7 @@ public class BaseFileAliYunUtil {
 
         InputStream inputStream = file.getInputStream();
 
-        OSS oss = new OSSClientBuilder().build(baseFileStorageConfigurationDO.getUploadEndpoint(),
-            baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey());
+        OSS oss = getOss(baseFileStorageConfigurationDO);
 
         UploadPartRequest uploadPartRequest = new UploadPartRequest();
 
@@ -96,8 +126,7 @@ public class BaseFileAliYunUtil {
         BaseFileStorageConfigurationDO baseFileStorageConfigurationDO,
         @Nullable BaseFilePrivateDownloadBO baseFilePrivateDownloadBO) {
 
-        OSS oss = new OSSClientBuilder().build(baseFileStorageConfigurationDO.getUploadEndpoint(),
-            baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey());
+        OSS oss = getOss(baseFileStorageConfigurationDO);
 
         GetObjectRequest getObjectRequest = new GetObjectRequest(bucketName, objectName);
 
@@ -133,8 +162,7 @@ public class BaseFileAliYunUtil {
     public static void copy(String sourceBucketName, String sourceObjectName, String toBucketName, String toObjectName,
         BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
 
-        OSS oss = new OSSClientBuilder().build(baseFileStorageConfigurationDO.getUploadEndpoint(),
-            baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey());
+        OSS oss = getOss(baseFileStorageConfigurationDO);
 
         oss.copyObject(sourceBucketName, sourceObjectName, toBucketName, toObjectName);
 
@@ -155,8 +183,7 @@ public class BaseFileAliYunUtil {
 
         deleteObjectsRequest.setKeys(new ArrayList<>(objectNameSet));
 
-        OSS oss = new OSSClientBuilder().build(baseFileStorageConfigurationDO.getUploadEndpoint(),
-            baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey());
+        OSS oss = getOss(baseFileStorageConfigurationDO);
 
         oss.deleteObject(deleteObjectsRequest);
 
@@ -168,8 +195,7 @@ public class BaseFileAliYunUtil {
     public static String getExpireUrl(String uri, String bucketName,
         BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
 
-        OSS oss = new OSSClientBuilder().build(baseFileStorageConfigurationDO.getUploadEndpoint(),
-            baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey());
+        OSS oss = getOss(baseFileStorageConfigurationDO);
 
         Date expireDate = new Date(System.currentTimeMillis() + IBaseFileStorage.EXPIRE_TIME);
 
@@ -216,8 +242,7 @@ public class BaseFileAliYunUtil {
             return;
         }
 
-        OSS oss = new OSSClientBuilder().build(baseFileStorageConfigurationDO.getUploadEndpoint(),
-            baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey());
+        OSS oss = getOss(baseFileStorageConfigurationDO);
 
         CompleteMultipartUploadRequest completeMultipartUploadRequest =
             new CompleteMultipartUploadRequest(bucketName, newObjectName, uploadId, partEtagList);

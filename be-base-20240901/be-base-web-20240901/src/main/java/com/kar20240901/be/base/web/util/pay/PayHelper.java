@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.util.pay;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.func.Func0;
 import cn.hutool.core.util.RandomUtil;
 import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketStrEventBO;
 import com.kar20240901.be.base.web.model.domain.pay.BasePayConfigurationDO;
@@ -13,8 +14,10 @@ import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.service.pay.BasePayConfigurationService;
 import com.kar20240901.be.base.web.util.kafka.TempKafkaUtil;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import javax.annotation.Resource;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
@@ -27,6 +30,29 @@ public class PayHelper {
     @Resource
     public void setBasePayConfigurationService(BasePayConfigurationService basePayConfigurationService) {
         PayHelper.basePayConfigurationService = basePayConfigurationService;
+    }
+
+    // key：BasePayConfigurationId，value：客户端
+    private static final ConcurrentHashMap<Long, Object> BASE_PAY_CLIENT_MAP = new ConcurrentHashMap<>();
+
+    /**
+     * 获取或者设置客户端
+     */
+    public static Object getOrSetBasePayClientMap(Long basePayConfigurationId, Func0<Object> getDefaultObject) {
+
+        return BASE_PAY_CLIENT_MAP.computeIfAbsent(basePayConfigurationId,
+            k -> getDefaultObject.callWithRuntimeException());
+
+    }
+
+    /**
+     * 移除客户端
+     */
+    @SneakyThrows
+    public static void clearByIdBasePayClientMap(Long basePayConfigurationId) {
+
+        BASE_PAY_CLIENT_MAP.remove(basePayConfigurationId);
+
     }
 
     /**

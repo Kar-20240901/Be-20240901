@@ -33,9 +33,6 @@ public class BasePayDO extends TempEntity {
     @Schema(description = "支付配置主键 id")
     private Long basePayConfigurationId;
 
-    @Schema(description = "冗余字段：支付配置的租户主键 id")
-    private Long basePayConfigurationTenantId;
-
     @Schema(description = "支付平台，应用 id")
     private String payAppId;
 
