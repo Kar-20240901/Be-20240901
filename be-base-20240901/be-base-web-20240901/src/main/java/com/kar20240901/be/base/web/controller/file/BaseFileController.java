@@ -98,20 +98,20 @@ public class BaseFileController {
 
     @Operation(summary = "批量删除文件：公有和私有，文件和文件夹")
     @PostMapping("/removeByFileIdSet")
-    public R<String> removeByFileIdSet(@RequestBody @Valid NotEmptyIdSet notEmptyIdSet) {
-        return R.okMsg(baseService.removeByFileIdSet(notEmptyIdSet, true));
+    public R<String> removeByFileIdSet(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okMsg(baseService.removeByFileIdSet(dto, true));
     }
 
     @Operation(summary = "批量获取：公开文件的 url-永久")
     @PostMapping("/getPublicUrl")
-    public R<LongObjectMapVO<String>> getPublicUrl(@RequestBody @Valid NotEmptyIdSet notEmptyIdSet) {
-        return R.okData(baseService.getPublicUrl(notEmptyIdSet));
+    public R<LongObjectMapVO<String>> getPublicUrl(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okData(baseService.getPublicUrl(dto));
     }
 
     @Operation(summary = "批量获取：文件的 url-临时")
     @PostMapping("/getExpireUrl")
-    public R<LongObjectMapVO<String>> getExpireUrl(@RequestBody @Valid NotEmptyIdSet notEmptyIdSet) {
-        return R.okData(baseService.getExpireUrl(notEmptyIdSet));
+    public R<LongObjectMapVO<String>> getExpireUrl(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okData(baseService.getExpireUrl(dto));
     }
 
     @Operation(summary = "分页排序查询")

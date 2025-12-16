@@ -43,9 +43,9 @@ public interface BaseFileService extends IService<BaseFileDO> {
 
     String removeByFileIdSet(NotEmptyIdSet notEmptyIdSet, boolean checkBelongFlag);
 
-    LongObjectMapVO<String> getPublicUrl(NotEmptyIdSet notEmptyIdSet);
+    LongObjectMapVO<String> getPublicUrl(NotEmptyIdSet dto);
 
-    LongObjectMapVO<String> getExpireUrl(NotEmptyIdSet notEmptyIdSet);
+    LongObjectMapVO<String> getExpireUrl(NotEmptyIdSet dto);
 
     BaseFilePageSelfVO myPage(BaseFilePageDTO dto, boolean folderSizeFlag, boolean pidPathStrFlag, boolean treeFlag,
         boolean scrollFlag, boolean queryTotalFlag);

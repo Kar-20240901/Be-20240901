@@ -285,14 +285,14 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
      */
     @Override
     @DSTransactional
-    public String removeByFileIdSet(NotEmptyIdSet notEmptyIdSet, boolean checkBelongFlag) {
+    public String removeByFileIdSet(NotEmptyIdSet dto, boolean checkBelongFlag) {
 
-        if (CollUtil.isEmpty(notEmptyIdSet.getIdSet())) {
+        if (CollUtil.isEmpty(dto.getIdSet())) {
             return TempBizCodeEnum.OK;
         }
 
         // 执行
-        BaseFileUtil.removeByFileIdSet(notEmptyIdSet.getIdSet(), checkBelongFlag);
+        BaseFileUtil.removeByFileIdSet(dto.getIdSet(), checkBelongFlag);
 
         return TempBizCodeEnum.OK;
 
@@ -302,9 +302,9 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
      * 批量获取：公开文件的 url-永久
      */
     @Override
-    public LongObjectMapVO<String> getPublicUrl(NotEmptyIdSet notEmptyIdSet) {
+    public LongObjectMapVO<String> getPublicUrl(NotEmptyIdSet dto) {
 
-        return new LongObjectMapVO<>(BaseFileUtil.getPublicUrl(notEmptyIdSet.getIdSet()));
+        return new LongObjectMapVO<>(BaseFileUtil.getPublicUrl(dto.getIdSet()));
 
     }
 
@@ -312,9 +312,9 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
      * 批量获取：文件的 url-临时
      */
     @Override
-    public LongObjectMapVO<String> getExpireUrl(NotEmptyIdSet notEmptyIdSet) {
+    public LongObjectMapVO<String> getExpireUrl(NotEmptyIdSet dto) {
 
-        return null;
+        return new LongObjectMapVO<>(BaseFileUtil.getExpireUrl(dto.getIdSet()));
 
     }
 

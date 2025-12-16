@@ -1204,9 +1204,9 @@ public class BaseFileUtil {
 
         }
 
-        boolean exists = lambdaQueryChainWrapper.exists();
+        Long count = lambdaQueryChainWrapper.count();
 
-        if (!exists) {
+        if (count != fileIdColl.size()) {
 
             R.error(TempBizCodeEnum.INSUFFICIENT_PERMISSIONS);
 
@@ -1469,6 +1469,47 @@ public class BaseFileUtil {
     }
 
     /**
+     * 批量获取：文件的 url-临时
+     */
+    public static Map<Long, String> getExpireUrl(Set<Long> fileIdSet) {
+
+        // 先移除：所有 -1的文件 id
+        fileIdSet.removeAll(CollUtil.newHashSet(-1L));
+
+        if (CollUtil.isEmpty(fileIdSet)) {
+            return MapUtil.newHashMap();
+        }
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        // 检查权限
+        BaseFileUtil.checkAuth(fileIdSet, currentUserId, 1);
+
+        List<BaseFileDO> baseFileDoList = baseFileService.lambdaQuery().in(TempEntity::getId, fileIdSet).list();
+
+        Map<Long, String> result = new HashMap<>(baseFileDoList.size());
+
+        // 移除：文件存储系统里面的文件
+        handleBaseFileStorage(baseFileDoList, (iBaseFileStorage, entry, baseFileStorageConfigurationDO) -> {
+
+            for (BaseFileDO item : entry.getValue()) {
+
+                String expireUrl =
+                    iBaseFileStorage.getExpireUrl(item.getUri(), item.getBucketName(), baseFileStorageConfigurationDO);
+
+                if (StrUtil.isNotBlank(expireUrl)) {
+                    result.put(item.getId(), expireUrl);
+                }
+
+            }
+
+        });
+
+        return result;
+
+    }
+
+    /**
      * 批量删除文件：公有和私有
      *
      * @param checkBelongFlag 是否检查：文件拥有者才可以删除
@@ -1491,7 +1532,7 @@ public class BaseFileUtil {
 
             if (MyUserUtil.getCurrentUserAdminFlag()) {
 
-                // admin 用户可以删除
+                // 管理员用户可以删除
                 baseFileDoList = lambdaQueryChainWrapper.list();
 
             } else {
@@ -1618,10 +1659,10 @@ public class BaseFileUtil {
     private static void removeBaseFileStorage(List<BaseFileDO> baseFileDoList) {
 
         // 移除：文件存储系统里面的文件
-        handleBaseFileStorage(baseFileDoList, (iBaseFileStorage, map, baseFileStorageConfigurationDO) -> {
+        handleBaseFileStorage(baseFileDoList, (iBaseFileStorage, entry, baseFileStorageConfigurationDO) -> {
 
             // 根据：桶名，进行分类
-            Map<String, Set<String>> bucketGroupMap = map.getValue().stream().collect(
+            Map<String, Set<String>> bucketGroupMap = entry.getValue().stream().collect(
                 Collectors.groupingBy(BaseFileDO::getBucketName,
                     Collectors.mapping(BaseFileDO::getUri, Collectors.toSet())));
 
@@ -1640,10 +1681,10 @@ public class BaseFileUtil {
      */
     public static void copyBaseFileStorage(List<BaseFileDO> baseFileDoList) {
 
-        // 移除：文件存储系统里面的文件
-        handleBaseFileStorage(baseFileDoList, (iBaseFileStorage, map, baseFileStorageConfigurationDO) -> {
+        // 复制：文件存储系统里面的文件
+        handleBaseFileStorage(baseFileDoList, (iBaseFileStorage, entry, baseFileStorageConfigurationDO) -> {
 
-            for (BaseFileDO item : map.getValue()) {
+            for (BaseFileDO item : entry.getValue()) {
 
                 if (StrUtil.isBlank(item.getOldBucketName())) {
                     continue;
