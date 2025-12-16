@@ -23,14 +23,11 @@ import com.alipay.api.response.AlipayTradePrecreateResponse;
 import com.alipay.api.response.AlipayTradeQueryResponse;
 import com.alipay.api.response.AlipayTradeWapPayResponse;
 import com.kar20240901.be.base.web.model.bo.pay.BasePayReturnBO;
-import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
 import com.kar20240901.be.base.web.model.domain.pay.BasePayConfigurationDO;
 import com.kar20240901.be.base.web.model.dto.pay.PayDTO;
 import com.kar20240901.be.base.web.model.enums.pay.BasePayTradeStatusEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.util.base.MyNumberUtil;
-import com.kar20240901.be.base.web.util.file.BaseFileUtil;
-import io.minio.MinioClient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -47,31 +44,35 @@ public class PayAliUtil {
     /**
      * 获取：客户端对象
      */
-    private static MinioClient getMinioClient(BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+    private static DoPayBO getDoPayBO(BasePayConfigurationDO basePayConfigurationDO) {
 
         // 获取：客户端对象
-        Object clientObject = getClientObject(baseFileStorageConfigurationDO);
+        Object clientObject = getClientObject(basePayConfigurationDO);
 
-        if (clientObject instanceof MinioClient) {
-            return (MinioClient)clientObject;
+        if (clientObject instanceof DoPayBO) {
+            return (DoPayBO)clientObject;
         }
 
-        BaseFileUtil.clearByIdBaseFileStorageClientMap(baseFileStorageConfigurationDO.getId());
+        PayHelper.clearByIdBasePayClientMap(basePayConfigurationDO.getId());
 
-        return (MinioClient)getClientObject(baseFileStorageConfigurationDO);
+        return (DoPayBO)getClientObject(basePayConfigurationDO);
 
     }
 
     /**
      * 获取：客户端对象
      */
-    private static Object getClientObject(BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+    private static Object getClientObject(BasePayConfigurationDO basePayConfigurationDO) {
 
-        return BaseFileUtil.getOrSetBaseFileStorageClientMap(baseFileStorageConfigurationDO.getId(), () -> {
+        return PayHelper.getOrSetBasePayClientMap(basePayConfigurationDO.getId(), () -> {
 
-            return MinioClient.builder().endpoint(baseFileStorageConfigurationDO.getUploadEndpoint())
-                .credentials(baseFileStorageConfigurationDO.getAccessKey(),
-                    baseFileStorageConfigurationDO.getSecretKey()).build();
+            AlipayConfig alipayConfig = getAlipayConfig(basePayConfigurationDO);
+
+            AlipayClient alipayClient = new DefaultAlipayClient(alipayConfig);
+
+            String notifyUrl = basePayConfigurationDO.getNotifyUrl() + "/" + basePayConfigurationDO.getId();
+
+            return new DoPayBO(basePayConfigurationDO, alipayClient, notifyUrl);
 
         });
 
@@ -115,14 +116,8 @@ public class PayAliUtil {
 
         BasePayConfigurationDO basePayConfigurationDO = dto.getBasePayConfigurationDO();
 
-        AlipayConfig alipayConfig = getAlipayConfig(basePayConfigurationDO);
-
-        AlipayClient alipayClient = new DefaultAlipayClient(alipayConfig);
-
-        String notifyUrl = basePayConfigurationDO.getNotifyUrl() + "/" + basePayConfigurationDO.getId();
-
         // 执行支付
-        return func1.call(new DoPayBO(basePayConfigurationDO, alipayClient, notifyUrl));
+        return func1.call(getDoPayBO(basePayConfigurationDO));
 
     }
 
@@ -295,9 +290,10 @@ public class PayAliUtil {
 
         Assert.notBlank(outTradeNo);
 
-        AlipayConfig alipayConfig = getAlipayConfig(basePayConfigurationDO);
+        // 获取：客户端
+        DoPayBO doPayBO = getDoPayBO(basePayConfigurationDO);
 
-        AlipayClient alipayClient = new DefaultAlipayClient(alipayConfig);
+        AlipayClient alipayClient = doPayBO.getAlipayClient();
 
         AlipayTradeQueryModel model = new AlipayTradeQueryModel();
 

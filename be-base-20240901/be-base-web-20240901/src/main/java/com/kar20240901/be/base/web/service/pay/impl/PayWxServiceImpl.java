@@ -26,7 +26,7 @@ public class PayWxServiceImpl implements PayWxService {
      * 通用的处理：回调参数
      */
     @SneakyThrows
-    private void commonHandleNotifyCallBack(HttpServletRequest request, HttpServletResponse response,
+    private void commonHandleNotifyCallBack(HttpServletRequest request,
         Func1<RequestParam, BasePayTradeNotifyBO> func1) {
 
         String signature = request.getHeader("Wechatpay-Signature");
@@ -71,7 +71,7 @@ public class PayWxServiceImpl implements PayWxService {
 
         NotificationParser notificationParser = new NotificationParser(rsaAutoCertificateConfig);
 
-        commonHandleNotifyCallBack(request, response, (requestParam) -> {
+        commonHandleNotifyCallBack(request, (requestParam) -> {
 
             // 以支付通知回调为例，验签、解密并转换成 Transaction
             com.wechat.pay.java.service.partnerpayments.nativepay.model.Transaction transaction =
@@ -114,7 +114,7 @@ public class PayWxServiceImpl implements PayWxService {
 
         NotificationParser notificationParser = new NotificationParser(rsaAutoCertificateConfig);
 
-        commonHandleNotifyCallBack(request, response, (requestParam) -> {
+        commonHandleNotifyCallBack(request, (requestParam) -> {
 
             // 以支付通知回调为例，验签、解密并转换成 Transaction
             com.wechat.pay.java.service.partnerpayments.jsapi.model.Transaction transaction =

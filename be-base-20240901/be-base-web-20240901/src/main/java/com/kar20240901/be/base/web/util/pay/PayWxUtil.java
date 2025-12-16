@@ -25,6 +25,105 @@ import org.springframework.stereotype.Component;
 public class PayWxUtil {
 
     /**
+     * 获取：客户端对象
+     */
+    private static NativePayService getNativePayService(BasePayConfigurationDO basePayConfigurationDO) {
+
+        // 获取：客户端对象
+        Object clientObject = getNativePayServiceClientObject(basePayConfigurationDO);
+
+        if (clientObject instanceof NativePayService) {
+            return (NativePayService)clientObject;
+        }
+
+        PayHelper.clearByIdBasePayClientMap(basePayConfigurationDO.getId());
+
+        return (NativePayService)getNativePayServiceClientObject(basePayConfigurationDO);
+
+    }
+
+    /**
+     * 获取：客户端对象
+     */
+    private static Object getNativePayServiceClientObject(BasePayConfigurationDO basePayConfigurationDO) {
+
+        return PayHelper.getOrSetBasePayClientMap(basePayConfigurationDO.getId(), () -> {
+
+            RSAAutoCertificateConfig rsaAutoCertificateConfig = getRsaAutoCertificateConfig(basePayConfigurationDO);
+
+            return new NativePayService.Builder().config(rsaAutoCertificateConfig).build();
+
+        });
+
+    }
+
+    /**
+     * 获取：客户端对象
+     */
+    private static JsapiServiceExtension getJsapiServiceExtension(BasePayConfigurationDO basePayConfigurationDO) {
+
+        // 获取：客户端对象
+        Object clientObject = getJsapiServiceExtensionClientObject(basePayConfigurationDO);
+
+        if (clientObject instanceof JsapiServiceExtension) {
+            return (JsapiServiceExtension)clientObject;
+        }
+
+        PayHelper.clearByIdBasePayClientMap(basePayConfigurationDO.getId());
+
+        return (JsapiServiceExtension)getJsapiServiceExtensionClientObject(basePayConfigurationDO);
+
+    }
+
+    /**
+     * 获取：客户端对象
+     */
+    private static Object getJsapiServiceExtensionClientObject(BasePayConfigurationDO basePayConfigurationDO) {
+
+        return PayHelper.getOrSetBasePayClientMap(basePayConfigurationDO.getId(), () -> {
+
+            RSAAutoCertificateConfig rsaAutoCertificateConfig = getRsaAutoCertificateConfig(basePayConfigurationDO);
+
+            return new JsapiServiceExtension.Builder().config(rsaAutoCertificateConfig).build();
+
+        });
+
+    }
+
+    /**
+     * 获取：客户端对象
+     */
+    private static H5Service getH5Service(BasePayConfigurationDO basePayConfigurationDO) {
+
+        // 获取：客户端对象
+        Object clientObject = getH5ServiceClientObject(basePayConfigurationDO);
+
+        if (clientObject instanceof H5Service) {
+            return (H5Service)clientObject;
+        }
+
+        PayHelper.clearByIdBasePayClientMap(basePayConfigurationDO.getId());
+
+        return (H5Service)getH5ServiceClientObject(basePayConfigurationDO);
+
+    }
+
+    /**
+     * 获取：客户端对象
+     */
+    private static Object getH5ServiceClientObject(BasePayConfigurationDO basePayConfigurationDO) {
+
+        return PayHelper.getOrSetBasePayClientMap(basePayConfigurationDO.getId(), () -> {
+
+            RSAAutoCertificateConfig rsaAutoCertificateConfig = getRsaAutoCertificateConfig(basePayConfigurationDO);
+
+            return new H5Service.Builder().config(rsaAutoCertificateConfig).build();
+
+        });
+
+    }
+
+    /**
      * 获取：RSAAutoCertificateConfig 对象
      */
     public static RSAAutoCertificateConfig getRsaAutoCertificateConfig(BasePayConfigurationDO basePayConfigurationDO) {
@@ -33,17 +132,6 @@ public class PayWxUtil {
             .privateKey(basePayConfigurationDO.getPrivateKey())
             .merchantSerialNumber(basePayConfigurationDO.getMerchantSerialNumber())
             .apiV3Key(basePayConfigurationDO.getApiV3Key()).build();
-
-    }
-
-    /**
-     * 获取：NativePayService 对象
-     */
-    private static NativePayService getNativePayService(BasePayConfigurationDO basePayConfigurationDO) {
-
-        RSAAutoCertificateConfig rsaAutoCertificateConfig = getRsaAutoCertificateConfig(basePayConfigurationDO);
-
-        return new NativePayService.Builder().config(rsaAutoCertificateConfig).build();
 
     }
 
@@ -107,17 +195,6 @@ public class PayWxUtil {
         Transaction transaction = nativePayService.queryOrderByOutTradeNo(queryRequest);
 
         return BasePayTradeStatusEnum.getByStatus(transaction.getTradeState().name());
-
-    }
-
-    /**
-     * 获取：JsapiServiceExtension 对象
-     */
-    private static JsapiServiceExtension getJsapiServiceExtension(BasePayConfigurationDO basePayConfigurationDO) {
-
-        RSAAutoCertificateConfig rsaAutoCertificateConfig = getRsaAutoCertificateConfig(basePayConfigurationDO);
-
-        return new JsapiServiceExtension.Builder().config(rsaAutoCertificateConfig).build();
 
     }
 
@@ -191,17 +268,6 @@ public class PayWxUtil {
         Transaction transaction = jsapiServiceExtension.queryOrderByOutTradeNo(queryRequest);
 
         return BasePayTradeStatusEnum.getByStatus(transaction.getTradeState().name());
-
-    }
-
-    /**
-     * 获取：H5Service 对象
-     */
-    private static H5Service getH5Service(BasePayConfigurationDO basePayConfigurationDO) {
-
-        RSAAutoCertificateConfig rsaAutoCertificateConfig = getRsaAutoCertificateConfig(basePayConfigurationDO);
-
-        return new H5Service.Builder().config(rsaAutoCertificateConfig).build();
 
     }
 
