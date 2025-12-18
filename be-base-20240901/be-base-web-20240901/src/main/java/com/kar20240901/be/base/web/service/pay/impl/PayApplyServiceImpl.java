@@ -11,8 +11,8 @@ import com.kar20240901.be.base.web.model.domain.pay.BasePayDO;
 import com.kar20240901.be.base.web.model.enums.pay.BasePayTradeStatusEnum;
 import com.kar20240901.be.base.web.service.pay.BasePayService;
 import com.kar20240901.be.base.web.service.pay.PayApplyService;
+import com.kar20240901.be.base.web.util.pay.BasePayUtil;
 import com.kar20240901.be.base.web.util.pay.PayApplyUtil;
-import com.kar20240901.be.base.web.util.pay.PayUtil;
 import java.io.ByteArrayInputStream;
 import java.security.PublicKey;
 import java.security.cert.CertificateFactory;
@@ -91,7 +91,7 @@ public class PayApplyServiceImpl implements PayApplyService {
         basePayTradeNotifyBO.setPayCurrency("CNY");
 
         // 处理：订单回调
-        PayUtil.handleTradeNotify(basePayTradeNotifyBO, null);
+        BasePayUtil.handleTradeNotify(basePayTradeNotifyBO, null);
 
         return "success";
 

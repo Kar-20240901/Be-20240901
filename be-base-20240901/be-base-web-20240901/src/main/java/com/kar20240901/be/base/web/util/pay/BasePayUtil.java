@@ -45,7 +45,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j(topic = LogTopicConstant.PAY)
-public class PayUtil {
+public class BasePayUtil {
 
     private static final Map<Integer, IBasePay> BASE_PAY_MAP = MapUtil.newHashMap();
 
@@ -53,10 +53,12 @@ public class PayUtil {
 
     private static BasePayConfigurationService basePayConfigurationService;
 
-    public PayUtil(@Autowired(required = false) @Nullable List<IBasePay> iBasePayList, BasePayService basePayService,
-        BasePayConfigurationService basePayConfigurationService) {
+    public BasePayUtil(@Autowired(required = false) @Nullable List<IBasePay> iBasePayList,
+        BasePayService basePayService, BasePayConfigurationService basePayConfigurationService) {
 
-        PayUtil.basePayService = basePayService;
+        BasePayUtil.basePayService = basePayService;
+
+        BasePayUtil.basePayConfigurationService = basePayConfigurationService;
 
         if (CollUtil.isNotEmpty(iBasePayList)) {
 
@@ -67,8 +69,6 @@ public class PayUtil {
             }
 
         }
-
-        PayUtil.basePayConfigurationService = basePayConfigurationService;
 
     }
 
@@ -119,7 +119,7 @@ public class PayUtil {
 
         handleBasePayConfigurationDO(dto); // 处理：支付方式
 
-        PayHelper.execPreDoPayConsumer(dto); // 执行：在调用支付前，进行的操作，备注：可以更换支付配置
+        BasePayHelper.execPreDoPayConsumer(dto); // 执行：在调用支付前，进行的操作，备注：可以更换支付配置
 
         IBasePay iBasePay = BASE_PAY_MAP.get(dto.getPayType());
 
@@ -168,11 +168,11 @@ public class PayUtil {
 
             if (dto.getPayType() == null) { // 如果是：默认支付
 
-                basePayConfigurationDO = PayHelper.getDefaultBasePayConfigurationDO();
+                basePayConfigurationDO = BasePayHelper.getDefaultBasePayConfigurationDO();
 
             } else {
 
-                basePayConfigurationDO = PayHelper.getBasePayConfigurationDO(dto.getPayType());
+                basePayConfigurationDO = BasePayHelper.getBasePayConfigurationDO(dto.getPayType());
 
             }
 

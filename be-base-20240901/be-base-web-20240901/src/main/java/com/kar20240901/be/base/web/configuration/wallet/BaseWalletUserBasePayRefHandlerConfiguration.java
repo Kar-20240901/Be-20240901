@@ -15,7 +15,7 @@ import com.kar20240901.be.base.web.service.wallet.BaseUserWalletService;
 import com.kar20240901.be.base.web.util.base.MyThreadUtil;
 import com.kar20240901.be.base.web.util.base.RedissonUtil;
 import com.kar20240901.be.base.web.util.base.TransactionUtil;
-import com.kar20240901.be.base.web.util.pay.PayHelper;
+import com.kar20240901.be.base.web.util.pay.BasePayHelper;
 import java.util.Date;
 import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
@@ -98,7 +98,7 @@ public class BaseWalletUserBasePayRefHandlerConfiguration implements IBasePayRef
                 });
 
                 // 关闭：前端支付弹窗
-                PayHelper.sendBasePayCloseModalTopic(basePayDO);
+                BasePayHelper.sendBasePayCloseModalTopic(basePayDO);
 
             });
 

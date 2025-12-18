@@ -2,6 +2,7 @@ package com.kar20240901.be.base.web.util.kafka;
 
 import cn.hutool.json.JSONUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kar20240901.be.base.web.model.bo.base.BaseDeleteLocalCacheBO;
 import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketByteEventBO;
 import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketStrEventBO;
 import com.kar20240901.be.base.web.model.domain.pay.BasePayDO;
@@ -121,9 +122,18 @@ public class TempKafkaUtil {
     /**
      * 发送消息：删除缓存的 topic
      */
-    public static void sendDeleteCacheTopic(List<String> patternList) {
+    public static void sendDeleteCacheTopic(List<String> keyList) {
 
-        sendStr(BaseKafkaTopicEnum.DELETE_CACHE_TOPIC, patternList);
+        sendStr(BaseKafkaTopicEnum.DELETE_CACHE_TOPIC, keyList);
+
+    }
+
+    /**
+     * 发送消息：删除本地缓存的 topic
+     */
+    public static void sendDeleteLocalCacheTopic(BaseDeleteLocalCacheBO baseDeleteLocalCacheBO) {
+
+        sendStr(BaseKafkaTopicEnum.DELETE_LOCAL_CACHE_TOPIC, baseDeleteLocalCacheBO);
 
     }
 

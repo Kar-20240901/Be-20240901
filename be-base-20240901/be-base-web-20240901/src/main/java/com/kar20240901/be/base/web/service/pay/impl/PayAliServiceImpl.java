@@ -5,9 +5,9 @@ import com.alipay.api.internal.util.AlipaySignature;
 import com.kar20240901.be.base.web.model.bo.pay.BasePayTradeNotifyBO;
 import com.kar20240901.be.base.web.model.domain.pay.BasePayConfigurationDO;
 import com.kar20240901.be.base.web.service.pay.PayAliService;
+import com.kar20240901.be.base.web.util.pay.BasePayHelper;
+import com.kar20240901.be.base.web.util.pay.BasePayUtil;
 import com.kar20240901.be.base.web.util.pay.PayAliUtil;
-import com.kar20240901.be.base.web.util.pay.PayHelper;
-import com.kar20240901.be.base.web.util.pay.PayUtil;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,7 +29,7 @@ public class PayAliServiceImpl implements PayAliService {
     public String notifyCallBack(HttpServletRequest request, long basePayConfigurationId) {
 
         // 获取：支付的参数配置对象
-        BasePayConfigurationDO basePayConfigurationDO = PayHelper.getBasePayConfigurationDO(basePayConfigurationId);
+        BasePayConfigurationDO basePayConfigurationDO = BasePayHelper.getBasePayConfigurationDO(basePayConfigurationId);
 
         if (basePayConfigurationDO == null) {
             return "success";
@@ -90,7 +90,7 @@ public class PayAliServiceImpl implements PayAliService {
             basePayTradeNotifyBO.setPayCurrency("CNY");
 
             // 处理：订单回调
-            PayUtil.handleTradeNotify(basePayTradeNotifyBO, null);
+            BasePayUtil.handleTradeNotify(basePayTradeNotifyBO, null);
 
         }
 

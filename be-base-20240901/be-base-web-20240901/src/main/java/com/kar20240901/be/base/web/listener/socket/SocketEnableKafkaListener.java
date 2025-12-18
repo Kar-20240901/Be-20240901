@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;
 import com.kar20240901.be.base.web.model.configuration.socket.ISocketEnable;
 import com.kar20240901.be.base.web.model.enums.kafka.BaseKafkaTopicEnum;
-import com.kar20240901.be.base.web.util.base.MyTryUtil;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -42,25 +41,21 @@ public class SocketEnableKafkaListener {
 
         acknowledgment.acknowledge();
 
-        MyTryUtil.tryCatch(() -> {
+        Set<Long> socketIdSet = recordList.stream() //
+            .map(it -> JSONUtil.toList(it, Long.class)) //
+            .flatMap(Collection::stream) //
+            .collect(Collectors.toSet());
 
-            Set<Long> socketIdSet = recordList.stream() //
-                .map(it -> JSONUtil.toList(it, Long.class)) //
-                .flatMap(Collection::stream) //
-                .collect(Collectors.toSet());
+        if (CollUtil.isNotEmpty(iSocketEnableList)) {
 
-            if (CollUtil.isNotEmpty(iSocketEnableList)) {
+            for (ISocketEnable item : iSocketEnableList) {
 
-                for (ISocketEnable item : iSocketEnableList) {
-
-                    // 执行：处理
-                    item.handle(socketIdSet);
-
-                }
+                // 执行：处理
+                item.handle(socketIdSet);
 
             }
 
-        });
+        }
 
     }
 

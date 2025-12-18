@@ -36,7 +36,7 @@ public class PayWxUtil {
             return (NativePayService)clientObject;
         }
 
-        PayHelper.clearByIdBasePayClientMap(basePayConfigurationDO.getId());
+        BasePayHelper.clearByIdBasePayClientMap(basePayConfigurationDO.getId());
 
         return (NativePayService)getNativePayServiceClientObject(basePayConfigurationDO);
 
@@ -47,7 +47,7 @@ public class PayWxUtil {
      */
     private static Object getNativePayServiceClientObject(BasePayConfigurationDO basePayConfigurationDO) {
 
-        return PayHelper.getOrSetBasePayClientMap(basePayConfigurationDO.getId(), () -> {
+        return BasePayHelper.getOrSetBasePayClientMap(basePayConfigurationDO.getId(), () -> {
 
             RSAAutoCertificateConfig rsaAutoCertificateConfig = getRsaAutoCertificateConfig(basePayConfigurationDO);
 
@@ -69,7 +69,7 @@ public class PayWxUtil {
             return (JsapiServiceExtension)clientObject;
         }
 
-        PayHelper.clearByIdBasePayClientMap(basePayConfigurationDO.getId());
+        BasePayHelper.clearByIdBasePayClientMap(basePayConfigurationDO.getId());
 
         return (JsapiServiceExtension)getJsapiServiceExtensionClientObject(basePayConfigurationDO);
 
@@ -80,7 +80,7 @@ public class PayWxUtil {
      */
     private static Object getJsapiServiceExtensionClientObject(BasePayConfigurationDO basePayConfigurationDO) {
 
-        return PayHelper.getOrSetBasePayClientMap(basePayConfigurationDO.getId(), () -> {
+        return BasePayHelper.getOrSetBasePayClientMap(basePayConfigurationDO.getId(), () -> {
 
             RSAAutoCertificateConfig rsaAutoCertificateConfig = getRsaAutoCertificateConfig(basePayConfigurationDO);
 
@@ -102,7 +102,7 @@ public class PayWxUtil {
             return (H5Service)clientObject;
         }
 
-        PayHelper.clearByIdBasePayClientMap(basePayConfigurationDO.getId());
+        BasePayHelper.clearByIdBasePayClientMap(basePayConfigurationDO.getId());
 
         return (H5Service)getH5ServiceClientObject(basePayConfigurationDO);
 
@@ -113,7 +113,7 @@ public class PayWxUtil {
      */
     private static Object getH5ServiceClientObject(BasePayConfigurationDO basePayConfigurationDO) {
 
-        return PayHelper.getOrSetBasePayClientMap(basePayConfigurationDO.getId(), () -> {
+        return BasePayHelper.getOrSetBasePayClientMap(basePayConfigurationDO.getId(), () -> {
 
             RSAAutoCertificateConfig rsaAutoCertificateConfig = getRsaAutoCertificateConfig(basePayConfigurationDO);
 

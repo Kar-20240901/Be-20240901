@@ -7,10 +7,11 @@ import com.kar20240901.be.base.web.model.configuration.pay.IBasePayRefHandler;
 import com.kar20240901.be.base.web.model.constant.log.LogTopicConstant;
 import com.kar20240901.be.base.web.model.domain.pay.BasePayDO;
 import com.kar20240901.be.base.web.model.enums.kafka.BaseKafkaTopicEnum;
-import com.kar20240901.be.base.web.util.base.MyTryUtil;
 import com.kar20240901.be.base.web.util.kafka.TempKafkaHelper;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Resource;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,11 +35,11 @@ public class BasePayTradeNotifyKafkaListener {
     private static final Map<Integer, IBasePayRefHandler> BASE_PAY_REF_HANDLER_MAP = MapUtil.newHashMap();
 
     // 目的：Long 转 String，Enum 转 code
-    private static ObjectMapper objectMapper;
+    @Resource
+    ObjectMapper objectMapper;
 
     public BasePayTradeNotifyKafkaListener(
-        @Autowired(required = false) @Nullable List<IBasePayRefHandler> iBasePayRefHandlerList,
-        ObjectMapper objectMapper) {
+        @Autowired(required = false) @Nullable List<IBasePayRefHandler> iBasePayRefHandlerList) {
 
         if (CollUtil.isNotEmpty(iBasePayRefHandlerList)) {
 
@@ -50,31 +51,28 @@ public class BasePayTradeNotifyKafkaListener {
 
         }
 
-        BasePayTradeNotifyKafkaListener.objectMapper = objectMapper;
-
     }
 
+    @SneakyThrows
     @KafkaHandler
     public void receive(@Payload String recordStr, Acknowledgment acknowledgment) {
 
-        MyTryUtil.tryCatchFinally(() -> {
+        acknowledgment.acknowledge();
 
-            if (TempKafkaHelper.notHandleKafkaTopicCheck(TOPIC_LIST)) {
-                return;
-            }
+        if (TempKafkaHelper.notHandleKafkaTopicCheck(TOPIC_LIST)) {
+            return;
+        }
 
-            BasePayDO basePayDO = objectMapper.readValue(recordStr, BasePayDO.class);
+        BasePayDO basePayDO = objectMapper.readValue(recordStr, BasePayDO.class);
 
-            IBasePayRefHandler iBasePayRefHandler = BASE_PAY_REF_HANDLER_MAP.get(basePayDO.getRefType());
+        IBasePayRefHandler iBasePayRefHandler = BASE_PAY_REF_HANDLER_MAP.get(basePayDO.getRefType());
 
-            if (iBasePayRefHandler != null) {
+        if (iBasePayRefHandler != null) {
 
-                // 处理：具体的业务
-                iBasePayRefHandler.handle(basePayDO);
+            // 处理：具体的业务
+            iBasePayRefHandler.handle(basePayDO);
 
-            }
-
-        }, acknowledgment::acknowledge);
+        }
 
     }
 

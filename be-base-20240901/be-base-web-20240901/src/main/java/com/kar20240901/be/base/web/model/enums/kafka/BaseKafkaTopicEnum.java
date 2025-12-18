@@ -21,6 +21,8 @@ public enum BaseKafkaTopicEnum implements IKafkaTopic {
 
     // 缓存相关 ↓
 
+    DELETE_LOCAL_CACHE_TOPIC, // 删除本地缓存的 topic
+
     DELETE_CACHE_TOPIC, // 删除缓存的 topic
 
     DELETE_CACHE_BY_PATTERN_TOPIC, // 删除缓存-通配符的 topic

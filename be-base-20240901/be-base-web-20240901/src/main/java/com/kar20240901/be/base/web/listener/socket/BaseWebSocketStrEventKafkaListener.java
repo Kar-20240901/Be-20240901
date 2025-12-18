@@ -4,11 +4,11 @@ import cn.hutool.core.collection.CollUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketStrEventBO;
 import com.kar20240901.be.base.web.model.enums.kafka.BaseKafkaTopicEnum;
-import com.kar20240901.be.base.web.util.base.MyThreadUtil;
-import com.kar20240901.be.base.web.util.base.MyTryUtil;
 import com.kar20240901.be.base.web.util.kafka.TempKafkaHelper;
 import com.kar20240901.be.base.web.util.socket.WebSocketUtil;
 import java.util.List;
+import javax.annotation.Resource;
+import lombok.SneakyThrows;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
@@ -27,48 +27,32 @@ public class BaseWebSocketStrEventKafkaListener {
         CollUtil.newArrayList(BaseKafkaTopicEnum.BASE_WEB_SOCKET_STR_EVENT_TOPIC.name());
 
     // 目的：Long 转 String，Enum 转 code
-    private static ObjectMapper objectMapper;
+    @Resource
+    ObjectMapper objectMapper;
 
-    public BaseWebSocketStrEventKafkaListener(ObjectMapper objectMapper) {
-
-        BaseWebSocketStrEventKafkaListener.objectMapper = objectMapper;
-
-    }
-
+    @SneakyThrows
     @KafkaHandler
     public void receive(@Payload List<String> recordList, Acknowledgment acknowledgment) {
 
         acknowledgment.acknowledge();
 
-        MyTryUtil.tryCatch(() -> {
+        if (TempKafkaHelper.notHandleKafkaTopicCheck(TOPIC_LIST)) {
+            return;
+        }
 
-            if (TempKafkaHelper.notHandleKafkaTopicCheck(TOPIC_LIST)) {
-                return;
-            }
+        if (CollUtil.isEmpty(recordList)) {
+            return;
+        }
 
-            if (CollUtil.isNotEmpty(recordList)) {
+        for (String item : recordList) {
 
-                MyThreadUtil.execute(() -> {
+            BaseWebSocketStrEventBO<?> baseWebSocketStrEventBO =
+                objectMapper.readValue(item, BaseWebSocketStrEventBO.class);
 
-                    for (String item : recordList) {
+            // 发送：webSocket消息
+            WebSocketUtil.sendStr(baseWebSocketStrEventBO);
 
-                        MyTryUtil.tryCatch(() -> {
-
-                            BaseWebSocketStrEventBO<?> baseWebSocketStrEventBO =
-                                objectMapper.readValue(item, BaseWebSocketStrEventBO.class);
-
-                            // 发送：webSocket消息
-                            WebSocketUtil.sendStr(baseWebSocketStrEventBO);
-
-                        });
-
-                    }
-
-                });
-
-            }
-
-        });
+        }
 
     }
 

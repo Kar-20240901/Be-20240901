@@ -11,7 +11,7 @@ import com.kar20240901.be.base.web.model.dto.pay.BasePayPageDTO;
 import com.kar20240901.be.base.web.model.enums.pay.BasePayTradeStatusEnum;
 import com.kar20240901.be.base.web.service.pay.BasePayService;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
-import com.kar20240901.be.base.web.util.pay.PayUtil;
+import com.kar20240901.be.base.web.util.pay.BasePayUtil;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -74,7 +74,7 @@ public class BasePayServiceImpl extends ServiceImpl<BasePayMapper, BasePayDO> im
     public BasePayTradeStatusEnum payTradeStatusByIdThird(NotNullId notNullId) {
 
         // 查询：第三方的支付状态
-        return PayUtil.query(notNullId.getId().toString());
+        return BasePayUtil.query(notNullId.getId().toString());
 
     }
 

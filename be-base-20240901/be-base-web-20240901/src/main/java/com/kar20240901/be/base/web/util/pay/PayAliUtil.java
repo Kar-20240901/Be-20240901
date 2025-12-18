@@ -53,7 +53,7 @@ public class PayAliUtil {
             return (DoPayBO)clientObject;
         }
 
-        PayHelper.clearByIdBasePayClientMap(basePayConfigurationDO.getId());
+        BasePayHelper.clearByIdBasePayClientMap(basePayConfigurationDO.getId());
 
         return (DoPayBO)getClientObject(basePayConfigurationDO);
 
@@ -64,7 +64,7 @@ public class PayAliUtil {
      */
     private static Object getClientObject(BasePayConfigurationDO basePayConfigurationDO) {
 
-        return PayHelper.getOrSetBasePayClientMap(basePayConfigurationDO.getId(), () -> {
+        return BasePayHelper.getOrSetBasePayClientMap(basePayConfigurationDO.getId(), () -> {
 
             AlipayConfig alipayConfig = getAlipayConfig(basePayConfigurationDO);
 

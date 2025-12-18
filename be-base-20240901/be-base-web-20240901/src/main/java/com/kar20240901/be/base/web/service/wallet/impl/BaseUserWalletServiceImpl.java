@@ -32,7 +32,7 @@ import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import com.kar20240901.be.base.web.util.base.RedissonUtil;
-import com.kar20240901.be.base.web.util.pay.PayUtil;
+import com.kar20240901.be.base.web.util.pay.BasePayUtil;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -236,7 +236,7 @@ public class BaseUserWalletServiceImpl extends ServiceImpl<BaseUserWalletMapper,
         PayDTO payDTO = getPayDTO(dto, currentUserId);
 
         // 调用支付
-        BasePayDO basePayDO = PayUtil.pay(payDTO, tempBasePayDO -> {
+        BasePayDO basePayDO = BasePayUtil.pay(payDTO, tempBasePayDO -> {
 
             tempBasePayDO.setRefType(BasePayRefTypeEnum.WALLET_RECHARGE_USER.getCode());
             tempBasePayDO.setRefId(currentUserId);

@@ -2,8 +2,6 @@ package com.kar20240901.be.base.web.listener.socket;
 
 import cn.hutool.core.collection.CollUtil;
 import com.kar20240901.be.base.web.model.enums.kafka.BaseKafkaTopicEnum;
-import com.kar20240901.be.base.web.util.base.MyThreadUtil;
-import com.kar20240901.be.base.web.util.base.MyTryUtil;
 import com.kar20240901.be.base.web.util.kafka.TempKafkaHelper;
 import com.kar20240901.be.base.web.util.socket.WebSocketUtil;
 import java.util.List;
@@ -26,24 +24,12 @@ public class BaseWebSocketByteEventKafkaListener {
     @KafkaHandler
     public void receive(@Payload byte[] byteArr) {
 
-        MyTryUtil.tryCatch(() -> {
+        if (TempKafkaHelper.notHandleKafkaTopicCheck(TOPIC_LIST)) {
+            return;
+        }
 
-            if (TempKafkaHelper.notHandleKafkaTopicCheck(TOPIC_LIST)) {
-                return;
-            }
-
-            MyThreadUtil.execute(() -> {
-
-                MyTryUtil.tryCatch(() -> {
-
-                    // 发送：webSocket消息
-                    WebSocketUtil.sendByte(byteArr);
-
-                });
-
-            });
-
-        });
+        // 发送：webSocket消息
+        WebSocketUtil.sendByte(byteArr);
 
     }
 

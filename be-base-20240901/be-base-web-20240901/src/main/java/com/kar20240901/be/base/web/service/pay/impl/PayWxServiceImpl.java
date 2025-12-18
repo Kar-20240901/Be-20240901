@@ -5,8 +5,8 @@ import cn.hutool.core.lang.func.Func1;
 import com.kar20240901.be.base.web.model.bo.pay.BasePayTradeNotifyBO;
 import com.kar20240901.be.base.web.model.domain.pay.BasePayConfigurationDO;
 import com.kar20240901.be.base.web.service.pay.PayWxService;
-import com.kar20240901.be.base.web.util.pay.PayHelper;
-import com.kar20240901.be.base.web.util.pay.PayUtil;
+import com.kar20240901.be.base.web.util.pay.BasePayHelper;
+import com.kar20240901.be.base.web.util.pay.BasePayUtil;
 import com.kar20240901.be.base.web.util.pay.PayWxUtil;
 import com.wechat.pay.java.core.RSAAutoCertificateConfig;
 import com.wechat.pay.java.core.notification.NotificationParser;
@@ -48,7 +48,7 @@ public class PayWxServiceImpl implements PayWxService {
         BasePayTradeNotifyBO basePayTradeNotifyBO = func1.call(requestParam);
 
         // 处理：订单回调
-        PayUtil.handleTradeNotify(basePayTradeNotifyBO, null);
+        BasePayUtil.handleTradeNotify(basePayTradeNotifyBO, null);
 
     }
 
@@ -60,7 +60,7 @@ public class PayWxServiceImpl implements PayWxService {
     public void notifyCallBackNative(HttpServletRequest request, HttpServletResponse response,
         long basePayConfigurationId) {
 
-        BasePayConfigurationDO basePayConfigurationDO = PayHelper.getBasePayConfigurationDO(basePayConfigurationId);
+        BasePayConfigurationDO basePayConfigurationDO = BasePayHelper.getBasePayConfigurationDO(basePayConfigurationId);
 
         if (basePayConfigurationDO == null) {
             return;
@@ -103,7 +103,7 @@ public class PayWxServiceImpl implements PayWxService {
     public void notifyCallBackJsApi(HttpServletRequest request, HttpServletResponse response,
         long basePayConfigurationId) {
 
-        BasePayConfigurationDO basePayConfigurationDO = PayHelper.getBasePayConfigurationDO(basePayConfigurationId);
+        BasePayConfigurationDO basePayConfigurationDO = BasePayHelper.getBasePayConfigurationDO(basePayConfigurationId);
 
         if (basePayConfigurationDO == null) {
             return;

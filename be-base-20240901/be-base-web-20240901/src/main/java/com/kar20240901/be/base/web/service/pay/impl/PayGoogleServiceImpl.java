@@ -7,9 +7,9 @@ import com.kar20240901.be.base.web.model.dto.pay.BasePayGooglePayConsumeDTO;
 import com.kar20240901.be.base.web.model.dto.pay.BasePayGooglePaySuccessDTO;
 import com.kar20240901.be.base.web.model.enums.pay.BasePayTradeStatusEnum;
 import com.kar20240901.be.base.web.service.pay.PayGoogleService;
+import com.kar20240901.be.base.web.util.pay.BasePayHelper;
+import com.kar20240901.be.base.web.util.pay.BasePayUtil;
 import com.kar20240901.be.base.web.util.pay.PayGoogleUtil;
-import com.kar20240901.be.base.web.util.pay.PayHelper;
-import com.kar20240901.be.base.web.util.pay.PayUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class PayGoogleServiceImpl implements PayGoogleService {
     public boolean paySuccess(BasePayGooglePaySuccessDTO dto) {
 
         BasePayConfigurationDO basePayConfigurationDO =
-            PayHelper.getBasePayConfigurationDO(dto.getBasePayConfigurationId());
+            BasePayHelper.getBasePayConfigurationDO(dto.getBasePayConfigurationId());
 
         if (basePayConfigurationDO == null) {
             return false;
@@ -44,7 +44,7 @@ public class PayGoogleServiceImpl implements PayGoogleService {
         basePayTradeNotifyBO.setOutTradeNo(dto.getId().toString());
 
         // 处理：订单回调
-        return PayUtil.handleTradeNotify(basePayTradeNotifyBO, basePayDO -> {
+        return BasePayUtil.handleTradeNotify(basePayTradeNotifyBO, basePayDO -> {
 
             basePayDO.setToken(dto.getToken());
 
@@ -60,7 +60,7 @@ public class PayGoogleServiceImpl implements PayGoogleService {
     public boolean payConsume(BasePayGooglePayConsumeDTO dto) {
 
         BasePayConfigurationDO basePayConfigurationDO =
-            PayHelper.getBasePayConfigurationDO(dto.getBasePayConfigurationId());
+            BasePayHelper.getBasePayConfigurationDO(dto.getBasePayConfigurationId());
 
         if (basePayConfigurationDO == null) {
             return false;
@@ -79,7 +79,7 @@ public class PayGoogleServiceImpl implements PayGoogleService {
         basePayTradeNotifyBO.setOutTradeNo(dto.getId().toString());
 
         // 处理：订单回调
-        return PayUtil.handleTradeNotify(basePayTradeNotifyBO, null);
+        return BasePayUtil.handleTradeNotify(basePayTradeNotifyBO, null);
 
     }
 

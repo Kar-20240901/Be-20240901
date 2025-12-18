@@ -23,13 +23,13 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PayHelper {
+public class BasePayHelper {
 
     private static BasePayConfigurationService basePayConfigurationService;
 
     @Resource
     public void setBasePayConfigurationService(BasePayConfigurationService basePayConfigurationService) {
-        PayHelper.basePayConfigurationService = basePayConfigurationService;
+        BasePayHelper.basePayConfigurationService = basePayConfigurationService;
     }
 
     // key：BasePayConfigurationId，value：客户端
