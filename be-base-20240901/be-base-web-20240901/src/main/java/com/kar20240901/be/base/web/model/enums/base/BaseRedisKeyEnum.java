@@ -59,6 +59,9 @@ public enum BaseRedisKeyEnum implements IRedisKey {
     PRE_PASSWORD_ERROR_COUNT, // 密码错误总数：锁【用户主键 id】
 
     // 【_CACHE】结尾 ↓
+
+    PRE_FILE_EXPIRE_URL_CACHE, // 文件临时预览地址缓存，后面跟：【文件主键 id】，目的：防止频繁去获取临时地址
+
     SIGN_CONFIGURATION_CACHE, // 用户登录注册相关配置缓存
 
     GOOGLE_ACCESS_TOKEN_CACHE, // google接口调用凭据

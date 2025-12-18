@@ -110,6 +110,15 @@ public class TempKafkaUtil {
     }
 
     /**
+     * 发送消息：删除缓存-通配符的 topic
+     */
+    public static void sendDeleteCacheByPatternTopic(List<String> patternList) {
+
+        sendStr(BaseKafkaTopicEnum.DELETE_CACHE_BY_PATTERN_TOPIC, patternList);
+
+    }
+
+    /**
      * 发送消息：删除缓存的 topic
      */
     public static void sendDeleteCacheTopic(List<String> patternList) {

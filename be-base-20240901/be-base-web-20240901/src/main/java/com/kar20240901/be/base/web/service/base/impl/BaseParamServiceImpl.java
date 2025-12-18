@@ -144,7 +144,8 @@ public class BaseParamServiceImpl extends ServiceImpl<BaseParamMapper, BaseParam
 
         if (uuidSet == null) {
 
-            TempKafkaUtil.sendDeleteCacheTopic(CollUtil.newArrayList(TempRedisKeyEnum.PRE_PARAM_UUID.name() + ":*"));
+            TempKafkaUtil.sendDeleteCacheByPatternTopic(
+                CollUtil.newArrayList(TempRedisKeyEnum.PRE_PARAM_UUID.name() + ":*"));
 
         } else {
 

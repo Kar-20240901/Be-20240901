@@ -4,11 +4,11 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;
 import com.kar20240901.be.base.web.model.enums.kafka.BaseKafkaTopicEnum;
 import com.kar20240901.be.base.web.util.base.MyThreadUtil;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RBatch;
 import org.redisson.api.RedissonClient;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -22,11 +22,12 @@ import org.springframework.stereotype.Component;
 @Component
 @KafkaListener(topics = "#{__listener.TOPIC_LIST}", groupId = "#{__listener.GROUP_ID}", batch = "true")
 @Slf4j
-public class DeleteCacheKafkaListener {
+public class DeleteCacheByPatternKafkaListener {
 
-    public static final List<String> TOPIC_LIST = CollUtil.newArrayList(BaseKafkaTopicEnum.DELETE_CACHE_TOPIC.name());
+    public static final List<String> TOPIC_LIST =
+        CollUtil.newArrayList(BaseKafkaTopicEnum.DELETE_CACHE_BY_PATTERN_TOPIC.name());
 
-    public static final String GROUP_ID = BaseKafkaTopicEnum.DELETE_CACHE_TOPIC.name();
+    public static final String GROUP_ID = BaseKafkaTopicEnum.DELETE_CACHE_BY_PATTERN_TOPIC.name();
 
     @Resource
     RedissonClient redissonClient;
@@ -39,19 +40,23 @@ public class DeleteCacheKafkaListener {
         // 延迟执行
         MyThreadUtil.schedule(() -> {
 
-            log.info("删除缓存的 kafka监听器：{}", recordList);
+            log.info("删除缓存-通配符的 kafka监听器：{}", recordList);
 
-            List<String> redisKeyList = new ArrayList<>(recordList.size());
+            RBatch rBatch = redissonClient.createBatch();
 
             for (String item : recordList) {
 
-                List<String> redisKeyListTemp = JSONUtil.toList(item, String.class);
+                List<String> redisKeyList = JSONUtil.toList(item, String.class);
 
-                redisKeyList.addAll(redisKeyListTemp);
+                for (String subItem : redisKeyList) {
+
+                    rBatch.getKeys().deleteByPatternAsync(subItem);
+
+                }
 
             }
 
-            redissonClient.getKeys().delete(redisKeyList.toArray(new String[0]));
+            rBatch.execute();
 
         }, new Date(System.currentTimeMillis() + 300));
 

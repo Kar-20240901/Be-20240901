@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 public interface IBaseFileStorage {
 
     // 过期时间，单位：毫秒
-    Integer EXPIRE_TIME = TempConstant.MINUTE_10_EXPIRE_TIME;
+    Integer EXPIRE_TIME = TempConstant.MINUTE_30_EXPIRE_TIME;
 
     /**
      * 存放文件的服务器类型

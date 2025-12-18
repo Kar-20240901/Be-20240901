@@ -11,6 +11,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.MD5;
@@ -92,6 +93,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
@@ -99,6 +101,9 @@ import lombok.SneakyThrows;
 import net.coobird.thumbnailator.Thumbnails;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.redisson.api.RBatch;
+import org.redisson.api.RBuckets;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -166,6 +171,13 @@ public class BaseFileUtil {
     @Resource
     public void setBaseImGroupMapper(BaseImGroupMapper baseImGroupMapper) {
         BaseFileUtil.baseImGroupMapper = baseImGroupMapper;
+    }
+
+    private static RedissonClient redissonClient;
+
+    @Resource
+    public void setRedissonClient(RedissonClient redissonClient) {
+        BaseFileUtil.redissonClient = redissonClient;
     }
 
     // key：BaseFileStorageConfigurationId，value：客户端
@@ -1487,7 +1499,52 @@ public class BaseFileUtil {
 
         List<BaseFileDO> baseFileDoList = baseFileService.lambdaQuery().in(TempEntity::getId, fileIdSet).list();
 
+        // redisKey的前缀
+        String redisPreKey = BaseRedisKeyEnum.PRE_FILE_EXPIRE_URL_CACHE + ":";
+
+        String[] redisFileIdArr =
+            baseFileDoList.stream().map(it -> BaseRedisKeyEnum.PRE_FILE_EXPIRE_URL_CACHE + ":" + it.getId())
+                .toArray(String[]::new);
+
+        RBuckets rBuckets = redissonClient.getBuckets();
+
+        Map<String, String> redisMap = rBuckets.get(redisFileIdArr);
+
         Map<Long, String> result = new HashMap<>(baseFileDoList.size());
+
+        for (Entry<String, String> item : redisMap.entrySet()) {
+
+            String value = item.getValue();
+
+            if (StrUtil.isBlank(value)) {
+                continue;
+            }
+
+            String key = item.getKey();
+
+            String fileIdStr = StrUtil.removePrefix(key, redisPreKey);
+
+            Long fileId = NumberUtil.parseLong(fileIdStr, TempConstant.NEGATIVE_ONE);
+
+            if (fileId < 0) {
+                continue;
+            }
+
+            result.put(fileId, item.getValue());
+
+        }
+
+        CollUtil.filter(baseFileDoList, i -> {
+
+            return result.containsKey(i.getId());
+
+        });
+
+        if (CollUtil.isEmpty(baseFileDoList)) {
+            return result;
+        }
+
+        RBatch rBatch = redissonClient.createBatch();
 
         // 移除：文件存储系统里面的文件
         handleBaseFileStorage(baseFileDoList, (iBaseFileStorage, entry, baseFileStorageConfigurationDO) -> {
@@ -1497,13 +1554,20 @@ public class BaseFileUtil {
                 String expireUrl =
                     iBaseFileStorage.getExpireUrl(item.getUri(), item.getBucketName(), baseFileStorageConfigurationDO);
 
-                if (StrUtil.isNotBlank(expireUrl)) {
-                    result.put(item.getId(), expireUrl);
+                if (StrUtil.isBlank(expireUrl)) {
+                    continue;
                 }
+
+                result.put(item.getId(), expireUrl);
+
+                rBatch.getBucket(redisPreKey + item.getId())
+                    .setAsync(expireUrl, IBaseFileStorage.EXPIRE_TIME, TimeUnit.MILLISECONDS);
 
             }
 
         });
+
+        rBatch.execute();
 
         return result;
 

@@ -139,7 +139,8 @@ public class BaseRoleServiceImpl extends ServiceImpl<BaseRoleMapper, BaseRoleDO>
 
         if (userIdSet == null) {
 
-            TempKafkaUtil.sendDeleteCacheTopic(CollUtil.newArrayList(TempRedisKeyEnum.PRE_USER_AUTH.name() + ":*"));
+            TempKafkaUtil.sendDeleteCacheByPatternTopic(
+                CollUtil.newArrayList(TempRedisKeyEnum.PRE_USER_AUTH.name() + ":*"));
 
         } else {
 
@@ -163,7 +164,8 @@ public class BaseRoleServiceImpl extends ServiceImpl<BaseRoleMapper, BaseRoleDO>
 
         if (userIdSet == null) {
 
-            TempKafkaUtil.sendDeleteCacheTopic(CollUtil.newArrayList(TempRedisKeyEnum.PRE_USER_MENU.name() + ":*"));
+            TempKafkaUtil.sendDeleteCacheByPatternTopic(
+                CollUtil.newArrayList(TempRedisKeyEnum.PRE_USER_MENU.name() + ":*"));
 
         } else {
 
