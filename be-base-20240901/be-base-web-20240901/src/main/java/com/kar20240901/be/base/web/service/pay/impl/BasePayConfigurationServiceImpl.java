@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.pay.BasePayConfigurationMapper;
+import com.kar20240901.be.base.web.model.bo.base.BaseDeleteLocalCacheBO;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoIdSuper;
@@ -16,9 +17,11 @@ import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.pay.BasePayConfigurationInsertOrUpdateDTO;
 import com.kar20240901.be.base.web.model.dto.pay.BasePayConfigurationPageDTO;
+import com.kar20240901.be.base.web.model.enums.base.BaseDeleteLocalCacheTypeEnum;
 import com.kar20240901.be.base.web.model.vo.base.DictVO;
 import com.kar20240901.be.base.web.service.pay.BasePayConfigurationService;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
+import com.kar20240901.be.base.web.util.kafka.TempKafkaUtil;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -75,6 +78,15 @@ public class BasePayConfigurationServiceImpl extends ServiceImpl<BasePayConfigur
 
         saveOrUpdate(basePayConfigurationDO);
 
+        if (dto.getId() != null) {
+
+            // 删除客户端缓存
+            TempKafkaUtil.sendDeleteLocalCacheTopic(
+                new BaseDeleteLocalCacheBO(BaseDeleteLocalCacheTypeEnum.DELETE_PAY_CLIENT_CACHE,
+                    CollUtil.newHashSet(dto.getId())));
+
+        }
+
         return TempBizCodeEnum.OK;
 
     }
@@ -120,9 +132,9 @@ public class BasePayConfigurationServiceImpl extends ServiceImpl<BasePayConfigur
      * 通过主键id，查看详情
      */
     @Override
-    public BasePayConfigurationDO infoById(NotNullId notNullId) {
+    public BasePayConfigurationDO infoById(NotNullId dto) {
 
-        return lambdaQuery().eq(TempEntity::getId, notNullId.getId()).one();
+        return lambdaQuery().eq(TempEntity::getId, dto.getId()).one();
 
     }
 
@@ -130,15 +142,19 @@ public class BasePayConfigurationServiceImpl extends ServiceImpl<BasePayConfigur
      * 批量删除
      */
     @Override
-    public String deleteByIdSet(NotEmptyIdSet notEmptyIdSet) {
+    public String deleteByIdSet(NotEmptyIdSet dto) {
 
-        Set<Long> idSet = notEmptyIdSet.getIdSet();
+        Set<Long> idSet = dto.getIdSet();
 
         if (CollUtil.isEmpty(idSet)) {
             return TempBizCodeEnum.OK;
         }
 
         removeByIds(idSet); // 根据 idSet删除
+
+        // 删除客户端缓存
+        TempKafkaUtil.sendDeleteLocalCacheTopic(
+            new BaseDeleteLocalCacheBO(BaseDeleteLocalCacheTypeEnum.DELETE_PAY_CLIENT_CACHE, idSet));
 
         return TempBizCodeEnum.OK;
 

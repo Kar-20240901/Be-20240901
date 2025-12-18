@@ -51,15 +51,15 @@ public class BasePayConfigurationController {
     @Operation(summary = "通过主键id，查看详情")
     @PostMapping("/infoById")
     @PreAuthorize("hasAuthority('basePayConfiguration:infoById')")
-    public R<BasePayConfigurationDO> infoById(@RequestBody @Valid NotNullId notNullId) {
-        return R.okData(baseService.infoById(notNullId));
+    public R<BasePayConfigurationDO> infoById(@RequestBody @Valid NotNullId dto) {
+        return R.okData(baseService.infoById(dto));
     }
 
     @Operation(summary = "批量删除")
     @PostMapping("/deleteByIdSet")
     @PreAuthorize("hasAuthority('basePayConfiguration:deleteByIdSet')")
-    public R<String> deleteByIdSet(@RequestBody @Valid NotEmptyIdSet notEmptyIdSet) {
-        return R.okMsg(baseService.deleteByIdSet(notEmptyIdSet));
+    public R<String> deleteByIdSet(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okMsg(baseService.deleteByIdSet(dto));
     }
 
 }

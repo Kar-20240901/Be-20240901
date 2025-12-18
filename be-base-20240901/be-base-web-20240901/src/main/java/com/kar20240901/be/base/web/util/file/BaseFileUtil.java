@@ -1480,6 +1480,9 @@ public class BaseFileUtil {
 
     }
 
+    // redisKey的前缀
+    public static final String REDIS_PRE_KEY = BaseRedisKeyEnum.PRE_FILE_EXPIRE_URL_CACHE + ":";
+
     /**
      * 批量获取：文件的 url-临时
      */
@@ -1499,11 +1502,8 @@ public class BaseFileUtil {
 
         List<BaseFileDO> baseFileDoList = baseFileService.lambdaQuery().in(TempEntity::getId, fileIdSet).list();
 
-        // redisKey的前缀
-        String redisPreKey = BaseRedisKeyEnum.PRE_FILE_EXPIRE_URL_CACHE + ":";
-
         String[] redisFileIdArr =
-            baseFileDoList.stream().map(it -> BaseRedisKeyEnum.PRE_FILE_EXPIRE_URL_CACHE + ":" + it.getId())
+            baseFileDoList.stream().map(it -> REDIS_PRE_KEY + it.getStorageConfigurationId() + ":" + it.getId())
                 .toArray(String[]::new);
 
         RBuckets rBuckets = redissonClient.getBuckets();
@@ -1522,9 +1522,9 @@ public class BaseFileUtil {
 
             String key = item.getKey();
 
-            String fileIdStr = StrUtil.removePrefix(key, redisPreKey);
+            List<String> splitList = StrUtil.splitTrim(key, StrUtil.COLON);
 
-            Long fileId = NumberUtil.parseLong(fileIdStr, TempConstant.NEGATIVE_ONE);
+            Long fileId = NumberUtil.parseLong(splitList.get(splitList.size() - 1), TempConstant.NEGATIVE_ONE);
 
             if (fileId < 0) {
                 continue;
@@ -1560,8 +1560,9 @@ public class BaseFileUtil {
 
                 result.put(item.getId(), expireUrl);
 
-                rBatch.getBucket(redisPreKey + item.getId())
-                    .setAsync(expireUrl, IBaseFileStorage.EXPIRE_TIME, TimeUnit.MILLISECONDS);
+                rBatch.getBucket(REDIS_PRE_KEY + item.getStorageConfigurationId() + ":" + item.getId())
+                    .setAsync(expireUrl, IBaseFileStorage.EXPIRE_TIME - TempConstant.SECOND_30_EXPIRE_TIME,
+                        TimeUnit.MILLISECONDS);
 
             }
 

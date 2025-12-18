@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BaseFilePrivateDownloadDTO extends NotNullId {
 
-    @Schema(description = "是否返回缩略图")
+    @Schema(description = "是否返回缩略图，默认：true")
     private Boolean thumbnailFlag;
 
     @Schema(description = "缩略图宽度")

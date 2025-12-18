@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.file.BaseFileStorageConfigurationMapper;
+import com.kar20240901.be.base.web.model.bo.base.BaseDeleteLocalCacheBO;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoId;
 import com.kar20240901.be.base.web.model.domain.base.TempEntityNoIdSuper;
@@ -16,8 +17,10 @@ import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileStorageConfigurationInsertOrUpdateDTO;
 import com.kar20240901.be.base.web.model.dto.file.BaseFileStorageConfigurationPageDTO;
+import com.kar20240901.be.base.web.model.enums.base.BaseDeleteLocalCacheTypeEnum;
 import com.kar20240901.be.base.web.service.file.BaseFileStorageConfigurationService;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
+import com.kar20240901.be.base.web.util.kafka.TempKafkaUtil;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 
@@ -61,6 +64,15 @@ public class BaseFileStorageConfigurationServiceImpl
         baseFileStorageConfigurationDO.setCustomDomain(MyEntityUtil.getNotNullStr(dto.getCustomDomain()));
 
         saveOrUpdate(baseFileStorageConfigurationDO);
+
+        if (dto.getId() != null) {
+
+            // 删除客户端缓存
+            TempKafkaUtil.sendDeleteLocalCacheTopic(
+                new BaseDeleteLocalCacheBO(BaseDeleteLocalCacheTypeEnum.DELETE_FILE_SYSTEM_CLIENT_CACHE,
+                    CollUtil.newHashSet(dto.getId())));
+
+        }
 
         return TempBizCodeEnum.OK;
 
@@ -119,6 +131,10 @@ public class BaseFileStorageConfigurationServiceImpl
         }
 
         removeByIds(idSet); // 根据 idSet删除
+
+        // 删除客户端缓存
+        TempKafkaUtil.sendDeleteLocalCacheTopic(
+            new BaseDeleteLocalCacheBO(BaseDeleteLocalCacheTypeEnum.DELETE_FILE_SYSTEM_CLIENT_CACHE, idSet));
 
         return TempBizCodeEnum.OK;
 

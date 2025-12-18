@@ -17,8 +17,8 @@ public interface BasePayConfigurationService extends IService<BasePayConfigurati
 
     Page<DictVO> dictList();
 
-    BasePayConfigurationDO infoById(NotNullId notNullId);
+    BasePayConfigurationDO infoById(NotNullId dto);
 
-    String deleteByIdSet(NotEmptyIdSet notEmptyIdSet);
+    String deleteByIdSet(NotEmptyIdSet dto);
 
 }
