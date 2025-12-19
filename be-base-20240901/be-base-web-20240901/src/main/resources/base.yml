@@ -20,3 +20,4 @@ notLogTopicSet:
   - com.kar20240901.be.base.web.mapper.request.BaseRequestInfoMapper.delete
   - com.kar20240901.be.base.web.mapper.base.BaseApiTokenMapper.updateById
   - com.kar20240901.be.base.web.mapper.socket.BaseSocketRefUserMapper.deleteByIds
+  - com.kar20240901.be.base.web.mapper.sql.BaseSqlSlowMapper.insert

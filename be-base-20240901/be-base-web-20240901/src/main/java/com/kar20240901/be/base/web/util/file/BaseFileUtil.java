@@ -1536,7 +1536,7 @@ public class BaseFileUtil {
 
         CollUtil.filter(baseFileDoList, i -> {
 
-            return result.containsKey(i.getId());
+            return !result.containsKey(i.getId());
 
         });
 
