@@ -6,7 +6,6 @@ import com.kar20240901.be.base.web.util.kafka.TempKafkaHelper;
 import com.kar20240901.be.base.web.util.socket.WebSocketUtil;
 import java.util.List;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
@@ -15,14 +14,13 @@ import org.springframework.stereotype.Component;
  * webSocket字节事件的 kafka监听器
  */
 @Component
-@KafkaListener(topics = "#{__listener.TOPIC_LIST}", groupId = "#{kafkaDynamicGroupIdConfiguration.getGroupId()}",
-    batch = "true", containerFactory = "byteArrayKafkaListenerContainerFactory")
 public class BaseWebSocketByteEventKafkaListener {
 
     public static final List<String> TOPIC_LIST =
         CollUtil.newArrayList(BaseKafkaTopicEnum.BASE_WEB_SOCKET_BYTE_EVENT_TOPIC.name());
 
-    @KafkaHandler
+    @KafkaListener(topics = "#{__listener.TOPIC_LIST}", groupId = "#{kafkaDynamicGroupIdConfiguration.getGroupId()}",
+        batch = "true", containerFactory = "byteArrayKafkaListenerContainerFactory")
     public void receive(List<ConsumerRecord<String, byte[]>> recordList, Acknowledgment acknowledgment) {
 
         acknowledgment.acknowledge();

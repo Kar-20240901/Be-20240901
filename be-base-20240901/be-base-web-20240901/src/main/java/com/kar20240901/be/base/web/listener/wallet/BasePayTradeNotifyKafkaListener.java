@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kar20240901.be.base.web.model.configuration.pay.IBasePayRefHandler;
-import com.kar20240901.be.base.web.model.constant.log.LogTopicConstant;
 import com.kar20240901.be.base.web.model.domain.pay.BasePayDO;
 import com.kar20240901.be.base.web.model.enums.kafka.BaseKafkaTopicEnum;
 import com.kar20240901.be.base.web.util.kafka.TempKafkaHelper;
@@ -12,11 +11,9 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
@@ -25,9 +22,6 @@ import org.springframework.stereotype.Component;
  * 支付订单回调通知的 kafka监听器
  */
 @Component
-@KafkaListener(topics = "#{__listener.TOPIC_LIST}", groupId = "#{kafkaDynamicGroupIdConfiguration.getGroupId()}",
-    batch = "true")
-@Slf4j(topic = LogTopicConstant.PAY)
 public class BasePayTradeNotifyKafkaListener {
 
     public static final List<String> TOPIC_LIST =
@@ -55,7 +49,8 @@ public class BasePayTradeNotifyKafkaListener {
     }
 
     @SneakyThrows
-    @KafkaHandler
+    @KafkaListener(topics = "#{__listener.TOPIC_LIST}", groupId = "#{kafkaDynamicGroupIdConfiguration.getGroupId()}",
+        batch = "true")
     public void receive(List<ConsumerRecord<String, String>> recordList, Acknowledgment acknowledgment) {
 
         acknowledgment.acknowledge();

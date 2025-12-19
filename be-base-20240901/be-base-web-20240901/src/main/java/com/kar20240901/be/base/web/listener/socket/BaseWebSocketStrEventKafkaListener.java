@@ -10,7 +10,6 @@ import java.util.List;
 import javax.annotation.Resource;
 import lombok.SneakyThrows;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
@@ -19,8 +18,6 @@ import org.springframework.stereotype.Component;
  * webSocket字符串事件的 kafka监听器
  */
 @Component
-@KafkaListener(topics = "#{__listener.TOPIC_LIST}", groupId = "#{kafkaDynamicGroupIdConfiguration.getGroupId()}",
-    batch = "true")
 public class BaseWebSocketStrEventKafkaListener {
 
     public static final List<String> TOPIC_LIST =
@@ -31,7 +28,8 @@ public class BaseWebSocketStrEventKafkaListener {
     ObjectMapper objectMapper;
 
     @SneakyThrows
-    @KafkaHandler
+    @KafkaListener(topics = "#{__listener.TOPIC_LIST}", groupId = "#{kafkaDynamicGroupIdConfiguration.getGroupId()}",
+        batch = "true")
     public void receive(List<ConsumerRecord<String, String>> recordList, Acknowledgment acknowledgment) {
 
         acknowledgment.acknowledge();

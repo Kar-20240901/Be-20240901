@@ -10,11 +10,9 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
@@ -23,15 +21,10 @@ import org.springframework.stereotype.Component;
  * 删除缓存的 kafka监听器
  */
 @Component
-@KafkaListener(topics = "#{__listener.TOPIC_LIST}", groupId = "#{kafkaDynamicGroupIdConfiguration.getGroupId()}",
-    batch = "true")
-@Slf4j
 public class DeleteLocalCacheKafkaListener {
 
     public static final List<String> TOPIC_LIST =
         CollUtil.newArrayList(BaseKafkaTopicEnum.DELETE_LOCAL_CACHE_TOPIC.name());
-
-    public static final String GROUP_ID = BaseKafkaTopicEnum.DELETE_LOCAL_CACHE_TOPIC.name();
 
     private static final Map<Integer, IBaseDeleteLocalCache> BASE_DELETE_LOCAL_CACHE_MAP = MapUtil.newHashMap();
 
@@ -55,7 +48,8 @@ public class DeleteLocalCacheKafkaListener {
     }
 
     @SneakyThrows
-    @KafkaHandler
+    @KafkaListener(topics = "#{__listener.TOPIC_LIST}", groupId = "#{kafkaDynamicGroupIdConfiguration.getGroupId()}",
+        batch = "true")
     public void receive(List<ConsumerRecord<String, String>> recordList, Acknowledgment acknowledgment) {
 
         acknowledgment.acknowledge();
