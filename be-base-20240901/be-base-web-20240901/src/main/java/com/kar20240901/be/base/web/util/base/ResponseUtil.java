@@ -2,10 +2,10 @@ package com.kar20240901.be.base.web.util.base;
 
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.json.JSONUtil;
+import com.kar20240901.be.base.web.model.configuration.file.IBaseFileStorage;
 import com.kar20240901.be.base.web.model.interfaces.base.IBizCode;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.HashMap;
@@ -108,10 +108,10 @@ public class ResponseUtil {
     }
 
     /**
-     * 获取 excel下载的 OutputStream
+     * 设置 excel下载的 OutputHeader
      */
     @SneakyThrows
-    public static OutputStream getExcelOutputStream(HttpServletResponse response, String fileName) {
+    public static void setExcelOutputHeader(HttpServletResponse response, String fileName) {
 
         // 备注：.xls是：application/vnd.ms-excel
         // 备注：.xlsx是：application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
@@ -120,15 +120,13 @@ public class ResponseUtil {
         response.setHeader("Content-Disposition",
             "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8") + ".xlsx");
 
-        return response.getOutputStream();
-
     }
 
     /**
-     * 获取 word下载的 OutputStream
+     * 设置 word下载的 OutputHeader
      */
     @SneakyThrows
-    public static OutputStream getWordOutputStream(HttpServletResponse response, String fileName) {
+    public static void setWordOutputHeader(HttpServletResponse response, String fileName) {
 
         // 备注：.doc是：application/msword
         // 备注：.docx是：application/vnd.openxmlformats-officedocument.wordprocessingml.document
@@ -138,19 +136,35 @@ public class ResponseUtil {
         response.setHeader("Content-Disposition",
             "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8") + ".docx");
 
-        return response.getOutputStream();
+    }
+
+    /**
+     * 设置 文件下载的 OutputHeader
+     */
+    @SneakyThrows
+    public static void setFileOutputHeader(HttpServletResponse response, String fileName) {
+
+        response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
 
     }
 
     /**
-     * 获取 文件下载的 OutputStream
+     * 设置缓存过期时间
      */
     @SneakyThrows
-    public static OutputStream getOutputStream(HttpServletResponse response, String fileName) {
+    public static void setCacheControl(HttpServletResponse response) {
 
-        response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
+        response.setHeader("Cache-Control", "public, max-age=" + (IBaseFileStorage.EXPIRE_TIME / 1000));
 
-        return response.getOutputStream();
+    }
+
+    /**
+     * 设置响应头
+     */
+    @SneakyThrows
+    public static void setContentTypeOctetStream(HttpServletResponse response) {
+
+        response.setHeader("Content-Type", "application/octet-stream");
 
     }
 

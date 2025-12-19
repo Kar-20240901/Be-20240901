@@ -218,7 +218,12 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         // 支持范围下载
         ResponseUtil.acceptRangeDownload(response);
 
-        if (StrUtil.isNotBlank(baseFilePrivateDownloadVO.getContentRangeHeader())) {
+        if (StrUtil.isBlank(baseFilePrivateDownloadVO.getContentRangeHeader())) {
+
+            // 设置：缓存过期时间
+            ResponseUtil.setCacheControl(response);
+
+        } else {
 
             // 设置：响应码
             ResponseUtil.rangeDownload(response);
@@ -228,7 +233,10 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         }
 
         // 设置：文件名
-        ResponseUtil.getOutputStream(response, baseFilePrivateDownloadVO.getFileName());
+        ResponseUtil.setFileOutputHeader(response, baseFilePrivateDownloadVO.getFileName());
+
+        // 设置：响应头
+        ResponseUtil.setContentTypeOctetStream(response);
 
         // 推送
         ResponseUtil.flush(response, inputStream);
