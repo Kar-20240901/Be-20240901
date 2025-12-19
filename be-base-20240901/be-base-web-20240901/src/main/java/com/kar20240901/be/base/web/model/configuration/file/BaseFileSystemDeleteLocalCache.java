@@ -38,7 +38,7 @@ public class BaseFileSystemDeleteLocalCache implements IBaseDeleteLocalCache {
 
             BaseFileUtil.clearByIdBaseFileStorageClientMap(item);
 
-            patternList.add(BaseFileUtil.REDIS_PRE_KEY + item + "*");
+            patternList.add(BaseFileUtil.REDIS_PRE_KEY + item + ":*");
 
         }
 

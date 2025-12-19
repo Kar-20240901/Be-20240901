@@ -69,6 +69,7 @@ import com.kar20240901.be.base.web.service.file.BaseFileTransferService;
 import com.kar20240901.be.base.web.util.base.CallBack;
 import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
+import com.kar20240901.be.base.web.util.base.MyExceptionUtil;
 import com.kar20240901.be.base.web.util.base.MyStrUtil;
 import com.kar20240901.be.base.web.util.base.MyTryUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
@@ -189,8 +190,21 @@ public class BaseFileUtil {
     public static Object getOrSetBaseFileStorageClientMap(Long baseFileStorageConfigurationId,
         Func0<Object> getDefaultObject) {
 
-        return BASE_FILE_STORAGE_CLIENT_MAP.computeIfAbsent(baseFileStorageConfigurationId,
-            k -> getDefaultObject.callWithRuntimeException());
+        return BASE_FILE_STORAGE_CLIENT_MAP.computeIfAbsent(baseFileStorageConfigurationId, k -> {
+
+            try {
+
+                return getDefaultObject.call();
+
+            } catch (Exception e) {
+
+                MyExceptionUtil.printError(e);
+
+                return null;
+
+            }
+
+        });
 
     }
 
@@ -206,15 +220,19 @@ public class BaseFileUtil {
             return;
         }
 
-        if (object instanceof MinioClient) {
+        MyTryUtil.tryCatch(() -> {
 
-            ((MinioClient)object).close();
+            if (object instanceof MinioClient) {
 
-        } else if (object instanceof OSS) {
+                ((MinioClient)object).close();
 
-            ((OSS)object).shutdown();
+            } else if (object instanceof OSS) {
 
-        }
+                ((OSS)object).shutdown();
+
+            }
+
+        });
 
     }
 
