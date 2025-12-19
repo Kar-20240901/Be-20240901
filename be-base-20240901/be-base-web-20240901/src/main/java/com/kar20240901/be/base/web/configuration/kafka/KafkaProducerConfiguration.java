@@ -22,29 +22,43 @@ public class KafkaProducerConfiguration {
     @Primary
     @Bean
     public ProducerFactory<String, String> stringProducerFactory() {
+
         Map<String, Object> producerPropertiesMap = kafkaProperties.buildProducerProperties();
+
         producerPropertiesMap.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+
         producerPropertiesMap.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+
         return new DefaultKafkaProducerFactory<>(producerPropertiesMap);
+
     }
 
     @Bean
     public ProducerFactory<String, byte[]> byteArrayProducerFactory() {
+
         Map<String, Object> producerPropertiesMap = kafkaProperties.buildProducerProperties();
+
         producerPropertiesMap.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+
         producerPropertiesMap.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
+
         return new DefaultKafkaProducerFactory<>(producerPropertiesMap);
+
     }
 
     @Primary
     @Bean
     public KafkaTemplate<String, String> stringKafkaTemplate() {
+
         return new KafkaTemplate<>(stringProducerFactory());
+
     }
 
     @Bean
     public KafkaTemplate<String, byte[]> byteArrayKafkaTemplate() {
+
         return new KafkaTemplate<>(byteArrayProducerFactory());
+
     }
 
 }

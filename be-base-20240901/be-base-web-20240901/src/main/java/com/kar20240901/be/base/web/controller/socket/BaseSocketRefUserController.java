@@ -34,15 +34,15 @@ public class BaseSocketRefUserController {
     @Operation(summary = "批量：下线用户")
     @PostMapping("/offlineByIdSet")
     @PreAuthorize("hasAuthority('baseSocketRefUser:insertOrUpdate')")
-    public R<String> offlineByIdSet(@RequestBody @Valid NotEmptyIdSet notEmptyIdSet) {
-        return R.okMsg(baseService.offlineByIdSet(notEmptyIdSet));
+    public R<String> offlineByIdSet(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okMsg(baseService.offlineByIdSet(dto));
     }
 
     @Operation(summary = "批量：开关控制台")
     @PostMapping("/changeConsoleFlagByIdSet")
     @PreAuthorize("hasAuthority('baseSocketRefUser:insertOrUpdate')")
-    public R<String> changeConsoleFlagByIdSet(@RequestBody @Valid NotEmptyIdSet notEmptyIdSet) {
-        return R.okMsg(baseService.changeConsoleFlagByIdSet(notEmptyIdSet));
+    public R<String> changeConsoleFlagByIdSet(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okMsg(baseService.changeConsoleFlagByIdSet(dto));
     }
 
 }

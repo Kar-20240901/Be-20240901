@@ -12,6 +12,7 @@ import com.kar20240901.be.base.web.util.socket.WebSocketUtil;
 import java.util.List;
 import java.util.Set;
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -99,7 +100,7 @@ public class TempKafkaUtil {
      *                json字符串的内容，然后再拼接 byteArr的内容，进行传输
      */
     public static void sendBaseWebSocketByteEventTopic(BaseWebSocketByteEventBO<?> baseWebSocketByteEventBO,
-        byte[] byteArr) {
+        byte @Nullable [] byteArr) {
 
         String jsonStr = JSONUtil.toJsonStr(baseWebSocketByteEventBO);
 

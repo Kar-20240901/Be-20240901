@@ -10,8 +10,8 @@ public interface BaseSocketRefUserService extends IService<BaseSocketRefUserDO> 
 
     Page<BaseSocketRefUserDO> myPage(BaseSocketRefUserPageDTO dto);
 
-    String offlineByIdSet(NotEmptyIdSet notEmptyIdSet);
+    String offlineByIdSet(NotEmptyIdSet dto);
 
-    String changeConsoleFlagByIdSet(NotEmptyIdSet notEmptyIdSet);
+    String changeConsoleFlagByIdSet(NotEmptyIdSet dto);
 
 }

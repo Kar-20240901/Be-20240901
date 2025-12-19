@@ -128,7 +128,7 @@ public class WebSocketUtil {
     /**
      * 获取：需要发送的二进制数据
      */
-    public static byte[] getSendByteArr(String jsonStr, byte[] byteDataArr) {
+    public static byte[] getSendByteArr(String jsonStr, byte @Nullable [] byteDataArr) {
 
         if (StrUtil.isBlank(jsonStr)) {
             return null;

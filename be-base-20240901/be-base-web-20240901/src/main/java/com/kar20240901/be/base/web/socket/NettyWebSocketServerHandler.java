@@ -425,7 +425,7 @@ public class NettyWebSocketServerHandler extends ChannelInboundHandlerAdapter {
      * 处理：二进制数据
      */
     @Nullable
-    public static <T> HandleByteArrResultBO<T> handleByteArr(byte[] byteArr, Class<T> tClass) {
+    public static <T> HandleByteArrResultBO<T> handleByteArr(byte @Nullable [] byteArr, Class<T> tClass) {
 
         if (byteArr == null) {
             return null;
