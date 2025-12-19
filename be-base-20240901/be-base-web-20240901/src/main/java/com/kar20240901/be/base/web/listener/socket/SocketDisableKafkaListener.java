@@ -10,11 +10,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 /**
@@ -37,23 +37,23 @@ public class SocketDisableKafkaListener {
     }
 
     @KafkaHandler
-    public void receive(@Payload List<String> recordList, Acknowledgment acknowledgment) {
+    public void receive(List<ConsumerRecord<String, String>> recordList, Acknowledgment acknowledgment) {
 
         acknowledgment.acknowledge();
 
         Set<Long> socketIdSet = recordList.stream() //
-            .map(it -> JSONUtil.toList(it, Long.class)) //
+            .map(it -> JSONUtil.toList(it.value(), Long.class)) //
             .flatMap(Collection::stream) //
             .collect(Collectors.toSet());
 
-        if (CollUtil.isNotEmpty(iSocketDisableList)) {
+        if (CollUtil.isEmpty(iSocketDisableList)) {
+            return;
+        }
 
-            for (ISocketDisable item : iSocketDisableList) {
+        for (ISocketDisable item : iSocketDisableList) {
 
-                // 执行：处理
-                item.handle(socketIdSet);
-
-            }
+            // 执行：处理
+            item.handle(socketIdSet);
 
         }
 

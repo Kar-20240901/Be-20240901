@@ -8,12 +8,12 @@ import java.util.Date;
 import java.util.List;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.redisson.api.RBatch;
 import org.redisson.api.RedissonClient;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 /**
@@ -33,7 +33,7 @@ public class DeleteCacheByPatternKafkaListener {
     RedissonClient redissonClient;
 
     @KafkaHandler
-    public void receive(@Payload List<String> recordList, Acknowledgment acknowledgment) {
+    public void receive(List<ConsumerRecord<String, String>> recordList, Acknowledgment acknowledgment) {
 
         acknowledgment.acknowledge();
 
@@ -44,9 +44,9 @@ public class DeleteCacheByPatternKafkaListener {
 
             RBatch rBatch = redissonClient.createBatch();
 
-            for (String item : recordList) {
+            for (ConsumerRecord<String, String> item : recordList) {
 
-                List<String> redisKeyList = JSONUtil.toList(item, String.class);
+                List<String> redisKeyList = JSONUtil.toList(item.value(), String.class);
 
                 for (String subItem : redisKeyList) {
 

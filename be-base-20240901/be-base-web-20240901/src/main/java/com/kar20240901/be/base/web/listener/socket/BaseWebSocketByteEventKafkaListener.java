@@ -5,9 +5,10 @@ import com.kar20240901.be.base.web.model.enums.kafka.BaseKafkaTopicEnum;
 import com.kar20240901.be.base.web.util.kafka.TempKafkaHelper;
 import com.kar20240901.be.base.web.util.socket.WebSocketUtil;
 import java.util.List;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,21 +16,27 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @KafkaListener(topics = "#{__listener.TOPIC_LIST}", groupId = "#{kafkaDynamicGroupIdConfiguration.getGroupId()}",
-    batch = "false", containerFactory = "byteArrayKafkaListenerContainerFactory")
+    batch = "true", containerFactory = "byteArrayKafkaListenerContainerFactory")
 public class BaseWebSocketByteEventKafkaListener {
 
     public static final List<String> TOPIC_LIST =
         CollUtil.newArrayList(BaseKafkaTopicEnum.BASE_WEB_SOCKET_BYTE_EVENT_TOPIC.name());
 
     @KafkaHandler
-    public void receive(@Payload byte[] byteArr) {
+    public void receive(List<ConsumerRecord<String, byte[]>> recordList, Acknowledgment acknowledgment) {
+
+        acknowledgment.acknowledge();
 
         if (TempKafkaHelper.notHandleKafkaTopicCheck(TOPIC_LIST)) {
             return;
         }
 
-        // 发送：webSocket消息
-        WebSocketUtil.sendByte(byteArr);
+        for (ConsumerRecord<String, byte[]> item : recordList) {
+
+            // 发送：webSocket消息
+            WebSocketUtil.sendByte(item.value());
+
+        }
 
     }
 

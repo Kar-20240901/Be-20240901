@@ -11,12 +11,12 @@ import java.util.Map;
 import javax.annotation.Resource;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 /**
@@ -56,13 +56,14 @@ public class DeleteLocalCacheKafkaListener {
 
     @SneakyThrows
     @KafkaHandler
-    public void receive(@Payload List<String> recordList, Acknowledgment acknowledgment) {
+    public void receive(List<ConsumerRecord<String, String>> recordList, Acknowledgment acknowledgment) {
 
         acknowledgment.acknowledge();
 
-        for (String item : recordList) {
+        for (ConsumerRecord<String, String> item : recordList) {
 
-            BaseDeleteLocalCacheBO baseDeleteLocalCacheBO = objectMapper.readValue(item, BaseDeleteLocalCacheBO.class);
+            BaseDeleteLocalCacheBO baseDeleteLocalCacheBO =
+                objectMapper.readValue(item.value(), BaseDeleteLocalCacheBO.class);
 
             IBaseDeleteLocalCache iBaseDeleteLocalCache =
                 BASE_DELETE_LOCAL_CACHE_MAP.get(baseDeleteLocalCacheBO.getType().getCode());

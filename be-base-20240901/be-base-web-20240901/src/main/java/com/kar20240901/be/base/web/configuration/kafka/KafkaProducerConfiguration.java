@@ -21,19 +21,30 @@ public class KafkaProducerConfiguration {
 
     @Primary
     @Bean
-    public KafkaTemplate<String, String> stringKafkaTemplate() {
+    public ProducerFactory<String, String> stringProducerFactory() {
         Map<String, Object> producerPropertiesMap = kafkaProperties.buildProducerProperties();
+        producerPropertiesMap.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         producerPropertiesMap.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        ProducerFactory<String, String> producerFactory = new DefaultKafkaProducerFactory<>(producerPropertiesMap);
-        return new KafkaTemplate<>(producerFactory);
+        return new DefaultKafkaProducerFactory<>(producerPropertiesMap);
+    }
+
+    @Bean
+    public ProducerFactory<String, byte[]> byteArrayProducerFactory() {
+        Map<String, Object> producerPropertiesMap = kafkaProperties.buildProducerProperties();
+        producerPropertiesMap.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        producerPropertiesMap.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
+        return new DefaultKafkaProducerFactory<>(producerPropertiesMap);
+    }
+
+    @Primary
+    @Bean
+    public KafkaTemplate<String, String> stringKafkaTemplate() {
+        return new KafkaTemplate<>(stringProducerFactory());
     }
 
     @Bean
     public KafkaTemplate<String, byte[]> byteArrayKafkaTemplate() {
-        Map<String, Object> producerPropertiesMap = kafkaProperties.buildProducerProperties();
-        producerPropertiesMap.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
-        ProducerFactory<String, byte[]> producerFactory = new DefaultKafkaProducerFactory<>(producerPropertiesMap);
-        return new KafkaTemplate<>(producerFactory);
+        return new KafkaTemplate<>(byteArrayProducerFactory());
     }
 
 }

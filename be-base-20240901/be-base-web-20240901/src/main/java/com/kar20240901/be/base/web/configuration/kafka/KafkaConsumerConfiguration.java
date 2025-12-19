@@ -25,6 +25,7 @@ public class KafkaConsumerConfiguration {
     @Bean
     public ConsumerFactory<String, String> stringConsumerFactory() {
         Map<String, Object> consumerPropertiesMap = kafkaProperties.buildConsumerProperties();
+        consumerPropertiesMap.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         consumerPropertiesMap.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         return new DefaultKafkaConsumerFactory<>(consumerPropertiesMap);
     }
@@ -32,8 +33,8 @@ public class KafkaConsumerConfiguration {
     @Bean
     public ConsumerFactory<String, byte[]> byteArrayConsumerFactory() {
         Map<String, Object> consumerPropertiesMap = kafkaProperties.buildConsumerProperties();
+        consumerPropertiesMap.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         consumerPropertiesMap.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class);
-        consumerPropertiesMap.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
         return new DefaultKafkaConsumerFactory<>(consumerPropertiesMap);
     }
 

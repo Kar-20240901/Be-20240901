@@ -9,10 +9,10 @@ import com.kar20240901.be.base.web.util.socket.WebSocketUtil;
 import java.util.List;
 import javax.annotation.Resource;
 import lombok.SneakyThrows;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 /**
@@ -32,7 +32,7 @@ public class BaseWebSocketStrEventKafkaListener {
 
     @SneakyThrows
     @KafkaHandler
-    public void receive(@Payload List<String> recordList, Acknowledgment acknowledgment) {
+    public void receive(List<ConsumerRecord<String, String>> recordList, Acknowledgment acknowledgment) {
 
         acknowledgment.acknowledge();
 
@@ -40,14 +40,10 @@ public class BaseWebSocketStrEventKafkaListener {
             return;
         }
 
-        if (CollUtil.isEmpty(recordList)) {
-            return;
-        }
-
-        for (String item : recordList) {
+        for (ConsumerRecord<String, String> item : recordList) {
 
             BaseWebSocketStrEventBO<?> baseWebSocketStrEventBO =
-                objectMapper.readValue(item, BaseWebSocketStrEventBO.class);
+                objectMapper.readValue(item.value(), BaseWebSocketStrEventBO.class);
 
             // 发送：webSocket消息
             WebSocketUtil.sendStr(baseWebSocketStrEventBO);

@@ -13,19 +13,20 @@ import java.util.Map;
 import javax.annotation.Resource;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 /**
  * 支付订单回调通知的 kafka监听器
  */
 @Component
-@KafkaListener(topics = "#{__listener.TOPIC_LIST}", groupId = "#{kafkaDynamicGroupIdConfiguration.getGroupId()}")
+@KafkaListener(topics = "#{__listener.TOPIC_LIST}", groupId = "#{kafkaDynamicGroupIdConfiguration.getGroupId()}",
+    batch = "true")
 @Slf4j(topic = LogTopicConstant.PAY)
 public class BasePayTradeNotifyKafkaListener {
 
@@ -55,7 +56,7 @@ public class BasePayTradeNotifyKafkaListener {
 
     @SneakyThrows
     @KafkaHandler
-    public void receive(@Payload String recordStr, Acknowledgment acknowledgment) {
+    public void receive(List<ConsumerRecord<String, String>> recordList, Acknowledgment acknowledgment) {
 
         acknowledgment.acknowledge();
 
@@ -63,14 +64,22 @@ public class BasePayTradeNotifyKafkaListener {
             return;
         }
 
-        BasePayDO basePayDO = objectMapper.readValue(recordStr, BasePayDO.class);
+        if (CollUtil.isEmpty(BASE_PAY_REF_HANDLER_MAP)) {
+            return;
+        }
 
-        IBasePayRefHandler iBasePayRefHandler = BASE_PAY_REF_HANDLER_MAP.get(basePayDO.getRefType());
+        for (ConsumerRecord<String, String> item : recordList) {
 
-        if (iBasePayRefHandler != null) {
+            BasePayDO basePayDO = objectMapper.readValue(item.value(), BasePayDO.class);
 
-            // 处理：具体的业务
-            iBasePayRefHandler.handle(basePayDO);
+            IBasePayRefHandler iBasePayRefHandler = BASE_PAY_REF_HANDLER_MAP.get(basePayDO.getRefType());
+
+            if (iBasePayRefHandler != null) {
+
+                // 处理：具体的业务
+                iBasePayRefHandler.handle(basePayDO);
+
+            }
 
         }
 
