@@ -82,7 +82,7 @@ public class BasePayConfigurationServiceImpl extends ServiceImpl<BasePayConfigur
 
             // 删除客户端缓存
             TempKafkaUtil.sendDeleteLocalCacheTopic(
-                new BaseDeleteLocalCacheBO(BaseDeleteLocalCacheTypeEnum.DELETE_PAY_CLIENT_CACHE,
+                new BaseDeleteLocalCacheBO(BaseDeleteLocalCacheTypeEnum.DELETE_PAY_CLIENT_CACHE.getCode(),
                     CollUtil.newHashSet(dto.getId())));
 
         }
@@ -154,7 +154,7 @@ public class BasePayConfigurationServiceImpl extends ServiceImpl<BasePayConfigur
 
         // 删除客户端缓存
         TempKafkaUtil.sendDeleteLocalCacheTopic(
-            new BaseDeleteLocalCacheBO(BaseDeleteLocalCacheTypeEnum.DELETE_PAY_CLIENT_CACHE, idSet));
+            new BaseDeleteLocalCacheBO(BaseDeleteLocalCacheTypeEnum.DELETE_PAY_CLIENT_CACHE.getCode(), idSet));
 
         return TempBizCodeEnum.OK;
 

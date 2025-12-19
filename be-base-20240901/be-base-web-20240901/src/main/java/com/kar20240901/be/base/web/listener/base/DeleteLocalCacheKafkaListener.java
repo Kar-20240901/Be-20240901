@@ -60,7 +60,7 @@ public class DeleteLocalCacheKafkaListener {
                 objectMapper.readValue(item.value(), BaseDeleteLocalCacheBO.class);
 
             IBaseDeleteLocalCache iBaseDeleteLocalCache =
-                BASE_DELETE_LOCAL_CACHE_MAP.get(baseDeleteLocalCacheBO.getType().getCode());
+                BASE_DELETE_LOCAL_CACHE_MAP.get(baseDeleteLocalCacheBO.getType());
 
             if (iBaseDeleteLocalCache == null) {
                 continue;

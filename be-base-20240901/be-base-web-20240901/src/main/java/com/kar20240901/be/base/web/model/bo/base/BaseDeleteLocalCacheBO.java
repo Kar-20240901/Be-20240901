@@ -12,8 +12,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BaseDeleteLocalCacheBO {
 
+    /**
+     * {@link IBaseDeleteLocalCacheType}
+     */
     @Schema(description = "类型")
-    private IBaseDeleteLocalCacheType type;
+    private Integer type;
 
     @Schema(description = "关联的 id集合")
     private Set<Long> refIdSet;

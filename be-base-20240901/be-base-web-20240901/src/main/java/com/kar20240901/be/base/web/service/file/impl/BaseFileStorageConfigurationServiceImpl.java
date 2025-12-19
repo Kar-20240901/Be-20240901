@@ -69,7 +69,7 @@ public class BaseFileStorageConfigurationServiceImpl
 
             // 删除客户端缓存
             TempKafkaUtil.sendDeleteLocalCacheTopic(
-                new BaseDeleteLocalCacheBO(BaseDeleteLocalCacheTypeEnum.DELETE_FILE_SYSTEM_CLIENT_CACHE,
+                new BaseDeleteLocalCacheBO(BaseDeleteLocalCacheTypeEnum.DELETE_FILE_SYSTEM_CLIENT_CACHE.getCode(),
                     CollUtil.newHashSet(dto.getId())));
 
         }
@@ -134,7 +134,7 @@ public class BaseFileStorageConfigurationServiceImpl
 
         // 删除客户端缓存
         TempKafkaUtil.sendDeleteLocalCacheTopic(
-            new BaseDeleteLocalCacheBO(BaseDeleteLocalCacheTypeEnum.DELETE_FILE_SYSTEM_CLIENT_CACHE, idSet));
+            new BaseDeleteLocalCacheBO(BaseDeleteLocalCacheTypeEnum.DELETE_FILE_SYSTEM_CLIENT_CACHE.getCode(), idSet));
 
         return TempBizCodeEnum.OK;
 

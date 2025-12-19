@@ -16,12 +16,12 @@ public enum TempBizCodeEnum implements IBizCode {
     RESULT_OK(200, TempBizCodeEnum.OK), //
     RESULT_SEND_OK(200, TempBizCodeEnum.SEND_OK), //
 
-    RESULT_SYS_ERROR(100010, "系统异常，请联系管理员"), //
-    PARAMETER_CHECK_ERROR(100011, "参数校验出现问题"), //
-    ILLEGAL_REQUEST(100021, "非法请求"), //
-    PLEASE_DELETE_THE_CHILD_NODE_FIRST(100031, "请先删除子节点"), //
-    API_INSUFFICIENT_PERMISSIONS(100041, "接口权限不足"), //
-    INSUFFICIENT_PERMISSIONS(100051, "权限不足"), //
+    RESULT_SYS_ERROR(100010, "系统异常，请联系管理员"), // 备注：如果为 200010，则表示是网关错误
+    PARAMETER_CHECK_ERROR(100021, "参数校验出现问题"), //
+    ILLEGAL_REQUEST(100031, "非法请求"), //
+    PLEASE_DELETE_THE_CHILD_NODE_FIRST(100041, "请先删除子节点"), //
+    API_INSUFFICIENT_PERMISSIONS(100051, "接口权限不足"), //
+    INSUFFICIENT_PERMISSIONS(100061, "权限不足"), //
 
     THE_ACCOUNT_IS_LOGGED_IN_ELSEWHERE(100111, "账号在其他地方登录，您被迫下线"), //
     ACCOUNT_IS_DISABLED(100111, "账户被冻结，请联系管理员"), //

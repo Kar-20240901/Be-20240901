@@ -8,8 +8,8 @@ public interface SecurityConstant {
 
     String JWT_PREFIX = "Bearer ";
 
-    String REQUEST_HEADER_CATEGORY = "category"; // 请求类别
+    String REQUEST_HEADER_CATEGORY = "Category"; // 请求类别
 
-    String BE_REQUEST_ID = "BeRequestId"; // 请求的 id
+    String BE_REQUEST_ID = "Be-Request-Id"; // 请求的 id
 
 }
