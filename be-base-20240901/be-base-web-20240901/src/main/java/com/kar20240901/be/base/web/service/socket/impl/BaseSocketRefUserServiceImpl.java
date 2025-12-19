@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.socket.BaseSocketRefUserMapper;
-import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketByteEventBO;
 import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketStrEventBO;
 import com.kar20240901.be.base.web.model.domain.base.TempEntity;
 import com.kar20240901.be.base.web.model.domain.socket.BaseSocketRefUserDO;
@@ -116,18 +115,6 @@ public class BaseSocketRefUserServiceImpl extends ServiceImpl<BaseSocketRefUserM
 
         // 发送：webSocket事件
         TempKafkaUtil.sendBaseWebSocketStrEventTopic(baseWebSocketStrEventBO);
-
-        BaseWebSocketByteEventBO<NotNullIdAndNotEmptyLongSet> baseWebSocketByteEventBO =
-            new BaseWebSocketByteEventBO<>();
-
-        baseWebSocketByteEventBO.setUserIdSet(userIdSet);
-
-        baseWebSocketByteEventBO.setBaseSocketRefUserIdSet(dto.getIdSet());
-
-        baseWebSocketByteEventBO.setWebSocketMessageDTO(webSocketMessageDTO);
-
-        // 发送：webSocket事件
-        TempKafkaUtil.sendBaseWebSocketByteEventTopic(baseWebSocketByteEventBO, StrUtil.bytes("hello world"));
 
         return TempBizCodeEnum.OK;
 
