@@ -77,15 +77,12 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
     @Override
     public Page<BaseImApplyFriendSearchApplyFriendVO> searchApplyFriend(BaseImApplyFriendSearchApplyFriendDTO dto) {
 
-        String nickname = dto.getNickname();
-
-        String uuid = dto.getUuid();
+        String searchKey = dto.getSearchKey();
 
         Page<BaseImApplyFriendSearchApplyFriendVO> resPage = new Page<>();
 
-        Page<TempUserInfoDO> page = ChainWrappers.lambdaQueryChain(baseUserInfoMapper)
-            .like(StrUtil.isNotBlank(nickname), TempUserInfoDO::getNickname, nickname)
-            .like(StrUtil.isNotBlank(uuid), TempUserInfoDO::getUuid, uuid)
+        Page<TempUserInfoDO> page = ChainWrappers.lambdaQueryChain(baseUserInfoMapper).or(StrUtil.isNotBlank(searchKey),
+                i -> i.like(TempUserInfoDO::getNickname, searchKey).eq(TempUserInfoDO::getUuid, searchKey))
             .select(TempUserInfoDO::getId, TempUserInfoDO::getNickname, TempUserInfoDO::getAvatarFileId)
             .page(dto.fieldDescDefaultOrderPage("lastActiveTime", true));
 
