@@ -1443,7 +1443,7 @@ public class BaseFileUtil {
     public static Map<Long, String> getPublicUrl(Set<Long> fileIdSet) {
 
         // 先移除：所有 -1的文件 id
-        fileIdSet.removeAll(CollUtil.newHashSet(-1L));
+        fileIdSet.removeAll(CollUtil.newHashSet(TempConstant.NEGATIVE_ONE));
 
         if (CollUtil.isEmpty(fileIdSet)) {
             return MapUtil.newHashMap();

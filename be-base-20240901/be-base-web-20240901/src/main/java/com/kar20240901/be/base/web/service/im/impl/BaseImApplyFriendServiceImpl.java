@@ -97,6 +97,8 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
             notIdIdSet.add(item.getUserId());
         }
 
+        notIdIdSet.add(currentUserId);
+
         Page<TempUserInfoDO> page = ChainWrappers.lambdaQueryChain(baseUserInfoMapper).or(StrUtil.isNotBlank(searchKey),
                 i -> i.like(TempUserInfoDO::getNickname, searchKey).or().eq(TempUserInfoDO::getUuid, searchKey)) //
             .notIn(TempUserInfoDO::getId, notIdIdSet) //
@@ -123,6 +125,10 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
             String avatarUrl = publicUrlMap.get(item.getAvatarFileId());
 
             baseImApplyFriendSearchApplyFriendVO.setAvatarUrl(avatarUrl);
+
+            baseImApplyFriendSearchApplyFriendVO.setUuid(item.getUuid());
+
+            baseImApplyFriendSearchApplyFriendVO.setBio(item.getBio());
 
             list.add(baseImApplyFriendSearchApplyFriendVO);
 
