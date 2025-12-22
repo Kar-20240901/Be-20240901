@@ -126,7 +126,11 @@ public class BaseRequestAop {
 
             for (Object item : proceedingJoinPoint.getArgs()) {
 
-                jsonObject.set(item.getClass().getSimpleName(), JSONUtil.toJsonStr(item));
+                if (item != null) {
+
+                    jsonObject.set(item.getClass().getSimpleName(), JSONUtil.toJsonStr(item));
+
+                }
 
             }
 
