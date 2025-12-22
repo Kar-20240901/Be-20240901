@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.aop;
 
 import cn.hutool.core.exceptions.ExceptionUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.servlet.ServletUtil;
@@ -121,9 +122,13 @@ public class BaseRequestAop {
 
         JSONObject jsonObject = JSONUtil.createObj();
 
-        for (Object item : proceedingJoinPoint.getArgs()) {
+        if (ArrayUtil.isNotEmpty(proceedingJoinPoint.getArgs())) {
 
-            jsonObject.set(item.getClass().getSimpleName(), JSONUtil.toJsonStr(item));
+            for (Object item : proceedingJoinPoint.getArgs()) {
+
+                jsonObject.set(item.getClass().getSimpleName(), JSONUtil.toJsonStr(item));
+
+            }
 
         }
 

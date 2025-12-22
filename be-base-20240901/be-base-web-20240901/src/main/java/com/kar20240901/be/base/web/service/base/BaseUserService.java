@@ -11,6 +11,8 @@ import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.vo.base.BaseUserPageVO;
 import com.kar20240901.be.base.web.model.vo.base.DictVO;
 import com.kar20240901.be.base.web.model.vo.base.TempUserInfoByIdVO;
+import javax.servlet.http.HttpServletResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface BaseUserService extends IService<TempUserDO> {
 
@@ -37,5 +39,9 @@ public interface BaseUserService extends IService<TempUserDO> {
     String signOutByIdSet(NotEmptyIdSet notEmptyIdSet);
 
     String signOutAll();
+
+    String insertBatchByExcel(MultipartFile dto);
+
+    void insertBatchByExcelDownloadTemplate(HttpServletResponse response);
 
 }

@@ -9,6 +9,7 @@ import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.DesensitizedUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.excel.EasyExcel;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -18,6 +19,8 @@ import com.kar20240901.be.base.web.exception.base.BaseBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.base.BaseAuthMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseUserMapper;
+import com.kar20240901.be.base.web.model.bo.base.BaseUserInsertBatchByExcelBO;
+import com.kar20240901.be.base.web.model.bo.base.BaseUserInsertBatchByExcelBoReadListener;
 import com.kar20240901.be.base.web.model.constant.base.ParamConstant;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.constant.base.TempRegexConstant;
@@ -47,6 +50,7 @@ import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import com.kar20240901.be.base.web.util.base.NicknameUtil;
 import com.kar20240901.be.base.web.util.base.PasswordConvertUtil;
 import com.kar20240901.be.base.web.util.base.RedissonUtil;
+import com.kar20240901.be.base.web.util.base.ResponseUtil;
 import com.kar20240901.be.base.web.util.base.SignUtil;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,9 +59,11 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO> implements BaseUserService {
@@ -201,9 +207,13 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
         // 执行
         Long userId = doInsertOrUpdate(dto, redisKeyEnumSet);
 
-        BaseRoleServiceImpl.deleteAuthCache(CollUtil.newHashSet(userId)); // 删除权限缓存
+        if (dto.getId() != null) {
 
-        BaseRoleServiceImpl.deleteMenuCache(CollUtil.newHashSet(userId)); // 删除菜单缓存
+            BaseRoleServiceImpl.deleteAuthCache(CollUtil.newHashSet(userId)); // 删除权限缓存
+
+            BaseRoleServiceImpl.deleteMenuCache(CollUtil.newHashSet(userId)); // 删除菜单缓存
+
+        }
 
         return TempBizCodeEnum.OK;
 
@@ -613,6 +623,34 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
         SignUtil.removeJwt(userIdSet);
 
         return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 批量注册用户
+     */
+    @SneakyThrows
+    @Override
+    public String insertBatchByExcel(MultipartFile dto) {
+
+        EasyExcel.read(dto.getInputStream(), BaseUserInsertBatchByExcelBO.class,
+            new BaseUserInsertBatchByExcelBoReadListener(this)).sheet().doRead();
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 批量注册用户-下载模版
+     */
+    @SneakyThrows
+    @Override
+    public void insertBatchByExcelDownloadTemplate(HttpServletResponse response) {
+
+        ResponseUtil.setExcelOutputHeader(response, "用户导入模版-2025-12-22");
+
+        EasyExcel.write(response.getOutputStream(), BaseUserInsertBatchByExcelBO.class).sheet()
+            .doWrite(new ArrayList<>());
 
     }
 

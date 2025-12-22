@@ -14,12 +14,14 @@ import com.kar20240901.be.base.web.service.base.BaseUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping(value = "/base/user")
@@ -53,8 +55,8 @@ public class BaseUserController {
     @Operation(summary = "通过主键id，查看详情")
     @PostMapping("/infoById")
     @PreAuthorize("hasAuthority('baseUser:infoById')")
-    public R<TempUserInfoByIdVO> infoById(@RequestBody @Valid NotNullId notNullId) {
-        return R.okData(baseService.infoById(notNullId));
+    public R<TempUserInfoByIdVO> infoById(@RequestBody @Valid NotNullId dto) {
+        return R.okData(baseService.infoById(dto));
     }
 
     @Operation(summary = "是否允许后台登录")
@@ -66,15 +68,15 @@ public class BaseUserController {
     @Operation(summary = "批量：注销用户")
     @PostMapping("/deleteByIdSet")
     @PreAuthorize("hasAuthority('baseUser:deleteByIdSet')")
-    public R<String> deleteByIdSet(@RequestBody @Valid NotEmptyIdSet notEmptyIdSet) {
-        return R.okMsg(baseService.deleteByIdSet(notEmptyIdSet));
+    public R<String> deleteByIdSet(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okMsg(baseService.deleteByIdSet(dto));
     }
 
     @Operation(summary = "批量：重置头像")
     @PostMapping("/resetAvatar")
     @PreAuthorize("hasAuthority('baseUser:insertOrUpdate')")
-    public R<String> resetAvatar(@RequestBody @Valid NotEmptyIdSet notEmptyIdSet) {
-        return R.okMsg(baseService.resetAvatar(notEmptyIdSet));
+    public R<String> resetAvatar(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okMsg(baseService.resetAvatar(dto));
     }
 
     @Operation(summary = "批量：修改密码")
@@ -87,22 +89,22 @@ public class BaseUserController {
     @Operation(summary = "批量：解冻")
     @PostMapping("/thaw")
     @PreAuthorize("hasAuthority('baseUser:insertOrUpdate')")
-    public R<String> thaw(@RequestBody @Valid NotEmptyIdSet notEmptyIdSet) {
-        return R.okMsg(baseService.thaw(notEmptyIdSet));
+    public R<String> thaw(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okMsg(baseService.thaw(dto));
     }
 
     @Operation(summary = "批量：冻结")
     @PostMapping("/freeze")
     @PreAuthorize("hasAuthority('baseUser:insertOrUpdate')")
-    public R<String> freeze(@RequestBody @Valid NotEmptyIdSet notEmptyIdSet) {
-        return R.okMsg(baseService.freeze(notEmptyIdSet));
+    public R<String> freeze(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okMsg(baseService.freeze(dto));
     }
 
     @Operation(summary = "批量：退出登录")
     @PostMapping("/signOutByIdSet")
     @PreAuthorize("hasAuthority('baseUser:insertOrUpdate')")
-    public R<String> signOutByIdSet(@RequestBody @Valid NotEmptyIdSet notEmptyIdSet) {
-        return R.okMsg(baseService.signOutByIdSet(notEmptyIdSet));
+    public R<String> signOutByIdSet(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okMsg(baseService.signOutByIdSet(dto));
     }
 
     @Operation(summary = "全部退出登录")
@@ -110,6 +112,19 @@ public class BaseUserController {
     @PreAuthorize("hasAuthority('baseUser:insertOrUpdate')")
     public R<String> signOutAll() {
         return R.okMsg(baseService.signOutAll());
+    }
+
+    @Operation(summary = "批量注册用户")
+    @PostMapping("/insertBatchByExcel")
+    @PreAuthorize("hasAuthority('baseUser:insertOrUpdate')")
+    public R<String> insertBatchByExcel(MultipartFile dto) {
+        return R.okMsg(baseService.insertBatchByExcel(dto));
+    }
+
+    @Operation(summary = "批量注册用户-下载模版")
+    @PostMapping("/insertBatchByExcel/downloadTemplate")
+    public void insertBatchByExcelDownloadTemplate(HttpServletResponse response) {
+        baseService.insertBatchByExcelDownloadTemplate(response);
     }
 
 }
