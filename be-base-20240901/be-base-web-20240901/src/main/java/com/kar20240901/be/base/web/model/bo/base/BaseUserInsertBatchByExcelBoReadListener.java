@@ -85,7 +85,7 @@ public class BaseUserInsertBatchByExcelBoReadListener implements ReadListener<Ba
                 baseUserInsertOrUpdateDTO.setBio(item.getBio());
                 baseUserInsertOrUpdateDTO.setEnableFlag(true);
 
-                if (StrUtil.isNotBlank(item.getPassword())) {
+                if (StrUtil.isNotBlank(item.getOriginPassword())) {
 
                     String originPassword = MyRsaUtil.rsaEncrypt(item.getOriginPassword());
 
