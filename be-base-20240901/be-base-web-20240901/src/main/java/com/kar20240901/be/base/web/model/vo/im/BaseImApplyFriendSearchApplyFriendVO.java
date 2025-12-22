@@ -15,4 +15,10 @@ public class BaseImApplyFriendSearchApplyFriendVO {
     @Schema(description = "用户昵称")
     private String nickname;
 
+    @Schema(description = "用户编码")
+    private String uuid;
+
+    @Schema(description = "个人简介")
+    private String bio;
+
 }

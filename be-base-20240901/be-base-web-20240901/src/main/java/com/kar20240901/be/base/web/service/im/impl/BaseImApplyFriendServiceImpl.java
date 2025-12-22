@@ -77,13 +77,31 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
     @Override
     public Page<BaseImApplyFriendSearchApplyFriendVO> searchApplyFriend(BaseImApplyFriendSearchApplyFriendDTO dto) {
 
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
         String searchKey = dto.getSearchKey();
 
         Page<BaseImApplyFriendSearchApplyFriendVO> resPage = new Page<>();
 
+        List<BaseImFriendDO> baseImFriendDOList =
+            baseImFriendService.lambdaQuery().eq(BaseImFriendDO::getBelongId, currentUserId)
+                .select(BaseImFriendDO::getFriendId).list();
+
+        Set<Long> notIdIdSet = baseImFriendDOList.stream().map(BaseImFriendDO::getFriendId).collect(Collectors.toSet());
+
+        List<BaseImBlockDO> baseImBlockDOList =
+            ChainWrappers.lambdaQueryChain(baseImBlockMapper).eq(BaseImBlockDO::getSourceId, currentUserId)
+                .eq(BaseImBlockDO::getSourceType, BaseImTypeEnum.FRIEND).select(BaseImBlockDO::getUserId).list();
+
+        for (BaseImBlockDO item : baseImBlockDOList) {
+            notIdIdSet.add(item.getUserId());
+        }
+
         Page<TempUserInfoDO> page = ChainWrappers.lambdaQueryChain(baseUserInfoMapper).or(StrUtil.isNotBlank(searchKey),
-                i -> i.like(TempUserInfoDO::getNickname, searchKey).or().eq(TempUserInfoDO::getUuid, searchKey))
-            .select(TempUserInfoDO::getId, TempUserInfoDO::getNickname, TempUserInfoDO::getAvatarFileId)
+                i -> i.like(TempUserInfoDO::getNickname, searchKey).or().eq(TempUserInfoDO::getUuid, searchKey)) //
+            .notIn(TempUserInfoDO::getId, notIdIdSet) //
+            .select(TempUserInfoDO::getId, TempUserInfoDO::getNickname, TempUserInfoDO::getAvatarFileId,
+                TempUserInfoDO::getUuid, TempUserInfoDO::getBio)
             .page(dto.fieldDescDefaultOrderPage("lastActiveTime", true));
 
         Set<Long> avatarFileIdSet = page.getRecords().stream().map(TempUserInfoDO::getAvatarFileId)
