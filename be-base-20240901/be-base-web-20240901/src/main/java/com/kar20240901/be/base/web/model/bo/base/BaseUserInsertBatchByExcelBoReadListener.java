@@ -89,13 +89,13 @@ public class BaseUserInsertBatchByExcelBoReadListener implements ReadListener<Ba
 
                     String originPassword = MyRsaUtil.rsaEncrypt(item.getOriginPassword());
 
-                    item.setOriginPassword(originPassword);
+                    baseUserInsertOrUpdateDTO.setOriginPassword(originPassword);
 
-                    String password = DigestUtil.sha256Hex((DigestUtil.sha512Hex(originPassword)));
+                    String password = DigestUtil.sha256Hex((DigestUtil.sha512Hex(item.getOriginPassword())));
 
                     password = MyRsaUtil.rsaEncrypt(password);
 
-                    item.setPassword(password);
+                    baseUserInsertOrUpdateDTO.setPassword(password);
 
                 }
 
