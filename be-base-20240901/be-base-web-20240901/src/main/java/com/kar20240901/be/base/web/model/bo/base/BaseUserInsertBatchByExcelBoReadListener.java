@@ -11,13 +11,19 @@ import com.kar20240901.be.base.web.util.base.MyRsaUtil;
 import com.kar20240901.be.base.web.util.base.MyTryUtil;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Data;
 
 /**
  * 批量注册用户-处理器
  */
+@Data
 public class BaseUserInsertBatchByExcelBoReadListener implements ReadListener<BaseUserInsertBatchByExcelBO> {
 
     private static final int BATCH_SIZE = 100;
+
+    private int successTotal = 0;
+
+    private int errorTotal = 0;
 
     private final List<BaseUserInsertBatchByExcelBO> baseUserInsertBatchByExcelBOList = new ArrayList<>(BATCH_SIZE);
 
@@ -68,6 +74,8 @@ public class BaseUserInsertBatchByExcelBoReadListener implements ReadListener<Ba
      */
     private void userBatchInsert() {
 
+        setSuccessTotal(getSuccessTotal() + baseUserInsertBatchByExcelBOList.size());
+
         for (BaseUserInsertBatchByExcelBO item : baseUserInsertBatchByExcelBOList) {
 
             MyTryUtil.tryCatch(() -> {
@@ -100,6 +108,12 @@ public class BaseUserInsertBatchByExcelBoReadListener implements ReadListener<Ba
                 }
 
                 baseUserService.insertOrUpdate(baseUserInsertOrUpdateDTO);
+
+            }, e -> {
+
+                setSuccessTotal(getSuccessTotal() - 1);
+
+                setErrorTotal(getErrorTotal() + 1);
 
             });
 

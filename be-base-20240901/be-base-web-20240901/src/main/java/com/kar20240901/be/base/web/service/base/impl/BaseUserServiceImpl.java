@@ -633,10 +633,15 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
     @Override
     public String insertBatchByExcel(MultipartFile dto) {
 
-        EasyExcel.read(dto.getInputStream(), BaseUserInsertBatchByExcelBO.class,
-            new BaseUserInsertBatchByExcelBoReadListener(this)).sheet().doRead();
+        BaseUserInsertBatchByExcelBoReadListener baseUserInsertBatchByExcelBoReadListener =
+            new BaseUserInsertBatchByExcelBoReadListener(this);
 
-        return TempBizCodeEnum.OK;
+        EasyExcel.read(dto.getInputStream(), BaseUserInsertBatchByExcelBO.class,
+            baseUserInsertBatchByExcelBoReadListener).sheet().doRead();
+
+        return StrUtil.format("批量导入完成，成功：{}，失败：{}",
+            baseUserInsertBatchByExcelBoReadListener.getSuccessTotal(),
+            baseUserInsertBatchByExcelBoReadListener.getErrorTotal());
 
     }
 
