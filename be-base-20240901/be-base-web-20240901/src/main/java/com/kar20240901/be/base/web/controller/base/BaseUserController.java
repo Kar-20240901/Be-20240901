@@ -117,8 +117,8 @@ public class BaseUserController {
     @Operation(summary = "批量注册用户")
     @PostMapping("/insertBatchByExcel")
     @PreAuthorize("hasAuthority('baseUser:insertOrUpdate')")
-    public R<String> insertBatchByExcel(MultipartFile dto) {
-        return R.okMsg(baseService.insertBatchByExcel(dto));
+    public R<String> insertBatchByExcel(MultipartFile file) {
+        return R.okMsg(baseService.insertBatchByExcel(file));
     }
 
     @Operation(summary = "批量注册用户-下载模版")
