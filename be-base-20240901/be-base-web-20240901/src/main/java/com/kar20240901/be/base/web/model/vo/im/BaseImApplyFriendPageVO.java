@@ -11,7 +11,7 @@ public class BaseImApplyFriendPageVO {
     @Schema(description = "主键 id")
     private Long id;
 
-    @Schema(description = "状态：101 申请中 201 已通过 301 已拒绝")
+    @Schema(description = "状态：101 申请中 201 已通过 301 已拒绝 401 已取消")
     private BaseImApplyStatusEnum status;
 
     @Schema(description = "申请时间")
@@ -28,5 +28,11 @@ public class BaseImApplyFriendPageVO {
 
     @Schema(description = "目标用户头像")
     private String avatarUrl;
+
+    @Schema(description = "拒绝理由")
+    private String rejectReason;
+
+    @Schema(description = "修改时间")
+    private Date updateTime;
 
 }

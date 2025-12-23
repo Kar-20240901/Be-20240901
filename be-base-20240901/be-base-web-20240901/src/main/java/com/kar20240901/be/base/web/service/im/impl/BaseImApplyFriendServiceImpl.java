@@ -229,7 +229,7 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
                     baseImApplyFriendDO.setStatus(BaseImApplyStatusEnum.APPLYING);
                     baseImApplyFriendDO.setRejectReason("");
                     baseImApplyFriendDO.setApplyTime(new Date());
-                    baseImApplyFriendDO.setApplyContent(dto.getApplyContent());
+                    baseImApplyFriendDO.setApplyContent(MyEntityUtil.getNotNullStr(dto.getApplyContent()));
 
                     saveOrUpdate(baseImApplyFriendDO);
 
@@ -329,7 +329,7 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
                         .eq(BaseImApplyFriendDO::getTargetUserId, baseImApplyFriendDO.getTargetUserId()))
                     .set(BaseImApplyFriendDO::getStatus, BaseImApplyStatusEnum.PASSED)
                     .set(BaseImApplyFriendDO::getRejectReason, "").set(BaseImApplyFriendDO::getSessionId, sessionId)
-                    .update();
+                    .set(BaseImApplyFriendDO::getUpdateTime, new Date()).update();
 
                 // 显示好友申请：两个申请同时显示
                 ChainWrappers.lambdaUpdateChain(baseImApplyFriendExtraMapper)
@@ -395,6 +395,8 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
                 baseImApplyFriendDO.setRejectReason(MyEntityUtil.getNotNullStr(dto.getRejectReason()));
 
                 baseImApplyFriendDO.setStatus(BaseImApplyStatusEnum.REJECTED);
+
+                baseImApplyFriendDO.setUpdateTime(null);
 
                 // 更新数据
                 updateById(baseImApplyFriendDO);
@@ -466,6 +468,8 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
                         R.error("操作失败：该好友申请状态已发生改变，请刷新再试", item);
                     }
                 }
+
+                baseImApplyFriendDO.setUpdateTime(null);
 
                 baseImApplyFriendDO.setStatus(BaseImApplyStatusEnum.CANCELLED);
 
