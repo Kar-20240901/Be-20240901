@@ -32,7 +32,13 @@ public class BaseImApplyFriendPageVO {
     @Schema(description = "拒绝理由")
     private String rejectReason;
 
-    @Schema(description = "修改时间")
+    @Schema(description = "修改时间，包含：申请时间、取消时间、通过时间、拒绝时间")
     private Date updateTime;
+
+    @Schema(description = "目标用户主键 id，用于：拉黑功能")
+    private Long userId;
+
+    @Schema(description = "是否已经拉黑，备注：只有 dto的 toMeFlag生效时，才会返回该值")
+    private Boolean blockFlag;
 
 }

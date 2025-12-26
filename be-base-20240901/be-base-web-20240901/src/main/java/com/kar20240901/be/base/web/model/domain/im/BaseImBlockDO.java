@@ -26,10 +26,10 @@ public class BaseImBlockDO {
     @Schema(description = "创建时间")
     private Date createTime;
 
-    @Schema(description = "用户主键 id")
+    @Schema(description = "目标用户主键 id")
     private Long userId;
 
-    @Schema(description = "会话主键 id，默认为 -1")
+    @Schema(description = "会话主键 id，默认为 -1，暂时未使用，并且值一直为 -1")
     private Long sessionId;
 
     @Schema(description = "拉黑该用户的来源 id，大多数情况下等于 createId")

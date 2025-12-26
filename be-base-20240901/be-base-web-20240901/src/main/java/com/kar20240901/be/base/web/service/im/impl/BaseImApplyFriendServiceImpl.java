@@ -1,5 +1,6 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
@@ -39,6 +40,7 @@ import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import com.kar20240901.be.base.web.util.base.RedissonUtil;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -253,7 +255,9 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
         dto.setToMeFlag(!BooleanUtil.isFalse(dto.getToMeFlag()));
 
-        if (dto.getToMeFlag()) {
+        Boolean toMeFlag = dto.getToMeFlag();
+
+        if (toMeFlag) {
             dto.setStatusTemp(BaseImApplyStatusEnum.CANCELLED);
         }
 
@@ -264,6 +268,15 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
         Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(avatarFileIdSet)).getMap();
 
+        Set<Long> blockUserIdSet = null;
+
+        if (toMeFlag) {
+
+            // 处理：拉黑情况
+            blockUserIdSet = getMyPageForHandleBlock(page, currentUserId);
+
+        }
+
         for (BaseImApplyFriendPageVO item : page.getRecords()) {
 
             String avatarUrl = publicUrlMap.get(item.getAvatarFileId());
@@ -272,9 +285,45 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
             item.setAvatarUrl(avatarUrl);
 
+            if (toMeFlag) {
+
+                item.setBlockFlag(blockUserIdSet.contains(item.getUserId()));
+
+            } else {
+
+                item.setUserId(null);
+
+                item.setBlockFlag(null);
+
+            }
+
         }
 
         return page;
+
+    }
+
+    /**
+     * 处理：拉黑情况
+     */
+    private Set<Long> getMyPageForHandleBlock(Page<BaseImApplyFriendPageVO> page, Long currentUserId) {
+
+        if (CollUtil.isEmpty(page.getRecords())) {
+            return new HashSet<>();
+        }
+
+        List<Long> userIdList =
+            page.getRecords().stream().map(BaseImApplyFriendPageVO::getUserId).collect(Collectors.toList());
+
+        List<BaseImBlockDO> baseImBlockDOList =
+            ChainWrappers.lambdaQueryChain(baseImBlockMapper).eq(BaseImBlockDO::getSourceId, currentUserId)
+                .in(BaseImBlockDO::getUserId, userIdList).select(BaseImBlockDO::getUserId).list();
+
+        if (CollUtil.isEmpty(baseImBlockDOList)) {
+            return new HashSet<>();
+        }
+
+        return baseImBlockDOList.stream().map(BaseImBlockDO::getUserId).collect(Collectors.toSet());
 
     }
 
@@ -325,7 +374,7 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
                 // 更新数据：两个申请同时更新
                 lambdaUpdate().eq(BaseImApplyFriendDO::getUserId, baseImApplyFriendDO.getTargetUserId())
                     .eq(BaseImApplyFriendDO::getTargetUserId, currentUserId)
-                    .or(i -> i.eq(BaseImApplyFriendDO::getUserId, currentUserId)
+                    .or(i -> i.eq(BaseImApplyFriendDO::getUserId, currentUserId).or()
                         .eq(BaseImApplyFriendDO::getTargetUserId, baseImApplyFriendDO.getTargetUserId()))
                     .set(BaseImApplyFriendDO::getStatus, BaseImApplyStatusEnum.PASSED)
                     .set(BaseImApplyFriendDO::getRejectReason, "").set(BaseImApplyFriendDO::getSessionId, sessionId)

@@ -10,7 +10,8 @@
            c.nickname,
            c.avatar_file_id,
            a.reject_reason,
-           a.update_time
+           a.update_time,
+           a.user_id
 
     FROM base_im_apply_friend a
 

@@ -1,5 +1,6 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
@@ -8,7 +9,6 @@ import com.kar20240901.be.base.web.mapper.im.BaseImApplyFriendMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImBlockMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImGroupMapper;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
-import com.kar20240901.be.base.web.model.domain.im.BaseImApplyFriendDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
@@ -48,28 +48,36 @@ public class BaseImBlockServiceImpl extends ServiceImpl<BaseImBlockMapper, BaseI
     @Override
     public String addFriend(NotEmptyIdSet dto) {
 
+        Set<Long> userIdSet = dto.getIdSet();
+
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        if (dto.getIdSet().contains(currentUserId)) {
+        if (userIdSet.contains(currentUserId)) {
             R.error(TempBizCodeEnum.ILLEGAL_REQUEST);
         }
 
-        BaseImApplyFriendDO baseImApplyFriendDO = ChainWrappers.lambdaQueryChain(baseImApplyFriendMapper).and(
-                i -> i.eq(BaseImApplyFriendDO::getUserId, currentUserId)
-                    .or(o -> o.eq(BaseImApplyFriendDO::getTargetUserId, currentUserId)))
-            .select(BaseImApplyFriendDO::getSessionId).one();
+        List<BaseImBlockDO> baseImBlockDoList =
+            lambdaQuery().eq(BaseImBlockDO::getSourceId, currentUserId).in(BaseImBlockDO::getUserId, userIdSet)
+                .select(BaseImBlockDO::getUserId).list();
 
-        Long sessionId = TempConstant.NEGATIVE_ONE;
+        if (CollUtil.isNotEmpty(baseImBlockDoList)) {
 
-        if (baseImApplyFriendDO != null) {
+            Set<Long> blockExistUserIdSet =
+                baseImBlockDoList.stream().map(BaseImBlockDO::getUserId).collect(Collectors.toSet());
 
-            sessionId = baseImApplyFriendDO.getSessionId();
+            userIdSet.removeAll(blockExistUserIdSet);
 
         }
 
+        if (CollUtil.isEmpty(userIdSet)) {
+            return TempBizCodeEnum.OK;
+        }
+
+        Long sessionId = TempConstant.NEGATIVE_ONE;
+
         List<BaseImBlockDO> insertList = new ArrayList<>();
 
-        for (Long item : dto.getIdSet()) {
+        for (Long item : userIdSet) {
 
             BaseImBlockDO baseImBlockDO = new BaseImBlockDO();
 
