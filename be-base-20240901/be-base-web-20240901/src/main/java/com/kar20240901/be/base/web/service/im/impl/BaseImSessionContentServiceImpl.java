@@ -5,9 +5,9 @@ import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
+import com.kar20240901.be.base.web.exception.im.BaseImBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.im.BaseImBlockMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImFriendMapper;
-import com.kar20240901.be.base.web.mapper.im.BaseImGroupRefUserMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionContentMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper;
 import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketStrEventBO;
@@ -56,9 +56,6 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
     BaseImBlockMapper baseImBlockMapper;
 
     @Resource
-    BaseImGroupRefUserMapper baseImGroupRefUserMapper;
-
-    @Resource
     BaseImSessionContentRefUserService baseImSessionContentRefUserService;
 
     /**
@@ -71,7 +68,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
         IBaseImSessionContentType iBaseImSessionContentType = BaseImSessionContentTypeEnum.MAP.get(dto.getType());
 
         if (iBaseImSessionContentType == null) {
-            R.error("操作失败：消息类型不存在", dto.getType());
+            R.error(BaseImBizCodeEnum.MSG_TYPE_NOT_EXIST, dto.getType());
         }
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
@@ -83,7 +80,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
             .select(BaseImSessionRefUserDO::getTargetType, BaseImSessionRefUserDO::getTargetId).one();
 
         if (baseImSessionRefUserDO == null) {
-            R.error("操作失败：会话信息不存在", sessionId);
+            R.error(BaseImBizCodeEnum.SESSION_INFO_NOT_EXIST, sessionId);
         }
 
         Integer targetType = baseImSessionRefUserDO.getTargetType();
@@ -91,7 +88,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
         IBaseImType iBaseImType = BaseImTypeEnum.MAP.get(targetType);
 
         if (iBaseImType == null) {
-            R.error("操作失败：会话类型不存在", targetType);
+            R.error(BaseImBizCodeEnum.SESSION_TYPE_NOT_EXIST, targetType);
         }
 
         Long targetId = baseImSessionRefUserDO.getTargetId();
@@ -207,7 +204,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
             .exists();
 
         if (exists) {
-            R.error("操作失败：对方拒绝接收您的消息，无法发送消息", targetId);
+            R.error(BaseImBizCodeEnum.TARGET_REFUSE_RECEIVE_MSG, targetId);
         }
 
     }
@@ -222,14 +219,14 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
                 .eq(BaseImFriendDO::getFriendId, targetId).exists();
 
         if (!exists) {
-            R.error("操作失败：对方不是您的好友，无法发送消息", targetId);
+            R.error(BaseImBizCodeEnum.TARGET_NOT_YOUR_FRIEND, targetId);
         }
 
         exists = ChainWrappers.lambdaQueryChain(baseImFriendMapper).eq(BaseImFriendDO::getBelongId, targetId)
             .eq(BaseImFriendDO::getFriendId, currentUserId).exists();
 
         if (!exists) {
-            R.error("操作失败：您不是对方的好友，无法发送消息", targetId);
+            R.error(BaseImBizCodeEnum.YOU_NOT_TARGET_FRIEND, targetId);
         }
 
         exists = ChainWrappers.lambdaQueryChain(baseImBlockMapper).eq(BaseImBlockDO::getSourceId, targetId)
@@ -237,7 +234,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
             .exists();
 
         if (exists) {
-            R.error("操作失败：对方拒绝接收您的消息，无法发送消息", targetId);
+            R.error(BaseImBizCodeEnum.TARGET_REFUSE_RECEIVE_MSG, targetId);
         }
 
     }
