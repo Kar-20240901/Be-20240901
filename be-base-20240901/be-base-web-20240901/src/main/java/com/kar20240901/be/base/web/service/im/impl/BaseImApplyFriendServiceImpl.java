@@ -372,10 +372,10 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
                 }
 
                 // 更新数据：两个申请同时更新
-                lambdaUpdate().eq(BaseImApplyFriendDO::getUserId, baseImApplyFriendDO.getTargetUserId())
-                    .eq(BaseImApplyFriendDO::getTargetUserId, currentUserId)
-                    .or(i -> i.eq(BaseImApplyFriendDO::getUserId, currentUserId).or()
-                        .eq(BaseImApplyFriendDO::getTargetUserId, baseImApplyFriendDO.getTargetUserId()))
+                lambdaUpdate().eq(BaseImApplyFriendDO::getUserId, baseImApplyFriendDO.getUserId())
+                    .eq(BaseImApplyFriendDO::getTargetUserId, baseImApplyFriendDO.getTargetUserId())
+                    .or(i -> i.eq(BaseImApplyFriendDO::getUserId, baseImApplyFriendDO.getTargetUserId())
+                        .eq(BaseImApplyFriendDO::getTargetUserId, baseImApplyFriendDO.getUserId()))
                     .set(BaseImApplyFriendDO::getStatus, BaseImApplyStatusEnum.PASSED)
                     .set(BaseImApplyFriendDO::getRejectReason, "").set(BaseImApplyFriendDO::getSessionId, sessionId)
                     .set(BaseImApplyFriendDO::getUpdateTime, new Date()).update();

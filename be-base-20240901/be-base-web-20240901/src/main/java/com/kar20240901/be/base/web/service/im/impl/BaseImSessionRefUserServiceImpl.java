@@ -11,7 +11,6 @@ import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImGroupMapper;
-import com.kar20240901.be.base.web.mapper.im.BaseImGroupRefUserMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionContentRefUserMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper;
 import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
@@ -59,9 +58,6 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
     @Resource
     BaseImGroupMapper baseImGroupMapper;
-
-    @Resource
-    BaseImGroupRefUserMapper baseImGroupRefUserMapper;
 
     /**
      * 创建会话关联用户：好友

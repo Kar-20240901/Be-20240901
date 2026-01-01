@@ -37,7 +37,7 @@ public class BaseImFriendServiceImpl extends ServiceImpl<BaseImFriendMapper, Bas
         Set<Long> belongIdSet = CollUtil.newHashSet();
 
         // 支持：单向好友删除
-        if (addFlag) {
+        if (!addFlag) {
 
             List<BaseImFriendDO> baseImFriendDoList =
                 lambdaQuery().eq(BaseImFriendDO::getSessionId, sessionId).select(BaseImFriendDO::getBelongId).list();
