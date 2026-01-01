@@ -171,16 +171,12 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
         }
 
         boolean existsBlock =
-            ChainWrappers.lambdaQueryChain(baseImBlockMapper).in(BaseImBlockDO::getUserId, dto.getIdSet())
-                .eq(BaseImBlockDO::getSourceId, currentUserId).eq(BaseImBlockDO::getSourceType, BaseImTypeEnum.FRIEND)
+            ChainWrappers.lambdaQueryChain(baseImBlockMapper).eq(BaseImBlockDO::getUserId, currentUserId)
+                .in(BaseImBlockDO::getSourceId, dto.getIdSet()).eq(BaseImBlockDO::getSourceType, BaseImTypeEnum.FRIEND)
                 .exists();
 
         if (existsBlock) {
-            if (singleFlag) {
-                R.error("操作失败：您已被对方拉黑，无法添加", dto.getIdSet());
-            } else {
-                R.error("操作失败：您已被对方拉黑，无法添加", dto.getIdSet());
-            }
+            R.error("操作失败：您已被对方拉黑，无法添加", dto.getIdSet());
         }
 
         RedissonUtil.doMultiLock(BaseRedisKeyEnum.PRE_IM_APPLY_FRIEND + ":" + currentUserId + ":", dto.getIdSet(),
