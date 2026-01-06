@@ -5,8 +5,11 @@
   <select id="searchHistoryPage"
     resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSearchHistoryVO">
     SELECT a.id AS id, a.search_history AS searchHistory
+
     FROM base_im_search_history a
+
     WHERE a.belong_id = #{currentUserId}
+
     ORDER BY a.create_time DESC
   </select>
 </mapper>
