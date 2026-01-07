@@ -49,7 +49,7 @@
         OR c.uuid LIKE CONCAT('%', #{dto.searchKey}, '%'))
     </if>
 
-    ORDER BY b.last_receive_ts DESC
+    ORDER BY b.last_receive_ts DESC, a.session_id DESC
   </select>
 
   <select id="queryUnReadCount" resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO">

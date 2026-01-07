@@ -101,22 +101,18 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
 
         String searchKey = dto.getSearchKey();
 
-        MyThreadUtil.execute(() -> {
+        // 先移除：重复的搜索内容
+        ChainWrappers.lambdaUpdateChain(baseImSearchHistoryMapper)
+            .eq(BaseImSearchHistoryDO::getSearchHistory, searchKey)
+            .eq(BaseImSearchHistoryDO::getBelongId, currentUserId).remove();
 
-            // 先移除：重复的搜索内容
-            ChainWrappers.lambdaUpdateChain(baseImSearchHistoryMapper)
-                .eq(BaseImSearchHistoryDO::getSearchHistory, searchKey)
-                .eq(BaseImSearchHistoryDO::getBelongId, currentUserId).remove();
+        // 再新增：新的搜索内容
+        BaseImSearchHistoryDO baseImSearchHistoryDO = new BaseImSearchHistoryDO();
 
-            // 再新增：新的搜索内容
-            BaseImSearchHistoryDO baseImSearchHistoryDO = new BaseImSearchHistoryDO();
+        baseImSearchHistoryDO.setBelongId(currentUserId);
+        baseImSearchHistoryDO.setSearchHistory(searchKey);
 
-            baseImSearchHistoryDO.setBelongId(currentUserId);
-            baseImSearchHistoryDO.setSearchHistory(searchKey);
-
-            baseImSearchHistoryMapper.insert(baseImSearchHistoryDO);
-
-        });
+        baseImSearchHistoryMapper.insert(baseImSearchHistoryDO);
 
         List<BaseImSearchBaseFriendVO> friendList = new ArrayList<>();
 

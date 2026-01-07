@@ -15,7 +15,6 @@ import com.kar20240901.be.base.web.model.dto.im.BaseImSessionContentRefUserPageD
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionContentRefUserPageVO;
 import com.kar20240901.be.base.web.service.im.BaseImSessionContentRefUserService;
 import com.kar20240901.be.base.web.util.base.MyPageUtil;
-import com.kar20240901.be.base.web.util.base.MyThreadUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import java.util.Date;
 import java.util.List;
@@ -71,11 +70,7 @@ public class BaseImSessionContentRefUserServiceImpl
 
         pageDTO.setSessionId(dto.getRefId());
 
-        MyThreadUtil.execute(() -> {
-
-            updateLastOpenTs(currentUserId, dto.getRefId());
-
-        });
+        updateLastOpenTs(currentUserId, dto.getRefId()); // 更新最后一次打开会话的时间
 
         List<BaseImSessionContentRefUserPageVO> records =
             baseMapper.myPage(MyPageUtil.getScrollPage(dto.getPageSize()), pageDTO, currentUserId).getRecords();
