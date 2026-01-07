@@ -122,6 +122,8 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
 
         dto.setCreateId(currentUserId);
 
+        Date date = new Date();
+
         BaseImSessionContentDO baseImSessionContentDO = new BaseImSessionContentDO();
 
         baseImSessionContentDO.setEnableFlag(true);
@@ -132,7 +134,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
         baseImSessionContentDO.setRefId(MyEntityUtil.getNotNullLong(dto.getRefId()));
         baseImSessionContentDO.setOrderNo(MyEntityUtil.getNotNullOrderNo(dto.getOrderNo()));
         baseImSessionContentDO.setCreateId(currentUserId);
-        baseImSessionContentDO.setCreateTime(new Date());
+        baseImSessionContentDO.setCreateTime(date);
 
         save(baseImSessionContentDO);
 
@@ -170,6 +172,8 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
         }
 
         baseImSessionContentRefUserService.saveBatch(list);
+
+        BaseImSessionServiceImpl.put(sessionId, date.getTime()); // 更新会话最后一次接收消息的时间
 
         dto.setNotDisturbFlagUserIdSet(notDisturbFlagUserIdSet);
 
