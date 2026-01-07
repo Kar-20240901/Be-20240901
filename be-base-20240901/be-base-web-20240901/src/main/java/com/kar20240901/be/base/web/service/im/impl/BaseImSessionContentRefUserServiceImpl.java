@@ -55,6 +55,8 @@ public class BaseImSessionContentRefUserServiceImpl
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
+        updateLastOpenTs(currentUserId, dto.getRefId()); // 更新最后一次打开会话的时间
+
         boolean backwardFlag = BooleanUtil.isTrue(dto.getBackwardFlag());
 
         // 获取：滚动加载时的 id
@@ -69,8 +71,6 @@ public class BaseImSessionContentRefUserServiceImpl
         pageDTO.setContent(dto.getSearchKey());
 
         pageDTO.setSessionId(dto.getRefId());
-
-        updateLastOpenTs(currentUserId, dto.getRefId()); // 更新最后一次打开会话的时间
 
         List<BaseImSessionContentRefUserPageVO> records =
             baseMapper.myPage(MyPageUtil.getScrollPage(dto.getPageSize()), pageDTO, currentUserId).getRecords();
