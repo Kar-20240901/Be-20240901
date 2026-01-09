@@ -270,6 +270,8 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
         pageDTO.setSearchKey(dto.getSearchKey());
 
+        pageDTO.setLastReceiveTs(dto.getRefId());
+
         Page<BaseImSessionRefUserPageVO> resPage =
             baseMapper.myPage(MyPageUtil.getScrollPage(dto.getPageSize()), pageDTO, currentUserId);
 

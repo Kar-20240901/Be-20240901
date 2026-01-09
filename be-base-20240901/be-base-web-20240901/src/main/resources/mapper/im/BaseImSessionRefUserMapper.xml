@@ -8,7 +8,8 @@
            IF(a.name = '', a.target_name, a.name) AS sessionName,
            a.avatar_url                           AS avatarUrl,
            a.target_id                            AS targetId,
-           a.target_type                          AS targetType
+           a.target_type                          AS targetType,
+           b.last_receive_ts                      AS lastReceiveTs
 
     FROM base_im_session_ref_user a
 

@@ -23,4 +23,7 @@ public class BaseImSessionRefUserPageVO extends BaseImSessionRefUserQueryLastCon
     @Schema(description = "目标类型：101 好友 201 群组，一定有值")
     private Integer targetType;
 
+    @Schema(description = "最后一次接受到消息时的时间戳，默认为：-1，备注：该字段用于：排序")
+    private Long lastReceiveTs;
+
 }

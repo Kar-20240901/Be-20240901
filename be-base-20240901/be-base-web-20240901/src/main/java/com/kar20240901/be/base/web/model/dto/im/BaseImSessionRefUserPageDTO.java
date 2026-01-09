@@ -25,4 +25,7 @@ public class BaseImSessionRefUserPageDTO extends MyPageDTO {
     @Schema(description = "会话主键 id集合")
     private Set<Long> sessionIdSet;
 
+    @Schema(description = "最后一次接受到消息时的时间戳，默认为：-1，备注：该字段用于：排序", hidden = true)
+    private Long lastReceiveTs;
+
 }
