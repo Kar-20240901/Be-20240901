@@ -47,7 +47,7 @@ public class MyPageUtil {
      */
     public static <T> Page<T> getLimitPage(long size) {
 
-        return new Page<>(1, size, false);
+        return new Page<>(1, size, true);
 
     }
 

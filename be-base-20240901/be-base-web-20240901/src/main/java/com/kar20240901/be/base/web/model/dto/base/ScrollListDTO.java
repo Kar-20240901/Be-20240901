@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.model.dto.base;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,5 +33,8 @@ public class ScrollListDTO {
     @Schema(
         description = "是否多查询一些数据，backwardFlag 为 true时，往前多查询几条数据，为 false时，往后多查询几条数据，如果不足 pageSize，会补齐并且会额外多查询几条数据")
     private Boolean queryMoreFlag;
+
+    @Schema(description = "关联的 id集合")
+    private Set<Long> refIdSet;
 
 }

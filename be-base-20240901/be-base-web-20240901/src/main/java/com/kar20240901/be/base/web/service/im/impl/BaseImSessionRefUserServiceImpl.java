@@ -272,8 +272,23 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
         pageDTO.setLastReceiveTs(dto.getRefId());
 
-        Page<BaseImSessionRefUserPageVO> resPage =
-            baseMapper.myPage(MyPageUtil.getScrollPage(dto.getPageSize()), pageDTO, currentUserId);
+        Set<Long> sessionIdSet = dto.getRefIdSet();
+
+        Page<BaseImSessionRefUserPageVO> scrollPage;
+
+        if (CollUtil.isEmpty(sessionIdSet)) {
+
+            scrollPage = MyPageUtil.getScrollPage(dto.getPageSize());
+
+        } else {
+
+            scrollPage = MyPageUtil.getLimitPage(-1);
+
+        }
+
+        pageDTO.setSessionIdSet(sessionIdSet);
+
+        Page<BaseImSessionRefUserPageVO> resPage = baseMapper.myPage(scrollPage, pageDTO, currentUserId);
 
         // 后续处理分页排序查询
         sufHandlePage(resPage);
