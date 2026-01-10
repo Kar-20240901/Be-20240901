@@ -23,14 +23,14 @@ public class BaseImSessionContentController {
 
     @Operation(summary = "新增文字消息")
     @PostMapping("/insertTxt")
-    public R<String> insertTxt(@RequestBody @Valid BaseImSessionContentInsertTxtDTO dto) {
+    public R<Long> insertTxt(@RequestBody @Valid BaseImSessionContentInsertTxtDTO dto) {
         return R.okData(baseService.insertTxt(dto));
     }
 
     @Operation(summary = "修改为输入中")
     @PostMapping("/updateTargetInputFlag")
     public R<String> updateTargetInputFlag(@RequestBody @Valid BaseImSessionContentUpdateTargetInputFlagDTO dto) {
-        return R.okData(baseService.updateTargetInputFlag(dto));
+        return R.okMsg(baseService.updateTargetInputFlag(dto));
     }
 
 }

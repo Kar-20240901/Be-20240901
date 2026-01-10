@@ -31,7 +31,7 @@ public class BaseImGroupController {
     @Operation(summary = "新增/修改")
     @PostMapping("/insertOrUpdate")
     public R<String> insertOrUpdate(@RequestBody @Valid BaseImGroupInsertOrUpdateDTO dto) {
-        return R.okData(baseService.insertOrUpdate(dto));
+        return R.okMsg(baseService.insertOrUpdate(dto));
     }
 
     @Operation(summary = "分页排序查询")
@@ -61,7 +61,7 @@ public class BaseImGroupController {
     @Operation(summary = "解散群组")
     @PostMapping("/deleteById")
     public R<String> deleteById(@RequestBody @Valid NotNullId dto) {
-        return R.okData(baseService.deleteById(dto));
+        return R.okMsg(baseService.deleteById(dto));
     }
 
 }

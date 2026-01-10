@@ -40,25 +40,25 @@ public class BaseImGroupRefUserController {
     @Operation(summary = "新增禁言")
     @PostMapping("/addMute")
     public R<String> addMute(@RequestBody @Valid BaseImGroupRefUserAddMuteDTO dto) {
-        return R.okData(baseService.addMute(dto));
+        return R.okMsg(baseService.addMute(dto));
     }
 
     @Operation(summary = "解除禁言")
     @PostMapping("/deleteMute")
     public R<String> deleteMute(@RequestBody @Valid BaseImGroupRefUserDeleteMuteDTO dto) {
-        return R.okData(baseService.deleteMute(dto));
+        return R.okMsg(baseService.deleteMute(dto));
     }
 
     @Operation(summary = "新增管理员")
     @PostMapping("/addManage")
     public R<String> addManage(@RequestBody @Valid BaseImGroupRefUserAddMuteDTO dto) {
-        return R.okData(baseService.addManage(dto));
+        return R.okMsg(baseService.addManage(dto));
     }
 
     @Operation(summary = "解除管理员")
     @PostMapping("/deleteManage")
     public R<String> deleteManage(@RequestBody @Valid BaseImGroupRefUserDeleteMuteDTO dto) {
-        return R.okData(baseService.deleteManage(dto));
+        return R.okMsg(baseService.deleteManage(dto));
     }
 
 }

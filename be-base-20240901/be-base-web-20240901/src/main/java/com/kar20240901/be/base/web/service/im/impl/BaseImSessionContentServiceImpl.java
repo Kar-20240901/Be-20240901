@@ -9,12 +9,14 @@ import com.kar20240901.be.base.web.exception.im.BaseImBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.im.BaseImBlockMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImFriendMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionContentMapper;
+import com.kar20240901.be.base.web.mapper.im.BaseImSessionMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper;
 import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketStrEventBO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImFriendDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionContentDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionContentRefUserDO;
+import com.kar20240901.be.base.web.model.domain.im.BaseImSessionDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionRefUserDO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionContentInsertTxtDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionContentUpdateTargetInputFlagDTO;
@@ -58,12 +60,15 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
     @Resource
     BaseImSessionContentRefUserService baseImSessionContentRefUserService;
 
+    @Resource
+    BaseImSessionMapper baseImSessionMapper;
+
     /**
      * 新增文字消息
      */
     @Override
     @DSTransactional
-    public String insertTxt(BaseImSessionContentInsertTxtDTO dto) {
+    public Long insertTxt(BaseImSessionContentInsertTxtDTO dto) {
 
         IBaseImSessionContentType iBaseImSessionContentType = BaseImSessionContentTypeEnum.MAP.get(dto.getType());
 
@@ -106,16 +111,14 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
         }
 
         // 执行：发送消息
-        doInsertTxt(dto, sessionId, iBaseImSessionContentType);
-
-        return TempBizCodeEnum.OK;
+        return doInsertTxt(dto, sessionId, iBaseImSessionContentType);
 
     }
 
     /**
      * 执行：发送消息
      */
-    public void doInsertTxt(BaseImSessionContentInsertTxtDTO dto, Long sessionId,
+    public Long doInsertTxt(BaseImSessionContentInsertTxtDTO dto, Long sessionId,
         IBaseImSessionContentType iBaseImSessionContentType) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
@@ -173,7 +176,17 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
 
         baseImSessionContentRefUserService.saveBatch(list);
 
-        BaseImSessionServiceImpl.put(sessionId, date.getTime()); // 更新会话最后一次接收消息的时间
+        // 更新会话最后一次接收消息的时间
+        BaseImSessionDO baseImSessionDO = new BaseImSessionDO();
+
+        baseImSessionDO.setId(sessionId);
+
+        baseImSessionDO.setLastReceiveTs(date.getTime());
+
+        baseImSessionMapper.updateById(baseImSessionDO);
+
+        // 更新最后一次打开会话的时间
+        BaseImSessionContentRefUserServiceImpl.updateLastOpenTs(currentUserId, sessionId);
 
         dto.setNotDisturbFlagUserIdSet(notDisturbFlagUserIdSet);
 
@@ -193,6 +206,8 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
 
         // 通知用户：有新消息
         TempKafkaUtil.sendBaseWebSocketStrEventTopic(baseWebSocketStrEventBO);
+
+        return contentId;
 
     }
 

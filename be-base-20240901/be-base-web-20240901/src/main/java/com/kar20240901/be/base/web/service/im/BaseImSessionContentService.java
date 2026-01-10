@@ -7,7 +7,7 @@ import com.kar20240901.be.base.web.model.dto.im.BaseImSessionContentUpdateTarget
 
 public interface BaseImSessionContentService extends IService<BaseImSessionContentDO> {
 
-    String insertTxt(BaseImSessionContentInsertTxtDTO dto);
+    Long insertTxt(BaseImSessionContentInsertTxtDTO dto);
 
     String updateTargetInputFlag(BaseImSessionContentUpdateTargetInputFlagDTO dto);
 

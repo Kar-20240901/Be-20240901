@@ -41,7 +41,7 @@ public class BaseImApplyGroupController {
     @Operation(summary = "发送入群申请")
     @PostMapping("/send")
     public R<String> send(@RequestBody @Valid BaseImApplyGroupSendDTO dto) {
-        return R.okData(baseService.send(dto));
+        return R.okMsg(baseService.send(dto));
     }
 
     @Operation(summary = "分页排序查询-我的入群申请")
