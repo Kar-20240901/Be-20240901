@@ -7,7 +7,7 @@ import lombok.Data;
 public class BaseImFriendPageVO {
 
     @Schema(description = "好友用户主键 id")
-    private String friendUserId;
+    private Long friendUserId;
 
     @Schema(description = "好友显示的 id")
     private String friendShowId;
@@ -20,5 +20,8 @@ public class BaseImFriendPageVO {
 
     @Schema(description = "会话主键 id")
     private Long sessionId;
+
+    @Schema(description = "是否已经拉黑，备注：只有 dto的 queryBlockFlag生效时，才会返回该值")
+    private Boolean blockFlag;
 
 }

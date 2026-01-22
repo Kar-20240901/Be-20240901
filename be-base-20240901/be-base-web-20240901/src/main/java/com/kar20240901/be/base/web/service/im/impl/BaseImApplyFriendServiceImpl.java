@@ -38,6 +38,7 @@ import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import com.kar20240901.be.base.web.util.base.RedissonUtil;
+import com.kar20240901.be.base.web.util.im.BaseImBlockUtil;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -311,15 +312,7 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
         List<Long> userIdList =
             page.getRecords().stream().map(BaseImApplyFriendPageVO::getUserId).collect(Collectors.toList());
 
-        List<BaseImBlockDO> baseImBlockDOList =
-            ChainWrappers.lambdaQueryChain(baseImBlockMapper).eq(BaseImBlockDO::getSourceId, currentUserId)
-                .in(BaseImBlockDO::getUserId, userIdList).select(BaseImBlockDO::getUserId).list();
-
-        if (CollUtil.isEmpty(baseImBlockDOList)) {
-            return new HashSet<>();
-        }
-
-        return baseImBlockDOList.stream().map(BaseImBlockDO::getUserId).collect(Collectors.toSet());
+        return BaseImBlockUtil.getBlockUserIdSet(currentUserId, userIdList);
 
     }
 

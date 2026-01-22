@@ -15,6 +15,7 @@ import com.kar20240901.be.base.web.model.vo.im.BaseImFriendPageVO;
 import com.kar20240901.be.base.web.service.im.BaseImFriendService;
 import com.kar20240901.be.base.web.util.base.MyPageUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
+import com.kar20240901.be.base.web.util.im.BaseImBlockUtil;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -84,7 +85,42 @@ public class BaseImFriendServiceImpl extends ServiceImpl<BaseImFriendMapper, Bas
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        return baseMapper.myPage(dto.pageOrder(), dto, currentUserId);
+        Page<BaseImFriendPageVO> page = baseMapper.myPage(dto.pageOrder(), dto, currentUserId);
+
+        if (BooleanUtil.isTrue(dto.getQueryBlockFlag())) {
+
+            // 处理：拉黑情况
+            myPageHandleBlock(page, currentUserId);
+
+        }
+
+        return page;
+
+    }
+
+    /**
+     * 处理：拉黑情况
+     */
+    private static void myPageHandleBlock(Page<BaseImFriendPageVO> page, Long currentUserId) {
+
+        if (CollUtil.isEmpty(page.getRecords())) {
+            return;
+        }
+
+        List<Long> userIdList =
+            page.getRecords().stream().map(BaseImFriendPageVO::getFriendUserId).collect(Collectors.toList());
+
+        Set<Long> blockUserIdSet = BaseImBlockUtil.getBlockUserIdSet(currentUserId, userIdList);
+
+        if (CollUtil.isEmpty(blockUserIdSet)) {
+            return;
+        }
+
+        for (BaseImFriendPageVO item : page.getRecords()) {
+
+            item.setBlockFlag(blockUserIdSet.contains(item.getFriendUserId()));
+
+        }
 
     }
 
