@@ -538,11 +538,51 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
     @Override
     public String addNotDisturb(BaseImSessionRefUserAddNotDisturbDTO dto) {
 
+        // 处理：免打扰
+        return handleNotDisturb(dto, true);
+
+    }
+
+    /**
+     * 处理：免打扰
+     */
+    private String handleNotDisturb(BaseImSessionRefUserAddNotDisturbDTO dto, boolean notDisturbFlag) {
+
+        boolean sessionIdSetEmptyFlag = CollUtil.isEmpty(dto.getSessionIdSet());
+
+        boolean friendUserIdSetEmptyFlag = CollUtil.isEmpty(dto.getFriendUserIdSet());
+
+        boolean groupIdSetEmptyFlag = CollUtil.isEmpty(dto.getGroupIdSet());
+
+        if (sessionIdSetEmptyFlag && friendUserIdSetEmptyFlag && groupIdSetEmptyFlag) {
+
+            return TempBizCodeEnum.OK;
+
+        }
+
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        lambdaUpdate().eq(BaseImSessionRefUserDO::getSessionId, dto.getSessionId())
-            .eq(BaseImSessionRefUserDO::getUserId, currentUserId).set(BaseImSessionRefUserDO::getNotDisturbFlag, true)
-            .update();
+        if (!sessionIdSetEmptyFlag) {
+
+            lambdaUpdate().in(BaseImSessionRefUserDO::getSessionId, dto.getSessionIdSet())
+                .eq(BaseImSessionRefUserDO::getUserId, currentUserId)
+                .set(BaseImSessionRefUserDO::getNotDisturbFlag, notDisturbFlag).update();
+
+        } else if (!friendUserIdSetEmptyFlag) {
+
+            lambdaUpdate().in(BaseImSessionRefUserDO::getTargetId, dto.getFriendUserIdSet())
+                .eq(BaseImSessionRefUserDO::getTargetType, BaseImTypeEnum.FRIEND)
+                .eq(BaseImSessionRefUserDO::getUserId, currentUserId)
+                .set(BaseImSessionRefUserDO::getNotDisturbFlag, notDisturbFlag).update();
+
+        } else {
+
+            lambdaUpdate().in(BaseImSessionRefUserDO::getTargetId, dto.getGroupIdSet())
+                .eq(BaseImSessionRefUserDO::getTargetType, BaseImTypeEnum.GROUP)
+                .eq(BaseImSessionRefUserDO::getUserId, currentUserId)
+                .set(BaseImSessionRefUserDO::getNotDisturbFlag, notDisturbFlag).update();
+
+        }
 
         return TempBizCodeEnum.OK;
 
@@ -554,13 +594,8 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
     @Override
     public String deleteNotDisturb(BaseImSessionRefUserDeleteNotDisturbDTO dto) {
 
-        Long currentUserId = MyUserUtil.getCurrentUserId();
-
-        lambdaUpdate().eq(BaseImSessionRefUserDO::getSessionId, dto.getSessionId())
-            .eq(BaseImSessionRefUserDO::getUserId, currentUserId).set(BaseImSessionRefUserDO::getNotDisturbFlag, false)
-            .update();
-
-        return TempBizCodeEnum.OK;
+        // 处理：免打扰
+        return handleNotDisturb(dto, false);
 
     }
 

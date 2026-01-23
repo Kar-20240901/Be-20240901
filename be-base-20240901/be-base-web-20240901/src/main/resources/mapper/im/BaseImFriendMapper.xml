@@ -8,6 +8,12 @@
            b.uuid                              AS friendShowId,
            IF(c.name = '', b.nickname, c.name) AS friendShowName,
            c.avatar_url                        AS avatarUrl
+    <if test="dto.manageQueryFlag != null">
+      ,
+        b.bio         AS bio,
+        a.create_time AS friendCreateTime,
+      c.not_disturb_flag AS notDisturbFlag
+    </if>
 
     FROM base_im_friend a
 

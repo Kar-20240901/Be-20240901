@@ -1,7 +1,7 @@
 package com.kar20240901.be.base.web.controller.im;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImFriendPageDTO;
 import com.kar20240901.be.base.web.model.vo.base.R;
@@ -39,7 +39,7 @@ public class BaseImFriendController {
 
     @Operation(summary = "删除好友")
     @PostMapping("/removeFriend")
-    public R<String> removeFriend(@RequestBody @Valid NotNullId dto) {
+    public R<String> removeFriend(@RequestBody @Valid NotEmptyIdSet dto) {
         return R.okMsg(baseService.removeFriend(dto));
     }
 

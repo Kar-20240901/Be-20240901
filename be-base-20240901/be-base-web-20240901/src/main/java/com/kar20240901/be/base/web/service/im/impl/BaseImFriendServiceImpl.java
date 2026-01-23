@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.im.BaseImFriendMapper;
 import com.kar20240901.be.base.web.model.domain.im.BaseImFriendDO;
-import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImFriendPageDTO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImFriendPageVO;
@@ -156,11 +156,11 @@ public class BaseImFriendServiceImpl extends ServiceImpl<BaseImFriendMapper, Bas
      * 删除好友
      */
     @Override
-    public String removeFriend(NotNullId dto) {
+    public String removeFriend(NotEmptyIdSet dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        lambdaUpdate().eq(BaseImFriendDO::getBelongId, currentUserId).eq(BaseImFriendDO::getFriendId, dto.getId())
+        lambdaUpdate().eq(BaseImFriendDO::getBelongId, currentUserId).in(BaseImFriendDO::getFriendId, dto.getIdSet())
             .remove();
 
         return TempBizCodeEnum.OK;

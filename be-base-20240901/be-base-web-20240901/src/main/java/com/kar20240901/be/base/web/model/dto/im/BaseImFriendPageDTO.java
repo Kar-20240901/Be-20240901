@@ -21,4 +21,7 @@ public class BaseImFriendPageDTO extends MyPageDTO {
     @Schema(description = "是否查询拉黑情况")
     private Boolean queryBlockFlag;
 
+    @Schema(description = "是否是好友管理查询")
+    private Boolean manageQueryFlag;
+
 }
