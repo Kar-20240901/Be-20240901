@@ -103,7 +103,7 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
         notIdIdSet.add(currentUserId);
 
         Page<TempUserInfoDO> page = ChainWrappers.lambdaQueryChain(baseUserInfoMapper).or(StrUtil.isNotBlank(searchKey),
-                i -> i.like(TempUserInfoDO::getNickname, searchKey).or().eq(TempUserInfoDO::getUuid, searchKey)) //
+                i -> i.like(TempUserInfoDO::getNickname, searchKey).or().like(TempUserInfoDO::getUuid, searchKey)) //
             .notIn(TempUserInfoDO::getId, notIdIdSet) //
             .select(TempUserInfoDO::getId, TempUserInfoDO::getNickname, TempUserInfoDO::getAvatarFileId,
                 TempUserInfoDO::getUuid, TempUserInfoDO::getBio)

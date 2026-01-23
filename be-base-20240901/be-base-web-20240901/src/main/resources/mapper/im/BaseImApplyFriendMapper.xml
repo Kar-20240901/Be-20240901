@@ -54,6 +54,8 @@
         , '%')
         OR a.apply_content LIKE CONCAT('%'
           , #{dto.searchKey}
+          , '%') OR c.uuid LIKE CONCAT('%'
+          , #{dto.searchKey}
           , '%'))
     </if>
 
