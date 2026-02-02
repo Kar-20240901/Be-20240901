@@ -35,6 +35,36 @@ public class BaseImGroupUtil {
      *
      * @param onlyCreateFlag 是否是只能群主进行操作
      */
+    public static void checkGroupIdSetAuth(Set<Long> groupIdSet, boolean onlyCreateFlag) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        Long count = ChainWrappers.lambdaQueryChain(baseImGroupMapper).eq(BaseImGroupDO::getBelongId, currentUserId)
+            .in(BaseImGroupDO::getId, groupIdSet).count();
+
+        if (groupIdSet.size() == count) {
+            return;
+        }
+
+        if (onlyCreateFlag) {
+            R.error("操作失败：只能群主进行该操作", groupIdSet);
+        }
+
+        count =
+            ChainWrappers.lambdaQueryChain(baseImGroupRefUserMapper).eq(BaseImGroupRefUserDO::getUserId, currentUserId)
+                .eq(BaseImGroupRefUserDO::getManageFlag, true).in(BaseImGroupRefUserDO::getGroupId, groupIdSet).count();
+
+        if (count != groupIdSet.size()) {
+            R.error("操作失败：只能群管理员进行该操作", groupIdSet);
+        }
+
+    }
+
+    /**
+     * 检查：是否有权限
+     *
+     * @param onlyCreateFlag 是否是只能群主进行操作
+     */
     public static void checkGroupAuth(Long groupId, boolean onlyCreateFlag) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();

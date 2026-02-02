@@ -1,7 +1,7 @@
 package com.kar20240901.be.base.web.controller.im;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupChangeBelongIdDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupInsertOrUpdateDTO;
@@ -59,9 +59,9 @@ public class BaseImGroupController {
     }
 
     @Operation(summary = "解散群组")
-    @PostMapping("/deleteById")
-    public R<String> deleteById(@RequestBody @Valid NotNullId dto) {
-        return R.okMsg(baseService.deleteById(dto));
+    @PostMapping("/deleteByIdSet")
+    public R<String> deleteByIdSet(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okMsg(baseService.deleteByIdSet(dto));
     }
 
 }

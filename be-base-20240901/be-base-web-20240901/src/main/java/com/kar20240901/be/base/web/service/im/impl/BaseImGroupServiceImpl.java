@@ -15,7 +15,7 @@ import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupRefUserDO;
-import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupChangeBelongIdDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupInsertOrUpdateDTO;
@@ -221,17 +221,17 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
      */
     @Override
     @DSTransactional
-    public String deleteById(NotNullId dto) {
+    public String deleteByIdSet(NotEmptyIdSet dto) {
 
         // 检查：是否有权限
-        BaseImGroupUtil.checkGroupAuth(dto.getId(), true);
+        BaseImGroupUtil.checkGroupIdSetAuth(dto.getIdSet(), true);
 
-        lambdaUpdate().eq(BaseImGroupDO::getId, dto.getId()).remove();
+        lambdaUpdate().in(BaseImGroupDO::getId, dto.getIdSet()).remove();
 
-        ChainWrappers.lambdaUpdateChain(baseImGroupRefUserMapper).eq(BaseImGroupRefUserDO::getGroupId, dto.getId())
+        ChainWrappers.lambdaUpdateChain(baseImGroupRefUserMapper).in(BaseImGroupRefUserDO::getGroupId, dto.getIdSet())
             .remove();
 
-        ChainWrappers.lambdaUpdateChain(baseImBlockMapper).eq(BaseImBlockDO::getSourceId, dto.getId())
+        ChainWrappers.lambdaUpdateChain(baseImBlockMapper).in(BaseImBlockDO::getSourceId, dto.getIdSet())
             .eq(BaseImBlockDO::getSourceType, BaseImTypeEnum.GROUP).remove();
 
         return TempBizCodeEnum.OK;
