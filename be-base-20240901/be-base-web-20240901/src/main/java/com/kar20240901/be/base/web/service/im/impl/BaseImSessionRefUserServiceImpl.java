@@ -80,8 +80,10 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
         if (!addFlag) {
 
+            // 重置状态
             lambdaUpdate().eq(BaseImSessionRefUserDO::getSessionId, sessionId)
-                .set(BaseImSessionRefUserDO::getShowFlag, true).update();
+                .set(BaseImSessionRefUserDO::getShowFlag, true).set(BaseImSessionRefUserDO::getNotDisturbFlag, false)
+                .update();
 
             return;
 

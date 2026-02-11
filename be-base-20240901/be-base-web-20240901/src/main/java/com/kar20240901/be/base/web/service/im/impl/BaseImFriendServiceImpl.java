@@ -5,12 +5,16 @@ import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.im.BaseImFriendMapper;
+import com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper;
 import com.kar20240901.be.base.web.model.domain.im.BaseImFriendDO;
+import com.kar20240901.be.base.web.model.domain.im.BaseImSessionRefUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImFriendPageDTO;
+import com.kar20240901.be.base.web.model.enums.im.BaseImTypeEnum;
 import com.kar20240901.be.base.web.model.vo.im.BaseImFriendPageVO;
 import com.kar20240901.be.base.web.service.im.BaseImFriendService;
 import com.kar20240901.be.base.web.util.base.MyPageUtil;
@@ -20,11 +24,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
 public class BaseImFriendServiceImpl extends ServiceImpl<BaseImFriendMapper, BaseImFriendDO>
     implements BaseImFriendService {
+
+    @Resource
+    BaseImSessionRefUserMapper baseImSessionRefUserMapper;
 
     /**
      * 添加好友
@@ -160,8 +168,17 @@ public class BaseImFriendServiceImpl extends ServiceImpl<BaseImFriendMapper, Bas
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        lambdaUpdate().eq(BaseImFriendDO::getBelongId, currentUserId).in(BaseImFriendDO::getFriendId, dto.getIdSet())
+        Set<Long> friendUserIdSet = dto.getIdSet();
+
+        lambdaUpdate().eq(BaseImFriendDO::getBelongId, currentUserId).in(BaseImFriendDO::getFriendId, friendUserIdSet)
             .remove();
+
+        // 隐藏会话，注意：不能删除会话
+        ChainWrappers.lambdaUpdateChain(baseImSessionRefUserMapper)
+            .in(BaseImSessionRefUserDO::getTargetId, friendUserIdSet)
+            .eq(BaseImSessionRefUserDO::getUserId, currentUserId)
+            .eq(BaseImSessionRefUserDO::getTargetType, BaseImTypeEnum.FRIEND)
+            .set(BaseImSessionRefUserDO::getShowFlag, false);
 
         return TempBizCodeEnum.OK;
 
