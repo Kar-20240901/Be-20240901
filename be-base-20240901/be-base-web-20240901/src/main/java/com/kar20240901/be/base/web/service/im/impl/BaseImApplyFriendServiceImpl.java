@@ -225,9 +225,12 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
                     }
 
+                    Date date = new Date();
+
                     baseImApplyFriendDO.setStatus(BaseImApplyStatusEnum.APPLYING);
                     baseImApplyFriendDO.setRejectReason("");
-                    baseImApplyFriendDO.setApplyTime(new Date());
+                    baseImApplyFriendDO.setUpdateTime(date);
+                    baseImApplyFriendDO.setApplyTime(date);
                     baseImApplyFriendDO.setApplyContent(MyEntityUtil.getNotNullStr(dto.getApplyContent()));
 
                     saveOrUpdate(baseImApplyFriendDO);
