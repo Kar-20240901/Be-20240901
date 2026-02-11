@@ -437,7 +437,7 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
                 baseImApplyFriendDO.setStatus(BaseImApplyStatusEnum.REJECTED);
 
-                baseImApplyFriendDO.setUpdateTime(null);
+                baseImApplyFriendDO.setUpdateTime(new Date());
 
                 // 更新数据
                 updateById(baseImApplyFriendDO);
@@ -510,7 +510,7 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
                     }
                 }
 
-                baseImApplyFriendDO.setUpdateTime(null);
+                baseImApplyFriendDO.setUpdateTime(new Date());
 
                 baseImApplyFriendDO.setStatus(BaseImApplyStatusEnum.CANCELLED);
 
