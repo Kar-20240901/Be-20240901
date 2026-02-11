@@ -76,31 +76,42 @@ public class BaseImGroupUtil {
      * 检查：是否有权限
      *
      * @param onlyCreateFlag 是否是只能群主进行操作
+     * @return 101 群主 201 管理员 301 群员 401 不在群
      */
-    public static boolean checkGroupAuth(Long groupId, boolean onlyCreateFlag) {
+    public static int checkGroupAuth(Long groupId, boolean onlyCreateFlag, boolean errorFlag) {
 
         // 获取：是否是群主
         boolean groupCreateFlag = getGroupCreateFlag(groupId);
 
         if (groupCreateFlag) {
-            return groupCreateFlag;
+            return 101;
         }
 
-        if (onlyCreateFlag) {
+        if (onlyCreateFlag && errorFlag) {
             R.error("操作失败：只能群主进行该操作", groupId);
         }
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        boolean exists =
+        BaseImGroupRefUserDO baseImGroupRefUserDO =
             ChainWrappers.lambdaQueryChain(baseImGroupRefUserMapper).eq(BaseImGroupRefUserDO::getUserId, currentUserId)
-                .eq(BaseImGroupRefUserDO::getManageFlag, true).eq(BaseImGroupRefUserDO::getGroupId, groupId).exists();
+                .eq(BaseImGroupRefUserDO::getGroupId, groupId).select(BaseImGroupRefUserDO::getManageFlag).one();
 
-        if (!exists) {
+        if (baseImGroupRefUserDO == null && errorFlag) {
+            R.error("操作失败：您不在群里，不能进行此操作", groupId);
+        }
+
+        if (baseImGroupRefUserDO == null) {
+            return 401;
+        }
+
+        Boolean manageFlag = baseImGroupRefUserDO.getManageFlag();
+
+        if (!manageFlag && errorFlag) {
             R.error("操作失败：只能群管理员进行该操作", groupId);
         }
 
-        return groupCreateFlag;
+        return manageFlag ? 201 : 301;
 
     }
 

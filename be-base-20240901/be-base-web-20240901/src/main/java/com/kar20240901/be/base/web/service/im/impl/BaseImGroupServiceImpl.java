@@ -16,6 +16,7 @@ import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupRefUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
+import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupChangeBelongIdDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupInsertOrUpdateDTO;
@@ -103,11 +104,11 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
         } else {
 
             // 检查：是否有权限
-            boolean groupCreateFlag = BaseImGroupUtil.checkGroupAuth(dto.getId(), false);
+            int type = BaseImGroupUtil.checkGroupAuth(dto.getId(), false, true);
 
             baseImGroupDO.setId(dto.getId());
 
-            if (groupCreateFlag) {
+            if (type == 101) {
                 baseImGroupDO.setManageMuteFlag(BooleanUtil.isTrue(dto.getManageMuteFlag()));
             }
 
@@ -116,6 +117,25 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
         }
 
         return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 通过主键id，查看详情
+     */
+    @Override
+    public BaseImGroupDO infoById(NotNullId dto) {
+
+        Long groupId = dto.getId();
+
+        int type = BaseImGroupUtil.checkGroupAuth(groupId, false, false);
+
+        if (type == 401) {
+            R.error("操作失败：您不在群里，不能进行此操作", groupId);
+        }
+
+        // TODO：不同的用户，查看不同的数据
+        return lambdaQuery().eq(BaseImGroupDO::getId, groupId).one();
 
     }
 
@@ -196,7 +216,7 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
         }
 
         // 检查：是否有权限
-        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), true);
+        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), true, true);
 
         boolean exists = ChainWrappers.lambdaQueryChain(baseImGroupRefUserMapper)
             .eq(BaseImGroupRefUserDO::getGroupId, dto.getGroupId())

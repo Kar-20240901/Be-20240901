@@ -14,8 +14,8 @@ public interface BaseApiTokenService extends IService<BaseApiTokenDO> {
 
     Page<BaseApiTokenDO> myPage(BaseApiTokenPageDTO dto);
 
-    BaseApiTokenDO infoById(NotNullId notNullId);
+    BaseApiTokenDO infoById(NotNullId dto);
 
-    String deleteByIdSet(NotEmptyIdSet notEmptyIdSet);
+    String deleteByIdSet(NotEmptyIdSet dto);
 
 }

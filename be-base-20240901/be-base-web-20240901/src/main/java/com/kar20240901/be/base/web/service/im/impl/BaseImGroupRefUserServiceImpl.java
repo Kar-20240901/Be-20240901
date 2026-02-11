@@ -71,7 +71,7 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
     public Page<BaseImGroupRefUserPageVO> pageMute(BaseImGroupRefUserMutePageDTO dto) {
 
         // 检测权限
-        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), false);
+        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), false, true);
 
         Page<BaseImGroupRefUserPageVO> page = baseMapper.pageMute(dto.updateTimeDescDefaultOrderPage(), dto);
 
@@ -169,7 +169,7 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
     public String addManage(BaseImGroupRefUserAddMuteDTO dto) {
 
         // 检查：是否有权限
-        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), true);
+        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), true, true);
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
@@ -192,7 +192,7 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
     public String deleteManage(BaseImGroupRefUserDeleteMuteDTO dto) {
 
         // 检查：是否有权限
-        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), true);
+        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), true, true);
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 

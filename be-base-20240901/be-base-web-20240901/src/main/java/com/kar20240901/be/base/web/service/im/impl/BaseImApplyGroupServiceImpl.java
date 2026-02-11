@@ -247,7 +247,7 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
     public Page<BaseImApplyGroupPageGroupVO> myPageGroup(BaseImApplyGroupPageGroupDTO dto) {
 
         // 检查：是否有权限
-        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), false);
+        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), false, true);
 
         Page<BaseImApplyGroupPageGroupVO> page = baseMapper.myPageGroup(dto.pageOrder(), dto);
 
@@ -413,7 +413,7 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
     public String hiddenGroup(BaseImApplyGroupHiddenGroupDTO dto) {
 
         // 检查：是否有权限
-        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), false);
+        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), false, true);
 
         Long count = lambdaQuery().eq(BaseImApplyGroupDO::getTargetGroupId, dto.getGroupId())
             .in(BaseImApplyGroupDO::getId, dto.getIdSet()).count();

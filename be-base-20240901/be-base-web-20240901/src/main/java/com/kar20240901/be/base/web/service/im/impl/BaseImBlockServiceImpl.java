@@ -188,7 +188,7 @@ public class BaseImBlockServiceImpl extends ServiceImpl<BaseImBlockMapper, BaseI
     public Page<BaseImBlockGroupPageVO> groupPage(BaseImBlockGroupPageDTO dto) {
 
         // 检测权限
-        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), false);
+        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), false, true);
 
         dto.setSourceType(BaseImTypeEnum.GROUP.getCode());
 

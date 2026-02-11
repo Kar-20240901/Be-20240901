@@ -1,7 +1,9 @@
 package com.kar20240901.be.base.web.controller.im;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.kar20240901.be.base.web.model.domain.im.BaseImGroupDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
+import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupChangeBelongIdDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupInsertOrUpdateDTO;
@@ -32,6 +34,12 @@ public class BaseImGroupController {
     @PostMapping("/insertOrUpdate")
     public R<String> insertOrUpdate(@RequestBody @Valid BaseImGroupInsertOrUpdateDTO dto) {
         return R.okMsg(baseService.insertOrUpdate(dto));
+    }
+
+    @Operation(summary = "通过主键id，查看详情")
+    @PostMapping("/infoById")
+    public R<BaseImGroupDO> infoById(@RequestBody @Valid NotNullId notNullId) {
+        return R.okData(baseService.infoById(notNullId));
     }
 
     @Operation(summary = "分页排序查询")

@@ -267,7 +267,7 @@ public class BaseFileUtil {
 
             // 如果是：im群组头像
             // 检查：是否有权限
-            BaseImGroupUtil.checkGroupAuth(bo.getRefId(), false);
+            BaseImGroupUtil.checkGroupAuth(bo.getRefId(), false, true);
 
             // 通用：上传处理
             resultBaseFileId = uploadCommonHandle(bo, fileType, null,

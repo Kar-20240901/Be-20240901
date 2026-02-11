@@ -170,7 +170,7 @@ public class BaseApiTokenServiceImpl extends ServiceImpl<BaseApiTokenMapper, Bas
      * 通过主键id，查看详情
      */
     @Override
-    public BaseApiTokenDO infoById(NotNullId notNullId) {
+    public BaseApiTokenDO infoById(NotNullId dto) {
 
         Long userId = MyUserUtil.getCurrentUserId();
 
@@ -182,7 +182,7 @@ public class BaseApiTokenServiceImpl extends ServiceImpl<BaseApiTokenMapper, Bas
 
         }
 
-        return lambdaQuery().eq(BaseApiTokenDO::getId, notNullId.getId())
+        return lambdaQuery().eq(BaseApiTokenDO::getId, dto.getId())
             .eq(queryUserId != null, BaseApiTokenDO::getUserId, queryUserId).one();
 
     }
@@ -191,9 +191,9 @@ public class BaseApiTokenServiceImpl extends ServiceImpl<BaseApiTokenMapper, Bas
      * 批量删除
      */
     @Override
-    public String deleteByIdSet(NotEmptyIdSet notEmptyIdSet) {
+    public String deleteByIdSet(NotEmptyIdSet dto) {
 
-        Set<Long> idSet = notEmptyIdSet.getIdSet();
+        Set<Long> idSet = dto.getIdSet();
 
         if (CollUtil.isEmpty(idSet)) {
             return TempBizCodeEnum.OK;
