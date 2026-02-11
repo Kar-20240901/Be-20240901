@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.controller.im;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionContentRefUserPageDTO;
 import com.kar20240901.be.base.web.model.vo.base.R;
@@ -35,6 +36,18 @@ public class BaseImSessionContentRefUserController {
     @PostMapping("/scroll")
     public R<List<BaseImSessionContentRefUserPageVO>> scroll(@RequestBody @Valid ScrollListDTO dto) {
         return R.okData(baseService.scroll(dto));
+    }
+
+    @Operation(summary = "清空聊天记录")
+    @PostMapping("/deleteSessionContentRefUser")
+    public R<String> deleteSessionContentRefUser(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okMsg(baseService.deleteSessionContentRefUser(dto));
+    }
+
+    @Operation(summary = "隐藏消息内容")
+    @PostMapping("/hideSessionContentRefUser")
+    public R<String> hideSessionContentRefUser(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okMsg(baseService.hideSessionContentRefUser(dto));
     }
 
 }

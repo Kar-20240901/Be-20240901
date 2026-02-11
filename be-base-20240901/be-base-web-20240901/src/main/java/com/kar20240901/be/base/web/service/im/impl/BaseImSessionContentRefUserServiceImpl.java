@@ -6,10 +6,12 @@ import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
+import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionContentRefUserMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionContentRefUserDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionRefUserDO;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionContentRefUserPageDTO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionContentRefUserPageVO;
@@ -18,6 +20,7 @@ import com.kar20240901.be.base.web.util.base.MyPageUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -143,6 +146,41 @@ public class BaseImSessionContentRefUserServiceImpl
             .eq(BaseImSessionRefUserDO::getSessionId, sessionId)
             .set(BaseImSessionRefUserDO::getLastOpenTs, new Date().getTime())
             .set(BaseImSessionRefUserDO::getShowFlag, true).update();
+
+    }
+
+    /**
+     * 清空聊天记录
+     */
+    @Override
+    public String deleteSessionContentRefUser(NotEmptyIdSet dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        Set<Long> sessionIdSet = dto.getIdSet();
+
+        lambdaUpdate().eq(BaseImSessionContentRefUserDO::getUserId, currentUserId)
+            .in(BaseImSessionContentRefUserDO::getSessionId, sessionIdSet).remove();
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 隐藏消息内容
+     */
+    @Override
+    public String hideSessionContentRefUser(NotEmptyIdSet dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        Set<Long> contentIdSet = dto.getIdSet();
+
+        lambdaUpdate().eq(BaseImSessionContentRefUserDO::getUserId, currentUserId)
+            .in(BaseImSessionContentRefUserDO::getContentId, contentIdSet)
+            .set(BaseImSessionContentRefUserDO::getShowFlag, false).update();
+
+        return TempBizCodeEnum.OK;
 
     }
 
