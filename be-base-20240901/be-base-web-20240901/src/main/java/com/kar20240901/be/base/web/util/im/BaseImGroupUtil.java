@@ -61,32 +61,46 @@ public class BaseImGroupUtil {
     }
 
     /**
+     * 获取：是否是群主
+     */
+    public static boolean getGroupCreateFlag(Long groupId) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        return ChainWrappers.lambdaQueryChain(baseImGroupMapper).eq(BaseImGroupDO::getBelongId, currentUserId)
+            .eq(BaseImGroupDO::getId, groupId).exists();
+
+    }
+
+    /**
      * 检查：是否有权限
      *
      * @param onlyCreateFlag 是否是只能群主进行操作
      */
-    public static void checkGroupAuth(Long groupId, boolean onlyCreateFlag) {
+    public static boolean checkGroupAuth(Long groupId, boolean onlyCreateFlag) {
 
-        Long currentUserId = MyUserUtil.getCurrentUserId();
+        // 获取：是否是群主
+        boolean groupCreateFlag = getGroupCreateFlag(groupId);
 
-        boolean exists = ChainWrappers.lambdaQueryChain(baseImGroupMapper).eq(BaseImGroupDO::getBelongId, currentUserId)
-            .eq(BaseImGroupDO::getId, groupId).exists();
-
-        if (exists) {
-            return;
+        if (groupCreateFlag) {
+            return groupCreateFlag;
         }
 
         if (onlyCreateFlag) {
             R.error("操作失败：只能群主进行该操作", groupId);
         }
 
-        exists =
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        boolean exists =
             ChainWrappers.lambdaQueryChain(baseImGroupRefUserMapper).eq(BaseImGroupRefUserDO::getUserId, currentUserId)
                 .eq(BaseImGroupRefUserDO::getManageFlag, true).eq(BaseImGroupRefUserDO::getGroupId, groupId).exists();
 
         if (!exists) {
             R.error("操作失败：只能群管理员进行该操作", groupId);
         }
+
+        return groupCreateFlag;
 
     }
 

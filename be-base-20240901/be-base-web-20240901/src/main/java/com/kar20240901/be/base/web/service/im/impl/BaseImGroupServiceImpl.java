@@ -71,6 +71,8 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
 
         baseImGroupDO.setName(dto.getName());
 
+        baseImGroupDO.setNormalMuteFlag(BooleanUtil.isTrue(dto.getNormalMuteFlag()));
+
         if (dto.getId() == null) {
 
             Long groupId = IdGeneratorUtil.nextId();
@@ -84,6 +86,8 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
             baseImGroupDO.setAvatarFileId(TempConstant.NEGATIVE_ONE);
 
             baseImGroupDO.setSessionId(sessionId);
+
+            baseImGroupDO.setManageMuteFlag(BooleanUtil.isTrue(dto.getManageMuteFlag()));
 
             save(baseImGroupDO);
 
@@ -99,9 +103,13 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
         } else {
 
             // 检查：是否有权限
-            BaseImGroupUtil.checkGroupAuth(dto.getId(), false);
+            boolean groupCreateFlag = BaseImGroupUtil.checkGroupAuth(dto.getId(), false);
 
             baseImGroupDO.setId(dto.getId());
+
+            if (groupCreateFlag) {
+                baseImGroupDO.setManageMuteFlag(BooleanUtil.isTrue(dto.getManageMuteFlag()));
+            }
 
             updateById(baseImGroupDO);
 
