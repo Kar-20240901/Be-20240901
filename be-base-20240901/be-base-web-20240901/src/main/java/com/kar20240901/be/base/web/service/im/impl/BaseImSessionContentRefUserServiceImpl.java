@@ -58,7 +58,10 @@ public class BaseImSessionContentRefUserServiceImpl
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        updateLastOpenTs(currentUserId, dto.getRefId()); // 更新最后一次打开会话的时间
+        // 默认是：更新
+        if (BooleanUtil.isFalse(dto.getBoolean1())) {
+            updateLastOpenTs(currentUserId, dto.getRefId()); // 更新最后一次打开会话的时间
+        }
 
         boolean backwardFlag = BooleanUtil.isTrue(dto.getBackwardFlag());
 

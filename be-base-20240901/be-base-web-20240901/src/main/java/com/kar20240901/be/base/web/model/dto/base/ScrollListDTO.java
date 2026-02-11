@@ -37,4 +37,7 @@ public class ScrollListDTO {
     @Schema(description = "关联的 id集合")
     private Set<Long> refIdSet;
 
+    @Schema(description = "布尔值1")
+    private Boolean boolean1;
+
 }
