@@ -178,7 +178,7 @@ public class BaseImFriendServiceImpl extends ServiceImpl<BaseImFriendMapper, Bas
             .in(BaseImSessionRefUserDO::getTargetId, friendUserIdSet)
             .eq(BaseImSessionRefUserDO::getUserId, currentUserId)
             .eq(BaseImSessionRefUserDO::getTargetType, BaseImTypeEnum.FRIEND)
-            .set(BaseImSessionRefUserDO::getShowFlag, false);
+            .set(BaseImSessionRefUserDO::getShowFlag, false).update();
 
         return TempBizCodeEnum.OK;
 
