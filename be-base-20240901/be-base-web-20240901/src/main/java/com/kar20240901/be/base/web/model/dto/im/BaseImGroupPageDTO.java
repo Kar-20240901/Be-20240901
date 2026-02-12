@@ -18,7 +18,7 @@ public class BaseImGroupPageDTO extends MyPageDTO {
     @Schema(description = "是否向后查询，默认：false 根据 id，往前查询 true 根据 id，往后查询", hidden = true)
     private Boolean backwardFlag;
 
-    @Schema(description = "是否是好友管理查询")
+    @Schema(description = "是否是群组管理查询")
     private Boolean manageQueryFlag;
 
     @Schema(description = "只查询我创建的群")

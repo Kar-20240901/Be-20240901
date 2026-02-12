@@ -343,7 +343,7 @@ CREATE TABLE `base_im_session`
     `id`                bigint NOT NULL COMMENT '会话主键 id',
     `source_apply_id`   bigint NOT NULL COMMENT '来源申请 id，目的：删除好友/群组之后，还可以恢复之前的会话内容，备注：群组不支持会话内容恢复，所以群组该值为 -1',
     `source_apply_type` int    NOT NULL COMMENT '来源申请类型：101 好友 201 群组',
-    `last_receive_ts`   bigint NOT NULL COMMENT '最后一次接受到消息时的时间戳，默认为：-1，备注：该字段用于：排序',
+    `last_receive_ts` bigint NOT NULL COMMENT '最后一次接受到消息时的时间戳，默认为：当前时间，备注：该字段用于：排序',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
