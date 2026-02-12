@@ -393,7 +393,8 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
             lambdaQuery().in(BaseImSessionRefUserDO::getSessionId, sessionIdSet)
                 .eq(BaseImSessionRefUserDO::getUserId, currentUserId)
                 .select(BaseImSessionRefUserDO::getId, BaseImSessionRefUserDO::getTargetId,
-                    BaseImSessionRefUserDO::getTargetType, BaseImSessionRefUserDO::getSessionId).list();
+                    BaseImSessionRefUserDO::getTargetType, BaseImSessionRefUserDO::getSessionId,
+                    BaseImSessionRefUserDO::getTargetName, BaseImSessionRefUserDO::getAvatarUrl).list();
 
         List<BaseImSessionRefUserUpdateAvatarAndNicknameVO> updateAvatarAndNicknameVoList =
             new ArrayList<>(baseImSessionRefUserDoList.size());
@@ -505,11 +506,23 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
             updateAvatarAndNicknameVoList.add(baseImSessionRefUserUpdateAvatarAndNicknameVO);
 
-            updateList.add(baseImSessionRefUserDO);
+            String oldTargetName = item.getTargetName();
+            String oldAvatarUrl = item.getAvatarUrl();
+
+            String newTargetName = baseImSessionRefUserDO.getTargetName();
+            String newAvatarUrl = baseImSessionRefUserDO.getAvatarUrl();
+
+            if (!newTargetName.equals(oldTargetName) || !newAvatarUrl.equals(oldAvatarUrl)) {
+                updateList.add(baseImSessionRefUserDO);
+            }
 
         }
 
-        updateBatchById(updateList);
+        if (CollUtil.isNotEmpty(updateList)) {
+
+            updateBatchById(updateList);
+
+        }
 
         return updateAvatarAndNicknameVoList;
 
