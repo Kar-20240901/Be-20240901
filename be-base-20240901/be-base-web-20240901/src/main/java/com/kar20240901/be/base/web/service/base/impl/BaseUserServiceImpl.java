@@ -16,7 +16,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.exception.base.BaseBizCodeEnum;
-import com.kar20240901.be.base.web.mapper.base.BaseAuthMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.base.BaseUserMapper;
 import com.kar20240901.be.base.web.model.bo.base.BaseUserInsertBatchByExcelBO;
@@ -41,6 +40,7 @@ import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.base.TempUserInfoByIdVO;
 import com.kar20240901.be.base.web.service.base.BaseRoleRefUserService;
 import com.kar20240901.be.base.web.service.base.BaseUserService;
+import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyMapUtil;
 import com.kar20240901.be.base.web.util.base.MyParamUtil;
@@ -82,7 +82,7 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
     BaseUserInfoMapper baseUserInfoMapper;
 
     @Resource
-    BaseAuthMapper baseAuthMapper;
+    BaseFileService baseFileService;
 
     /**
      * 分页排序查询
@@ -95,6 +95,11 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
         // 备注：mysql 是先 group by 再 order by
         Page<BaseUserPageVO> page = baseMapper.myPage(dtoPage, dto);
 
+        Set<Long> avatarIdSet =
+            page.getRecords().stream().map(BaseUserPageVO::getAvatarFileId).collect(Collectors.toSet());
+
+        Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(avatarIdSet)).getMap();
+
         for (BaseUserPageVO item : page.getRecords()) {
 
             // 备注：要和 userSelfInfo接口保持一致
@@ -103,6 +108,14 @@ public class BaseUserServiceImpl extends ServiceImpl<BaseUserMapper, TempUserDO>
             item.setPhone(DesensitizedUtil.mobilePhone(item.getPhone())); // 脱敏
             item.setWxOpenId(StrUtil.hide(item.getWxOpenId(), 3, item.getWxOpenId().length() - 4)); // 脱敏：只显示前 3位，后 4位
             item.setWxAppId(StrUtil.hide(item.getWxAppId(), 3, item.getWxAppId().length() - 4)); // 脱敏：只显示前 3位，后 4位
+
+            Long avatarFileId = item.getAvatarFileId();
+
+            String avatarUrl = publicUrlMap.get(avatarFileId);
+
+            item.setAvatarFileId(null);
+
+            item.setAvatarUrl(avatarUrl);
 
         }
 

@@ -32,8 +32,8 @@ public class BaseImGroupController {
 
     @Operation(summary = "新增/修改")
     @PostMapping("/insertOrUpdate")
-    public R<String> insertOrUpdate(@RequestBody @Valid BaseImGroupInsertOrUpdateDTO dto) {
-        return R.okMsg(baseService.insertOrUpdate(dto));
+    public R<Long> insertOrUpdate(@RequestBody @Valid BaseImGroupInsertOrUpdateDTO dto) {
+        return R.okData(baseService.insertOrUpdate(dto));
     }
 
     @Operation(summary = "通过主键id，查看详情")

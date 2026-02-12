@@ -15,4 +15,7 @@ public class BaseImGroupInfoByIdVO extends BaseImGroupDO {
     @Schema(description = "是否是管理员")
     private Boolean manageFlag;
 
+    @Schema(description = "群组头像地址")
+    private String avatarUrl;
+
 }

@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.IdUtil;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
@@ -78,7 +79,7 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
      */
     @Override
     @DSTransactional
-    public String insertOrUpdate(BaseImGroupInsertOrUpdateDTO dto) {
+    public Long insertOrUpdate(BaseImGroupInsertOrUpdateDTO dto) {
 
         BaseImGroupDO baseImGroupDO = new BaseImGroupDO();
 
@@ -87,6 +88,8 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
         baseImGroupDO.setName(dto.getName());
 
         baseImGroupDO.setNormalMuteFlag(BooleanUtil.isTrue(dto.getNormalMuteFlag()));
+
+        baseImGroupDO.setBio(MyEntityUtil.getNotNullStr(dto.getBio()));
 
         if (dto.getId() == null) {
 
@@ -103,8 +106,6 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
             baseImGroupDO.setSessionId(sessionId);
 
             baseImGroupDO.setManageMuteFlag(BooleanUtil.isTrue(dto.getManageMuteFlag()));
-
-            baseImGroupDO.setBio(MyEntityUtil.getNotNullStr(dto.getBio()));
 
             baseImGroupDO.setShowId(IdUtil.simpleUUID());
 
@@ -134,7 +135,7 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
 
         }
 
-        return TempBizCodeEnum.OK;
+        return baseImGroupDO.getId();
 
     }
 
@@ -185,6 +186,14 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
             baseImGroupInfoByIdVO.setManageFlag(false);
 
         }
+
+        Set<Long> avatarIdSet = CollUtil.newHashSet(baseImGroupInfoByIdVO.getAvatarFileId());
+
+        Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(avatarIdSet)).getMap();
+
+        baseImGroupInfoByIdVO.setAvatarFileId(null);
+
+        baseImGroupInfoByIdVO.setAvatarUrl(publicUrlMap.get(baseImGroupInfoByIdVO.getAvatarFileId()));
 
         return baseImGroupInfoByIdVO;
 

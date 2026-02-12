@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 
 public interface BaseImGroupService extends IService<BaseImGroupDO> {
 
-    String insertOrUpdate(BaseImGroupInsertOrUpdateDTO dto);
+    Long insertOrUpdate(BaseImGroupInsertOrUpdateDTO dto);
 
     BaseImGroupInfoByIdVO infoById(NotNullId dto);
 

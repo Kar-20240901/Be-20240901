@@ -14,8 +14,11 @@ public class BaseUserPageVO {
     @Schema(description = "昵称")
     private String nickname;
 
-    @Schema(description = "头像 fileId（文件主键 id），备注：没有时则为 -1")
+    @Schema(description = "头像 fileId（文件主键 id），备注：没有时则为 -1，后端用", hidden = true)
     private Long avatarFileId;
+
+    @Schema(description = "头像地址")
+    private String avatarUrl;
 
     @Schema(description = "邮箱，备注：会脱敏")
     private String email;

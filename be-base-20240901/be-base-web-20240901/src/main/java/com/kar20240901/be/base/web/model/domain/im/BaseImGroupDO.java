@@ -24,7 +24,7 @@ public class BaseImGroupDO extends TempEntityNoIdSuper {
     @Schema(description = "群组名称")
     private String name;
 
-    @Schema(description = "头像 fileId（文件主键 id）")
+    @Schema(description = "头像 fileId（文件主键 id），后端用", hidden = true)
     private Long avatarFileId;
 
     @Schema(description = "会话主键 id")
