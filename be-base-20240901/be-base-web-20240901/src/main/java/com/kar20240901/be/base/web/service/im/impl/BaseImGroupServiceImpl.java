@@ -45,6 +45,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -255,7 +256,7 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
      * 设置群组头像地址
      */
     @Override
-    public void setAvatarUrl(List<BaseImGroupPageVO> records, Consumer<BaseImGroupPageVO> consumer) {
+    public void setAvatarUrl(List<BaseImGroupPageVO> records, @Nullable Consumer<BaseImGroupPageVO> consumer) {
 
         Set<Long> avatarIdSet = records.stream().map(BaseImGroupPageVO::getAvatarFileId).collect(Collectors.toSet());
 
@@ -271,7 +272,9 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
 
             item.setAvatarUrl(avatarUrl);
 
-            consumer.accept(item);
+            if (consumer != null) {
+                consumer.accept(item);
+            }
 
         }
 
