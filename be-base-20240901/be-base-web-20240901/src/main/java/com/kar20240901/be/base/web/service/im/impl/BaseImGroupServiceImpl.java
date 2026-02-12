@@ -2,6 +2,7 @@ package com.kar20240901.be.base.web.service.im.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.core.util.IdUtil;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -34,6 +35,7 @@ import com.kar20240901.be.base.web.service.im.BaseImGroupService;
 import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
 import com.kar20240901.be.base.web.service.im.BaseImSessionService;
 import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
+import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyPageUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import com.kar20240901.be.base.web.util.im.BaseImGroupUtil;
@@ -100,6 +102,10 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
             baseImGroupDO.setSessionId(sessionId);
 
             baseImGroupDO.setManageMuteFlag(BooleanUtil.isTrue(dto.getManageMuteFlag()));
+
+            baseImGroupDO.setBio(MyEntityUtil.getNotNullStr(dto.getBio()));
+
+            baseImGroupDO.setShowId(IdUtil.simpleUUID());
 
             save(baseImGroupDO);
 

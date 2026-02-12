@@ -20,4 +20,10 @@ public class BaseImGroupInsertOrUpdateDTO extends TempInsertOrUpdateDTO {
     @Schema(description = "管理员是否禁言，群主不会被禁言")
     private Boolean manageMuteFlag;
 
+    @Schema(description = "群组简介")
+    private String bio;
+
+    @Schema(description = "展示的 id")
+    private String showId;
+
 }

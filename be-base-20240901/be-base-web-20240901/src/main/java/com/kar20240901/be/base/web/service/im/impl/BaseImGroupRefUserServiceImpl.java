@@ -3,8 +3,11 @@ package com.kar20240901.be.base.web.service.im.impl;
 import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
+import com.kar20240901.be.base.web.mapper.im.BaseImGroupMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImGroupRefUserMapper;
+import com.kar20240901.be.base.web.model.domain.im.BaseImGroupDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupRefUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRefUserAddMuteDTO;
@@ -29,6 +32,9 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
 
     @Resource
     BaseFileService baseFileService;
+
+    @Resource
+    BaseImGroupMapper baseImGroupMapper;
 
     /**
      * 群组分页排序查询群员
@@ -203,6 +209,13 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
     public String leaveSelf(NotEmptyIdSet dto) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        boolean exists = ChainWrappers.lambdaQueryChain(baseImGroupMapper).eq(BaseImGroupDO::getBelongId, currentUserId)
+            .in(BaseImGroupDO::getId, dto.getIdSet()).exists();
+
+        if (exists) {
+            R.error("操作失败：群主不能退出群聊", dto.getIdSet());
+        }
 
         lambdaUpdate().in(BaseImGroupRefUserDO::getGroupId, dto.getIdSet())
             .eq(BaseImGroupRefUserDO::getUserId, currentUserId).remove();
