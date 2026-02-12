@@ -1,7 +1,6 @@
 package com.kar20240901.be.base.web.controller.im;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.kar20240901.be.base.web.model.domain.im.BaseImGroupDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
@@ -10,6 +9,7 @@ import com.kar20240901.be.base.web.model.dto.im.BaseImGroupInsertOrUpdateDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupPageDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRemoveUserDTO;
 import com.kar20240901.be.base.web.model.vo.base.R;
+import com.kar20240901.be.base.web.model.vo.im.BaseImGroupInfoByIdVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImGroupPageVO;
 import com.kar20240901.be.base.web.service.im.BaseImGroupService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,7 +38,7 @@ public class BaseImGroupController {
 
     @Operation(summary = "通过主键id，查看详情")
     @PostMapping("/infoById")
-    public R<BaseImGroupDO> infoById(@RequestBody @Valid NotNullId notNullId) {
+    public R<BaseImGroupInfoByIdVO> infoById(@RequestBody @Valid NotNullId notNullId) {
         return R.okData(baseService.infoById(notNullId));
     }
 

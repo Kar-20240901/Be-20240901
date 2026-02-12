@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.web.controller.im;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRefUserAddMuteDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRefUserDeleteMuteDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRefUserMutePageDTO;
@@ -59,6 +60,12 @@ public class BaseImGroupRefUserController {
     @PostMapping("/deleteManage")
     public R<String> deleteManage(@RequestBody @Valid BaseImGroupRefUserDeleteMuteDTO dto) {
         return R.okMsg(baseService.deleteManage(dto));
+    }
+
+    @Operation(summary = "群员退出-自我")
+    @PostMapping("/leaveSelf")
+    public R<String> leaveSelf(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okMsg(baseService.leaveSelf(dto));
     }
 
 }

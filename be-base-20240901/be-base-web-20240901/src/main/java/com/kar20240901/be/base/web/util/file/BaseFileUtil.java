@@ -1449,13 +1449,13 @@ public class BaseFileUtil {
             return MapUtil.newHashMap();
         }
 
-        List<BaseFileDO> baseFileDOList =
+        List<BaseFileDO> baseFileDoList =
             getBaseFileBaseLambdaQuery().in(TempEntity::getId, fileIdSet).eq(BaseFileDO::getPublicFlag, true).list();
 
-        Map<Long, String> result = new HashMap<>(baseFileDOList.size());
+        Map<Long, String> result = new HashMap<>(baseFileDoList.size());
 
         Set<Long> baseFileStorageConfigurationIdSet =
-            baseFileDOList.stream().map(BaseFileDO::getStorageConfigurationId).collect(Collectors.toSet());
+            baseFileDoList.stream().map(BaseFileDO::getStorageConfigurationId).collect(Collectors.toSet());
 
         if (CollUtil.isEmpty(baseFileStorageConfigurationIdSet)) {
             return MapUtil.newHashMap();
@@ -1474,7 +1474,7 @@ public class BaseFileUtil {
         Map<Long, BaseFileStorageConfigurationDO> baseFileStorageConfigurationIdMap =
             baseFileStorageConfigurationDOList.stream().collect(Collectors.toMap(TempEntity::getId, it -> it));
 
-        for (BaseFileDO item : baseFileDOList) {
+        for (BaseFileDO item : baseFileDoList) {
 
             BaseFileStorageConfigurationDO baseFileStorageConfigurationDO =
                 baseFileStorageConfigurationIdMap.get(item.getStorageConfigurationId());

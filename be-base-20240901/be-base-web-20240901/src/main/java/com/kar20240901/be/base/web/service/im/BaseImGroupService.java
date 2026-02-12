@@ -10,14 +10,16 @@ import com.kar20240901.be.base.web.model.dto.im.BaseImGroupChangeBelongIdDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupInsertOrUpdateDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupPageDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRemoveUserDTO;
+import com.kar20240901.be.base.web.model.vo.im.BaseImGroupInfoByIdVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImGroupPageVO;
 import java.util.List;
+import java.util.function.Consumer;
 
 public interface BaseImGroupService extends IService<BaseImGroupDO> {
 
     String insertOrUpdate(BaseImGroupInsertOrUpdateDTO dto);
 
-    BaseImGroupDO infoById(NotNullId dto);
+    BaseImGroupInfoByIdVO infoById(NotNullId dto);
 
     Page<BaseImGroupPageVO> myPage(BaseImGroupPageDTO dto);
 
@@ -28,5 +30,7 @@ public interface BaseImGroupService extends IService<BaseImGroupDO> {
     String changeBelongId(BaseImGroupChangeBelongIdDTO dto);
 
     String deleteByIdSet(NotEmptyIdSet dto);
+
+    void setAvatarUrl(List<BaseImGroupPageVO> records, Consumer<BaseImGroupPageVO> consumer);
 
 }

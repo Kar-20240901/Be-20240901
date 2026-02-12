@@ -1,7 +1,9 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
@@ -24,7 +26,9 @@ import com.kar20240901.be.base.web.model.dto.im.BaseImGroupPageDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRemoveUserDTO;
 import com.kar20240901.be.base.web.model.enums.im.BaseImTypeEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
+import com.kar20240901.be.base.web.model.vo.im.BaseImGroupInfoByIdVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImGroupPageVO;
+import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.service.im.BaseImGroupRefUserService;
 import com.kar20240901.be.base.web.service.im.BaseImGroupService;
 import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
@@ -34,6 +38,10 @@ import com.kar20240901.be.base.web.util.base.MyPageUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import com.kar20240901.be.base.web.util.im.BaseImGroupUtil;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -58,6 +66,9 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
 
     @Resource
     BaseImGroupRefUserService baseImGroupRefUserService;
+
+    @Resource
+    BaseFileService baseFileService;
 
     /**
      * 新增/修改
@@ -124,7 +135,7 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
      * 通过主键id，查看详情
      */
     @Override
-    public BaseImGroupDO infoById(NotNullId dto) {
+    public BaseImGroupInfoByIdVO infoById(NotNullId dto) {
 
         Long groupId = dto.getId();
 
@@ -134,8 +145,41 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
             R.error("操作失败：您不在群里，不能进行此操作", groupId);
         }
 
-        // TODO：不同的用户，查看不同的数据
-        return lambdaQuery().eq(BaseImGroupDO::getId, groupId).one();
+        LambdaQueryChainWrapper<BaseImGroupDO> lambdaQueryChainWrapper =
+            lambdaQuery().eq(BaseImGroupDO::getId, groupId);
+
+        // 不同的类型，查看不同的数据
+        if (type == 101) {
+
+        } else if (type == 201) {
+
+        } else {
+
+            lambdaQueryChainWrapper.select(BaseImGroupDO::getId, BaseImGroupDO::getName, BaseImGroupDO::getAvatarFileId,
+                BaseImGroupDO::getShowId, BaseImGroupDO::getSessionId);
+
+        }
+
+        BaseImGroupDO baseImGroupDO = lambdaQueryChainWrapper.one();
+
+        if (baseImGroupDO == null) {
+            return null;
+        }
+
+        BaseImGroupInfoByIdVO baseImGroupInfoByIdVO =
+            BeanUtil.copyProperties(baseImGroupDO, BaseImGroupInfoByIdVO.class);
+
+        if (type == 101) {
+
+            baseImGroupInfoByIdVO.setBelongFlag(true);
+
+        } else if (type == 201) {
+
+            baseImGroupInfoByIdVO.setManageFlag(false);
+
+        }
+
+        return baseImGroupInfoByIdVO;
 
     }
 
@@ -147,7 +191,26 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        return baseMapper.myPage(dto.pageOrder(), dto, currentUserId);
+        Page<BaseImGroupPageVO> resPage = baseMapper.myPage(dto.pageOrder(), dto, currentUserId);
+
+        // 设置群组头像地址
+        setAvatarUrl(resPage.getRecords(), item -> {
+
+            boolean belongFlag = BooleanUtil.isTrue(item.getBelongFlag());
+
+            boolean manageFlag = BooleanUtil.isTrue(item.getManageFlag());
+
+            if (!belongFlag && !manageFlag) {
+
+                item.setNormalMuteFlag(null);
+
+                item.setManageFlag(null);
+
+            }
+
+        });
+
+        return resPage;
 
     }
 
@@ -175,7 +238,36 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
         Page<BaseImGroupPageVO> resPage =
             baseMapper.myPage(MyPageUtil.getScrollPage(dto.getPageSize()), pageDTO, currentUserId);
 
+        // 设置群组头像地址
+        setAvatarUrl(resPage.getRecords(), null);
+
         return resPage.getRecords();
+
+    }
+
+    /**
+     * 设置群组头像地址
+     */
+    @Override
+    public void setAvatarUrl(List<BaseImGroupPageVO> records, Consumer<BaseImGroupPageVO> consumer) {
+
+        Set<Long> avatarIdSet = records.stream().map(BaseImGroupPageVO::getAvatarFileId).collect(Collectors.toSet());
+
+        Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(avatarIdSet)).getMap();
+
+        for (BaseImGroupPageVO item : records) {
+
+            Long avatarFileId = item.getAvatarFileId();
+
+            String avatarUrl = publicUrlMap.get(avatarFileId);
+
+            item.setAvatarFileId(null);
+
+            item.setAvatarUrl(avatarUrl);
+
+            consumer.accept(item);
+
+        }
 
     }
 
@@ -185,12 +277,6 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
     @Override
     @DSTransactional
     public String removeUser(BaseImGroupRemoveUserDTO dto) {
-
-        Long currentUserId = MyUserUtil.getCurrentUserId();
-
-        if (dto.getUserIdSet().contains(currentUserId)) {
-            R.error(TempBizCodeEnum.ILLEGAL_REQUEST);
-        }
 
         // 检查：是否有权限
         BaseImGroupUtil.checkForTargetUserId(dto.getGroupId(), dto.getUserIdSet());

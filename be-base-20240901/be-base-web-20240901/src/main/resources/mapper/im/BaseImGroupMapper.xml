@@ -6,12 +6,23 @@
     SELECT IF(c.name = '', b.name, c.name) AS groupShowName,
            b.id                            AS groupId,
            b.show_id                       AS groupShowId,
-           c.session_id                    AS sessionId,
-           c.avatar_url                    AS avatarUrl
+           c.session_id                    AS sessionId
+
+    <if test="dto.manageQueryFlag != null">
+      ,
+        b.create_time                                   AS createTime,
+        a.manage_flag                                   AS manageFlag,
+        IF(b.belong_id = #{currentUserId}, TRUE, FALSE) AS belongFlag,
+        b.bio                                           AS bio,
+        a.mute_flag                                     AS muteFlag,
+        b.normal_mute_flag                              AS normalMuteFlag,
+        b.manage_mute_flag                              AS manageMuteFlag
+    </if>
+
 
     FROM base_im_group_ref_user a
-
-           LEFT JOIN base_im_group b ON b.id = a.group_id
+           LEFT JOIN base_im_group b
+                     ON b.id = a.group_id
 
            LEFT JOIN base_im_session_ref_user c
                      ON c.session_id = b.session_id AND c.user_id = a.user_id
@@ -24,10 +35,20 @@
 
     <if test="dto.searchKey != null and dto.searchKey != ''">
       AND (
-        b.name LIKE CONCAT('%', #{dto.searchKey}, '%')
-          OR c.name LIKE CONCAT('%', #{dto.searchKey}, '%')
-          OR b.show_id LIKE CONCAT('%', #{dto.searchKey}, '%')
+        b.name LIKE CONCAT('%'
+          , #{dto.searchKey}
+          , '%')
+          OR c.name LIKE CONCAT('%'
+          , #{dto.searchKey}
+          , '%')
+          OR b.show_id LIKE CONCAT('%'
+          , #{dto.searchKey}
+          , '%')
         )
+    </if>
+
+    <if test="dto.onlyQueryBelongFlag != null and dto.onlyQueryBelongFlag">
+      AND b.belong_id = #{currentUserId}
     </if>
 
     <if test="dto.groupId != null">

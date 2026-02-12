@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
-import com.kar20240901.be.base.web.mapper.im.BaseImApplyFriendMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImBlockMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImGroupMapper;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
@@ -35,9 +34,6 @@ public class BaseImBlockServiceImpl extends ServiceImpl<BaseImBlockMapper, BaseI
 
     @Resource
     BaseImGroupMapper baseImGroupMapper;
-
-    @Resource
-    BaseImApplyFriendMapper baseImApplyFriendMapper;
 
     @Resource
     BaseFileService baseFileService;
@@ -108,10 +104,6 @@ public class BaseImBlockServiceImpl extends ServiceImpl<BaseImBlockMapper, BaseI
         Long groupId = dto.getGroupId();
 
         Set<Long> userIdSet = dto.getUserIdSet();
-
-        if (userIdSet.contains(currentUserId)) {
-            R.error(TempBizCodeEnum.ILLEGAL_REQUEST);
-        }
 
         // 检测权限
         BaseImGroupUtil.checkForTargetUserId(dto.getGroupId(), dto.getUserIdSet());

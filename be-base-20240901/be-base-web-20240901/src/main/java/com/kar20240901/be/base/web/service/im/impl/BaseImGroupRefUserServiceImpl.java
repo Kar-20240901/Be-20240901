@@ -101,12 +101,6 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
         // 检查：是否有权限
         BaseImGroupUtil.checkForTargetUserId(dto.getGroupId(), dto.getUserIdSet());
 
-        Long currentUserId = MyUserUtil.getCurrentUserId();
-
-        if (dto.getUserIdSet().contains(currentUserId)) {
-            R.errorMsg("操作失败：不能禁言自己");
-        }
-
         lambdaUpdate().eq(BaseImGroupRefUserDO::getGroupId, dto.getGroupId())
             .in(BaseImGroupRefUserDO::getUserId, dto.getUserIdSet()).set(BaseImGroupRefUserDO::getMuteFlag, true)
             .update();
@@ -123,12 +117,6 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
 
         // 检查：是否有权限
         BaseImGroupUtil.checkForTargetUserId(dto.getGroupId(), dto.getUserIdSet());
-
-        Long currentUserId = MyUserUtil.getCurrentUserId();
-
-        if (dto.getUserIdSet().contains(currentUserId)) {
-            R.errorMsg("操作失败：不能解除自己的禁言");
-        }
 
         lambdaUpdate().eq(BaseImGroupRefUserDO::getGroupId, dto.getGroupId())
             .in(BaseImGroupRefUserDO::getUserId, dto.getUserIdSet()).set(BaseImGroupRefUserDO::getMuteFlag, false)
@@ -203,6 +191,21 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
         lambdaUpdate().eq(BaseImGroupRefUserDO::getGroupId, dto.getGroupId())
             .in(BaseImGroupRefUserDO::getUserId, dto.getUserIdSet()).set(BaseImGroupRefUserDO::getManageFlag, false)
             .update();
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 群员退出-自我
+     */
+    @Override
+    public String leaveSelf(NotEmptyIdSet dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        lambdaUpdate().in(BaseImGroupRefUserDO::getGroupId, dto.getIdSet())
+            .eq(BaseImGroupRefUserDO::getUserId, currentUserId).remove();
 
         return TempBizCodeEnum.OK;
 

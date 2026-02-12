@@ -23,6 +23,7 @@ import com.kar20240901.be.base.web.model.vo.im.BaseImSearchBaseFriendVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSearchBaseGroupVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSearchBaseVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSearchHistoryVO;
+import com.kar20240901.be.base.web.service.im.BaseImGroupService;
 import com.kar20240901.be.base.web.service.im.BaseImSearchService;
 import com.kar20240901.be.base.web.util.base.MyThreadUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
@@ -47,6 +48,9 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
 
     @Resource
     BaseImSessionContentRefUserMapper baseImSessionContentRefUserMapper;
+
+    @Resource
+    BaseImGroupService baseImGroupService;
 
     /**
      * 搜索历史-分页排序查询
@@ -189,19 +193,20 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
                 Page<BaseImGroupPageVO> baseImGroupPageVoPage =
                     baseImGroupMapper.myPage(page, baseImGroupPageDTO, currentUserId);
 
-                for (BaseImGroupPageVO item : baseImGroupPageVoPage.getRecords()) {
+                baseImGroupService.setAvatarUrl(baseImGroupPageVoPage.getRecords(), item -> {
 
                     BaseImSearchBaseGroupVO baseImSearchBaseGroupVO = new BaseImSearchBaseGroupVO();
 
                     baseImSearchBaseGroupVO.setGroupId(item.getGroupId());
                     baseImSearchBaseGroupVO.setGroupShowId(item.getGroupShowId());
                     baseImSearchBaseGroupVO.setGroupShowName(item.getGroupShowName());
-                    baseImSearchBaseGroupVO.setAvatarUrl(item.getAvatarUrl());
                     baseImSearchBaseGroupVO.setSessionId(item.getSessionId());
+
+                    baseImSearchBaseGroupVO.setAvatarUrl(item.getAvatarUrl());
 
                     groupList.add(baseImSearchBaseGroupVO);
 
-                }
+                });
 
             }, countDownLatch);
         }
