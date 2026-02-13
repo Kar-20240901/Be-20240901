@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @TableName(value = "base_im_group")
 @Data
-@Schema(description = "主表：群组表")
+@Schema(description = "主表：群聊表")
 public class BaseImGroupDO extends TempEntityNoIdSuper {
 
     @TableId(type = IdType.INPUT)
@@ -30,8 +30,8 @@ public class BaseImGroupDO extends TempEntityNoIdSuper {
     @Schema(description = "会话主键 id")
     private Long sessionId;
 
-    @Schema(description = "展示的 id")
-    private String showId;
+    @Schema(description = "群聊的 id")
+    private String uuid;
 
     @Schema(description = "普通成员是否禁言")
     private Boolean normalMuteFlag;

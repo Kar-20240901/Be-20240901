@@ -82,16 +82,16 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
 
         String name = dto.getName();
 
-        Long groupShowId = dto.getGroupShowId();
+        Long groupUuid = dto.getGroupUuid();
 
         Page<BaseImApplyFriendSearchApplyGroupVO> resPage = new Page<>();
 
-        if (StrUtil.isBlank(name) && groupShowId == null) {
+        if (StrUtil.isBlank(name) && groupUuid == null) {
             return resPage;
         }
 
         Page<BaseImGroupDO> page = ChainWrappers.lambdaQueryChain(baseImGroupMapper)
-            .eq(groupShowId != null, BaseImGroupDO::getShowId, groupShowId)
+            .eq(groupUuid != null, BaseImGroupDO::getUuid, groupUuid)
             .like(StrUtil.isNotBlank(name), BaseImGroupDO::getName, name)
             .select(BaseImGroupDO::getId, BaseImGroupDO::getName, BaseImGroupDO::getAvatarFileId)
             .page(dto.createTimeDescDefaultOrderPage(true));

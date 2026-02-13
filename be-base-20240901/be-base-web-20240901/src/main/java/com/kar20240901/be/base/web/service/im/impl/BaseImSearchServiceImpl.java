@@ -198,7 +198,7 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
                     BaseImSearchBaseGroupVO baseImSearchBaseGroupVO = new BaseImSearchBaseGroupVO();
 
                     baseImSearchBaseGroupVO.setGroupId(item.getGroupId());
-                    baseImSearchBaseGroupVO.setGroupShowId(item.getGroupShowId());
+                    baseImSearchBaseGroupVO.setGroupUuid(item.getGroupUuid());
                     baseImSearchBaseGroupVO.setGroupShowName(item.getGroupShowName());
                     baseImSearchBaseGroupVO.setSessionId(item.getSessionId());
 

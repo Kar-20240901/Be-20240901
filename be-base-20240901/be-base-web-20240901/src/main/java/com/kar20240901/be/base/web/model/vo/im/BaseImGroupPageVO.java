@@ -10,8 +10,8 @@ public class BaseImGroupPageVO {
     @Schema(description = "群组主键 id")
     private String groupId;
 
-    @Schema(description = "群组显示的 id")
-    private String groupShowId;
+    @Schema(description = "群组的 uuid")
+    private String groupUuid;
 
     @Schema(description = "显示的名称")
     private String groupShowName;

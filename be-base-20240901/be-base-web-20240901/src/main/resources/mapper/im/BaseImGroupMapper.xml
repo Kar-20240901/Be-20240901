@@ -5,7 +5,7 @@
   <select id="myPage" resultType="com.kar20240901.be.base.web.model.vo.im.BaseImGroupPageVO">
     SELECT IF(c.name = '', b.name, c.name) AS groupShowName,
            b.id                            AS groupId,
-           b.show_id                       AS groupShowId,
+           b.uuid                          AS groupUuid,
            c.session_id                    AS sessionId,
            b.avatar_file_id                AS avatarFileId
     <if test="dto.manageQueryFlag != null">
@@ -40,7 +40,7 @@
           OR c.name LIKE CONCAT('%'
           , #{dto.searchKey}
           , '%')
-          OR b.show_id LIKE CONCAT('%'
+          OR b.uuid LIKE CONCAT('%'
           , #{dto.searchKey}
           , '%')
         )

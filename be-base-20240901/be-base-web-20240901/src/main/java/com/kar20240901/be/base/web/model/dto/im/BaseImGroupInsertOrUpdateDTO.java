@@ -23,7 +23,4 @@ public class BaseImGroupInsertOrUpdateDTO extends TempInsertOrUpdateDTO {
     @Schema(description = "群组简介")
     private String bio;
 
-    @Schema(description = "展示的 id")
-    private String showId;
-
 }

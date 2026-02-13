@@ -112,7 +112,7 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
 
             baseImGroupDO.setManageMuteFlag(BooleanUtil.isTrue(dto.getManageMuteFlag()));
 
-            baseImGroupDO.setShowId(IdUtil.simpleUUID());
+            baseImGroupDO.setUuid(IdUtil.simpleUUID());
 
             save(baseImGroupDO);
 
@@ -169,7 +169,7 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
         } else {
 
             lambdaQueryChainWrapper.select(BaseImGroupDO::getId, BaseImGroupDO::getName, BaseImGroupDO::getAvatarFileId,
-                BaseImGroupDO::getShowId, BaseImGroupDO::getSessionId);
+                BaseImGroupDO::getUuid, BaseImGroupDO::getSessionId);
 
         }
 
