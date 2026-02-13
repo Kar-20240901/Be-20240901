@@ -191,9 +191,9 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
 
         Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(avatarIdSet)).getMap();
 
-        baseImGroupInfoByIdVO.setAvatarFileId(null);
-
         baseImGroupInfoByIdVO.setAvatarUrl(publicUrlMap.get(baseImGroupInfoByIdVO.getAvatarFileId()));
+
+        baseImGroupInfoByIdVO.setAvatarFileId(null);
 
         return baseImGroupInfoByIdVO;
 

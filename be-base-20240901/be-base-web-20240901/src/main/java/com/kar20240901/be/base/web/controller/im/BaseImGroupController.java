@@ -38,8 +38,8 @@ public class BaseImGroupController {
 
     @Operation(summary = "通过主键id，查看详情")
     @PostMapping("/infoById")
-    public R<BaseImGroupInfoByIdVO> infoById(@RequestBody @Valid NotNullId notNullId) {
-        return R.okData(baseService.infoById(notNullId));
+    public R<BaseImGroupInfoByIdVO> infoById(@RequestBody @Valid NotNullId dto) {
+        return R.okData(baseService.infoById(dto));
     }
 
     @Operation(summary = "分页排序查询")
