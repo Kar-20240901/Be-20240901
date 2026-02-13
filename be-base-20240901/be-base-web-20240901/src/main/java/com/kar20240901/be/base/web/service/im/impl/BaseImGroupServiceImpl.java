@@ -14,11 +14,13 @@ import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImBlockMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImGroupMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImGroupRefUserMapper;
+import com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper;
 import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupRefUserDO;
+import com.kar20240901.be.base.web.model.domain.im.BaseImSessionRefUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
@@ -73,6 +75,9 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
 
     @Resource
     BaseFileService baseFileService;
+
+    @Resource
+    BaseImSessionRefUserMapper baseImSessionRefUserMapper;
 
     /**
      * 新增/修改
@@ -355,6 +360,8 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
     @DSTransactional
     public String deleteByIdSet(NotEmptyIdSet dto) {
 
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
         // 检查：是否有权限
         BaseImGroupUtil.checkGroupIdSetAuth(dto.getIdSet(), true);
 
@@ -365,6 +372,13 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
 
         ChainWrappers.lambdaUpdateChain(baseImBlockMapper).in(BaseImBlockDO::getSourceId, dto.getIdSet())
             .eq(BaseImBlockDO::getSourceType, BaseImTypeEnum.GROUP).remove();
+
+        // 隐藏会话，注意：这里可以删除会话，但是先保留，看情况再进行改动
+        ChainWrappers.lambdaUpdateChain(baseImSessionRefUserMapper)
+            .in(BaseImSessionRefUserDO::getTargetId, dto.getIdSet())
+            .eq(BaseImSessionRefUserDO::getUserId, currentUserId)
+            .eq(BaseImSessionRefUserDO::getTargetType, BaseImTypeEnum.GROUP)
+            .set(BaseImSessionRefUserDO::getShowFlag, false).update();
 
         return TempBizCodeEnum.OK;
 

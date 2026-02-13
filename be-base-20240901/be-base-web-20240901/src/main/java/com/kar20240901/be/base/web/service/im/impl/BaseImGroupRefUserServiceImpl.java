@@ -7,13 +7,16 @@ import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.im.BaseImGroupMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImGroupRefUserMapper;
+import com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupRefUserDO;
+import com.kar20240901.be.base.web.model.domain.im.BaseImSessionRefUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRefUserAddMuteDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRefUserDeleteMuteDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRefUserMutePageDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRefUserPageDTO;
+import com.kar20240901.be.base.web.model.enums.im.BaseImTypeEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.im.BaseImGroupRefUserPageVO;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
@@ -35,6 +38,9 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
 
     @Resource
     BaseImGroupMapper baseImGroupMapper;
+
+    @Resource
+    BaseImSessionRefUserMapper baseImSessionRefUserMapper;
 
     /**
      * 群组分页排序查询群员
@@ -219,6 +225,13 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
 
         lambdaUpdate().in(BaseImGroupRefUserDO::getGroupId, dto.getIdSet())
             .eq(BaseImGroupRefUserDO::getUserId, currentUserId).remove();
+
+        // 隐藏会话，注意：不能删除会话
+        ChainWrappers.lambdaUpdateChain(baseImSessionRefUserMapper)
+            .in(BaseImSessionRefUserDO::getTargetId, dto.getIdSet())
+            .eq(BaseImSessionRefUserDO::getUserId, currentUserId)
+            .eq(BaseImSessionRefUserDO::getTargetType, BaseImTypeEnum.GROUP)
+            .set(BaseImSessionRefUserDO::getShowFlag, false).update();
 
         return TempBizCodeEnum.OK;
 
