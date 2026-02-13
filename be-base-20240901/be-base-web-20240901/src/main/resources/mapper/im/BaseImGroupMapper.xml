@@ -66,6 +66,6 @@
       </choose>
     </if>
 
-    ORDER BY a.create_time DESC
+    ORDER BY b.id DESC
   </select>
 </mapper>

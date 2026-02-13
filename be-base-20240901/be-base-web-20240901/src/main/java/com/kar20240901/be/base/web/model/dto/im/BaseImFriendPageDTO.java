@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 public class BaseImFriendPageDTO extends MyPageDTO {
 
     @Schema(description = "好友用户主键 id")
-    private Long friendUserId;
+    private Long imFriendId;
 
     @Schema(description = "搜索关键字")
     private String searchKey;

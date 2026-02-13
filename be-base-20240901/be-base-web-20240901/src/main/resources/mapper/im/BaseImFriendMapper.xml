@@ -7,12 +7,13 @@
            b.id                                AS friendUserId,
            b.uuid                              AS friendShowId,
            IF(c.name = '', b.nickname, c.name) AS friendShowName,
-           c.avatar_url                        AS avatarUrl
+           c.avatar_url                        AS avatarUrl,
+           a.id                                AS imFriendId
     <if test="dto.manageQueryFlag != null">
       ,
-        b.bio         AS bio,
-        a.create_time AS friendCreateTime,
-      c.not_disturb_flag AS notDisturbFlag
+        b.bio              AS bio,
+        a.create_time      AS friendCreateTime,
+        c.not_disturb_flag AS notDisturbFlag
     </if>
 
     FROM base_im_friend a
@@ -36,22 +37,22 @@
         )
     </if>
 
-    <if test="dto.friendUserId != null">
+    <if test="dto.imFriendId != null">
       <choose>
         <when test="dto.backwardFlag == null">
-          AND b.id = #{dto.friendUserId}
+          AND a.id = #{dto.imFriendId}
         </when>
 
         <when test="dto.backwardFlag">
-          AND b.id <![CDATA[>]]> #{dto.friendUserId}
+          AND a.id <![CDATA[>]]> #{dto.imFriendId}
         </when>
 
         <otherwise>
-          AND b.id <![CDATA[<]]> #{dto.friendUserId}
+          AND a.id <![CDATA[<]]> #{dto.imFriendId}
         </otherwise>
       </choose>
     </if>
 
-    ORDER BY a.create_time DESC
+    ORDER BY a.id DESC
   </select>
 </mapper>

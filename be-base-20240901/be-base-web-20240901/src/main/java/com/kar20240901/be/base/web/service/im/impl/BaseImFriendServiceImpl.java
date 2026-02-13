@@ -143,11 +143,11 @@ public class BaseImFriendServiceImpl extends ServiceImpl<BaseImFriendMapper, Bas
         boolean backwardFlag = BooleanUtil.isTrue(dto.getBackwardFlag());
 
         // 获取：滚动加载时的 id
-        Long friendUserId = MyPageUtil.getScrollId(dto);
+        Long imFriendId = MyPageUtil.getScrollId(dto);
 
         BaseImFriendPageDTO pageDTO = new BaseImFriendPageDTO();
 
-        pageDTO.setFriendUserId(friendUserId);
+        pageDTO.setImFriendId(imFriendId);
 
         pageDTO.setBackwardFlag(backwardFlag);
 

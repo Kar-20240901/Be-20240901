@@ -34,4 +34,7 @@ public class BaseImFriendPageVO {
     @Schema(description = "是否免打扰，备注：只有 dto的 manageQueryFlag生效时，才会返回该值")
     private Boolean notDisturbFlag;
 
+    @Schema(description = "im好友主键 id")
+    private Long imFriendId;
+
 }
