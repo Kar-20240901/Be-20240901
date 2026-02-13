@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRefUserAddMuteDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRefUserDeleteMuteDTO;
-import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRefUserMutePageDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRefUserPageDTO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.im.BaseImGroupRefUserPageVO;
@@ -30,12 +29,6 @@ public class BaseImGroupRefUserController {
     @PostMapping("/page")
     public R<Page<BaseImGroupRefUserPageVO>> myPage(@RequestBody @Valid BaseImGroupRefUserPageDTO dto) {
         return R.okData(baseService.myPage(dto));
-    }
-
-    @Operation(summary = "群组分页排序查询-禁言用户")
-    @PostMapping("/pageMute")
-    public R<Page<BaseImGroupRefUserPageVO>> pageMute(@RequestBody @Valid BaseImGroupRefUserMutePageDTO dto) {
-        return R.okData(baseService.pageMute(dto));
     }
 
     @Operation(summary = "新增禁言")

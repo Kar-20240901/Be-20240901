@@ -1,7 +1,6 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
 import cn.hutool.core.collection.CollUtil;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
@@ -12,17 +11,14 @@ import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.im.BaseImBlockGroupAddUserDTO;
-import com.kar20240901.be.base.web.model.dto.im.BaseImBlockGroupPageDTO;
 import com.kar20240901.be.base.web.model.enums.im.BaseImTypeEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
-import com.kar20240901.be.base.web.model.vo.im.BaseImBlockGroupPageVO;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.service.im.BaseImBlockService;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import com.kar20240901.be.base.web.util.im.BaseImGroupUtil;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
@@ -170,40 +166,6 @@ public class BaseImBlockServiceImpl extends ServiceImpl<BaseImBlockMapper, BaseI
             .eq(BaseImBlockDO::getSourceType, BaseImTypeEnum.GROUP).remove();
 
         return TempBizCodeEnum.OK;
-
-    }
-
-    /**
-     * 群组分页排序查询拉黑用户
-     */
-    @Override
-    public Page<BaseImBlockGroupPageVO> groupPage(BaseImBlockGroupPageDTO dto) {
-
-        // 检测权限
-        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), false, true);
-
-        dto.setSourceType(BaseImTypeEnum.GROUP.getCode());
-
-        Page<BaseImBlockGroupPageVO> resPage = baseMapper.groupPage(dto.createTimeDescDefaultOrderPage(), dto);
-
-        Set<Long> avatarIdSet =
-            resPage.getRecords().stream().map(BaseImBlockGroupPageVO::getAvatarFileId).collect(Collectors.toSet());
-
-        Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(avatarIdSet)).getMap();
-
-        for (BaseImBlockGroupPageVO item : resPage.getRecords()) {
-
-            Long avatarFileId = item.getAvatarFileId();
-
-            String avatarUrl = publicUrlMap.get(avatarFileId);
-
-            item.setAvatarFileId(null);
-
-            item.setAvatarUrl(avatarUrl);
-
-        }
-
-        return resPage;
 
     }
 

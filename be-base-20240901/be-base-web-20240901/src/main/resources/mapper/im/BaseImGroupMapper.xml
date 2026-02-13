@@ -16,7 +16,8 @@
         b.bio                                           AS bio,
         a.mute_flag                                     AS muteFlag,
         b.normal_mute_flag                              AS normalMuteFlag,
-        b.manage_mute_flag                              AS manageMuteFlag
+        b.manage_mute_flag                              AS manageMuteFlag,
+        c.not_disturb_flag                              AS notDisturbFlag
     </if>
 
     FROM base_im_group_ref_user a

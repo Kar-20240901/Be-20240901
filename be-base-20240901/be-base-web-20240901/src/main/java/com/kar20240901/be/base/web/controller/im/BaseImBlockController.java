@@ -1,11 +1,8 @@
 package com.kar20240901.be.base.web.controller.im;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.im.BaseImBlockGroupAddUserDTO;
-import com.kar20240901.be.base.web.model.dto.im.BaseImBlockGroupPageDTO;
 import com.kar20240901.be.base.web.model.vo.base.R;
-import com.kar20240901.be.base.web.model.vo.im.BaseImBlockGroupPageVO;
 import com.kar20240901.be.base.web.service.im.BaseImBlockService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,12 +43,6 @@ public class BaseImBlockController {
     @PostMapping("/groupCancelUser")
     public R<String> groupCancelUser(@RequestBody @Valid BaseImBlockGroupAddUserDTO dto) {
         return R.okMsg(baseService.groupCancelUser(dto));
-    }
-
-    @Operation(summary = "群组分页排序查询拉黑用户")
-    @PostMapping("/groupPage")
-    public R<Page<BaseImBlockGroupPageVO>> groupPage(@RequestBody @Valid BaseImBlockGroupPageDTO dto) {
-        return R.okData(baseService.groupPage(dto));
     }
 
 }

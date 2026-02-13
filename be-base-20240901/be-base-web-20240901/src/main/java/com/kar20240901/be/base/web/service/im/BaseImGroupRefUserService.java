@@ -6,15 +6,12 @@ import com.kar20240901.be.base.web.model.domain.im.BaseImGroupRefUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRefUserAddMuteDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRefUserDeleteMuteDTO;
-import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRefUserMutePageDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRefUserPageDTO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImGroupRefUserPageVO;
 
 public interface BaseImGroupRefUserService extends IService<BaseImGroupRefUserDO> {
 
     Page<BaseImGroupRefUserPageVO> myPage(BaseImGroupRefUserPageDTO dto);
-
-    Page<BaseImGroupRefUserPageVO> pageMute(BaseImGroupRefUserMutePageDTO dto);
 
     String addMute(BaseImGroupRefUserAddMuteDTO dto);
 

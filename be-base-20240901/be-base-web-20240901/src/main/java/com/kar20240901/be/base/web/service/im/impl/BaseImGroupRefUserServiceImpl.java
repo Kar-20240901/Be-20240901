@@ -14,7 +14,6 @@ import com.kar20240901.be.base.web.model.domain.im.BaseImSessionRefUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRefUserAddMuteDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRefUserDeleteMuteDTO;
-import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRefUserMutePageDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRefUserPageDTO;
 import com.kar20240901.be.base.web.model.enums.im.BaseImTypeEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
@@ -58,34 +57,6 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
         }
 
         Page<BaseImGroupRefUserPageVO> page = baseMapper.myPage(dto.createTimeDescDefaultOrderPage(), dto);
-
-        Set<Long> avatarFileIdSet =
-            page.getRecords().stream().map(BaseImGroupRefUserPageVO::getAvatarFileId).collect(Collectors.toSet());
-
-        Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(avatarFileIdSet)).getMap();
-
-        for (BaseImGroupRefUserPageVO item : page.getRecords()) {
-
-            item.setAvatarUrl(publicUrlMap.get(item.getAvatarFileId()));
-
-            item.setAvatarFileId(null);
-
-        }
-
-        return page;
-
-    }
-
-    /**
-     * 群组分页排序查询禁言用户
-     */
-    @Override
-    public Page<BaseImGroupRefUserPageVO> pageMute(BaseImGroupRefUserMutePageDTO dto) {
-
-        // 检测权限
-        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), false, true);
-
-        Page<BaseImGroupRefUserPageVO> page = baseMapper.pageMute(dto.updateTimeDescDefaultOrderPage(), dto);
 
         Set<Long> avatarFileIdSet =
             page.getRecords().stream().map(BaseImGroupRefUserPageVO::getAvatarFileId).collect(Collectors.toSet());

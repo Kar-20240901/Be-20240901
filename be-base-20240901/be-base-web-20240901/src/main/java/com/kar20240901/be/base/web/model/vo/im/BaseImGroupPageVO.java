@@ -46,4 +46,7 @@ public class BaseImGroupPageVO {
     @Schema(description = "管理员是否禁言，群主不会被禁言，备注：只有 dto的 manageQueryFlag生效时，才会返回该值")
     private Boolean manageMuteFlag;
 
+    @Schema(description = "是否免打扰，备注：只有 dto的 manageQueryFlag生效时，才会返回该值")
+    private Boolean notDisturbFlag;
+
 }
