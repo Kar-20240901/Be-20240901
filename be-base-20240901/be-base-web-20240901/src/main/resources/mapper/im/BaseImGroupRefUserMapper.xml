@@ -10,13 +10,10 @@
            LEFT JOIN base_user_info b ON b.id = a.user_id
     WHERE a.group_id = #{dto.groupId}
       AND b.id IS NOT NULL
-    <if test="dto.userId != null">
-      AND a.user_id = #{dto.userId}
-    </if>
-    <if test="dto.nickname != null and dto.nickname != ''">
-      AND (a.my_nickname LIKE CONCAT('%', #{dto.nickname}, '%') OR b.nickname LIKE CONCAT('%',
-                                                                                          #{dto.nickname},
-                                                                                          '%'))
+    <if test="dto.searchKey != null and dto.searchKey != ''">
+      AND (a.my_nickname LIKE CONCAT('%', #{dto.searchKey}, '%')
+        OR b.nickname LIKE CONCAT('%', #{dto.searchKey}, '%'
+          OR b.uuid LIKE CONCAT('%', #{dto.searchKey}, '%'))
     </if>
   </select>
 </mapper>

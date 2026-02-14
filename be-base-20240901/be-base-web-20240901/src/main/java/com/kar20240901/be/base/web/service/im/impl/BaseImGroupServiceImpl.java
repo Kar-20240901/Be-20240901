@@ -29,6 +29,7 @@ import com.kar20240901.be.base.web.model.dto.im.BaseImGroupInsertOrUpdateDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupPageDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRemoveUserDTO;
 import com.kar20240901.be.base.web.model.enums.im.BaseImTypeEnum;
+import com.kar20240901.be.base.web.model.vo.base.DictVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.im.BaseImGroupInfoByIdVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImGroupPageVO;
@@ -381,6 +382,20 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
             .set(BaseImSessionRefUserDO::getShowFlag, false).update();
 
         return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 下拉列表
+     */
+    @Override
+    public Page<DictVO> dictList() {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        List<DictVO> dictVOList = baseMapper.dictList(currentUserId);
+
+        return new Page<DictVO>().setTotal(dictVOList.size()).setRecords(dictVOList);
 
     }
 

@@ -27,9 +27,8 @@
     </if>
 
     <if test="dto.searchKey != null and dto.searchKey != ''">
-      AND (c.name LIKE CONCAT('%', #{dto.searchKey}, '%') OR a.apply_content LIKE CONCAT('%',
-                                                                                         #{dto.searchKey},
-                                                                                         '%'))
+      AND (c.name LIKE CONCAT('%', #{dto.searchKey}, '%')
+        OR a.apply_content LIKE CONCAT('%', #{dto.searchKey}, '%'))
     </if>
 
     ORDER BY a.update_time DESC
@@ -54,9 +53,8 @@
       AND b.id IS NOT NULL
 
     <if test="dto.searchKey != null and dto.searchKey != ''">
-      AND (b.nickname LIKE CONCAT('%', #{dto.searchKey}, '%') OR a.apply_content LIKE CONCAT('%',
-                                                                                             #{dto.searchKey},
-                                                                                             '%'))
+      AND (b.nickname LIKE CONCAT('%', #{dto.searchKey}, '%')
+        OR a.apply_content LIKE CONCAT('%', #{dto.searchKey}, '%'))
     </if>
 
     ORDER BY a.update_time DESC

@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupDO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupPageDTO;
+import com.kar20240901.be.base.web.model.vo.base.DictVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImGroupPageVO;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -13,5 +15,7 @@ public interface BaseImGroupMapper extends BaseMapper<BaseImGroupDO> {
 
     Page<BaseImGroupPageVO> myPage(@Param("page") Page<?> page, @Param("dto") BaseImGroupPageDTO dto,
         @Param("currentUserId") Long currentUserId);
+
+    List<DictVO> dictList(@Param("currentUserId") Long currentUserId);
 
 }

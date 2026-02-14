@@ -16,4 +16,21 @@ public class DictVO {
     @Schema(description = "显示用")
     private String name;
 
+    @Schema(description = "字符串-1")
+    private String str1;
+
+    @Schema(description = "字符串-2")
+    private String str2;
+
+    @Schema(description = "Long-1")
+    private Long l1;
+
+    @Schema(description = "Long-2")
+    private Long l2;
+
+    public DictVO(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
 }

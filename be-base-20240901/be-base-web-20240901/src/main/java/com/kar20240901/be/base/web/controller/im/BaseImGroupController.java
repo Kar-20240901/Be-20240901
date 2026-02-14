@@ -8,6 +8,7 @@ import com.kar20240901.be.base.web.model.dto.im.BaseImGroupChangeBelongIdDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupInsertOrUpdateDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupPageDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRemoveUserDTO;
+import com.kar20240901.be.base.web.model.vo.base.DictVO;
 import com.kar20240901.be.base.web.model.vo.base.R;
 import com.kar20240901.be.base.web.model.vo.im.BaseImGroupInfoByIdVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImGroupPageVO;
@@ -70,6 +71,12 @@ public class BaseImGroupController {
     @PostMapping("/deleteByIdSet")
     public R<String> deleteByIdSet(@RequestBody @Valid NotEmptyIdSet dto) {
         return R.okMsg(baseService.deleteByIdSet(dto));
+    }
+
+    @Operation(summary = "下拉列表")
+    @PostMapping("/dictList")
+    public R<Page<DictVO>> dictList() {
+        return R.okData(baseService.dictList());
     }
 
 }

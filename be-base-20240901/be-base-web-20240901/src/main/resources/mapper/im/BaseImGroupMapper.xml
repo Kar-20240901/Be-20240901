@@ -35,15 +35,9 @@
 
     <if test="dto.searchKey != null and dto.searchKey != ''">
       AND (
-        b.name LIKE CONCAT('%'
-          , #{dto.searchKey}
-          , '%')
-          OR c.name LIKE CONCAT('%'
-          , #{dto.searchKey}
-          , '%')
-          OR b.uuid LIKE CONCAT('%'
-          , #{dto.searchKey}
-          , '%')
+        b.name LIKE CONCAT('%', #{dto.searchKey}, '%')
+          OR c.name LIKE CONCAT('%', #{dto.searchKey}, '%')
+          OR b.uuid LIKE CONCAT('%', #{dto.searchKey}, '%')
         )
     </if>
 
@@ -66,6 +60,30 @@
         </otherwise>
       </choose>
     </if>
+
+    ORDER BY b.id DESC
+  </select>
+
+  <select id="dictList" resultType="com.kar20240901.be.base.web.model.vo.base.DictVO">
+    SELECT IF(c.name = '', b.name, c.name) AS name,
+           b.id                            AS id,
+           b.uuid                          AS str1,
+           b.avatar_file_id                AS l1
+
+    FROM base_im_group_ref_user a
+
+           LEFT JOIN base_im_group b ON b.id = a.group_id
+
+           LEFT JOIN base_im_session_ref_user c
+                     ON c.session_id = b.session_id AND c.user_id = a.user_id
+
+    WHERE a.user_id = #{currentUserId}
+
+      AND b.id IS NOT NULL
+
+      AND c.session_id IS NOT NULL
+
+      AND (b.belong_id = #{currentUserId} OR a.manage_flag = TRUE)
 
     ORDER BY b.id DESC
   </select>

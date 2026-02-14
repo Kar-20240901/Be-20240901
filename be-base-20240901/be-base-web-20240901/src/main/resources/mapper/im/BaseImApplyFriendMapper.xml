@@ -37,26 +37,17 @@
     </if>
 
     <if test="dto.nickname != null and dto.nickname != ''">
-      AND c.nickname LIKE CONCAT('%'
-        , #{dto.nickname}
-        , '%')
+      AND c.nickname LIKE CONCAT('%', #{dto.nickname}, '%')
     </if>
 
     <if test="dto.applyContent != null and dto.applyContent != ''">
-      AND a.apply_content LIKE CONCAT('%'
-        , #{dto.applyContent}
-        , '%')
+      AND a.apply_content LIKE CONCAT('%', #{dto.applyContent}, '%')
     </if>
 
     <if test="dto.searchKey != null and dto.searchKey != ''">
-      AND (c.nickname LIKE CONCAT('%'
-        , #{dto.searchKey}
-        , '%')
-        OR a.apply_content LIKE CONCAT('%'
-          , #{dto.searchKey}
-          , '%') OR c.uuid LIKE CONCAT('%'
-          , #{dto.searchKey}
-          , '%'))
+      AND (c.nickname LIKE CONCAT('%', #{dto.searchKey}, '%')
+        OR a.apply_content LIKE CONCAT('%', #{dto.searchKey}, '%')
+        OR c.uuid LIKE CONCAT('%', #{dto.searchKey}, '%'))
     </if>
 
     ORDER BY a.update_time DESC

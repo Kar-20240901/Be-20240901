@@ -14,10 +14,7 @@ public class BaseImGroupRefUserPageDTO extends MyPageDTO {
     @Schema(description = "群组主键 id")
     private Long groupId;
 
-    @Schema(description = "用户昵称")
-    private String nickname;
-
-    @Schema(description = "用户主键 id")
-    private Long userId;
+    @Schema(description = "用户昵称、用户编码")
+    private String searchKey;
 
 }
