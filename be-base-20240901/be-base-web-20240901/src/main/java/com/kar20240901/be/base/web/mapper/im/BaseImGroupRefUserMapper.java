@@ -12,6 +12,6 @@ import org.apache.ibatis.annotations.Param;
 public interface BaseImGroupRefUserMapper extends BaseMapper<BaseImGroupRefUserDO> {
 
     Page<BaseImGroupRefUserPageVO> myPage(@Param("page") Page<BaseImGroupRefUserPageVO> page,
-        @Param("dto") BaseImGroupRefUserPageDTO dto);
+        @Param("dto") BaseImGroupRefUserPageDTO dto, @Param("sourceType") int sourceType);
 
 }

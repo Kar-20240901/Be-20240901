@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.mapper.im.BaseImBlockMapper;
 import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
+import com.kar20240901.be.base.web.model.enums.im.BaseImTypeEnum;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,19 +23,20 @@ public class BaseImBlockUtil {
     }
 
     /**
-     * 获取：当前用户 id和 userIdList，获取拉黑的 userIdSet
+     * 根据：当前用户 id和 userIdList，获取拉黑的 userIdSet
      */
     public static Set<Long> getBlockUserIdSet(Long currentUserId, List<Long> userIdList) {
 
-        List<BaseImBlockDO> baseImBlockDOList =
+        List<BaseImBlockDO> baseImBlockDoList =
             ChainWrappers.lambdaQueryChain(baseImBlockMapper).eq(BaseImBlockDO::getSourceId, currentUserId)
-                .in(BaseImBlockDO::getUserId, userIdList).select(BaseImBlockDO::getUserId).list();
+                .in(BaseImBlockDO::getUserId, userIdList).eq(BaseImBlockDO::getSourceType, BaseImTypeEnum.GROUP)
+                .select(BaseImBlockDO::getUserId).list();
 
-        if (CollUtil.isEmpty(baseImBlockDOList)) {
+        if (CollUtil.isEmpty(baseImBlockDoList)) {
             return new HashSet<>();
         }
 
-        return baseImBlockDOList.stream().map(BaseImBlockDO::getUserId).collect(Collectors.toSet());
+        return baseImBlockDoList.stream().map(BaseImBlockDO::getUserId).collect(Collectors.toSet());
 
     }
 

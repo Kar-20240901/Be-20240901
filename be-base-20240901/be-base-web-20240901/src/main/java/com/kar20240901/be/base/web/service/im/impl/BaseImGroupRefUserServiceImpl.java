@@ -56,7 +56,9 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
             R.error(TempBizCodeEnum.ILLEGAL_REQUEST, dto.getGroupId());
         }
 
-        Page<BaseImGroupRefUserPageVO> page = baseMapper.myPage(dto.createTimeDescDefaultOrderPage(), dto);
+        int sourceType = BaseImTypeEnum.GROUP.getCode();
+
+        Page<BaseImGroupRefUserPageVO> page = baseMapper.myPage(dto.createTimeDescDefaultOrderPage(), dto, sourceType);
 
         Set<Long> avatarFileIdSet =
             page.getRecords().stream().map(BaseImGroupRefUserPageVO::getAvatarFileId).collect(Collectors.toSet());

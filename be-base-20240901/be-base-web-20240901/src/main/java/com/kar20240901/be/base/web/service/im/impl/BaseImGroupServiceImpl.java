@@ -302,6 +302,14 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
     @DSTransactional
     public String removeUser(BaseImGroupRemoveUserDTO dto) {
 
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        dto.getUserIdSet().remove(currentUserId);
+
+        if (CollUtil.isEmpty(dto.getUserIdSet())) {
+            return TempBizCodeEnum.OK;
+        }
+
         // 检查：是否有权限
         BaseImGroupUtil.checkForTargetUserId(dto.getGroupId(), dto.getUserIdSet());
 
