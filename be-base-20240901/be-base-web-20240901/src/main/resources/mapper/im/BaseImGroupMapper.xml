@@ -65,10 +65,12 @@
   </select>
 
   <select id="dictList" resultType="com.kar20240901.be.base.web.model.vo.base.DictVO">
-    SELECT IF(c.name = '', b.name, c.name) AS name,
-           b.id                            AS id,
-           b.uuid                          AS str1,
-           b.avatar_file_id                AS l1
+    SELECT IF(c.name = '', b.name, c.name)                 AS name,
+           b.id                                            AS id,
+           b.uuid                                          AS str1,
+           b.avatar_file_id                                AS l1,
+           IF(b.belong_id = #{currentUserId}, TRUE, FALSE) AS b1,
+           a.manage_flag                                   AS b2
 
     FROM base_im_group_ref_user a
 

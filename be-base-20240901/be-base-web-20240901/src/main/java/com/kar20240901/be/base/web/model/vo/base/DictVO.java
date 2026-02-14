@@ -28,6 +28,12 @@ public class DictVO {
     @Schema(description = "Long-2")
     private Long l2;
 
+    @Schema(description = "Boolean-1")
+    private Boolean b1;
+
+    @Schema(description = "Boolean-2")
+    private Boolean b2;
+
     public DictVO(Long id, String name) {
         this.id = id;
         this.name = name;

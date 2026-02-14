@@ -58,7 +58,7 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
 
         int sourceType = BaseImTypeEnum.GROUP.getCode();
 
-        Page<BaseImGroupRefUserPageVO> page = baseMapper.myPage(dto.createTimeDescDefaultOrderPage(), dto, sourceType);
+        Page<BaseImGroupRefUserPageVO> page = baseMapper.myPage(dto.pageOrder(), dto, sourceType);
 
         Set<Long> avatarFileIdSet =
             page.getRecords().stream().map(BaseImGroupRefUserPageVO::getAvatarFileId).collect(Collectors.toSet());
