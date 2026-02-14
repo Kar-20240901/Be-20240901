@@ -4,6 +4,7 @@
 <mapper namespace="com.kar20240901.be.base.web.mapper.im.BaseImGroupRefUserMapper">
   <select id="myPage" resultType="com.kar20240901.be.base.web.model.vo.im.BaseImGroupRefUserPageVO">
     SELECT a.user_id                                         AS userId,
+           b.bio                                             AS bio,
            b.uuid                                            AS uuid,
            IF(a.my_nickname = '', b.nickname, a.my_nickname) AS nickname,
            b.avatar_file_id                                  AS avatarFileId,

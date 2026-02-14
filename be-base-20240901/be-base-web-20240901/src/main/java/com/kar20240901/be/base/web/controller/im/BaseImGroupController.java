@@ -55,7 +55,7 @@ public class BaseImGroupController {
         return R.okData(baseService.scroll(dto));
     }
 
-    @Operation(summary = "踢出群员")
+    @Operation(summary = "移除群员")
     @PostMapping("/removeUser")
     public R<String> removeUser(@RequestBody @Valid BaseImGroupRemoveUserDTO dto) {
         return R.okMsg(baseService.removeUser(dto));

@@ -307,7 +307,7 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
         dto.getUserIdSet().remove(currentUserId);
 
         if (CollUtil.isEmpty(dto.getUserIdSet())) {
-            return TempBizCodeEnum.OK;
+            R.errorMsg("操作失败：不能移除自己");
         }
 
         // 检查：是否有权限
