@@ -7,12 +7,9 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class BaseImApplyFriendSearchApplyGroupDTO extends MyPageDTO {
+public class BaseImApplyGroupSearchApplyGroupDTO extends MyPageDTO {
 
-    @Schema(description = "群组的 uuid")
-    private Long groupUuid;
-
-    @Schema(description = "群组名称")
-    private String name;
+    @Schema(description = "搜索关键字")
+    private String searchKey;
 
 }

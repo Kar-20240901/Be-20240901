@@ -86,6 +86,10 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
         Page<BaseImApplyFriendSearchApplyFriendVO> resPage = new Page<>();
 
+        if (StrUtil.isBlank(searchKey)) {
+            return resPage;
+        }
+
         List<BaseImFriendDO> baseImFriendDOList =
             baseImFriendService.lambdaQuery().eq(BaseImFriendDO::getBelongId, currentUserId)
                 .select(BaseImFriendDO::getFriendId).list();

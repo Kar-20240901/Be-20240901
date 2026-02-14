@@ -30,7 +30,7 @@ public class BaseImGroupDO extends TempEntityNoIdSuper {
     @Schema(description = "会话主键 id")
     private Long sessionId;
 
-    @Schema(description = "群聊的 id")
+    @Schema(description = "群聊的 uuid")
     private String uuid;
 
     @Schema(description = "普通成员是否禁言")

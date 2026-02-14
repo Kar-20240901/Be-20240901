@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-public class BaseImApplyFriendSearchApplyGroupVO {
+public class BaseImApplyGroupSearchApplyGroupVO {
 
     @Schema(description = "群组主键 id")
     private Long groupId;
@@ -14,5 +14,11 @@ public class BaseImApplyFriendSearchApplyGroupVO {
 
     @Schema(description = "群组名称")
     private String name;
+
+    @Schema(description = "群聊的 uuid")
+    private String uuid;
+
+    @Schema(description = "群组简介")
+    private String bio;
 
 }

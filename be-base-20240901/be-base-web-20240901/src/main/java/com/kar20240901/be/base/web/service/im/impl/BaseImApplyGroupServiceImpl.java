@@ -1,5 +1,6 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -18,20 +19,20 @@ import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImGroupRefUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
-import com.kar20240901.be.base.web.model.dto.im.BaseImApplyFriendSearchApplyGroupDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupAgreeDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupHiddenGroupDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupPageGroupDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupPageSelfDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupRejectDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupSearchApplyGroupDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupSendDTO;
 import com.kar20240901.be.base.web.model.enums.base.BaseRedisKeyEnum;
 import com.kar20240901.be.base.web.model.enums.im.BaseImApplyStatusEnum;
 import com.kar20240901.be.base.web.model.enums.im.BaseImTypeEnum;
 import com.kar20240901.be.base.web.model.vo.base.R;
-import com.kar20240901.be.base.web.model.vo.im.BaseImApplyFriendSearchApplyGroupVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImApplyGroupPageGroupVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImApplyGroupPageSelfVO;
+import com.kar20240901.be.base.web.model.vo.im.BaseImApplyGroupSearchApplyGroupVO;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.service.im.BaseImApplyGroupService;
 import com.kar20240901.be.base.web.service.im.BaseImGroupRefUserService;
@@ -78,23 +79,30 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
      * 搜索要添加的群组
      */
     @Override
-    public Page<BaseImApplyFriendSearchApplyGroupVO> searchApplyGroup(BaseImApplyFriendSearchApplyGroupDTO dto) {
+    public Page<BaseImApplyGroupSearchApplyGroupVO> searchApplyGroup(BaseImApplyGroupSearchApplyGroupDTO dto) {
 
-        String name = dto.getName();
+        Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        Long groupUuid = dto.getGroupUuid();
+        String searchKey = dto.getSearchKey();
 
-        Page<BaseImApplyFriendSearchApplyGroupVO> resPage = new Page<>();
+        Page<BaseImApplyGroupSearchApplyGroupVO> resPage = new Page<>();
 
-        if (StrUtil.isBlank(name) && groupUuid == null) {
+        if (StrUtil.isBlank(searchKey)) {
             return resPage;
         }
 
-        Page<BaseImGroupDO> page = ChainWrappers.lambdaQueryChain(baseImGroupMapper)
-            .eq(groupUuid != null, BaseImGroupDO::getUuid, groupUuid)
-            .like(StrUtil.isNotBlank(name), BaseImGroupDO::getName, name)
-            .select(BaseImGroupDO::getId, BaseImGroupDO::getName, BaseImGroupDO::getAvatarFileId)
-            .page(dto.createTimeDescDefaultOrderPage(true));
+        List<BaseImGroupRefUserDO> baseImGroupRefUserDoList =
+            ChainWrappers.lambdaQueryChain(baseImGroupRefUserMapper).eq(BaseImGroupRefUserDO::getUserId, currentUserId)
+                .select(BaseImGroupRefUserDO::getGroupId).list();
+
+        Set<Long> notIdIdSet =
+            baseImGroupRefUserDoList.stream().map(BaseImGroupRefUserDO::getGroupId).collect(Collectors.toSet());
+
+        Page<BaseImGroupDO> page = ChainWrappers.lambdaQueryChain(baseImGroupMapper).or(StrUtil.isNotBlank(searchKey),
+                i -> i.like(BaseImGroupDO::getName, searchKey).or().like(BaseImGroupDO::getUuid, searchKey)) //
+            .notIn(CollUtil.isNotEmpty(notIdIdSet), BaseImGroupDO::getId, notIdIdSet) //
+            .select(BaseImGroupDO::getId, BaseImGroupDO::getName, BaseImGroupDO::getAvatarFileId,
+                BaseImGroupDO::getUuid, BaseImGroupDO::getBio).page(dto.idDescDefaultOrderPage(true));
 
         Set<Long> avatarFileIdSet =
             page.getRecords().stream().map(BaseImGroupDO::getAvatarFileId).filter(it -> it != TempConstant.NEGATIVE_ONE)
@@ -102,22 +110,26 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
 
         Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(avatarFileIdSet)).getMap();
 
-        List<BaseImApplyFriendSearchApplyGroupVO> list = new ArrayList<>();
+        List<BaseImApplyGroupSearchApplyGroupVO> list = new ArrayList<>();
 
         for (BaseImGroupDO item : page.getRecords()) {
 
-            BaseImApplyFriendSearchApplyGroupVO baseImApplyFriendSearchApplyGroupVO =
-                new BaseImApplyFriendSearchApplyGroupVO();
+            BaseImApplyGroupSearchApplyGroupVO baseImApplyGroupSearchApplyGroupVO =
+                new BaseImApplyGroupSearchApplyGroupVO();
 
-            baseImApplyFriendSearchApplyGroupVO.setGroupId(item.getId());
+            baseImApplyGroupSearchApplyGroupVO.setGroupId(item.getId());
 
-            baseImApplyFriendSearchApplyGroupVO.setName(item.getName());
+            baseImApplyGroupSearchApplyGroupVO.setName(item.getName());
 
             String avatarUrl = publicUrlMap.get(item.getAvatarFileId());
 
-            baseImApplyFriendSearchApplyGroupVO.setAvatarUrl(avatarUrl);
+            baseImApplyGroupSearchApplyGroupVO.setAvatarUrl(avatarUrl);
 
-            list.add(baseImApplyFriendSearchApplyGroupVO);
+            baseImApplyGroupSearchApplyGroupVO.setUuid(item.getUuid());
+
+            baseImApplyGroupSearchApplyGroupVO.setBio(item.getBio());
+
+            list.add(baseImApplyGroupSearchApplyGroupVO);
 
         }
 

@@ -2,17 +2,17 @@ package com.kar20240901.be.base.web.controller.im;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
-import com.kar20240901.be.base.web.model.dto.im.BaseImApplyFriendSearchApplyGroupDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupAgreeDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupHiddenGroupDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupPageGroupDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupPageSelfDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupRejectDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupSearchApplyGroupDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImApplyGroupSendDTO;
 import com.kar20240901.be.base.web.model.vo.base.R;
-import com.kar20240901.be.base.web.model.vo.im.BaseImApplyFriendSearchApplyGroupVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImApplyGroupPageGroupVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImApplyGroupPageSelfVO;
+import com.kar20240901.be.base.web.model.vo.im.BaseImApplyGroupSearchApplyGroupVO;
 import com.kar20240901.be.base.web.service.im.BaseImApplyGroupService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,8 +33,8 @@ public class BaseImApplyGroupController {
 
     @Operation(summary = "搜索要添加的群组")
     @PostMapping("/searchApplyGroup")
-    public R<Page<BaseImApplyFriendSearchApplyGroupVO>> searchApplyGroup(
-        @RequestBody @Valid BaseImApplyFriendSearchApplyGroupDTO dto) {
+    public R<Page<BaseImApplyGroupSearchApplyGroupVO>> searchApplyGroup(
+        @RequestBody @Valid BaseImApplyGroupSearchApplyGroupDTO dto) {
         return R.okData(baseService.searchApplyGroup(dto));
     }
 
