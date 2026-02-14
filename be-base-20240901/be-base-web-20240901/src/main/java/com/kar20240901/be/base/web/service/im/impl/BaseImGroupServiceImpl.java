@@ -393,9 +393,25 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
-        List<DictVO> dictVOList = baseMapper.dictList(currentUserId);
+        List<DictVO> dictVoList = baseMapper.dictList(currentUserId);
 
-        return new Page<DictVO>().setTotal(dictVOList.size()).setRecords(dictVOList);
+        Set<Long> avatarIdSet = dictVoList.stream().map(DictVO::getL1).collect(Collectors.toSet());
+
+        Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(avatarIdSet)).getMap();
+
+        for (DictVO item : dictVoList) {
+
+            Long avatarFileId = item.getL1();
+
+            String avatarUrl = publicUrlMap.get(avatarFileId);
+
+            item.setL1(null);
+
+            item.setStr2(avatarUrl);
+
+        }
+
+        return new Page<DictVO>().setTotal(dictVoList.size()).setRecords(dictVoList);
 
     }
 
