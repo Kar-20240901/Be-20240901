@@ -44,6 +44,12 @@ public class BaseImSessionContentRefUserController {
         return R.okMsg(baseService.deleteSessionContentRefUser(dto));
     }
 
+    @Operation(summary = "清空聊天记录并隐藏会话")
+    @PostMapping("/deleteSessionContentRefUserAndHiddenSession")
+    public R<String> deleteSessionContentRefUserAndHiddenSession(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okMsg(baseService.deleteSessionContentRefUserAndHiddenSession(dto));
+    }
+
     @Operation(summary = "隐藏消息内容")
     @PostMapping("/hideSessionContentRefUser")
     public R<String> hideSessionContentRefUser(@RequestBody @Valid NotEmptyIdSet dto) {

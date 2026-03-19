@@ -8,7 +8,6 @@ import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionContentRefUserPageDTO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionContentRefUserPageVO;
 import java.util.List;
-import javax.validation.Valid;
 
 public interface BaseImSessionContentRefUserService extends IService<BaseImSessionContentRefUserDO> {
 
@@ -18,6 +17,8 @@ public interface BaseImSessionContentRefUserService extends IService<BaseImSessi
 
     String deleteSessionContentRefUser(NotEmptyIdSet dto);
 
-    String hideSessionContentRefUser(@Valid NotEmptyIdSet dto);
+    String deleteSessionContentRefUserAndHiddenSession(NotEmptyIdSet dto);
+
+    String hideSessionContentRefUser(NotEmptyIdSet dto);
 
 }

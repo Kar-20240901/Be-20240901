@@ -3,6 +3,7 @@ package com.kar20240901.be.base.web.service.im.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.BooleanUtil;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
@@ -16,6 +17,7 @@ import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionContentRefUserPageDTO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionContentRefUserPageVO;
 import com.kar20240901.be.base.web.service.im.BaseImSessionContentRefUserService;
+import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
 import com.kar20240901.be.base.web.util.base.MyPageUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import java.util.Date;
@@ -35,6 +37,9 @@ public class BaseImSessionContentRefUserServiceImpl
     public void setBaseImSessionRefUserMapper(BaseImSessionRefUserMapper baseImSessionRefUserMapper) {
         BaseImSessionContentRefUserServiceImpl.baseImSessionRefUserMapper = baseImSessionRefUserMapper;
     }
+
+    @Resource
+    BaseImSessionRefUserService baseImSessionRefUserService;
 
     /**
      * 分页排序查询
@@ -163,6 +168,21 @@ public class BaseImSessionContentRefUserServiceImpl
 
         lambdaUpdate().eq(BaseImSessionContentRefUserDO::getUserId, currentUserId)
             .in(BaseImSessionContentRefUserDO::getSessionId, sessionIdSet).remove();
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 清空聊天记录并隐藏会话
+     */
+    @Override
+    @DSTransactional
+    public String deleteSessionContentRefUserAndHiddenSession(NotEmptyIdSet dto) {
+
+        deleteSessionContentRefUser(dto);
+
+        baseImSessionRefUserService.hidden(dto);
 
         return TempBizCodeEnum.OK;
 
