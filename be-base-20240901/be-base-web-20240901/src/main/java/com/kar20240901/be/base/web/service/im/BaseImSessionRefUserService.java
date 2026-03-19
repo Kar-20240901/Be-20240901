@@ -1,0 +1,37 @@
+package com.kar20240901.be.base.web.service.im;
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.kar20240901.be.base.web.model.domain.im.BaseImSessionRefUserDO;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
+import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserAddNotDisturbDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserDeleteNotDisturbDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImSessionRefUserPageDTO;
+import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserPageVO;
+import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO;
+import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserUpdateAvatarAndNicknameVO;
+import java.util.List;
+import java.util.Map;
+
+public interface BaseImSessionRefUserService extends IService<BaseImSessionRefUserDO> {
+
+    void addOrUpdateSessionRefUserForFriend(Long sessionId, Long userId1, Long userId2, boolean addFlag);
+
+    void addOrUpdateSessionRefUserForGroup(Long sessionId, Long groupId, Long userId);
+
+    Page<BaseImSessionRefUserPageVO> myPage(BaseImSessionRefUserPageDTO dto);
+
+    List<BaseImSessionRefUserPageVO> scroll(ScrollListDTO dto);
+
+    Map<Long, BaseImSessionRefUserQueryLastContentVO> queryLastContentMap(NotEmptyIdSet dto);
+
+    String hidden(NotEmptyIdSet dto);
+
+    List<BaseImSessionRefUserUpdateAvatarAndNicknameVO> updateAvatarAndNickname(NotEmptyIdSet dto);
+
+    String addNotDisturb(BaseImSessionRefUserAddNotDisturbDTO dto);
+
+    String deleteNotDisturb(BaseImSessionRefUserDeleteNotDisturbDTO dto);
+
+}

@@ -1,0 +1,23 @@
+logTopicSet:
+  - be.normal
+  - be.mybatis
+  - be.mybatis.insert
+notLogTopicSet:
+  - org.apache.kafka.clients.consumer.ConsumerConfig
+  - com.kar20240901.be.base.web.mapper.request.BaseRequestMapper.insert
+  - com.kar20240901.be.base.web.mapper.request.BaseRequestInfoMapper.insert
+  - com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper.updateById
+  - com.kar20240901.be.base.web.mapper.socket.BaseSocketRefUserMapper.insert
+  - com.kar20240901.be.base.web.mapper.wallet.BaseUserWalletMapper.selectList
+  - com.kar20240901.be.base.web.mapper.bulletin.BaseBulletinMapper.selectCount
+  - com.kar20240901.be.base.web.mapper.live.BaseLiveRoomDataMapper.selectList
+  - com.kar20240901.be.base.web.mapper.live.BaseLiveRoomDataMapper.insert
+  - com.kar20240901.be.base.web.mapper.live.BaseLiveRoomUserMapper.checkRoomUser
+  - com.kar20240901.be.base.web.mapper.live.BaseLiveRoomUserMapper.selectList
+  - com.kar20240901.be.base.web.mapper.sql.BaseSqlSlowMapper.delete
+  - com.kar20240901.be.base.web.mapper.request.BaseRequestMapper.selectList
+  - com.kar20240901.be.base.web.mapper.request.BaseRequestMapper.delete
+  - com.kar20240901.be.base.web.mapper.request.BaseRequestInfoMapper.delete
+  - com.kar20240901.be.base.web.mapper.base.BaseApiTokenMapper.updateById
+  - com.kar20240901.be.base.web.mapper.socket.BaseSocketRefUserMapper.deleteByIds
+  - com.kar20240901.be.base.web.mapper.sql.BaseSqlSlowMapper.insert

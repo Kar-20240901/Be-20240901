@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kar20240901.be.base.web.mapper.im.BaseImApplyGroupMapper">
+  <select id="myPageSelf"
+    resultType="com.kar20240901.be.base.web.model.vo.im.BaseImApplyGroupPageSelfVO">
+    SELECT a.id             AS id,
+           a.apply_content  AS applyContent,
+           a.apply_time     AS applyTime,
+           a.update_time    AS updateTime,
+           a.status         AS status,
+           c.name           AS groupName,
+           c.avatar_file_id AS avatarFileId,
+           c.id             AS groupId
+
+    FROM base_im_apply_group a
+
+           LEFT JOIN base_im_apply_group_extra b
+                     ON b.apply_group_id = a.id AND b.user_or_group_id = #{currentUserId} AND
+                        b.type = 101
+
+           LEFT JOIN base_im_group c ON c.id = a.target_group_id
+
+    WHERE (b.hidden_flag IS NULL OR b.hidden_flag = FALSE)
+
+      AND a.user_id = #{currentUserId}
+
+      AND a.status != #{dto.statusTemp}
+
+      AND c.id IS NOT NULL
+
+    <if test="dto.searchKey != null and dto.searchKey != ''">
+      AND (c.name LIKE CONCAT('%', #{dto.searchKey}, '%')
+        OR c.uuid LIKE CONCAT('%', #{dto.searchKey}, '%')
+        OR a.apply_content LIKE CONCAT('%', #{dto.searchKey}, '%'))
+    </if>
+
+    ORDER BY a.update_time DESC
+  </select>
+
+  <select id="myPageGroup"
+    resultType="com.kar20240901.be.base.web.model.vo.im.BaseImApplyGroupPageGroupVO">
+    SELECT a.id                               AS id,
+           a.apply_content                    AS applyContent,
+           a.apply_time                       AS applyTime,
+           a.update_time                      AS updateTime,
+           a.status                           AS status,
+           b.nickname                         AS nickname,
+           b.avatar_file_id                   AS avatarFileId,
+           e.id                               AS groupId,
+           b.id                               AS applyUserId,
+           e.avatar_file_id                   AS groupAvatarFileId,
+           e.name                             AS groupName,
+           IF(f.user_id IS NULL, FALSE, TRUE) AS blockFlag,
+           b.uuid                             AS uuid,
+           e.uuid                             AS groupUuid
+
+    FROM base_im_apply_group a
+
+           LEFT JOIN base_user_info b ON b.id = a.user_id
+
+           LEFT JOIN base_im_apply_group_extra c
+                     ON c.apply_group_id = a.id AND c.user_or_group_id = a.target_group_id AND
+                        c.type = 201
+
+           LEFT JOIN base_im_group_ref_user d
+                     ON d.user_id = #{dto.currentUserId} AND d.group_id = a.target_group_id
+
+           LEFT JOIN base_im_group e ON e.id = a.target_group_id
+
+           LEFT JOIN base_im_block f
+                     ON f.source_id = a.target_group_id AND f.user_id = a.user_id AND
+                        f.source_type =
+                        #{dto.baseImTypeEnum}
+
+    WHERE (c.hidden_flag IS NULL OR c.hidden_flag = FALSE)
+
+    <if test="dto.groupId != null">
+      AND a.target_group_id = #{dto.groupId}
+    </if>
+
+    AND b.id IS NOT NULL
+
+    AND e.id IS NOT NULL
+
+    AND a.status != #{dto.statusTemp}
+
+    <if test="dto.searchKey != null and dto.searchKey != ''">
+      AND (b.nickname LIKE CONCAT('%', #{dto.searchKey}, '%')
+        OR b.uuid LIKE CONCAT('%', #{dto.searchKey}, '%')
+        OR a.apply_content LIKE CONCAT('%', #{dto.searchKey}, '%'))
+    </if>
+
+    AND (e.belong_id = #{dto.currentUserId} OR d.manage_flag = TRUE)
+
+    ORDER BY a.update_time DESC
+  </select>
+</mapper>

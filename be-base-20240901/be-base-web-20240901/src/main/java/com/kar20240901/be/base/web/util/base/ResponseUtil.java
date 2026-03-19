@@ -1,0 +1,209 @@
+package com.kar20240901.be.base.web.util.base;
+
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.json.JSONUtil;
+import com.kar20240901.be.base.web.model.configuration.file.IBaseFileStorage;
+import com.kar20240901.be.base.web.model.interfaces.base.IBizCode;
+import com.kar20240901.be.base.web.model.vo.base.R;
+import java.io.InputStream;
+import java.net.URLEncoder;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import lombok.SneakyThrows;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+public class ResponseUtil {
+
+    /**
+     * 获取响应的 header信息
+     */
+    public static Map<String, String> getHeaderMap(HttpServletResponse response) {
+
+        final Map<String, String> headerMap = new HashMap<>();
+
+        final Collection<String> headerNames = response.getHeaderNames();
+
+        for (String name : headerNames) {
+            headerMap.put(name, response.getHeader(name));
+        }
+
+        return headerMap;
+
+    }
+
+    /**
+     * 获取当前上下文的 response对象
+     */
+    @Nullable
+    public static HttpServletResponse getResponse() {
+
+        ServletRequestAttributes requestAttributes =
+            (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
+
+        if (requestAttributes == null) {
+            return null;
+        }
+
+        return requestAttributes.getResponse();
+
+    }
+
+    @SneakyThrows
+    public static R<?> out(HttpServletResponse response, IBizCode iBizCode) {
+
+        response.setContentType("application/json;charset=utf-8");
+
+        response.setStatus(HttpServletResponse.SC_OK);
+
+        ServletOutputStream servletOutputStream = response.getOutputStream();
+
+        R<?> r = R.errorOrigin(iBizCode);
+
+        servletOutputStream.write(JSONUtil.toJsonStr(r).getBytes()); // json字符串，输出给前端
+        servletOutputStream.flush();
+        servletOutputStream.close();
+
+        return r;
+
+    }
+
+    /**
+     * @param convertFlag 是否转换
+     */
+    @SneakyThrows
+    public static void out(HttpServletResponse response, String msg, boolean convertFlag) {
+
+        out(response, msg, HttpServletResponse.SC_OK, convertFlag);
+
+    }
+
+    @SneakyThrows
+    public static void out(HttpServletResponse response, String msg, int status, boolean convertFlag) {
+
+        response.setContentType("application/json;charset=utf-8");
+
+        ServletOutputStream servletOutputStream = response.getOutputStream();
+
+        response.setStatus(status);
+
+        String writeMsg = msg;
+
+        if (convertFlag) {
+
+            R<?> r = R.errorMsgOrigin(msg);
+
+            writeMsg = JSONUtil.toJsonStr(r);
+
+        }
+
+        servletOutputStream.write(writeMsg.getBytes()); // json字符串，输出给前端
+        servletOutputStream.flush();
+        servletOutputStream.close();
+
+    }
+
+    /**
+     * 设置 excel下载的 OutputHeader
+     */
+    @SneakyThrows
+    public static void setExcelOutputHeader(HttpServletResponse response, String fileName) {
+
+        // 备注：.xls是：application/vnd.ms-excel
+        // 备注：.xlsx是：application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
+
+        response.setHeader("Content-Disposition",
+            "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8") + ".xlsx");
+
+    }
+
+    /**
+     * 设置 word下载的 OutputHeader
+     */
+    @SneakyThrows
+    public static void setWordOutputHeader(HttpServletResponse response, String fileName) {
+
+        // 备注：.doc是：application/msword
+        // 备注：.docx是：application/vnd.openxmlformats-officedocument.wordprocessingml.document
+        response.setContentType(
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document;charset=utf-8");
+
+        response.setHeader("Content-Disposition",
+            "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8") + ".docx");
+
+    }
+
+    /**
+     * 设置 文件下载的 OutputHeader
+     */
+    @SneakyThrows
+    public static void setFileOutputHeader(HttpServletResponse response, String fileName) {
+
+        response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
+
+    }
+
+    /**
+     * 设置缓存过期时间
+     */
+    @SneakyThrows
+    public static void setCacheControl(HttpServletResponse response) {
+
+        response.setHeader("Cache-Control", "public, max-age=" + (IBaseFileStorage.EXPIRE_TIME / 1000));
+
+    }
+
+    /**
+     * 设置响应头
+     */
+    @SneakyThrows
+    public static void setContentTypeOctetStream(HttpServletResponse response) {
+
+        response.setHeader("Content-Type", "application/octet-stream");
+
+    }
+
+    /**
+     * 支持范围下载
+     */
+    @SneakyThrows
+    public static void acceptRangeDownload(HttpServletResponse response) {
+
+        response.setHeader("Accept-Ranges", "bytes");
+
+    }
+
+    /**
+     * 范围下载
+     */
+    @SneakyThrows
+    public static void rangeDownload(HttpServletResponse response) {
+
+        response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+
+    }
+
+    /**
+     * 把流复制给 response，然后返回给调用者
+     */
+    @SneakyThrows
+    public static void flush(HttpServletResponse response, InputStream inputStream) {
+
+        ServletOutputStream outputStream = response.getOutputStream();
+
+        IoUtil.copy(inputStream, outputStream);
+
+        outputStream.flush();
+
+        IoUtil.close(inputStream);
+
+        IoUtil.close(outputStream);
+
+    }
+
+}

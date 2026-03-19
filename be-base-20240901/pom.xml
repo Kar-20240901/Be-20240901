@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.7.18</version>
+    <relativePath/>
+  </parent>
+
+  <groupId>com.kar</groupId>
+  <artifactId>be-base-20240901</artifactId>
+  <version>2024.9.1</version>
+
+  <packaging>pom</packaging>
+
+  <properties>
+    <java.version>1.8</java.version>
+    <!-- 打包时跳过测试 -->
+    <skipTests>true</skipTests>
+    <kar.groupId>com.kar</kar.groupId>
+    <kar.version>2024.9.1</kar.version>
+  </properties>
+
+  <modules>
+    <module>be-base-api-20240901</module>
+    <module>be-base-model-20240901</module>
+    <module>be-base-web-20240901</module>
+    <module>be-base-generate-20240901</module>
+  </modules>
+
+  <dependencyManagement>
+    <dependencies>
+
+      <!-- 缩略图 -->
+      <dependency>
+        <groupId>net.coobird</groupId>
+        <artifactId>thumbnailator</artifactId>
+        <version>0.4.20</version>
+      </dependency>
+
+      <!-- 二维码工具类 -->
+      <dependency>
+        <groupId>com.google.zxing</groupId>
+        <artifactId>core</artifactId>
+        <version>3.5.3</version>
+      </dependency>
+
+      <!-- 基于JNA的操作系统和硬件信息库 -->
+      <dependency>
+        <groupId>com.github.oshi</groupId>
+        <artifactId>oshi-core</artifactId>
+        <version>6.8.0</version>
+      </dependency>
+
+      <!-- excel操作 -->
+      <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>easyexcel</artifactId>
+        <version>4.0.3</version>
+      </dependency>
+
+      <!-- protobuf：下载地址，例如：https://github.com/protocolbuffers/protobuf/releases/tag/v23.4 -->
+      <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java</artifactId>
+        <version>4.29.5</version>
+      </dependency>
+
+      <!-- ffmpeg -->
+      <dependency>
+        <groupId>ws.schild</groupId>
+        <artifactId>jave-all-deps</artifactId>
+        <version>3.5.0</version>
+        <exclusions>
+          <!-- 排除 windows 32位系统 -->
+          <exclusion>
+            <groupId>ws.schild</groupId>
+            <artifactId>jave-nativebin-win32</artifactId>
+          </exclusion>
+          <!-- 排除 linux 32位系统 -->
+          <exclusion>
+            <groupId>ws.schild</groupId>
+            <artifactId>jave-nativebin-linux32</artifactId>
+          </exclusion>
+          <!-- 排除 linux 32位系统-arm架构 -->
+          <exclusion>
+            <groupId>ws.schild</groupId>
+            <artifactId>jave-nativebin-linux-arm32</artifactId>
+          </exclusion>
+          <!-- 排除 linux 64位系统-arm架构 -->
+          <exclusion>
+            <groupId>ws.schild</groupId>
+            <artifactId>jave-nativebin-linux-arm64</artifactId>
+          </exclusion>
+          <!-- 排除 mac系统 -->
+          <exclusion>
+            <groupId>ws.schild</groupId>
+            <artifactId>jave-nativebin-osx64</artifactId>
+          </exclusion>
+          <!-- 排除 mac系统 -->
+          <exclusion>
+            <groupId>ws.schild</groupId>
+            <artifactId>jave-nativebin-osxm1</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <!-- ssh，sftp -->
+      <dependency>
+        <groupId>com.jcraft</groupId>
+        <artifactId>jsch</artifactId>
+        <version>0.1.55</version>
+      </dependency>
+
+      <!-- 微信支付，获取最新版本号：https://github.com/wechatpay-apiv3/wechatpay-java -->
+      <dependency>
+        <groupId>com.github.wechatpay-apiv3</groupId>
+        <artifactId>wechatpay-java</artifactId>
+        <version>0.2.17</version>
+      </dependency>
+
+      <!-- 支付宝支付，获取最新版本号：https://github.com/alipay/alipay-sdk-java-all -->
+      <dependency>
+        <groupId>com.alipay.sdk</groupId>
+        <artifactId>alipay-sdk-java</artifactId>
+        <version>4.40.576.ALL</version>
+      </dependency>
+
+      <!-- minio文件系统 -->
+      <dependency>
+        <groupId>io.minio</groupId>
+        <artifactId>minio</artifactId>
+        <version>8.5.12</version>
+      </dependency>
+
+      <!-- 阿里云oss文件存储 -->
+      <dependency>
+        <groupId>com.aliyun.oss</groupId>
+        <artifactId>aliyun-sdk-oss</artifactId>
+        <version>3.18.1</version>
+      </dependency>
+
+      <!-- 邮件 -->
+      <dependency>
+        <groupId>com.sun.mail</groupId>
+        <artifactId>javax.mail</artifactId>
+        <version>1.6.2</version>
+      </dependency>
+
+      <!-- 离线IP地址定位库 -->
+      <dependency>
+        <groupId>org.lionsoul</groupId>
+        <artifactId>ip2region</artifactId>
+        <version>2.7.0</version>
+      </dependency>
+
+      <!-- hutool -->
+      <dependency>
+        <groupId>cn.hutool</groupId>
+        <artifactId>hutool-all</artifactId>
+        <version>5.8.26</version>
+      </dependency>
+
+      <!-- jetbrains-annotations -->
+      <dependency>
+        <groupId>org.jetbrains</groupId>
+        <artifactId>annotations</artifactId>
+        <version>24.1.0</version>
+      </dependency>
+
+      <!-- springdoc -->
+      <dependency>
+        <groupId>org.springdoc</groupId>
+        <artifactId>springdoc-openapi-ui</artifactId>
+        <version>1.8.0</version>
+      </dependency>
+
+      <!-- knife4j -->
+      <dependency>
+        <groupId>com.github.xiaoymin</groupId>
+        <artifactId>knife4j-springdoc-ui</artifactId>
+        <version>3.0.3</version>
+      </dependency>
+
+      <!-- redisson-spring-boot-starter -->
+      <dependency>
+        <groupId>org.redisson</groupId>
+        <artifactId>redisson-spring-boot-starter</artifactId>
+        <version>3.33.0</version>
+      </dependency>
+
+      <!-- 动态数据源 -->
+      <dependency>
+        <groupId>com.baomidou</groupId>
+        <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
+        <version>4.3.1</version>
+      </dependency>
+
+      <!-- mybatis-plus -->
+      <dependency>
+        <groupId>com.baomidou</groupId>
+        <artifactId>mybatis-plus-boot-starter</artifactId>
+        <version>3.5.7</version>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+
+</project>

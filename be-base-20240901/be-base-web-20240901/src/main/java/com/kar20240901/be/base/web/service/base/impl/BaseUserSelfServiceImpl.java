@@ -1,0 +1,166 @@
+package com.kar20240901.be.base.web.service.base.impl;
+
+import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.DesensitizedUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
+import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
+import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
+import com.kar20240901.be.base.web.mapper.base.BaseUserMapper;
+import com.kar20240901.be.base.web.model.domain.base.TempEntity;
+import com.kar20240901.be.base.web.model.domain.base.TempUserDO;
+import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
+import com.kar20240901.be.base.web.model.dto.base.BaseUserSelfUpdateInfoDTO;
+import com.kar20240901.be.base.web.model.dto.base.NotBlankString;
+import com.kar20240901.be.base.web.model.enums.base.BaseRedisKeyEnum;
+import com.kar20240901.be.base.web.model.vo.base.BaseUserSelfInfoVO;
+import com.kar20240901.be.base.web.model.vo.base.R;
+import com.kar20240901.be.base.web.service.base.BaseUserSelfService;
+import com.kar20240901.be.base.web.util.base.MyEntityUtil;
+import com.kar20240901.be.base.web.util.base.MyThreadUtil;
+import com.kar20240901.be.base.web.util.base.MyUserUtil;
+import com.kar20240901.be.base.web.util.base.NicknameUtil;
+import com.kar20240901.be.base.web.util.base.RedissonUtil;
+import java.util.concurrent.CountDownLatch;
+import javax.annotation.Resource;
+import lombok.SneakyThrows;
+import org.springframework.stereotype.Service;
+
+@Service
+public class BaseUserSelfServiceImpl implements BaseUserSelfService {
+
+    @Resource
+    BaseUserInfoMapper baseUserInfoMapper;
+
+    @Resource
+    BaseUserMapper baseUserMapper;
+
+    /**
+     * 获取：当前用户，基本信息
+     */
+    @SneakyThrows
+    @Override
+    public BaseUserSelfInfoVO userSelfInfo() {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        BaseUserSelfInfoVO baseUserSelfInfoVO = new BaseUserSelfInfoVO();
+
+        baseUserSelfInfoVO.setId(currentUserId);
+
+        CountDownLatch countDownLatch = ThreadUtil.newCountDownLatch(2);
+
+        MyThreadUtil.execute(() -> {
+
+            TempUserInfoDO tempUserInfoDO =
+                ChainWrappers.lambdaQueryChain(baseUserInfoMapper).eq(TempUserInfoDO::getId, currentUserId)
+                    .select(TempUserInfoDO::getAvatarFileId, TempUserInfoDO::getNickname, TempUserInfoDO::getBio,
+                        TempUserInfoDO::getUuid).one();
+
+            if (tempUserInfoDO != null) {
+
+                baseUserSelfInfoVO.setAvatarFileId(tempUserInfoDO.getAvatarFileId());
+                baseUserSelfInfoVO.setNickname(tempUserInfoDO.getNickname());
+                baseUserSelfInfoVO.setBio(tempUserInfoDO.getBio());
+                baseUserSelfInfoVO.setUuid(tempUserInfoDO.getUuid());
+
+            }
+
+        }, countDownLatch);
+
+        MyThreadUtil.execute(() -> {
+
+            TempUserDO tempUserDO = ChainWrappers.lambdaQueryChain(baseUserMapper).eq(TempEntity::getId, currentUserId)
+                .select(TempUserDO::getEmail, TempUserDO::getPassword, TempUserDO::getUsername, TempUserDO::getPhone,
+                    TempUserDO::getWxOpenId, TempUserDO::getCreateTime, TempUserDO::getWxAppId).one();
+
+            if (tempUserDO != null) {
+
+                // 备注：要和 userMyPage接口保持一致
+                baseUserSelfInfoVO.setEmail(DesensitizedUtil.email(tempUserDO.getEmail())); // 脱敏
+                baseUserSelfInfoVO.setUsername(DesensitizedUtil.chineseName(tempUserDO.getUsername())); // 脱敏
+                baseUserSelfInfoVO.setPhone(DesensitizedUtil.mobilePhone(tempUserDO.getPhone())); // 脱敏
+                // 脱敏：只显示前 3位，后 4位
+                baseUserSelfInfoVO.setWxOpenId(
+                    StrUtil.hide(tempUserDO.getWxOpenId(), 3, tempUserDO.getWxOpenId().length() - 4));
+                // 脱敏：只显示前 3位，后 4位
+                baseUserSelfInfoVO.setWxAppId(
+                    StrUtil.hide(tempUserDO.getWxAppId(), 3, tempUserDO.getWxAppId().length() - 4));
+
+                baseUserSelfInfoVO.setPasswordFlag(StrUtil.isNotBlank(tempUserDO.getPassword()));
+                baseUserSelfInfoVO.setCreateTime(tempUserDO.getCreateTime());
+
+            }
+
+        }, countDownLatch);
+
+        countDownLatch.await();
+
+        return baseUserSelfInfoVO;
+
+    }
+
+    /**
+     * 当前用户：基本信息：修改
+     */
+    @Override
+    public String userSelfUpdateInfo(BaseUserSelfUpdateInfoDTO dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        TempUserInfoDO tempUserInfoDO = new TempUserInfoDO();
+
+        tempUserInfoDO.setId(currentUserId);
+        tempUserInfoDO.setNickname(MyEntityUtil.getNotNullStr(dto.getNickname(), NicknameUtil.getRandomNickname()));
+        tempUserInfoDO.setBio(MyEntityUtil.getNotNullAndTrimStr(dto.getBio()));
+
+        baseUserInfoMapper.updateById(tempUserInfoDO);
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 当前用户：重置头像
+     */
+    @Override
+    public String userSelfResetAvatar() {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        ChainWrappers.lambdaUpdateChain(baseUserInfoMapper).eq(TempUserInfoDO::getId, currentUserId)
+            .set(TempUserInfoDO::getAvatarFileId, -1).update();
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 当前用户：修改uuid
+     */
+    @Override
+    public String updateUuid(NotBlankString dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        String newUuid = StrUtil.cleanBlank(dto.getValue());
+
+        return RedissonUtil.doLock(BaseRedisKeyEnum.PRE_USER_UUID.name() + ":" + newUuid, () -> {
+
+            boolean exists =
+                ChainWrappers.lambdaQueryChain(baseUserInfoMapper).eq(TempUserInfoDO::getUuid, newUuid).exists();
+
+            if (exists) {
+                R.errorMsg("修改失败：该唯一标识已存在");
+            }
+
+            ChainWrappers.lambdaUpdateChain(baseUserInfoMapper).eq(TempUserInfoDO::getId, currentUserId)
+                .set(TempUserInfoDO::getUuid, newUuid).update();
+
+            return TempBizCodeEnum.OK;
+
+        });
+
+    }
+
+}

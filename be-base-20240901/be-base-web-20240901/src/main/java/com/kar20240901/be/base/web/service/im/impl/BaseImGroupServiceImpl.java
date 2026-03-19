@@ -1,0 +1,426 @@
+package com.kar20240901.be.base.web.service.im.impl;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.core.util.IdUtil;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
+import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
+import com.kar20240901.be.base.web.mapper.base.BaseUserInfoMapper;
+import com.kar20240901.be.base.web.mapper.im.BaseImBlockMapper;
+import com.kar20240901.be.base.web.mapper.im.BaseImGroupMapper;
+import com.kar20240901.be.base.web.mapper.im.BaseImGroupRefUserMapper;
+import com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper;
+import com.kar20240901.be.base.web.model.constant.base.TempConstant;
+import com.kar20240901.be.base.web.model.domain.base.TempUserInfoDO;
+import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
+import com.kar20240901.be.base.web.model.domain.im.BaseImGroupDO;
+import com.kar20240901.be.base.web.model.domain.im.BaseImGroupRefUserDO;
+import com.kar20240901.be.base.web.model.domain.im.BaseImSessionRefUserDO;
+import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
+import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImGroupChangeBelongIdDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImGroupInsertOrUpdateDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImGroupPageDTO;
+import com.kar20240901.be.base.web.model.dto.im.BaseImGroupRemoveUserDTO;
+import com.kar20240901.be.base.web.model.enums.im.BaseImTypeEnum;
+import com.kar20240901.be.base.web.model.vo.base.DictVO;
+import com.kar20240901.be.base.web.model.vo.base.R;
+import com.kar20240901.be.base.web.model.vo.im.BaseImGroupInfoByIdVO;
+import com.kar20240901.be.base.web.model.vo.im.BaseImGroupPageVO;
+import com.kar20240901.be.base.web.service.file.BaseFileService;
+import com.kar20240901.be.base.web.service.im.BaseImGroupRefUserService;
+import com.kar20240901.be.base.web.service.im.BaseImGroupService;
+import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
+import com.kar20240901.be.base.web.service.im.BaseImSessionService;
+import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
+import com.kar20240901.be.base.web.util.base.MyEntityUtil;
+import com.kar20240901.be.base.web.util.base.MyPageUtil;
+import com.kar20240901.be.base.web.util.base.MyUserUtil;
+import com.kar20240901.be.base.web.util.im.BaseImGroupUtil;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import javax.annotation.Resource;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.stereotype.Service;
+
+@Service
+public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseImGroupDO>
+    implements BaseImGroupService {
+
+    @Resource
+    BaseImGroupRefUserMapper baseImGroupRefUserMapper;
+
+    @Resource
+    BaseUserInfoMapper baseUserInfoMapper;
+
+    @Resource
+    BaseImBlockMapper baseImBlockMapper;
+
+    @Resource
+    BaseImSessionService baseImSessionService;
+
+    @Resource
+    BaseImSessionRefUserService baseImSessionRefUserService;
+
+    @Resource
+    BaseImGroupRefUserService baseImGroupRefUserService;
+
+    @Resource
+    BaseFileService baseFileService;
+
+    @Resource
+    BaseImSessionRefUserMapper baseImSessionRefUserMapper;
+
+    /**
+     * 新增/修改
+     */
+    @Override
+    @DSTransactional
+    public Long insertOrUpdate(BaseImGroupInsertOrUpdateDTO dto) {
+
+        BaseImGroupDO baseImGroupDO = new BaseImGroupDO();
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        baseImGroupDO.setName(dto.getName());
+
+        baseImGroupDO.setNormalMuteFlag(BooleanUtil.isTrue(dto.getNormalMuteFlag()));
+
+        baseImGroupDO.setBio(MyEntityUtil.getNotNullStr(dto.getBio()));
+
+        if (dto.getId() == null) {
+
+            Long groupId = IdGeneratorUtil.nextId();
+
+            baseImGroupDO.setId(groupId);
+
+            baseImGroupDO.setBelongId(currentUserId);
+
+            Long sessionId = IdGeneratorUtil.nextId();
+
+            baseImGroupDO.setAvatarFileId(TempConstant.NEGATIVE_ONE);
+
+            baseImGroupDO.setSessionId(sessionId);
+
+            baseImGroupDO.setManageMuteFlag(BooleanUtil.isTrue(dto.getManageMuteFlag()));
+
+            baseImGroupDO.setUuid(IdUtil.simpleUUID());
+
+            save(baseImGroupDO);
+
+            // 创建会话
+            baseImSessionService.addSession(sessionId, TempConstant.NEGATIVE_ONE, BaseImTypeEnum.GROUP);
+
+            // 创建会话关联用户
+            baseImSessionRefUserService.addOrUpdateSessionRefUserForGroup(sessionId, groupId, currentUserId);
+
+            // 添加群员
+            baseImGroupRefUserService.addUser(sessionId, groupId, currentUserId);
+
+        } else {
+
+            // 检查：是否有权限
+            int type = BaseImGroupUtil.checkGroupAuth(dto.getId(), false, true);
+
+            baseImGroupDO.setId(dto.getId());
+
+            if (type == 101) {
+                baseImGroupDO.setManageMuteFlag(BooleanUtil.isTrue(dto.getManageMuteFlag()));
+            }
+
+            updateById(baseImGroupDO);
+
+        }
+
+        return baseImGroupDO.getId();
+
+    }
+
+    /**
+     * 通过主键id，查看详情
+     */
+    @Override
+    public BaseImGroupInfoByIdVO infoById(NotNullId dto) {
+
+        Long groupId = dto.getId();
+
+        int type = BaseImGroupUtil.checkGroupAuth(groupId, false, false);
+
+        if (type == 401) {
+            R.error("操作失败：您不在群里，不能进行此操作", groupId);
+        }
+
+        LambdaQueryChainWrapper<BaseImGroupDO> lambdaQueryChainWrapper =
+            lambdaQuery().eq(BaseImGroupDO::getId, groupId);
+
+        // 不同的类型，查看不同的数据
+        if (type == 101) {
+
+        } else if (type == 201) {
+
+        } else {
+
+            lambdaQueryChainWrapper.select(BaseImGroupDO::getId, BaseImGroupDO::getName, BaseImGroupDO::getAvatarFileId,
+                BaseImGroupDO::getUuid, BaseImGroupDO::getSessionId);
+
+        }
+
+        BaseImGroupDO baseImGroupDO = lambdaQueryChainWrapper.one();
+
+        if (baseImGroupDO == null) {
+            return null;
+        }
+
+        BaseImGroupInfoByIdVO baseImGroupInfoByIdVO =
+            BeanUtil.copyProperties(baseImGroupDO, BaseImGroupInfoByIdVO.class);
+
+        if (type == 101) {
+
+            baseImGroupInfoByIdVO.setBelongFlag(true);
+
+        } else if (type == 201) {
+
+            baseImGroupInfoByIdVO.setManageFlag(false);
+
+        }
+
+        Set<Long> avatarIdSet = CollUtil.newHashSet(baseImGroupInfoByIdVO.getAvatarFileId());
+
+        Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(avatarIdSet)).getMap();
+
+        baseImGroupInfoByIdVO.setAvatarUrl(publicUrlMap.get(baseImGroupInfoByIdVO.getAvatarFileId()));
+
+        baseImGroupInfoByIdVO.setAvatarFileId(null);
+
+        return baseImGroupInfoByIdVO;
+
+    }
+
+    /**
+     * 分页排序查询
+     */
+    @Override
+    public Page<BaseImGroupPageVO> myPage(BaseImGroupPageDTO dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        Page<BaseImGroupPageVO> resPage = baseMapper.myPage(dto.pageOrder(), dto, currentUserId);
+
+        // 设置群组头像地址
+        setAvatarUrl(resPage.getRecords(), item -> {
+
+            boolean belongFlag = BooleanUtil.isTrue(item.getBelongFlag());
+
+            boolean manageFlag = BooleanUtil.isTrue(item.getManageFlag());
+
+            if (!belongFlag && !manageFlag) {
+
+                item.setNormalMuteFlag(null);
+
+                item.setManageFlag(null);
+
+            }
+
+        });
+
+        return resPage;
+
+    }
+
+    /**
+     * 滚动加载
+     */
+    @Override
+    public List<BaseImGroupPageVO> scroll(ScrollListDTO dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        boolean backwardFlag = BooleanUtil.isTrue(dto.getBackwardFlag());
+
+        // 获取：滚动加载时的 id
+        Long groupId = MyPageUtil.getScrollId(dto);
+
+        BaseImGroupPageDTO pageDTO = new BaseImGroupPageDTO();
+
+        pageDTO.setGroupId(groupId);
+
+        pageDTO.setBackwardFlag(backwardFlag);
+
+        pageDTO.setSearchKey(dto.getSearchKey());
+
+        Page<BaseImGroupPageVO> resPage =
+            baseMapper.myPage(MyPageUtil.getScrollPage(dto.getPageSize()), pageDTO, currentUserId);
+
+        // 设置群组头像地址
+        setAvatarUrl(resPage.getRecords(), null);
+
+        return resPage.getRecords();
+
+    }
+
+    /**
+     * 设置群组头像地址
+     */
+    @Override
+    public void setAvatarUrl(List<BaseImGroupPageVO> records, @Nullable Consumer<BaseImGroupPageVO> consumer) {
+
+        Set<Long> avatarIdSet = records.stream().map(BaseImGroupPageVO::getAvatarFileId).collect(Collectors.toSet());
+
+        Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(avatarIdSet)).getMap();
+
+        for (BaseImGroupPageVO item : records) {
+
+            Long avatarFileId = item.getAvatarFileId();
+
+            String avatarUrl = publicUrlMap.get(avatarFileId);
+
+            item.setAvatarFileId(null);
+
+            item.setAvatarUrl(avatarUrl);
+
+            if (consumer != null) {
+                consumer.accept(item);
+            }
+
+        }
+
+    }
+
+    /**
+     * 踢出群员
+     */
+    @Override
+    @DSTransactional
+    public String removeUser(BaseImGroupRemoveUserDTO dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        dto.getUserIdSet().remove(currentUserId);
+
+        if (CollUtil.isEmpty(dto.getUserIdSet())) {
+            R.errorMsg("操作失败：不能移除自己");
+        }
+
+        // 检查：是否有权限
+        BaseImGroupUtil.checkForTargetUserId(dto.getGroupId(), dto.getUserIdSet());
+
+        ChainWrappers.lambdaUpdateChain(baseImGroupRefUserMapper).eq(BaseImGroupRefUserDO::getGroupId, dto.getGroupId())
+            .in(BaseImGroupRefUserDO::getUserId, dto.getUserIdSet()).remove();
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 修改群主
+     */
+    @Override
+    @DSTransactional
+    public String changeBelongId(BaseImGroupChangeBelongIdDTO dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        if (dto.getNewBelongId().equals(currentUserId)) {
+            R.errorMsg("操作失败：不能转移给自己");
+        }
+
+        // 检查：是否有权限
+        BaseImGroupUtil.checkGroupAuth(dto.getGroupId(), true, true);
+
+        boolean exists = ChainWrappers.lambdaQueryChain(baseImGroupRefUserMapper)
+            .eq(BaseImGroupRefUserDO::getGroupId, dto.getGroupId())
+            .eq(BaseImGroupRefUserDO::getUserId, dto.getNewBelongId()).exists();
+
+        if (!exists) {
+            R.error("操作失败：目标用户不在群里，无法转移", dto.getNewBelongId());
+        }
+
+        boolean existsUser =
+            ChainWrappers.lambdaQueryChain(baseUserInfoMapper).eq(TempUserInfoDO::getId, dto.getNewBelongId()).exists();
+
+        if (!existsUser) {
+            R.error("操作失败：用户已经注销，无法转移", dto.getNewBelongId());
+        }
+
+        lambdaUpdate().eq(BaseImGroupDO::getId, dto.getGroupId()).set(BaseImGroupDO::getBelongId, dto.getNewBelongId())
+            .update();
+
+        baseImGroupRefUserService.lambdaUpdate().eq(BaseImGroupRefUserDO::getGroupId, dto.getGroupId())
+            .eq(BaseImGroupRefUserDO::getUserId, dto.getNewBelongId()).set(BaseImGroupRefUserDO::getManageFlag, false)
+            .set(BaseImGroupRefUserDO::getMuteFlag, false).update();
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 解散群组
+     */
+    @Override
+    @DSTransactional
+    public String deleteByIdSet(NotEmptyIdSet dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        // 检查：是否有权限
+        BaseImGroupUtil.checkGroupIdSetAuth(dto.getIdSet(), true);
+
+        lambdaUpdate().in(BaseImGroupDO::getId, dto.getIdSet()).remove();
+
+        ChainWrappers.lambdaUpdateChain(baseImGroupRefUserMapper).in(BaseImGroupRefUserDO::getGroupId, dto.getIdSet())
+            .remove();
+
+        ChainWrappers.lambdaUpdateChain(baseImBlockMapper).in(BaseImBlockDO::getSourceId, dto.getIdSet())
+            .eq(BaseImBlockDO::getSourceType, BaseImTypeEnum.GROUP).remove();
+
+        // 隐藏会话，注意：这里可以删除会话，但是先保留，看情况再进行改动
+        ChainWrappers.lambdaUpdateChain(baseImSessionRefUserMapper)
+            .in(BaseImSessionRefUserDO::getTargetId, dto.getIdSet())
+            .eq(BaseImSessionRefUserDO::getUserId, currentUserId)
+            .eq(BaseImSessionRefUserDO::getTargetType, BaseImTypeEnum.GROUP)
+            .set(BaseImSessionRefUserDO::getShowFlag, false).update();
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 下拉列表
+     */
+    @Override
+    public Page<DictVO> dictList() {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        List<DictVO> dictVoList = baseMapper.dictList(currentUserId);
+
+        Set<Long> avatarIdSet = dictVoList.stream().map(DictVO::getL1).collect(Collectors.toSet());
+
+        Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(avatarIdSet)).getMap();
+
+        for (DictVO item : dictVoList) {
+
+            Long avatarFileId = item.getL1();
+
+            String avatarUrl = publicUrlMap.get(avatarFileId);
+
+            item.setL1(null);
+
+            item.setStr2(avatarUrl);
+
+        }
+
+        return new Page<DictVO>().setTotal(dictVoList.size()).setRecords(dictVoList);
+
+    }
+
+}

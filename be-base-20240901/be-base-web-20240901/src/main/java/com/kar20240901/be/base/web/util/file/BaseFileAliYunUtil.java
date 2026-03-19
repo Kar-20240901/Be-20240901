@@ -1,0 +1,254 @@
+package com.kar20240901.be.base.web.util.file;
+
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.util.StrUtil;
+import com.aliyun.oss.HttpMethod;
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.model.CompleteMultipartUploadRequest;
+import com.aliyun.oss.model.DeleteObjectsRequest;
+import com.aliyun.oss.model.GeneratePresignedUrlRequest;
+import com.aliyun.oss.model.GetObjectRequest;
+import com.aliyun.oss.model.PartETag;
+import com.aliyun.oss.model.UploadPartRequest;
+import com.aliyun.oss.model.UploadPartResult;
+import com.kar20240901.be.base.web.model.bo.file.BaseFileComposeBO;
+import com.kar20240901.be.base.web.model.bo.file.BaseFilePrivateDownloadBO;
+import com.kar20240901.be.base.web.model.bo.file.BaseFileUploadChunkBO;
+import com.kar20240901.be.base.web.model.configuration.file.IBaseFileStorage;
+import com.kar20240901.be.base.web.model.domain.file.BaseFileStorageConfigurationDO;
+import com.kar20240901.be.base.web.model.vo.file.BaseFileUploadFileSystemChunkVO;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import lombok.SneakyThrows;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+
+/**
+ * 阿里云文件工具类
+ */
+@Component
+public class BaseFileAliYunUtil {
+
+    /**
+     * 获取：客户端对象
+     */
+    private static OSS getOss(BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+
+        // 获取：客户端对象
+        Object clientObject = getClientObject(baseFileStorageConfigurationDO);
+
+        if (clientObject instanceof OSS) {
+            return (OSS)clientObject;
+        }
+
+        BaseFileUtil.clearByIdBaseFileStorageClientMap(baseFileStorageConfigurationDO.getId());
+
+        return (OSS)getClientObject(baseFileStorageConfigurationDO);
+
+    }
+
+    /**
+     * 获取：客户端对象
+     */
+    private static Object getClientObject(BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+
+        return BaseFileUtil.getOrSetBaseFileStorageClientMap(baseFileStorageConfigurationDO.getId(), () -> {
+
+            return new OSSClientBuilder().build(baseFileStorageConfigurationDO.getUploadEndpoint(),
+                baseFileStorageConfigurationDO.getAccessKey(), baseFileStorageConfigurationDO.getSecretKey());
+
+        });
+
+    }
+
+    /**
+     * 上传文件 备注：objectName 相同会被覆盖掉
+     */
+    @SneakyThrows
+    public static void upload(String bucketName, String objectName, MultipartFile file,
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+
+        InputStream inputStream = file.getInputStream();
+
+        OSS oss = getOss(baseFileStorageConfigurationDO);
+
+        oss.putObject(bucketName, objectName, inputStream);
+
+        IoUtil.close(inputStream);
+
+    }
+
+    /**
+     * 分片上传文件 备注：objectName 相同会被覆盖掉
+     */
+    @SneakyThrows
+    public static BaseFileUploadFileSystemChunkVO uploadChunk(String bucketName, String objectName, MultipartFile file,
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO, BaseFileUploadChunkBO baseFileUploadChunkBO) {
+
+        InputStream inputStream = file.getInputStream();
+
+        OSS oss = getOss(baseFileStorageConfigurationDO);
+
+        UploadPartRequest uploadPartRequest = new UploadPartRequest();
+
+        uploadPartRequest.setBucketName(bucketName);
+
+        uploadPartRequest.setKey(objectName);
+
+        uploadPartRequest.setUploadId(baseFileUploadChunkBO.getUploadId());
+
+        uploadPartRequest.setPartNumber(baseFileUploadChunkBO.getPartNumber());
+
+        uploadPartRequest.setInputStream(inputStream);
+
+        UploadPartResult uploadPartResult = oss.uploadPart(uploadPartRequest);
+
+        BaseFileUploadFileSystemChunkVO baseFileUploadFileSystemChunkVO = new BaseFileUploadFileSystemChunkVO();
+
+        baseFileUploadFileSystemChunkVO.setPartEtag(uploadPartResult.getPartETag());
+
+        return baseFileUploadFileSystemChunkVO;
+
+    }
+
+    /**
+     * 下载文件
+     */
+    @SneakyThrows
+    public static InputStream download(String bucketName, String objectName,
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO,
+        @Nullable BaseFilePrivateDownloadBO baseFilePrivateDownloadBO) {
+
+        OSS oss = getOss(baseFileStorageConfigurationDO);
+
+        GetObjectRequest getObjectRequest = new GetObjectRequest(bucketName, objectName);
+
+        if (baseFilePrivateDownloadBO != null) {
+
+            Long pre = baseFilePrivateDownloadBO.getPre();
+
+            Long suf = baseFilePrivateDownloadBO.getSuf();
+
+            if (pre != null && suf != null) {
+
+                getObjectRequest.setRange(pre, suf);
+
+            } else if (pre != null) {
+
+                getObjectRequest.setRange(pre, -1);
+
+            } else if (suf != null) {
+
+                getObjectRequest.setRange(-1, suf);
+
+            }
+
+        }
+
+        return oss.getObject(getObjectRequest).getObjectContent();
+
+    }
+
+    /**
+     * 复制文件
+     */
+    public static void copy(String sourceBucketName, String sourceObjectName, String toBucketName, String toObjectName,
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+
+        OSS oss = getOss(baseFileStorageConfigurationDO);
+
+        oss.copyObject(sourceBucketName, sourceObjectName, toBucketName, toObjectName);
+
+    }
+
+    /**
+     * 批量删除文件
+     */
+    @SneakyThrows
+    public static void remove(String bucketName, Set<String> objectNameSet,
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+
+        if (CollUtil.isEmpty(objectNameSet)) {
+            return;
+        }
+
+        DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucketName);
+
+        deleteObjectsRequest.setKeys(new ArrayList<>(objectNameSet));
+
+        OSS oss = getOss(baseFileStorageConfigurationDO);
+
+        oss.deleteObject(deleteObjectsRequest);
+
+    }
+
+    /**
+     * 获取：文件预览地址-临时
+     */
+    public static String getExpireUrl(String uri, String bucketName,
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO) {
+
+        OSS oss = getOss(baseFileStorageConfigurationDO);
+
+        Date expireDate = new Date(System.currentTimeMillis() + IBaseFileStorage.EXPIRE_TIME);
+
+        GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(bucketName, uri);
+
+        request.setExpiration(expireDate);
+
+        request.setMethod(HttpMethod.GET);
+
+        URL presignedUrl = oss.generatePresignedUrl(request);
+
+        String rawUrl = presignedUrl.toString();
+
+        String customDomain = baseFileStorageConfigurationDO.getCustomDomain();
+
+        if (StrUtil.isBlank(customDomain)) {
+            return rawUrl;
+        }
+
+        String ossDomain = presignedUrl.getHost();
+
+        rawUrl = rawUrl.replace("https://" + bucketName + "." + ossDomain, customDomain);
+
+        return rawUrl;
+
+    }
+
+    /**
+     * 合并文件
+     */
+    @SneakyThrows
+    public static void compose(String bucketName, BaseFileComposeBO baseFileComposeBO,
+        BaseFileStorageConfigurationDO baseFileStorageConfigurationDO, String newObjectName) {
+
+        List<PartETag> partEtagList = baseFileComposeBO.getPartEtagList();
+
+        if (CollUtil.isEmpty(partEtagList)) {
+            return;
+        }
+
+        String uploadId = baseFileComposeBO.getUploadId();
+
+        if (StrUtil.isBlank(uploadId)) {
+            return;
+        }
+
+        OSS oss = getOss(baseFileStorageConfigurationDO);
+
+        CompleteMultipartUploadRequest completeMultipartUploadRequest =
+            new CompleteMultipartUploadRequest(bucketName, newObjectName, uploadId, partEtagList);
+
+        oss.completeMultipartUpload(completeMultipartUploadRequest);
+
+    }
+
+}

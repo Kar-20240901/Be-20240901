@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kar20240901.be.base.web.mapper.im.BaseImBlockMapper">
+  <insert id="insertOrUpdateForCreate">
+    INSERT INTO base_im_block (create_id, create_time, user_id, source_id, source_type)
+    VALUES
+    <foreach collection="userIdSet" item="item" index="index" separator=",">
+      (#{createId}, #{createTime}, #{item}, #{sourceId}, #{sourceType})
+    </foreach>
+    ON DUPLICATE KEY UPDATE create_id   = VALUES(create_id),
+                            create_time = VALUES(create_time)
+  </insert>
+</mapper>

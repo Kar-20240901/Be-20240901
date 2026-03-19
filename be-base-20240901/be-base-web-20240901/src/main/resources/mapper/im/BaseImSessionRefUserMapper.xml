@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper">
+  <select id="myPage"
+    resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserPageVO">
+    SELECT a.session_id                           AS sessionId,
+           IF(a.name = '', a.target_name, a.name) AS sessionName,
+           a.avatar_url                           AS avatarUrl,
+           a.target_id                            AS targetId,
+           a.target_type                          AS targetType,
+           b.last_receive_ts                      AS lastReceiveTs,
+           a.not_disturb_flag                     AS notDisturbFlag
+
+    FROM base_im_session_ref_user a
+
+           LEFT JOIN base_im_session b ON b.id = a.session_id
+
+           LEFT JOIN base_user_info c ON c.id = a.user_id
+
+    WHERE a.show_flag = TRUE
+
+      AND a.user_id = #{currentUserId}
+
+    <if test="dto.lastReceiveTs != null">
+      <choose>
+        <when test="dto.backwardFlag == null">
+          <if test="dto.lastReceiveTs == -1">
+            AND a.session_id = #{dto.sessionId}
+            AND b.last_receive_ts = -1
+          </if>
+          <if test="dto.lastReceiveTs != -1">
+            AND b.last_receive_ts = #{dto.lastReceiveTs}
+          </if>
+        </when>
+
+        <when test="dto.backwardFlag">
+          <if test="dto.lastReceiveTs == -1">
+            AND a.session_id <![CDATA[>]]> #{dto.sessionId}
+            AND b.last_receive_ts = -1
+          </if>
+          <if test="dto.lastReceiveTs != -1">
+            AND b.last_receive_ts <![CDATA[>]]> #{dto.lastReceiveTs}
+          </if>
+        </when>
+
+        <otherwise>
+          <if test="dto.lastReceiveTs == -1">
+            AND a.session_id <![CDATA[<]]> #{dto.sessionId}
+            AND b.last_receive_ts = -1
+          </if>
+          <if test="dto.lastReceiveTs != -1">
+            AND b.last_receive_ts <![CDATA[<]]> #{dto.lastReceiveTs}
+          </if>
+        </otherwise>
+      </choose>
+    </if>
+
+    <if test="dto.sessionIdSet != null and dto.sessionIdSet.size != 0">
+      AND a.session_id IN
+      <foreach collection="dto.sessionIdSet" separator="," open="(" close=")" item="item">
+        #{item}
+      </foreach>
+    </if>
+
+    <if test="dto.searchKey != null and dto.searchKey != ''">
+      AND (a.name LIKE CONCAT('%', #{dto.searchKey}, '%')
+        OR a.target_name LIKE CONCAT('%', #{dto.searchKey}, '%')
+        OR c.uuid LIKE CONCAT('%', #{dto.searchKey}, '%'))
+    </if>
+
+    ORDER BY b.last_receive_ts DESC, a.session_id DESC
+  </select>
+
+  <select id="queryUnReadCount"
+    resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO">
+    SELECT a.session_id                                AS sessionId,
+           SUM(IF(b.create_ts > a.last_open_ts, 1, 0)) AS unReadCount,
+           MAX(a.not_disturb_flag)                     AS notDisturbFlag
+
+    FROM base_im_session_ref_user a
+           LEFT JOIN base_im_session_content b ON b.session_id = a.session_id
+
+    WHERE a.user_id = #{currentUserId}
+      AND b.enable_flag = TRUE
+
+      AND a.session_id IN
+    <foreach collection="sessionIdList" separator="," open="(" close=")" item="item">
+      #{item}
+    </foreach>
+
+    GROUP BY a.session_id
+  </select>
+
+  <select id="querySessionRefUserInfoBySessionId"
+    resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserInfoVO">
+    SELECT a.user_id                              AS userId,
+           IF(a.name = '', a.target_name, a.name) AS showName,
+           a.avatar_url                           AS avatarUrl
+
+    FROM base_im_session_ref_user a
+    WHERE a.session_id = #{sessionId}
+  </select>
+</mapper>
