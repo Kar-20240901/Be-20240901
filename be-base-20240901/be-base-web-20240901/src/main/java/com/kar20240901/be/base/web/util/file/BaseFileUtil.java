@@ -689,7 +689,7 @@ public class BaseFileUtil {
         fileType = BaseFileUploadTypeEnum.doCheckFileType(BaseFileUploadTypeEnum.FILE_SYSTEM, fileType);
 
         if (fileType == null) {
-            R.errorMsg("操作失败：暂不支持此文件类型【" + dto.getFileName() + "】，请正确上传文件");
+            R.errorMsg("操作失败：暂不支持此文件类型：" + dto.getFileName() + "，请正确上传文件");
         }
 
         // 文件传输主键id
@@ -735,7 +735,7 @@ public class BaseFileUtil {
         fileType = BaseFileUploadTypeEnum.doCheckFileType(BaseFileUploadTypeEnum.FILE_SYSTEM, fileType);
 
         if (fileType == null) {
-            R.errorMsg("操作失败：暂不支持此文件类型【" + dto.getFileName() + "】，请正确上传文件");
+            R.errorMsg("操作失败：暂不支持此文件类型：" + dto.getFileName() + "，请正确上传文件");
         }
 
         // 文件传输主键id
@@ -880,13 +880,13 @@ public class BaseFileUtil {
         boolean overChunkSizeFlag = dto.getFile().getSize() > baseFileTransferDO.getChunkSize();
 
         if (overChunkSizeFlag) {
-            R.errorMsg("操作失败：分片大小超过：【" + DataSizeUtil.format(baseFileTransferDO.getChunkSize()) + "】");
+            R.errorMsg("操作失败：分片大小超过：" + DataSizeUtil.format(baseFileTransferDO.getChunkSize()));
         }
 
         boolean overChunkTotalFlag = dto.getChunkNum() > baseFileTransferDO.getChunkTotal();
 
         if (overChunkTotalFlag) {
-            R.errorMsg("操作失败：分片编号超过：【" + baseFileTransferDO.getChunkTotal() + "】");
+            R.errorMsg("操作失败：分片编号超过：" + baseFileTransferDO.getChunkTotal());
         }
 
         BaseFileDO baseFileDO =
@@ -909,7 +909,7 @@ public class BaseFileUtil {
                     .eq(BaseFileTransferChunkDO::getChunkNum, dto.getChunkNum()).exists();
 
                 if (exists) {
-                    R.errorMsg("操作失败：该分片编号已经上传过：【" + dto.getChunkNum() + "】");
+                    R.errorMsg("操作失败：该分片编号已经上传过：" + dto.getChunkNum());
                 }
 
                 String fileType = "chunk." + dto.getChunkNum();

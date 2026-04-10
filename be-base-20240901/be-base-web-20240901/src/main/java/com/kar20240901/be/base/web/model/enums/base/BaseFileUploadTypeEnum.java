@@ -119,7 +119,7 @@ public enum BaseFileUploadTypeEnum {
         }
 
         if (file.getSize() > maxFileSize) {
-            R.errorMsg("操作失败：文件大小超过：【" + DataSizeUtil.format(maxFileSize) + "】，请重新选择");
+            R.errorMsg("操作失败：文件大小超过：" + DataSizeUtil.format(maxFileSize) + "，请重新选择");
         }
 
     }
@@ -145,7 +145,7 @@ public enum BaseFileUploadTypeEnum {
 
         if (fileType == null) {
 
-            R.errorMsg("操作失败：暂不支持此文件类型【" + originalFilename + "】，请正确上传文件");
+            R.errorMsg("操作失败：暂不支持此文件类型：" + originalFilename + "，请正确上传文件");
 
         }
 
