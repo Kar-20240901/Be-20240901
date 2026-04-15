@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.generate.util;
 
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
@@ -14,6 +15,8 @@ import com.tencentcloudapi.cvm.v20170312.models.StartInstancesRequest;
 import com.tencentcloudapi.cvm.v20170312.models.StartInstancesResponse;
 import com.tencentcloudapi.cvm.v20170312.models.StopInstancesRequest;
 import com.tencentcloudapi.cvm.v20170312.models.StopInstancesResponse;
+import java.io.File;
+import java.util.List;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -28,6 +31,8 @@ public class MangeHostUtil {
     private static final String REGION = "";
 
     private static final String[] INSTANCE_ID_ARR = new String[] {""};
+
+    private static final String LOCAL_HOST_DOMAIN = "karopendev.top";
 
     public static void main(String[] args) {
 
@@ -81,6 +86,8 @@ public class MangeHostUtil {
 
                 log.info("IP地址是：{}", publicIpAddress);
 
+                updateLocalHostFile(publicIpAddress, LOCAL_HOST_DOMAIN);
+
                 return;
 
             }
@@ -88,6 +95,60 @@ public class MangeHostUtil {
             ThreadUtil.sleep(10000);
 
         }
+
+    }
+
+    /**
+     * 修改本地HOST文件的内容
+     */
+    public static void updateLocalHostFile(String ip, String domain) {
+
+        File hostsFile = FileUtil.newFile("C:\\Windows\\System32\\drivers\\etc\\hosts");
+
+        List<String> lineList = FileUtil.readUtf8Lines(hostsFile);
+
+        String newHostLine = ip + " " + domain;
+
+        boolean updatedFlag = false;
+
+        int realIndex = -1;
+
+        for (int i = 0; i < lineList.size(); i++) {
+
+            String line = lineList.get(i);
+
+            if (StrUtil.isBlank(line) || line.startsWith("#")) {
+                continue;
+            }
+
+            if (realIndex < 0) {
+                realIndex = i;
+            }
+
+            // 匹配域名（忽略空格）
+            if (line.contains(domain)) {
+
+                lineList.set(i, newHostLine);
+
+                updatedFlag = true;
+
+                break;
+
+            }
+
+        }
+
+        if (!updatedFlag) {
+
+            // 添加到最前面
+            lineList.add(realIndex, newHostLine);
+
+        }
+
+        // 写到文件里
+        FileUtil.writeUtf8Lines(lineList, hostsFile);
+
+        log.info("已成功写入hosts文件");
 
     }
 
