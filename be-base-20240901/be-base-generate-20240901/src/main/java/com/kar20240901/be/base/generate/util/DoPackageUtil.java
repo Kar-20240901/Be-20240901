@@ -118,7 +118,7 @@ public class DoPackageUtil {
     @SneakyThrows
     public void exec() {
 
-        String nextLine = ApiTestHelper.getStrFromScanner("请输入：1 全部打包 2 后端打包 3 前端打包");
+        String nextLine = ApiTestHelper.getStrFromScanner("请输入：1 全部打包（默认） 2 后端打包 3 前端打包");
 
         int number = Convert.toInt(nextLine, 1);
 
