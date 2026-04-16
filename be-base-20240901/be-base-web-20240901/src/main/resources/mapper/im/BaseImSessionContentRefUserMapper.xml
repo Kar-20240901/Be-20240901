@@ -57,27 +57,33 @@
       AND b.content LIKE CONCAT('%', #{dto.content}, '%')
     </if>
 
-    <if test="dto.contentId != null">
+    <if test="dto.contentCreateTs != null">
       <choose>
-        <when test="dto.backwardFlag == null">
-          AND a.content_id = #{dto.contentId}
-        </when>
-
         <when test="dto.backwardFlag">
-          AND a.content_id <![CDATA[>]]> #{dto.contentId}
+          AND (
+            (b.create_ts <![CDATA[>]]> #{dto.contentCreateTs})
+              OR
+            (b.create_ts = #{dto.contentCreateTs} AND b.order_no <![CDATA[>]]> #{dto.orderNo})
+              OR
+            (b.create_ts = #{dto.contentCreateTs} AND b.order_no = #{dto.orderNo} AND
+             b.id <![CDATA[>]]> #{dto.contentId})
+            )
         </when>
 
         <otherwise>
-          AND a.content_id <![CDATA[<]]> #{dto.contentId}
+          AND (
+            (b.create_ts <![CDATA[<]]> #{dto.contentCreateTs})
+              OR
+            (b.create_ts = #{dto.contentCreateTs} AND b.order_no <![CDATA[<]]> #{dto.orderNo})
+              OR
+            (b.create_ts = #{dto.contentCreateTs} AND b.order_no = #{dto.orderNo} AND
+             b.id <![CDATA[<]]> #{dto.contentId})
+            )
         </otherwise>
       </choose>
     </if>
 
     <choose>
-      <when test="dto.backwardFlag == null">
-        ORDER BY b.create_ts DESC, b.order_no DESC, b.id DESC
-      </when>
-
       <when test="dto.backwardFlag">
         ORDER BY b.create_ts, b.order_no, b.id
       </when>

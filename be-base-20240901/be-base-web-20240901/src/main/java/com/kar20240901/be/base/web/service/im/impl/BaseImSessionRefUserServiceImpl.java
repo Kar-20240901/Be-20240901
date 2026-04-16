@@ -115,6 +115,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDo1.setTargetType(BaseImTypeEnum.FRIEND.getCode());
         baseImSessionRefUserDo1.setTargetName(tempUserInfoDo2.getNickname());
         baseImSessionRefUserDo1.setNotDisturbFlag(false);
+        baseImSessionRefUserDo1.setOrderNo(MyEntityUtil.getNotNullOrderNo(null));
 
         save(baseImSessionRefUserDo1);
 
@@ -131,6 +132,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDo2.setTargetType(BaseImTypeEnum.FRIEND.getCode());
         baseImSessionRefUserDo2.setTargetName(tempUserInfoDo1.getNickname());
         baseImSessionRefUserDo2.setNotDisturbFlag(false);
+        baseImSessionRefUserDo2.setOrderNo(MyEntityUtil.getNotNullOrderNo(null));
 
         save(baseImSessionRefUserDo2);
 
@@ -188,6 +190,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDO.setTargetType(BaseImTypeEnum.GROUP.getCode());
         baseImSessionRefUserDO.setTargetName(baseImGroupDO.getName());
         baseImSessionRefUserDO.setNotDisturbFlag(false);
+        baseImSessionRefUserDO.setOrderNo(MyEntityUtil.getNotNullOrderNo(null));
 
         save(baseImSessionRefUserDO);
 
@@ -273,8 +276,6 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
         pageDTO.setSearchKey(dto.getSearchKey());
 
-        pageDTO.setLastReceiveTs(dto.getRefId());
-
         Set<Long> sessionIdSet = dto.getRefIdSet();
 
         Page<BaseImSessionRefUserPageVO> scrollPage;
@@ -290,6 +291,20 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         }
 
         pageDTO.setSessionIdSet(sessionIdSet);
+
+        if (backwardFlag) {
+
+            pageDTO.setLastReceiveTs(MyEntityUtil.getNotNullLong(dto.getRefId(), -2L));
+
+            pageDTO.setOrderNo(MyEntityUtil.getNotNullInt(dto.getOrderNo(), -1));
+
+        } else {
+
+            pageDTO.setLastReceiveTs(Long.MAX_VALUE);
+
+            pageDTO.setOrderNo(Integer.MAX_VALUE);
+
+        }
 
         Page<BaseImSessionRefUserPageVO> resPage = baseMapper.myPage(scrollPage, pageDTO, currentUserId);
 

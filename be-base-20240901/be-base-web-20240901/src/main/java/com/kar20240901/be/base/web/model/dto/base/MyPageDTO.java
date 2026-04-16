@@ -27,8 +27,8 @@ public class MyPageDTO {
             pageSize = 10;
         }
 
-        if (pageSize > MyPageUtil.MAX_PAGE_SIZE) {
-            pageSize = MyPageUtil.MAX_PAGE_SIZE;
+        if (pageSize > MyPageUtil.PAGE_SIZE_FULL) {
+            pageSize = MyPageUtil.PAGE_SIZE_FULL;
         }
 
         this.pageSize = pageSize;
@@ -40,7 +40,7 @@ public class MyPageDTO {
      */
     public void setPageSizeAll() {
 
-        this.pageSize = -1;
+        this.pageSize = MyPageUtil.PAGE_SIZE_MAX;
 
     }
 

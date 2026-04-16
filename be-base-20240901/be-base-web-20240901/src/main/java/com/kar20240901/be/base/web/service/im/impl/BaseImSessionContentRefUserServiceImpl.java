@@ -18,6 +18,7 @@ import com.kar20240901.be.base.web.model.dto.im.BaseImSessionContentRefUserPageD
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionContentRefUserPageVO;
 import com.kar20240901.be.base.web.service.im.BaseImSessionContentRefUserService;
 import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
+import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyPageUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import java.util.Date;
@@ -83,6 +84,20 @@ public class BaseImSessionContentRefUserServiceImpl
         pageDTO.setContent(dto.getSearchKey());
 
         pageDTO.setSessionId(dto.getRefId());
+
+        if (backwardFlag) {
+
+            pageDTO.setContentCreateTs(MyEntityUtil.getNotNullLong(dto.getLong1(), -2L));
+
+            pageDTO.setOrderNo(MyEntityUtil.getNotNullInt(dto.getOrderNo(), -1));
+
+        } else {
+
+            pageDTO.setContentCreateTs(Long.MAX_VALUE);
+
+            pageDTO.setOrderNo(Integer.MAX_VALUE);
+
+        }
 
         List<BaseImSessionContentRefUserPageVO> records =
             baseMapper.myPage(MyPageUtil.getScrollPage(dto.getPageSize()), pageDTO, currentUserId).getRecords();

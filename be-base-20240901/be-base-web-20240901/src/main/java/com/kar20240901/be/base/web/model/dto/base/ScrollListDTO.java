@@ -40,4 +40,10 @@ public class ScrollListDTO {
     @Schema(description = "布尔值1")
     private Boolean boolean1;
 
+    @Schema(description = "long值1")
+    private Long long1;
+
+    @Schema(description = "排序号（值越大越前面，默认为 0）")
+    private Integer orderNo;
+
 }

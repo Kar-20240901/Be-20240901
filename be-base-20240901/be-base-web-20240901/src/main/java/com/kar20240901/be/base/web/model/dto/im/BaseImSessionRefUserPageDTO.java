@@ -28,4 +28,7 @@ public class BaseImSessionRefUserPageDTO extends MyPageDTO {
     @Schema(description = "最后一次接受到消息时的时间戳，默认为：当前时间，备注：该字段用于：排序", hidden = true)
     private Long lastReceiveTs;
 
+    @Schema(description = "排序号（值越大越前面，默认为 0） 901 置顶")
+    private Integer orderNo;
+
 }

@@ -8,7 +8,10 @@ import org.jetbrains.annotations.Nullable;
 public class MyPageUtil {
 
     // 可以等于，但是不能大于
-    public static final long MAX_PAGE_SIZE = 100;
+    public static final long PAGE_SIZE_FULL = 100;
+
+    // 可以等于，但是不能大于
+    public static final long PAGE_SIZE_MAX = 1000000;
 
     /**
      * 将页数和每页条目数转换为开始位置<br> 此方法用于不包括结束位置的分页方法<br> 例如：
@@ -47,6 +50,12 @@ public class MyPageUtil {
      */
     public static <T> Page<T> getLimitPage(long size) {
 
+        if (size < 1 || size > PAGE_SIZE_MAX) {
+
+            size = PAGE_SIZE_MAX;
+
+        }
+
         return new Page<>(1, size, true);
 
     }
@@ -64,9 +73,9 @@ public class MyPageUtil {
 
             size = 20L;
 
-        } else if (size > MAX_PAGE_SIZE) {
+        } else if (size > PAGE_SIZE_FULL) {
 
-            size = MAX_PAGE_SIZE;
+            size = PAGE_SIZE_FULL;
 
         }
 

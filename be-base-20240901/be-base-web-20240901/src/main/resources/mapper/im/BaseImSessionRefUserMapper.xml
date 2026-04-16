@@ -24,34 +24,26 @@
 
     <if test="dto.lastReceiveTs != null">
       <choose>
-        <when test="dto.backwardFlag == null">
-          <if test="dto.lastReceiveTs == -1">
-            AND a.session_id = #{dto.sessionId}
-            AND b.last_receive_ts = -1
-          </if>
-          <if test="dto.lastReceiveTs != -1">
-            AND b.last_receive_ts = #{dto.lastReceiveTs}
-          </if>
-        </when>
-
         <when test="dto.backwardFlag">
-          <if test="dto.lastReceiveTs == -1">
-            AND a.session_id <![CDATA[>]]> #{dto.sessionId}
-            AND b.last_receive_ts = -1
-          </if>
-          <if test="dto.lastReceiveTs != -1">
-            AND b.last_receive_ts <![CDATA[>]]> #{dto.lastReceiveTs}
-          </if>
+          AND (
+            (a.order_no <![CDATA[>]]> #{dto.orderNo})
+              OR
+            (a.order_no = #{dto.orderNo} AND b.last_receive_ts <![CDATA[>]]> #{dto.lastReceiveTs})
+              OR
+            (a.order_no = #{dto.orderNo} AND b.last_receive_ts = #{dto.lastReceiveTs} AND
+             a.session_id <![CDATA[>]]> #{dto.sessionId})
+            )
         </when>
 
         <otherwise>
-          <if test="dto.lastReceiveTs == -1">
-            AND a.session_id <![CDATA[<]]> #{dto.sessionId}
-            AND b.last_receive_ts = -1
-          </if>
-          <if test="dto.lastReceiveTs != -1">
-            AND b.last_receive_ts <![CDATA[<]]> #{dto.lastReceiveTs}
-          </if>
+          AND (
+            (a.order_no <![CDATA[<]]> #{dto.orderNo})
+              OR
+            (a.order_no = #{dto.orderNo} AND b.last_receive_ts <![CDATA[<]]> #{dto.lastReceiveTs})
+              OR
+            (a.order_no = #{dto.orderNo} AND b.last_receive_ts = #{dto.lastReceiveTs} AND
+             a.session_id <![CDATA[<]]> #{dto.sessionId})
+            )
         </otherwise>
       </choose>
     </if>
@@ -69,7 +61,16 @@
         OR c.uuid LIKE CONCAT('%', #{dto.searchKey}, '%'))
     </if>
 
-    ORDER BY b.last_receive_ts DESC, a.session_id DESC
+
+    <choose>
+      <when test="dto.backwardFlag">
+        ORDER BY a.order_no, b.last_receive_ts, a.session_id
+      </when>
+
+      <otherwise>
+        ORDER BY a.order_no DESC, b.last_receive_ts DESC, a.session_id DESC
+      </otherwise>
+    </choose>
   </select>
 
   <select id="queryUnReadCount"

@@ -45,4 +45,7 @@ public class BaseImSessionRefUserDO {
     @Schema(description = "是否免打扰")
     private Boolean notDisturbFlag;
 
+    @Schema(description = "排序号（值越大越前面，默认为 0） 901 置顶")
+    private Integer orderNo;
+
 }

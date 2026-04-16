@@ -23,4 +23,10 @@ public class BaseImSessionContentRefUserPageDTO extends MyPageDTO {
     @Schema(description = "是否向后查询，默认：false 根据 id，往前查询 true 根据 id，往后查询", hidden = true)
     private Boolean backwardFlag;
 
+    @Schema(description = "消息的创建时间戳，UTC+8")
+    private Long contentCreateTs;
+
+    @Schema(description = "排序号（值越大越前面，默认为 0）")
+    private Integer orderNo;
+
 }
