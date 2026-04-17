@@ -300,9 +300,9 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
         } else {
 
-            pageDTO.setLastReceiveTs(Long.MAX_VALUE);
+            pageDTO.setLastReceiveTs(MyEntityUtil.getNotNullLong(dto.getRefId(), Long.MAX_VALUE));
 
-            pageDTO.setOrderNo(Integer.MAX_VALUE);
+            pageDTO.setOrderNo(MyEntityUtil.getNotNullInt(dto.getOrderNo(), Integer.MAX_VALUE));
 
         }
 

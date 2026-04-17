@@ -3,6 +3,7 @@ package com.kar20240901.be.base.web.controller.im;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionContentInsertTxtDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionContentUpdateTargetInputFlagDTO;
 import com.kar20240901.be.base.web.model.vo.base.R;
+import com.kar20240901.be.base.web.model.vo.im.BaseImSessionContentRefUserPageVO;
 import com.kar20240901.be.base.web.service.im.BaseImSessionContentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,7 +24,7 @@ public class BaseImSessionContentController {
 
     @Operation(summary = "新增文字消息")
     @PostMapping("/insertTxt")
-    public R<Long> insertTxt(@RequestBody @Valid BaseImSessionContentInsertTxtDTO dto) {
+    public R<BaseImSessionContentRefUserPageVO> insertTxt(@RequestBody @Valid BaseImSessionContentInsertTxtDTO dto) {
         return R.okData(baseService.insertTxt(dto));
     }
 

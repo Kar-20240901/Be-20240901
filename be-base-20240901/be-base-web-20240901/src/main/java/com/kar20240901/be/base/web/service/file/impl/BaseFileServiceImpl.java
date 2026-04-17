@@ -386,8 +386,8 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
             .eq(BaseFileDO::getUploadType, BaseFileUploadTypeEnum.FILE_SYSTEM) //
             .lt(BooleanUtil.isFalse(dto.getBackwardFlag()), BaseFileDO::getId, dto.getScrollId()) //
             .gt(BooleanUtil.isTrue(dto.getBackwardFlag()), BaseFileDO::getId, dto.getScrollId()) //
-            .select(true, getMyPageSelectList(folderSizeFlag, treeFlag, true))
-            .orderByDesc(TempEntityNoIdSuper::getCreateTime).orderByDesc(BaseFileDO::getId);
+            .select(true, getMyPageSelectList(folderSizeFlag, treeFlag, true)) //
+            .orderByDesc(BaseFileDO::getId);
 
         Page<BaseFileDO> page = lambdaQueryChainWrapper //
             .page(dto.page());

@@ -27,6 +27,7 @@ import com.kar20240901.be.base.web.model.enums.socket.BaseWebSocketUriEnum;
 import com.kar20240901.be.base.web.model.interfaces.im.IBaseImSessionContentType;
 import com.kar20240901.be.base.web.model.interfaces.im.IBaseImType;
 import com.kar20240901.be.base.web.model.vo.base.R;
+import com.kar20240901.be.base.web.model.vo.im.BaseImSessionContentRefUserPageVO;
 import com.kar20240901.be.base.web.service.im.BaseImSessionContentRefUserService;
 import com.kar20240901.be.base.web.service.im.BaseImSessionContentService;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
@@ -68,7 +69,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
      */
     @Override
     @DSTransactional
-    public Long insertTxt(BaseImSessionContentInsertTxtDTO dto) {
+    public BaseImSessionContentRefUserPageVO insertTxt(BaseImSessionContentInsertTxtDTO dto) {
 
         IBaseImSessionContentType iBaseImSessionContentType = BaseImSessionContentTypeEnum.MAP.get(dto.getType());
 
@@ -118,7 +119,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
     /**
      * 执行：发送消息
      */
-    public Long doInsertTxt(BaseImSessionContentInsertTxtDTO dto, Long sessionId,
+    public BaseImSessionContentRefUserPageVO doInsertTxt(BaseImSessionContentInsertTxtDTO dto, Long sessionId,
         IBaseImSessionContentType iBaseImSessionContentType) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
@@ -211,7 +212,14 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
         // 通知用户：有新消息
         TempKafkaUtil.sendBaseWebSocketStrEventTopic(baseWebSocketStrEventBO);
 
-        return contentId;
+        BaseImSessionContentRefUserPageVO baseImSessionContentRefUserPageVO = new BaseImSessionContentRefUserPageVO();
+
+        baseImSessionContentRefUserPageVO.setContentId(contentId);
+        baseImSessionContentRefUserPageVO.setCreateTs(baseImSessionContentDO.getCreateTs());
+        baseImSessionContentRefUserPageVO.setSessionId(baseImSessionContentDO.getSessionId());
+        baseImSessionContentRefUserPageVO.setOrderNo(baseImSessionContentDO.getOrderNo());
+
+        return baseImSessionContentRefUserPageVO;
 
     }
 

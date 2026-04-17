@@ -93,9 +93,9 @@ public class BaseImSessionContentRefUserServiceImpl
 
         } else {
 
-            pageDTO.setContentCreateTs(Long.MAX_VALUE);
+            pageDTO.setContentCreateTs(MyEntityUtil.getNotNullLong(dto.getLong1(), Long.MAX_VALUE));
 
-            pageDTO.setOrderNo(Integer.MAX_VALUE);
+            pageDTO.setOrderNo(MyEntityUtil.getNotNullInt(dto.getOrderNo(), Integer.MAX_VALUE));
 
         }
 
