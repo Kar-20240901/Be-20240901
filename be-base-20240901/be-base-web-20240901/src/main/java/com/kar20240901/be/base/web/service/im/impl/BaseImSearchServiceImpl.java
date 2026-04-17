@@ -151,7 +151,7 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
 
         if (threadCount == 1) {
 
-            pageSize = MyPageUtil.PAGE_SIZE_MEDIUM;
+            pageSize = MyPageUtil.PAGE_SIZE_FULL;
 
         } else {
 
