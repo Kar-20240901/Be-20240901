@@ -10,7 +10,8 @@
            a.target_id                            AS targetId,
            a.target_type                          AS targetType,
            b.last_receive_ts                      AS lastReceiveTs,
-           a.not_disturb_flag                     AS notDisturbFlag
+           a.not_disturb_flag                     AS notDisturbFlag,
+           a.order_no                             AS orderNo
 
     FROM base_im_session_ref_user a
 
@@ -60,7 +61,6 @@
         OR a.target_name LIKE CONCAT('%', #{dto.searchKey}, '%')
         OR c.uuid LIKE CONCAT('%', #{dto.searchKey}, '%'))
     </if>
-
 
     <choose>
       <when test="dto.backwardFlag">

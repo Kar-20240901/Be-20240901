@@ -25,6 +25,7 @@ import com.kar20240901.be.base.web.model.vo.im.BaseImSearchBaseVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSearchHistoryVO;
 import com.kar20240901.be.base.web.service.im.BaseImGroupService;
 import com.kar20240901.be.base.web.service.im.BaseImSearchService;
+import com.kar20240901.be.base.web.util.base.MyPageUtil;
 import com.kar20240901.be.base.web.util.base.MyThreadUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import java.util.ArrayList;
@@ -146,10 +147,16 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
             return new BaseImSearchBaseVO();
         }
 
-        Page<?> page = new Page<>();
+        long pageSize;
 
         if (threadCount == 1) {
-            page.setSize(-1);
+
+            pageSize = MyPageUtil.PAGE_SIZE_MEDIUM;
+
+        } else {
+
+            pageSize = 5;
+
         }
 
         CountDownLatch countDownLatch = ThreadUtil.newCountDownLatch(threadCount);
@@ -158,26 +165,7 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
         if (searchFriendFlag) {
             MyThreadUtil.execute(() -> {
 
-                BaseImFriendPageDTO baseImFriendPageDTO = new BaseImFriendPageDTO();
-
-                baseImFriendPageDTO.setSearchKey(searchKey);
-
-                Page<BaseImFriendPageVO> baseImFriendPageVoPage =
-                    baseImFriendMapper.myPage(page, baseImFriendPageDTO, currentUserId);
-
-                for (BaseImFriendPageVO item : baseImFriendPageVoPage.getRecords()) {
-
-                    BaseImSearchBaseFriendVO baseImSearchBaseFriendVO = new BaseImSearchBaseFriendVO();
-
-                    baseImSearchBaseFriendVO.setFriendUserId(item.getFriendUserId());
-                    baseImSearchBaseFriendVO.setFriendShowId(item.getFriendShowId());
-                    baseImSearchBaseFriendVO.setFriendShowName(item.getFriendShowName());
-                    baseImSearchBaseFriendVO.setAvatarUrl(item.getAvatarUrl());
-                    baseImSearchBaseFriendVO.setSessionId(item.getSessionId());
-
-                    friendList.add(baseImSearchBaseFriendVO);
-
-                }
+                searchBaseFriend(searchKey, pageSize, currentUserId, friendList);
 
             }, countDownLatch);
         }
@@ -186,27 +174,7 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
         if (searchGroupFlag) {
             MyThreadUtil.execute(() -> {
 
-                BaseImGroupPageDTO baseImGroupPageDTO = new BaseImGroupPageDTO();
-
-                baseImGroupPageDTO.setSearchKey(searchKey);
-
-                Page<BaseImGroupPageVO> baseImGroupPageVoPage =
-                    baseImGroupMapper.myPage(page, baseImGroupPageDTO, currentUserId);
-
-                baseImGroupService.setAvatarUrl(baseImGroupPageVoPage.getRecords(), item -> {
-
-                    BaseImSearchBaseGroupVO baseImSearchBaseGroupVO = new BaseImSearchBaseGroupVO();
-
-                    baseImSearchBaseGroupVO.setGroupId(item.getGroupId());
-                    baseImSearchBaseGroupVO.setGroupUuid(item.getGroupUuid());
-                    baseImSearchBaseGroupVO.setGroupShowName(item.getGroupShowName());
-                    baseImSearchBaseGroupVO.setSessionId(item.getSessionId());
-
-                    baseImSearchBaseGroupVO.setAvatarUrl(item.getAvatarUrl());
-
-                    groupList.add(baseImSearchBaseGroupVO);
-
-                });
+                searchBaseGroup(searchKey, pageSize, currentUserId, groupList);
 
             }, countDownLatch);
         }
@@ -215,16 +183,7 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
         if (searchContentFlag) {
             MyThreadUtil.execute(() -> {
 
-                BaseImSessionContentRefUserPageDTO baseImSessionContentRefUserPageDTO =
-                    new BaseImSessionContentRefUserPageDTO();
-
-                baseImSessionContentRefUserPageDTO.setContent(searchKey);
-
-                Page<BaseImSearchBaseContentVO> baseImSearchBaseContentVoPage =
-                    baseImSessionContentRefUserMapper.searchPage(page, baseImSessionContentRefUserPageDTO,
-                        currentUserId);
-
-                contentList.addAll(baseImSearchBaseContentVoPage.getRecords());
+                searchBaseContent(searchKey, pageSize, currentUserId, contentList);
 
             }, countDownLatch);
         }
@@ -238,6 +197,95 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
         baseImSearchBaseVO.setContentList(contentList);
 
         return baseImSearchBaseVO;
+
+    }
+
+    /**
+     * 搜索聊天记录
+     */
+    private void searchBaseContent(String searchKey, long pageSize, Long currentUserId,
+        List<BaseImSearchBaseContentVO> contentList) {
+
+        Page<?> page = new Page<>();
+
+        page.setSize(pageSize);
+
+        BaseImSessionContentRefUserPageDTO baseImSessionContentRefUserPageDTO =
+            new BaseImSessionContentRefUserPageDTO();
+
+        baseImSessionContentRefUserPageDTO.setContent(searchKey);
+
+        Page<BaseImSearchBaseContentVO> baseImSearchBaseContentVoPage =
+            baseImSessionContentRefUserMapper.searchPage(page, baseImSessionContentRefUserPageDTO, currentUserId);
+
+        contentList.addAll(baseImSearchBaseContentVoPage.getRecords());
+
+    }
+
+    /**
+     * 搜索群组
+     */
+    private void searchBaseGroup(String searchKey, long pageSize, Long currentUserId,
+        List<BaseImSearchBaseGroupVO> groupList) {
+
+        Page<?> page = new Page<>();
+
+        page.setSize(pageSize);
+
+        BaseImGroupPageDTO baseImGroupPageDTO = new BaseImGroupPageDTO();
+
+        baseImGroupPageDTO.setSearchKey(searchKey);
+
+        Page<BaseImGroupPageVO> baseImGroupPageVoPage =
+            baseImGroupMapper.myPage(page, baseImGroupPageDTO, currentUserId);
+
+        baseImGroupService.setAvatarUrl(baseImGroupPageVoPage.getRecords(), item -> {
+
+            BaseImSearchBaseGroupVO baseImSearchBaseGroupVO = new BaseImSearchBaseGroupVO();
+
+            baseImSearchBaseGroupVO.setGroupId(item.getGroupId());
+            baseImSearchBaseGroupVO.setGroupUuid(item.getGroupUuid());
+            baseImSearchBaseGroupVO.setGroupShowName(item.getGroupShowName());
+            baseImSearchBaseGroupVO.setSessionId(item.getSessionId());
+
+            baseImSearchBaseGroupVO.setAvatarUrl(item.getAvatarUrl());
+
+            groupList.add(baseImSearchBaseGroupVO);
+
+        });
+
+    }
+
+    /**
+     * 搜索好友
+     */
+    private void searchBaseFriend(String searchKey, long pageSize, Long currentUserId,
+        List<BaseImSearchBaseFriendVO> friendList) {
+
+        Page<?> page = new Page<>();
+
+        page.setSize(pageSize);
+
+        BaseImFriendPageDTO baseImFriendPageDTO = new BaseImFriendPageDTO();
+
+        baseImFriendPageDTO.setSearchKey(searchKey);
+
+        Page<BaseImFriendPageVO> baseImFriendPageVoPage =
+            baseImFriendMapper.myPage(page, baseImFriendPageDTO, currentUserId);
+
+        for (BaseImFriendPageVO item : baseImFriendPageVoPage.getRecords()) {
+
+            BaseImSearchBaseFriendVO baseImSearchBaseFriendVO = new BaseImSearchBaseFriendVO();
+
+            baseImSearchBaseFriendVO.setFriendUserId(item.getFriendUserId());
+            baseImSearchBaseFriendVO.setFriendShowId(item.getFriendShowId());
+            baseImSearchBaseFriendVO.setFriendShowName(item.getFriendShowName());
+            baseImSearchBaseFriendVO.setAvatarUrl(item.getAvatarUrl());
+            baseImSearchBaseFriendVO.setSessionId(item.getSessionId());
+
+            friendList.add(baseImSearchBaseFriendVO);
+
+        }
 
     }
 

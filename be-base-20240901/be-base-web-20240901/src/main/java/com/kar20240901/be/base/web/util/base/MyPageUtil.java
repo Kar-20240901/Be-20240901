@@ -11,6 +11,9 @@ public class MyPageUtil {
     public static final long PAGE_SIZE_FULL = 100;
 
     // 可以等于，但是不能大于
+    public static final long PAGE_SIZE_MEDIUM = 10000;
+
+    // 可以等于，但是不能大于
     public static final long PAGE_SIZE_MAX = 1000000;
 
     /**
