@@ -161,7 +161,7 @@ public class BasePostServiceImpl extends ServiceImpl<BasePostMapper, BasePostDO>
     @Override
     public List<BasePostDO> tree(BasePostPageDTO dto) {
 
-        dto.setPageSizeAll(); // 不分页
+        dto.doSetPageSizeAll(); // 不分页
 
         CountDownLatch countDownLatch = ThreadUtil.newCountDownLatch(1);
 

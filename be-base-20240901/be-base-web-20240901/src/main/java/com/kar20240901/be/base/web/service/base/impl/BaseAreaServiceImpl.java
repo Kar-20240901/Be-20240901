@@ -161,7 +161,7 @@ public class BaseAreaServiceImpl extends ServiceImpl<BaseAreaMapper, BaseAreaDO>
     @Override
     public List<BaseAreaDO> tree(BaseAreaPageDTO dto) {
 
-        dto.setPageSizeAll(); // 不分页
+        dto.doSetPageSizeAll(); // 不分页
 
         CountDownLatch countDownLatch = ThreadUtil.newCountDownLatch(1);
 

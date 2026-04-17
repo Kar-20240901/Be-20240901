@@ -24,4 +24,7 @@ public class BaseImSearchBaseContentVO {
     @Schema(description = "搜索的消息内容总数")
     private Long searchCount;
 
+    @Schema(description = "最大的消息创建时间戳，备注：排序用")
+    private Long maxContentCreateTs;
+
 }

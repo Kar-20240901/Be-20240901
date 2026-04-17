@@ -38,7 +38,7 @@ public class MyPageDTO {
     /**
      * 查询所有
      */
-    public void setPageSizeAll() {
+    public void doSetPageSizeAll() {
 
         this.pageSize = MyPageUtil.PAGE_SIZE_MAX;
 

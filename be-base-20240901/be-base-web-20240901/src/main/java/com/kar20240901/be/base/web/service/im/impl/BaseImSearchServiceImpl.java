@@ -11,6 +11,7 @@ import com.kar20240901.be.base.web.mapper.im.BaseImSearchHistoryMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionContentRefUserMapper;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSearchHistoryDO;
 import com.kar20240901.be.base.web.model.dto.base.NotNullId;
+import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImFriendPageDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImGroupPageDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSearchBaseDTO;
@@ -25,6 +26,7 @@ import com.kar20240901.be.base.web.model.vo.im.BaseImSearchBaseVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSearchHistoryVO;
 import com.kar20240901.be.base.web.service.im.BaseImGroupService;
 import com.kar20240901.be.base.web.service.im.BaseImSearchService;
+import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyPageUtil;
 import com.kar20240901.be.base.web.util.base.MyThreadUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
@@ -286,6 +288,44 @@ public class BaseImSearchServiceImpl implements BaseImSearchService {
             friendList.add(baseImSearchBaseFriendVO);
 
         }
+
+    }
+
+    /**
+     * 滚动加载聊天记录
+     */
+    @Override
+    public List<BaseImSearchBaseContentVO> baseContentScroll(ScrollListDTO dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        boolean backwardFlag = BooleanUtil.isTrue(dto.getBackwardFlag());
+
+        // 获取：滚动加载时的 id
+        Long sessionId = MyPageUtil.getScrollId(dto);
+
+        BaseImSessionContentRefUserPageDTO pageDTO = new BaseImSessionContentRefUserPageDTO();
+
+        pageDTO.setSessionId(sessionId);
+        pageDTO.setContent(dto.getSearchKey());
+
+        pageDTO.setBackwardFlag(backwardFlag);
+
+        if (backwardFlag) {
+
+            pageDTO.setContentCreateTs(MyEntityUtil.getNotNullLong(dto.getLong1(), -2L));
+
+        } else {
+
+            pageDTO.setContentCreateTs(MyEntityUtil.getNotNullLong(dto.getLong1(), Long.MAX_VALUE));
+
+        }
+
+        Page<BaseImSearchBaseContentVO> baseImSearchBaseContentVoPage =
+            baseImSessionContentRefUserMapper.searchPage(MyPageUtil.getScrollPage(dto.getPageSize()), pageDTO,
+                currentUserId);
+
+        return baseImSearchBaseContentVoPage.getRecords();
 
     }
 

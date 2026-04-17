@@ -102,8 +102,7 @@
            c.session_id                                          AS sessionId,
            MAX(c.avatar_url)                                     AS avatarUrl,
            COUNT(*)                                              AS searchCount,
-           MAX(b.create_ts)                                      AS maxContentCreateTs,
-           MAX(c.last_open_ts)                                   AS maxSessionRefUserLastOpenTs
+           MAX(b.create_ts)                                      AS maxContentCreateTs
 
     FROM base_im_session_content_ref_user a
 
@@ -126,6 +125,37 @@
 
     GROUP BY c.session_id
 
-    ORDER BY maxContentCreateTs DESC, maxSessionRefUserLastOpenTs DESC
+    <if test="dto.contentCreateTs != null">
+      HAVING
+
+      <choose>
+        <when test="dto.backwardFlag">
+          (
+            (MAX(b.create_ts) <![CDATA[>]]> #{dto.contentCreateTs})
+              OR
+            (MAX(b.create_ts) = #{dto.contentCreateTs}
+              AND c.session_id <![CDATA[>]]> #{dto.sessionId}))
+        </when>
+
+        <otherwise>
+          (
+            (MAX(b.create_ts) <![CDATA[<]]> #{dto.contentCreateTs})
+            OR
+          (MAX(b.create_ts) = #{dto.contentCreateTs}
+            AND c.session_id <![CDATA[<]]> #{dto.sessionId})
+          )
+        </otherwise>
+      </choose>
+    </if>
+
+    <choose>
+      <when test="dto.backwardFlag">
+        ORDER BY maxContentCreateTs, c.session_id
+      </when>
+
+      <otherwise>
+        ORDER BY maxContentCreateTs DESC, c.session_id DESC
+      </otherwise>
+    </choose>
   </select>
 </mapper>
