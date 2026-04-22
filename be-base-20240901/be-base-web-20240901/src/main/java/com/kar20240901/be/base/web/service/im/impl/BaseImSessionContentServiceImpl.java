@@ -187,7 +187,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
         baseImSessionMapper.updateById(baseImSessionDO);
 
         // 更新最后一次打开会话的时间
-        BaseImSessionContentRefUserServiceImpl.updateLastOpenTs(currentUserId, sessionId);
+        BaseImSessionContentRefUserServiceImpl.updateLastOpenTs(currentUserId, CollUtil.newHashSet(sessionId));
 
         // 显示会话
         ChainWrappers.lambdaUpdateChain(baseImSessionRefUserMapper).eq(BaseImSessionRefUserDO::getSessionId, sessionId)

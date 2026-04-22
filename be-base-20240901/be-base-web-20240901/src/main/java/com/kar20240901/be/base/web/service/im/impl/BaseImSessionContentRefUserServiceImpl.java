@@ -67,7 +67,7 @@ public class BaseImSessionContentRefUserServiceImpl
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
         if (BooleanUtil.isFalse(dto.getBoolean1())) {
-            updateLastOpenTs(currentUserId, dto.getRefId()); // 更新最后一次打开会话的时间
+            updateLastOpenTs(currentUserId, CollUtil.newHashSet(dto.getRefId())); // 更新最后一次打开会话的时间
         }
 
         boolean backwardFlag = BooleanUtil.isTrue(dto.getBackwardFlag());
@@ -164,10 +164,10 @@ public class BaseImSessionContentRefUserServiceImpl
     /**
      * 更新最后一次打开会话的时间
      */
-    public static void updateLastOpenTs(Long userId, Long sessionId) {
+    public static void updateLastOpenTs(Long userId, Set<Long> sessionIdSet) {
 
         ChainWrappers.lambdaUpdateChain(baseImSessionRefUserMapper).eq(BaseImSessionRefUserDO::getUserId, userId)
-            .eq(BaseImSessionRefUserDO::getSessionId, sessionId)
+            .in(BaseImSessionRefUserDO::getSessionId, sessionIdSet)
             .set(BaseImSessionRefUserDO::getLastOpenTs, new Date().getTime())
             .set(BaseImSessionRefUserDO::getShowFlag, true).update();
 
@@ -185,6 +185,9 @@ public class BaseImSessionContentRefUserServiceImpl
 
         lambdaUpdate().eq(BaseImSessionContentRefUserDO::getUserId, currentUserId)
             .in(BaseImSessionContentRefUserDO::getSessionId, sessionIdSet).remove();
+
+        // 更新最近打开时间，不然会出现消息未读的情况
+        updateLastOpenTs(currentUserId, sessionIdSet);
 
         return TempBizCodeEnum.OK;
 
