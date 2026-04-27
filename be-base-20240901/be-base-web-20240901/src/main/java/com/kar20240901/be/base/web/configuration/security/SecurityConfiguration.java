@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor;
 import org.springframework.security.access.vote.AffirmativeBased;
@@ -138,6 +139,7 @@ public class SecurityConfiguration {
 
         httpSecurity.authorizeRequests().antMatchers(ArrayUtil.toArray(permitAllSet, String.class))
             .permitAll() // 可以匿名访问的请求
+            .requestMatchers(EndpointRequest.to("health")).permitAll() // 放行 /actuator/health
             .anyRequest().authenticated(); // 拦截所有请求
 
         httpSecurity.addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
