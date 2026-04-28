@@ -86,25 +86,37 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
         Page<BaseImApplyFriendSearchApplyFriendVO> resPage = new Page<>();
 
+        // 我存在对方
         List<BaseImFriendDO> baseImFriendDOList =
             baseImFriendService.lambdaQuery().eq(BaseImFriendDO::getBelongId, currentUserId)
                 .select(BaseImFriendDO::getFriendId).list();
 
-        Set<Long> notIdIdSet = baseImFriendDOList.stream().map(BaseImFriendDO::getFriendId).collect(Collectors.toSet());
+        Set<Long> notInIdSet = baseImFriendDOList.stream().map(BaseImFriendDO::getFriendId).collect(Collectors.toSet());
+
+        if (CollUtil.isNotEmpty(notInIdSet)) {
+
+            // 对方删除我
+            List<BaseImFriendDO> baseImFriendDoTargetList =
+                baseImFriendService.lambdaQuery().eq(BaseImFriendDO::getFriendId, currentUserId)
+                    .in(BaseImFriendDO::getBelongId, notInIdSet).select(BaseImFriendDO::getBelongId).list();
+
+            notInIdSet = baseImFriendDoTargetList.stream().map(BaseImFriendDO::getBelongId).collect(Collectors.toSet());
+
+        }
 
         List<BaseImBlockDO> baseImBlockDOList =
             ChainWrappers.lambdaQueryChain(baseImBlockMapper).eq(BaseImBlockDO::getSourceId, currentUserId)
                 .eq(BaseImBlockDO::getSourceType, BaseImTypeEnum.FRIEND).select(BaseImBlockDO::getUserId).list();
 
         for (BaseImBlockDO item : baseImBlockDOList) {
-            notIdIdSet.add(item.getUserId());
+            notInIdSet.add(item.getUserId());
         }
 
-        notIdIdSet.add(currentUserId);
+        notInIdSet.add(currentUserId);
 
         Page<TempUserInfoDO> page = ChainWrappers.lambdaQueryChain(baseUserInfoMapper).or(StrUtil.isNotBlank(searchKey),
                 i -> i.like(TempUserInfoDO::getNickname, searchKey).or().like(TempUserInfoDO::getUuid, searchKey)) //
-            .notIn(TempUserInfoDO::getId, notIdIdSet) //
+            .notIn(TempUserInfoDO::getId, notInIdSet) //
             .select(TempUserInfoDO::getId, TempUserInfoDO::getNickname, TempUserInfoDO::getAvatarFileId,
                 TempUserInfoDO::getUuid, TempUserInfoDO::getBio)
             .page(dto.fieldDescDefaultOrderPage("lastActiveTime", true));
