@@ -73,11 +73,20 @@ spring:
     port: 6001
 
   kafka:
-    bootstrap-servers: ${be.common.host}:9091
+    bootstrap-servers: ${be.common.host}:9092
+    producer:
+      properties:
+        security.protocol: SASL_PLAINTEXT
+        sasl.mechanism: PLAIN
+        sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${be.common.username}" password="${be.common.password}";
     consumer:
       enable-auto-commit: false #为了：ack-mode: manual_immediate，设置为 true，则 ack-mode不会生效
       auto-offset-reset: latest #当各分区下有已提交的offset时，从提交的offset开始消费；无提交的offset时，消费新产生的该分区下的数据
       fetch-max-wait: 500 #消费者拉取消息的延迟（ms），默认 500
+      properties:
+        security.protocol: SASL_PLAINTEXT
+        sasl.mechanism: PLAIN
+        sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="${be.common.username}" password="${be.common.password}";
     listener:
       ack-mode: manual_immediate #手动调用 Acknowledgment.acknowledge() 后立即提交
 
