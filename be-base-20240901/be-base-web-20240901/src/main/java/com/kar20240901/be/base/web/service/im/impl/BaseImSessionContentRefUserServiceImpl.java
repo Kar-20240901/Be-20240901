@@ -1,6 +1,8 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.BooleanUtil;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
@@ -8,11 +10,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
+import com.kar20240901.be.base.web.mapper.im.BaseImSessionContentMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionContentRefUserMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper;
+import com.kar20240901.be.base.web.model.domain.im.BaseImSessionContentDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionContentRefUserDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionRefUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
+import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionContentRefUserPageDTO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionContentRefUserPageVO;
@@ -43,6 +48,9 @@ public class BaseImSessionContentRefUserServiceImpl
 
     @Resource
     BaseImSessionRefUserService baseImSessionRefUserService;
+
+    @Resource
+    BaseImSessionContentMapper baseImSessionContentMapper;
 
     /**
      * 分页排序查询
@@ -221,6 +229,51 @@ public class BaseImSessionContentRefUserServiceImpl
         lambdaUpdate().eq(BaseImSessionContentRefUserDO::getUserId, currentUserId)
             .in(BaseImSessionContentRefUserDO::getContentId, contentIdSet)
             .set(BaseImSessionContentRefUserDO::getShowFlag, false).update();
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 删除聊天记录
+     */
+    @Override
+    public String removeSessionContentRefUser(NotEmptyIdSet dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        lambdaUpdate().eq(BaseImSessionContentRefUserDO::getUserId, currentUserId)
+            .in(BaseImSessionContentRefUserDO::getContentId, dto.getIdSet()).remove();
+
+        return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 撤回聊天记录
+     */
+    @Override
+    @DSTransactional
+    public String revokeSessionContentRefUser(NotNullId dto) {
+
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
+        // 只能在两分钟内撤回
+        DateTime dateTime = DateUtil.offsetMinute(new Date(), -2);
+
+        boolean exists = ChainWrappers.lambdaQueryChain(baseImSessionContentMapper)
+            .eq(BaseImSessionContentDO::getCreateId, currentUserId).eq(BaseImSessionContentDO::getId, dto.getId())
+            .ge(BaseImSessionContentDO::getCreateTs, dateTime.getTime()).exists();
+
+        if (!exists) {
+            return TempBizCodeEnum.OK;
+        }
+
+        // 撤回
+        ChainWrappers.lambdaUpdateChain(baseImSessionContentMapper).eq(BaseImSessionContentDO::getId, dto.getId())
+            .remove();
+
+        lambdaUpdate().eq(BaseImSessionContentRefUserDO::getContentId, dto.getId()).remove();
 
         return TempBizCodeEnum.OK;
 

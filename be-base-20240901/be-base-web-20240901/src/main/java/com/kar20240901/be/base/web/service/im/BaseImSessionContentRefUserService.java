@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionContentRefUserDO;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
+import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionContentRefUserPageDTO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionContentRefUserPageVO;
@@ -20,5 +21,9 @@ public interface BaseImSessionContentRefUserService extends IService<BaseImSessi
     String deleteSessionContentRefUserAndHiddenSession(NotEmptyIdSet dto);
 
     String hideSessionContentRefUser(NotEmptyIdSet dto);
+
+    String removeSessionContentRefUser(NotEmptyIdSet dto);
+
+    String revokeSessionContentRefUser(NotNullId dto);
 
 }

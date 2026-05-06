@@ -2,6 +2,7 @@ package com.kar20240901.be.base.web.controller.im;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kar20240901.be.base.web.model.dto.base.NotEmptyIdSet;
+import com.kar20240901.be.base.web.model.dto.base.NotNullId;
 import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionContentRefUserPageDTO;
 import com.kar20240901.be.base.web.model.vo.base.R;
@@ -54,6 +55,18 @@ public class BaseImSessionContentRefUserController {
     @PostMapping("/hideSessionContentRefUser")
     public R<String> hideSessionContentRefUser(@RequestBody @Valid NotEmptyIdSet dto) {
         return R.okMsg(baseService.hideSessionContentRefUser(dto));
+    }
+
+    @Operation(summary = "删除聊天记录")
+    @PostMapping("/removeSessionContentRefUser")
+    public R<String> removeSessionContentRefUser(@RequestBody @Valid NotEmptyIdSet dto) {
+        return R.okMsg(baseService.removeSessionContentRefUser(dto));
+    }
+
+    @Operation(summary = "撤回聊天记录")
+    @PostMapping("/revokeSessionContentRefUser")
+    public R<String> revokeSessionContentRefUser(@RequestBody @Valid NotNullId dto) {
+        return R.okMsg(baseService.revokeSessionContentRefUser(dto));
     }
 
 }
