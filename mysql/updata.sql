@@ -1,4 +1,7 @@
 # 2026-05-06 14:09:00
+-- 最关键的联合索引（覆盖查询 + 分组）
+CREATE INDEX idx_user_show_session ON be_base_20240901.base_im_session_content_ref_user (user_id, show_flag, session_id, content_id);
+
 CREATE INDEX idx_user_show_order ON be_base_20240901.base_im_session_ref_user (user_id, show_flag, order_no DESC, session_id DESC);
 CREATE INDEX idx_session_enable_create_ts ON be_base_20240901.base_im_session_content (session_id, enable_flag, create_ts DESC);
 CREATE INDEX idx_session_user ON be_base_20240901.base_im_session_ref_user (session_id, user_id);
