@@ -16,7 +16,6 @@ import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImFriendDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionContentDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionContentRefUserDO;
-import com.kar20240901.be.base.web.model.domain.im.BaseImSessionDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionRefUserDO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionContentInsertTxtDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionContentUpdateTargetInputFlagDTO;
@@ -176,15 +175,6 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
         }
 
         baseImSessionContentRefUserService.saveBatch(list);
-
-        // 更新会话最后一次接收消息的时间
-        BaseImSessionDO baseImSessionDO = new BaseImSessionDO();
-
-        baseImSessionDO.setId(sessionId);
-
-        baseImSessionDO.setLastReceiveTs(date.getTime());
-
-        baseImSessionMapper.updateById(baseImSessionDO);
 
         // 更新最后一次打开会话的时间
         BaseImSessionContentRefUserServiceImpl.updateLastOpenTs(currentUserId, CollUtil.newHashSet(sessionId));

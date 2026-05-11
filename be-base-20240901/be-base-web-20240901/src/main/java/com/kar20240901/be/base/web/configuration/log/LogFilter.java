@@ -1,5 +1,6 @@
 package com.kar20240901.be.base.web.configuration.log;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
@@ -145,9 +146,19 @@ public class LogFilter extends Filter<ILoggingEvent> {
 
     /**
      * 备注：打印日志会影响 tps：2600 -> 2000
+     *
+     * 默认不打印 be开头的日志，需要配置才会打印
+     *
+     * 配置 normal之后，默认打印不以 be开头的日志，需要配置才不会打印
      */
     @Override
     public FilterReply decide(ILoggingEvent iLoggingEvent) {
+
+        if (iLoggingEvent.getLevel().toInt() >= Level.ERROR.toInt()) {
+
+            return FilterReply.NEUTRAL; // 打印
+
+        }
 
         if (baseProperties != null && CollUtil.isNotEmpty(baseProperties.getLogTopicSet())) {
 

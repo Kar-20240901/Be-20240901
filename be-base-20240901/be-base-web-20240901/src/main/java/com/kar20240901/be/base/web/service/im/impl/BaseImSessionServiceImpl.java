@@ -32,8 +32,6 @@ public class BaseImSessionServiceImpl extends ServiceImpl<BaseImSessionMapper, B
 
         baseImSessionDO.setSourceApplyType(iBaseImType.getCode());
 
-        baseImSessionDO.setLastReceiveTs(System.currentTimeMillis());
-
         save(baseImSessionDO);
 
     }
