@@ -4,14 +4,14 @@
 <mapper namespace="com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper">
   <select id="myPage"
     resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserPageVO">
-    SELECT a.session_id                           AS sessionId,
-           IF(a.name = '', a.target_name, a.name) AS sessionName,
-           a.avatar_url                           AS avatarUrl,
-           a.target_id                            AS targetId,
-           a.target_type                          AS targetType,
-           b.last_receive_ts                      AS lastReceiveTs,
-           a.not_disturb_flag                     AS notDisturbFlag,
-           a.order_no                             AS orderNo
+    SELECT a.session_id                              AS sessionId,
+           IF(a.name = '', a.target_name, a.name)    AS sessionName,
+           a.avatar_url                              AS avatarUrl,
+           a.target_id                               AS targetId,
+           a.target_type                             AS targetType,
+           IFNULL(b.last_receive_ts, a.last_open_ts) AS lastReceiveTs,
+           a.not_disturb_flag                        AS notDisturbFlag,
+           a.order_no                                AS orderNo
 
     FROM base_im_session_ref_user a
 
@@ -35,9 +35,9 @@
           AND (
             (a.order_no <![CDATA[>]]> #{dto.orderNo})
               OR
-            (a.order_no = #{dto.orderNo} AND b.last_receive_ts <![CDATA[>]]> #{dto.lastReceiveTs})
+            (a.order_no = #{dto.orderNo} AND IFNULL(b.last_receive_ts, a.last_open_ts) <![CDATA[>]]> #{dto.lastReceiveTs})
               OR
-            (a.order_no = #{dto.orderNo} AND b.last_receive_ts = #{dto.lastReceiveTs} AND
+            (a.order_no = #{dto.orderNo} AND IFNULL(b.last_receive_ts, a.last_open_ts) = #{dto.lastReceiveTs} AND
              a.session_id <![CDATA[>]]> #{dto.sessionId})
             )
         </when>
@@ -46,9 +46,9 @@
           AND (
             (a.order_no <![CDATA[<]]> #{dto.orderNo})
               OR
-            (a.order_no = #{dto.orderNo} AND b.last_receive_ts <![CDATA[<]]> #{dto.lastReceiveTs})
+            (a.order_no = #{dto.orderNo} AND IFNULL(b.last_receive_ts, a.last_open_ts) <![CDATA[<]]> #{dto.lastReceiveTs})
               OR
-            (a.order_no = #{dto.orderNo} AND b.last_receive_ts = #{dto.lastReceiveTs} AND
+            (a.order_no = #{dto.orderNo} AND IFNULL(b.last_receive_ts, a.last_open_ts) = #{dto.lastReceiveTs} AND
              a.session_id <![CDATA[<]]> #{dto.sessionId})
             )
         </otherwise>
@@ -70,11 +70,11 @@
 
     <choose>
       <when test="dto.backwardFlag">
-        ORDER BY a.order_no, b.last_receive_ts, a.session_id
+        ORDER BY a.order_no, lastReceiveTs, a.session_id
       </when>
 
       <otherwise>
-        ORDER BY a.order_no DESC, b.last_receive_ts DESC, a.session_id DESC
+        ORDER BY a.order_no DESC, lastReceiveTs DESC, a.session_id DESC
       </otherwise>
     </choose>
   </select>
