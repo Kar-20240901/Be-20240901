@@ -642,7 +642,6 @@ CREATE TABLE `base_im_session`
     `id`                bigint NOT NULL COMMENT '会话主键 id',
     `source_apply_id`   bigint NOT NULL COMMENT '来源申请 id，目的：删除好友/群组之后，还可以恢复之前的会话内容，备注：群组不支持会话内容恢复，所以群组该值为 -1',
     `source_apply_type` int    NOT NULL COMMENT '来源申请类型：101 好友 201 群组',
-    `last_receive_ts`   bigint NOT NULL COMMENT '最后一次接受到消息时的时间戳，默认为：当前时间，备注：该字段用于：排序',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
@@ -669,7 +668,7 @@ CREATE TABLE `base_im_session_content`
     `ref_id`      bigint                                                         NOT NULL COMMENT '引用的内容主键 id，不引用时为 -1',
     `order_no`    int                                                            NOT NULL COMMENT '排序号（值越大越前面，默认为 0）',
     PRIMARY KEY (`id`) USING BTREE,
-    KEY `create_ts` (`create_ts`) USING BTREE
+    KEY `idx_session_enable_create_ts` (`session_id`, `enable_flag`, `create_ts` DESC)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240901：子表：会话内容表，主表：会话表';
@@ -689,7 +688,8 @@ CREATE TABLE `base_im_session_content_ref_user`
     `content_id` bigint  NOT NULL COMMENT '会话内容主键 id',
     `user_id`    bigint  NOT NULL COMMENT '用户主键 id',
     `show_flag`  tinyint NOT NULL COMMENT '是否显示在：用户消息中',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `idx_user_show_session` (`user_id`, `show_flag`, `session_id`, `content_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240901：子表：会话用户内容表，主表：会话表';
@@ -715,8 +715,10 @@ CREATE TABLE `base_im_session_ref_user`
     `target_type`      int                                                          NOT NULL COMMENT '来源申请类型：101 好友 201 群组',
     `target_name`      varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '来源昵称',
     `not_disturb_flag` tinyint(1)                                                   NOT NULL COMMENT '是否免打扰',
+    `order_no` int NOT NULL COMMENT '排序号（值越大越前面，默认为 0） 901 置顶',
     PRIMARY KEY (`id`),
-    KEY `base_im_session_ref_user_user_id_IDX` (`user_id`) USING BTREE
+    KEY `idx_user_show_order` (`user_id`, `show_flag`, `order_no` DESC, `session_id` DESC),
+    KEY `idx_session_user` (`session_id`, `user_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT ='v20240901：子表：会话关联用户表，主表：会话表';
@@ -1580,4 +1582,4 @@ CREATE TABLE `base_user_wallet_withdraw_log`
 /*!40101 SET COLLATION_CONNECTION = @OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES = @OLD_SQL_NOTES */;
 
--- Dump completed on 2026-03-18 10:46:33
+-- Dump completed on 2026-05-12 16:37:53
