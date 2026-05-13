@@ -36,6 +36,7 @@ import com.kar20240901.be.base.web.model.vo.im.BaseImGroupPageVO;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.service.im.BaseImGroupRefUserService;
 import com.kar20240901.be.base.web.service.im.BaseImGroupService;
+import com.kar20240901.be.base.web.service.im.BaseImSessionContentService;
 import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
 import com.kar20240901.be.base.web.service.im.BaseImSessionService;
 import com.kar20240901.be.base.web.util.base.IdGeneratorUtil;
@@ -43,6 +44,7 @@ import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyPageUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
 import com.kar20240901.be.base.web.util.im.BaseImGroupUtil;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -79,6 +81,9 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
 
     @Resource
     BaseImSessionRefUserMapper baseImSessionRefUserMapper;
+
+    @Resource
+    BaseImSessionContentService baseImSessionContentService;
 
     /**
      * 新增/修改
@@ -125,6 +130,9 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
 
             // 添加群员
             baseImGroupRefUserService.addUser(sessionId, groupId, currentUserId);
+
+            // 增加创建成功的消息内容
+            baseImSessionContentService.addInsertGroupFinishContent(sessionId, currentUserId, new Date());
 
         } else {
 

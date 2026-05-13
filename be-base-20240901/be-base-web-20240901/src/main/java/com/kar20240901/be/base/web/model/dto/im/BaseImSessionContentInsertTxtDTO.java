@@ -20,14 +20,11 @@ public class BaseImSessionContentInsertTxtDTO {
     @Schema(description = "创建时间的时间戳，UTC+8")
     private Long createTs;
 
-    @Schema(description = "引用的内容主键 id，不引用时为 -1")
+    @Schema(description = "引用的内容主键 id，不引用时为 -1，也可以引用用户主键 id等")
     private Long refId;
 
     @Schema(description = "排序号（值越大越前面，默认为 0）")
     private Integer orderNo;
-
-    @Schema(description = "创建者用户主键 id，备注：后端用", hidden = true)
-    private Long createId;
 
     @Schema(description = "开启了免打扰的用户主键 id集合，备注：后端用", hidden = true)
     private Set<Long> notDisturbFlagUserIdSet;
@@ -38,5 +35,8 @@ public class BaseImSessionContentInsertTxtDTO {
     @NotNull
     @Schema(description = "消息类型")
     private Integer type;
+
+    @Schema(description = "创建者用户主键 id，备注：后端用，并且会赋值之后返回给前端", hidden = true)
+    private Long createId;
 
 }

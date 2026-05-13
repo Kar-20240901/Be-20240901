@@ -29,10 +29,12 @@ import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserPageVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserUpdateAvatarAndNicknameVO;
 import com.kar20240901.be.base.web.service.file.BaseFileService;
+import com.kar20240901.be.base.web.service.im.BaseImSessionContentService;
 import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyPageUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
+import com.kar20240901.be.base.web.util.im.BaseImUtil;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -60,31 +62,40 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
     @Resource
     BaseImGroupMapper baseImGroupMapper;
 
+    @Resource
+    BaseImSessionContentService baseImSessionContentService;
+
     /**
      * 创建会话关联用户：好友
      */
     @Override
     @DSTransactional
-    public void addOrUpdateSessionRefUserForFriend(Long sessionId, Long userId1, Long userId2, boolean addFlag) {
+    public void addOrUpdateSessionRefUserForFriend(Long sessionId, Long sourceUserId, Long targetUserId,
+        boolean addFlag) {
 
         Assert.notNull(sessionId);
-        Assert.notNull(userId1);
-        Assert.notNull(userId2);
+        Assert.notNull(sourceUserId);
+        Assert.notNull(targetUserId);
 
         List<TempUserInfoDO> tempUserInfoDOList =
-            ChainWrappers.lambdaQueryChain(baseUserInfoMapper).in(TempUserInfoDO::getId, userId1, userId2)
+            ChainWrappers.lambdaQueryChain(baseUserInfoMapper).in(TempUserInfoDO::getId, sourceUserId, targetUserId)
                 .select(TempUserInfoDO::getId, TempUserInfoDO::getNickname, TempUserInfoDO::getAvatarFileId).list();
 
         if (tempUserInfoDOList.size() != 2) {
-            R.error("操作失败：用户信息不存在，请重新申请", CollUtil.newArrayList(userId1, userId2));
+            R.error("操作失败：用户信息不存在，请重新申请", CollUtil.newArrayList(sourceUserId, targetUserId));
         }
+
+        Date date = new Date();
 
         if (!addFlag) {
 
             // 重置状态
             lambdaUpdate().eq(BaseImSessionRefUserDO::getSessionId, sessionId)
                 .set(BaseImSessionRefUserDO::getShowFlag, true).set(BaseImSessionRefUserDO::getNotDisturbFlag, false)
-                .update();
+                .set(BaseImSessionRefUserDO::getLastOpenTs, date.getTime()).update();
+
+            // 增加添加成功的消息内容
+            baseImSessionContentService.addApplyFriendFinishContent(sessionId, sourceUserId, date);
 
             return;
 
@@ -93,11 +104,9 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         Map<Long, TempUserInfoDO> userInfoMap =
             tempUserInfoDOList.stream().collect(Collectors.toMap(TempUserInfoDO::getId, it -> it));
 
-        Date date = new Date();
+        TempUserInfoDO tempUserInfoDo1 = userInfoMap.get(sourceUserId);
 
-        TempUserInfoDO tempUserInfoDo1 = userInfoMap.get(userId1);
-
-        TempUserInfoDO tempUserInfoDo2 = userInfoMap.get(userId2);
+        TempUserInfoDO tempUserInfoDo2 = userInfoMap.get(targetUserId);
 
         Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(
             CollUtil.newHashSet(tempUserInfoDo1.getAvatarFileId(), tempUserInfoDo2.getAvatarFileId()))).getMap();
@@ -105,13 +114,13 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         BaseImSessionRefUserDO baseImSessionRefUserDo1 = new BaseImSessionRefUserDO();
 
         baseImSessionRefUserDo1.setSessionId(sessionId);
-        baseImSessionRefUserDo1.setUserId(userId1);
+        baseImSessionRefUserDo1.setUserId(sourceUserId);
         baseImSessionRefUserDo1.setLastOpenTs(date.getTime());
         baseImSessionRefUserDo1.setShowFlag(true);
         baseImSessionRefUserDo1.setName("");
         baseImSessionRefUserDo1.setAvatarUrl(
             MyEntityUtil.getNotNullStr(publicUrlMap.get(tempUserInfoDo2.getAvatarFileId())));
-        baseImSessionRefUserDo1.setTargetId(userId2);
+        baseImSessionRefUserDo1.setTargetId(targetUserId);
         baseImSessionRefUserDo1.setTargetType(BaseImTypeEnum.FRIEND.getCode());
         baseImSessionRefUserDo1.setTargetName(tempUserInfoDo2.getNickname());
         baseImSessionRefUserDo1.setNotDisturbFlag(false);
@@ -122,19 +131,22 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         BaseImSessionRefUserDO baseImSessionRefUserDo2 = new BaseImSessionRefUserDO();
 
         baseImSessionRefUserDo2.setSessionId(sessionId);
-        baseImSessionRefUserDo2.setUserId(userId2);
+        baseImSessionRefUserDo2.setUserId(targetUserId);
         baseImSessionRefUserDo2.setLastOpenTs(date.getTime());
         baseImSessionRefUserDo2.setShowFlag(true);
         baseImSessionRefUserDo2.setName("");
         baseImSessionRefUserDo2.setAvatarUrl(
             MyEntityUtil.getNotNullStr(publicUrlMap.get(tempUserInfoDo1.getAvatarFileId())));
-        baseImSessionRefUserDo2.setTargetId(userId1);
+        baseImSessionRefUserDo2.setTargetId(sourceUserId);
         baseImSessionRefUserDo2.setTargetType(BaseImTypeEnum.FRIEND.getCode());
         baseImSessionRefUserDo2.setTargetName(tempUserInfoDo1.getNickname());
         baseImSessionRefUserDo2.setNotDisturbFlag(false);
         baseImSessionRefUserDo2.setOrderNo(MyEntityUtil.getNotNullOrderNo(null));
 
         save(baseImSessionRefUserDo2);
+
+        // 增加添加成功的消息内容
+        baseImSessionContentService.addApplyFriendFinishContent(sessionId, sourceUserId, date);
 
     }
 
@@ -386,11 +398,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
     @Override
     public String hidden(NotEmptyIdSet dto) {
 
-        Long currentUserId = MyUserUtil.getCurrentUserId();
-
-        lambdaUpdate().eq(BaseImSessionRefUserDO::getUserId, currentUserId)
-            .in(BaseImSessionRefUserDO::getSessionId, dto.getIdSet()).set(BaseImSessionRefUserDO::getShowFlag, false)
-            .update();
+        BaseImUtil.hiddenSessionRefUser(dto);
 
         return TempBizCodeEnum.OK;
 
