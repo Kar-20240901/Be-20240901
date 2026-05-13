@@ -112,7 +112,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
         }
 
         // 执行：发送消息
-        return doInsertTxt(dto, sessionId, iBaseImSessionContentType, true);
+        return doInsertTxt(dto, sessionId, iBaseImSessionContentType, true, currentUserId);
 
     }
 
@@ -120,11 +120,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
      * 执行：新增文字消息
      */
     public BaseImSessionContentRefUserPageVO doInsertTxt(BaseImSessionContentInsertTxtDTO dto, Long sessionId,
-        IBaseImSessionContentType iBaseImSessionContentType, boolean updateLastOpenTsFlag) {
-
-        Long currentUserId = MyUserUtil.getCurrentUserId();
-
-        dto.setCreateId(currentUserId);
+        IBaseImSessionContentType iBaseImSessionContentType, boolean updateLastOpenTsFlag, Long createId) {
 
         Date date = new Date();
 
@@ -137,7 +133,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
         baseImSessionContentDO.setCreateTs(dto.getCreateTs());
         baseImSessionContentDO.setRefId(MyEntityUtil.getNotNullLong(dto.getRefId()));
         baseImSessionContentDO.setOrderNo(MyEntityUtil.getNotNullOrderNo(dto.getOrderNo()));
-        baseImSessionContentDO.setCreateId(currentUserId);
+        baseImSessionContentDO.setCreateId(createId);
         baseImSessionContentDO.setCreateTime(date);
 
         save(baseImSessionContentDO);
@@ -180,7 +176,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
         if (updateLastOpenTsFlag) {
 
             // 更新最后一次打开会话的时间
-            BaseImSessionContentRefUserServiceImpl.updateLastOpenTs(currentUserId, CollUtil.newHashSet(sessionId));
+            BaseImSessionContentRefUserServiceImpl.updateLastOpenTs(createId, CollUtil.newHashSet(sessionId));
 
         }
 
@@ -278,11 +274,10 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
         baseImSessionContentInsertTxtDTO.setCreateTs(date.getTime());
         baseImSessionContentInsertTxtDTO.setRefId(TempConstant.NEGATIVE_ONE);
         baseImSessionContentInsertTxtDTO.setOrderNo(MyEntityUtil.getNotNullOrderNo(null));
-        baseImSessionContentInsertTxtDTO.setCreateId(sourceUserId);
 
         // 添加消息
         doInsertTxt(baseImSessionContentInsertTxtDTO, sessionId, BaseImSessionContentTypeEnum.TEXT_FRIEND_APPLY_FINISH,
-            false);
+            false, sourceUserId);
 
     }
 
@@ -299,11 +294,10 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
         baseImSessionContentInsertTxtDTO.setCreateTs(date.getTime());
         baseImSessionContentInsertTxtDTO.setRefId(TempConstant.NEGATIVE_ONE);
         baseImSessionContentInsertTxtDTO.setOrderNo(MyEntityUtil.getNotNullOrderNo(null));
-        baseImSessionContentInsertTxtDTO.setCreateId(createUserId);
 
         // 添加消息
         doInsertTxt(baseImSessionContentInsertTxtDTO, sessionId, BaseImSessionContentTypeEnum.TEXT_GROUP_CREATE_FINISH,
-            false);
+            false, createUserId);
 
     }
 
@@ -321,11 +315,10 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
         baseImSessionContentInsertTxtDTO.setCreateTs(date.getTime());
         baseImSessionContentInsertTxtDTO.setRefId(sourceUserId);
         baseImSessionContentInsertTxtDTO.setOrderNo(MyEntityUtil.getNotNullOrderNo(null));
-        baseImSessionContentInsertTxtDTO.setCreateId(targetUserId);
 
         // 添加消息
         doInsertTxt(baseImSessionContentInsertTxtDTO, sessionId, BaseImSessionContentTypeEnum.TEXT_GROUP_APPLY_FINISH,
-            false);
+            false, targetUserId);
 
     }
 

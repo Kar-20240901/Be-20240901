@@ -26,9 +26,6 @@ public class BaseImSessionContentInsertTxtDTO {
     @Schema(description = "排序号（值越大越前面，默认为 0）")
     private Integer orderNo;
 
-    @Schema(description = "创建者用户主键 id，备注：后端用", hidden = true)
-    private Long createId;
-
     @Schema(description = "开启了免打扰的用户主键 id集合，备注：后端用", hidden = true)
     private Set<Long> notDisturbFlagUserIdSet;
 
