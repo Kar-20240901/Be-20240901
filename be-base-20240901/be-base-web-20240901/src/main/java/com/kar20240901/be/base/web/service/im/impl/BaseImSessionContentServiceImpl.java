@@ -12,6 +12,7 @@ import com.kar20240901.be.base.web.mapper.im.BaseImSessionContentMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionMapper;
 import com.kar20240901.be.base.web.mapper.im.BaseImSessionRefUserMapper;
 import com.kar20240901.be.base.web.model.bo.socket.BaseWebSocketStrEventBO;
+import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.domain.im.BaseImBlockDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImFriendDO;
 import com.kar20240901.be.base.web.model.domain.im.BaseImSessionContentDO;
@@ -111,15 +112,15 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
         }
 
         // 执行：发送消息
-        return doInsertTxt(dto, sessionId, iBaseImSessionContentType);
+        return doInsertTxt(dto, sessionId, iBaseImSessionContentType, true);
 
     }
 
     /**
-     * 执行：发送消息
+     * 执行：新增文字消息
      */
     public BaseImSessionContentRefUserPageVO doInsertTxt(BaseImSessionContentInsertTxtDTO dto, Long sessionId,
-        IBaseImSessionContentType iBaseImSessionContentType) {
+        IBaseImSessionContentType iBaseImSessionContentType, boolean updateLastOpenTsFlag) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
@@ -176,8 +177,12 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
 
         baseImSessionContentRefUserService.saveBatch(list);
 
-        // 更新最后一次打开会话的时间
-        BaseImSessionContentRefUserServiceImpl.updateLastOpenTs(currentUserId, CollUtil.newHashSet(sessionId));
+        if (updateLastOpenTsFlag) {
+
+            // 更新最后一次打开会话的时间
+            BaseImSessionContentRefUserServiceImpl.updateLastOpenTs(currentUserId, CollUtil.newHashSet(sessionId));
+
+        }
 
         // 显示会话
         ChainWrappers.lambdaUpdateChain(baseImSessionRefUserMapper).eq(BaseImSessionRefUserDO::getSessionId, sessionId)
@@ -257,6 +262,70 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
         if (exists) {
             R.error(BaseImBizCodeEnum.TARGET_REFUSE_RECEIVE_MSG, targetId);
         }
+
+    }
+
+    /**
+     * 增加添加成功的消息内容
+     */
+    @Override
+    @DSTransactional
+    public void addApplyFriendFinishContent(Long sessionId, Long sourceUserId, Date date) {
+
+        BaseImSessionContentInsertTxtDTO baseImSessionContentInsertTxtDTO = new BaseImSessionContentInsertTxtDTO();
+        baseImSessionContentInsertTxtDTO.setSessionId(sessionId);
+        baseImSessionContentInsertTxtDTO.setTxt("");
+        baseImSessionContentInsertTxtDTO.setCreateTs(date.getTime());
+        baseImSessionContentInsertTxtDTO.setRefId(TempConstant.NEGATIVE_ONE);
+        baseImSessionContentInsertTxtDTO.setOrderNo(MyEntityUtil.getNotNullOrderNo(null));
+        baseImSessionContentInsertTxtDTO.setCreateId(sourceUserId);
+
+        // 添加消息
+        doInsertTxt(baseImSessionContentInsertTxtDTO, sessionId, BaseImSessionContentTypeEnum.TEXT_FRIEND_APPLY_FINISH,
+            false);
+
+    }
+
+    /**
+     * 增加创建成功的消息内容
+     */
+    @Override
+    @DSTransactional
+    public void addInsertGroupFinishContent(Long sessionId, Long createUserId, Date date) {
+
+        BaseImSessionContentInsertTxtDTO baseImSessionContentInsertTxtDTO = new BaseImSessionContentInsertTxtDTO();
+        baseImSessionContentInsertTxtDTO.setSessionId(sessionId);
+        baseImSessionContentInsertTxtDTO.setTxt("");
+        baseImSessionContentInsertTxtDTO.setCreateTs(date.getTime());
+        baseImSessionContentInsertTxtDTO.setRefId(TempConstant.NEGATIVE_ONE);
+        baseImSessionContentInsertTxtDTO.setOrderNo(MyEntityUtil.getNotNullOrderNo(null));
+        baseImSessionContentInsertTxtDTO.setCreateId(createUserId);
+
+        // 添加消息
+        doInsertTxt(baseImSessionContentInsertTxtDTO, sessionId, BaseImSessionContentTypeEnum.TEXT_GROUP_CREATE_FINISH,
+            false);
+
+    }
+
+    /**
+     * 增加入群成功的消息内容
+     */
+    @Override
+    @DSTransactional
+    public void addApplyGroupFinishContent(Long sessionId, Long sourceUserId, Long targetUserId, Date date,
+        String txt) {
+
+        BaseImSessionContentInsertTxtDTO baseImSessionContentInsertTxtDTO = new BaseImSessionContentInsertTxtDTO();
+        baseImSessionContentInsertTxtDTO.setSessionId(sessionId);
+        baseImSessionContentInsertTxtDTO.setTxt(MyEntityUtil.getNotNullStr(txt));
+        baseImSessionContentInsertTxtDTO.setCreateTs(date.getTime());
+        baseImSessionContentInsertTxtDTO.setRefId(sourceUserId);
+        baseImSessionContentInsertTxtDTO.setOrderNo(MyEntityUtil.getNotNullOrderNo(null));
+        baseImSessionContentInsertTxtDTO.setCreateId(targetUserId);
+
+        // 添加消息
+        doInsertTxt(baseImSessionContentInsertTxtDTO, sessionId, BaseImSessionContentTypeEnum.TEXT_GROUP_APPLY_FINISH,
+            false);
 
     }
 

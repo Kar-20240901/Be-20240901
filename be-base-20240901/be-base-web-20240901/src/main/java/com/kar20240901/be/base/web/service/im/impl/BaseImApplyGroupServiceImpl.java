@@ -36,6 +36,7 @@ import com.kar20240901.be.base.web.model.vo.im.BaseImApplyGroupSearchApplyGroupV
 import com.kar20240901.be.base.web.service.file.BaseFileService;
 import com.kar20240901.be.base.web.service.im.BaseImApplyGroupService;
 import com.kar20240901.be.base.web.service.im.BaseImGroupRefUserService;
+import com.kar20240901.be.base.web.service.im.BaseImSessionContentService;
 import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
@@ -75,6 +76,9 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
 
     @Resource
     BaseImGroupRefUserService baseImGroupRefUserService;
+
+    @Resource
+    BaseImSessionContentService baseImSessionContentService;
 
     /**
      * 搜索要添加的群组
@@ -330,6 +334,8 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
     @DSTransactional
     public String agree(BaseImApplyGroupAgreeDTO dto) {
 
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
         boolean batchFlag = dto.getList().size() != 1;
 
         BaseImGroupUtil.checkForTargetUserId(dto.getList(), (groupId, userIdSet) -> {
@@ -361,7 +367,9 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
 
                     baseImApplyGroupDO.setStatus(BaseImApplyStatusEnum.PASSED);
 
-                    baseImApplyGroupDO.setUpdateTime(new Date());
+                    Date date = new Date();
+
+                    baseImApplyGroupDO.setUpdateTime(date);
 
                     // 更新数据
                     updateById(baseImApplyGroupDO);
@@ -378,6 +386,10 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
                     // 添加群员
                     baseImGroupRefUserService.addUser(baseImApplyGroupDO.getSessionId(),
                         baseImApplyGroupDO.getTargetGroupId(), baseImApplyGroupDO.getUserId());
+
+                    // 增加入群成功的消息内容
+                    baseImSessionContentService.addApplyGroupFinishContent(baseImApplyGroupDO.getSessionId(),
+                        currentUserId, baseImApplyGroupDO.getUserId(), date, null);
 
                 }
 

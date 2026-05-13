@@ -17,11 +17,21 @@ public enum BaseImSessionContentTypeEnum implements IBaseImSessionContentType {
 
     NONE(-1), // 无
 
+    // > 100 && < 1000 会统计未读数量 ↓
+
     TEXT(101), // 文字
+
+    TEXT_FRIEND_APPLY_FINISH(102), // 添加好友成功
+
+    TEXT_GROUP_CREATE_FINISH(103), // 创建群组成功
+
+    TEXT_GROUP_APPLY_FINISH(104), // 加入群组成功
 
     IMAGE(201), // 图片
 
     FILE(301), // 文件
+
+    // > 100 && < 1000 会统计未读数量 ↑
 
     ;
 

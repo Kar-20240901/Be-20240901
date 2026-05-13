@@ -22,10 +22,10 @@ import com.kar20240901.be.base.web.model.dto.base.ScrollListDTO;
 import com.kar20240901.be.base.web.model.dto.im.BaseImSessionContentRefUserPageDTO;
 import com.kar20240901.be.base.web.model.vo.im.BaseImSessionContentRefUserPageVO;
 import com.kar20240901.be.base.web.service.im.BaseImSessionContentRefUserService;
-import com.kar20240901.be.base.web.service.im.BaseImSessionRefUserService;
 import com.kar20240901.be.base.web.util.base.MyEntityUtil;
 import com.kar20240901.be.base.web.util.base.MyPageUtil;
 import com.kar20240901.be.base.web.util.base.MyUserUtil;
+import com.kar20240901.be.base.web.util.im.BaseImUtil;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -45,9 +45,6 @@ public class BaseImSessionContentRefUserServiceImpl
     public void setBaseImSessionRefUserMapper(BaseImSessionRefUserMapper baseImSessionRefUserMapper) {
         BaseImSessionContentRefUserServiceImpl.baseImSessionRefUserMapper = baseImSessionRefUserMapper;
     }
-
-    @Resource
-    BaseImSessionRefUserService baseImSessionRefUserService;
 
     @Resource
     BaseImSessionContentMapper baseImSessionContentMapper;
@@ -210,7 +207,7 @@ public class BaseImSessionContentRefUserServiceImpl
 
         deleteSessionContentRefUser(dto);
 
-        baseImSessionRefUserService.hidden(dto);
+        BaseImUtil.hiddenSessionRefUser(dto);
 
         return TempBizCodeEnum.OK;
 

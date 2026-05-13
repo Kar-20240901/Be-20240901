@@ -20,7 +20,7 @@ public class BaseImSessionContentInsertTxtDTO {
     @Schema(description = "创建时间的时间戳，UTC+8")
     private Long createTs;
 
-    @Schema(description = "引用的内容主键 id，不引用时为 -1")
+    @Schema(description = "引用的内容主键 id，不引用时为 -1，也可以引用用户主键 id等")
     private Long refId;
 
     @Schema(description = "排序号（值越大越前面，默认为 0）")

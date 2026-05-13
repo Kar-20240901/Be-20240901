@@ -16,7 +16,7 @@ import java.util.Map;
 
 public interface BaseImSessionRefUserService extends IService<BaseImSessionRefUserDO> {
 
-    void addOrUpdateSessionRefUserForFriend(Long sessionId, Long userId1, Long userId2, boolean addFlag);
+    void addOrUpdateSessionRefUserForFriend(Long sessionId, Long sourceUserId, Long targetUserId, boolean addFlag);
 
     void addOrUpdateSessionRefUserForGroup(Long sessionId, Long groupId, Long userId);
 
