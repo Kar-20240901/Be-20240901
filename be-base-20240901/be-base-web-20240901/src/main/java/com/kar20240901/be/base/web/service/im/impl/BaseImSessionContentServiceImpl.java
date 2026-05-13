@@ -122,6 +122,8 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
     public BaseImSessionContentRefUserPageVO doInsertTxt(BaseImSessionContentInsertTxtDTO dto, Long sessionId,
         IBaseImSessionContentType iBaseImSessionContentType, boolean updateLastOpenTsFlag, Long createId) {
 
+        dto.setCreateId(createId);
+
         Date date = new Date();
 
         BaseImSessionContentDO baseImSessionContentDO = new BaseImSessionContentDO();

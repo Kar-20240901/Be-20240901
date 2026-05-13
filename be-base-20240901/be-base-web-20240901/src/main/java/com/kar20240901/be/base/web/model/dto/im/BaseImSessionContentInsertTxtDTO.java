@@ -36,4 +36,7 @@ public class BaseImSessionContentInsertTxtDTO {
     @Schema(description = "消息类型")
     private Integer type;
 
+    @Schema(description = "创建者用户主键 id，备注：后端用，并且会赋值之后返回给前端", hidden = true)
+    private Long createId;
+
 }
