@@ -146,7 +146,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         save(baseImSessionRefUserDo2);
 
         // 增加添加成功的消息内容
-        baseImSessionContentService.addApplyFriendFinishContent(sessionId, targetUserId, date);
+        baseImSessionContentService.addApplyFriendFinishContent(sessionId, targetUserId, new Date());
 
     }
 

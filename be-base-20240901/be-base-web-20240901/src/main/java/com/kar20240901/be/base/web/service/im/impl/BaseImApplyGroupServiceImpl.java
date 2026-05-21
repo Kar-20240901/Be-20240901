@@ -389,7 +389,7 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
 
                     // 增加入群成功的消息内容
                     baseImSessionContentService.addApplyGroupFinishContent(baseImApplyGroupDO.getSessionId(),
-                        currentUserId, baseImApplyGroupDO.getUserId(), date, null);
+                        currentUserId, baseImApplyGroupDO.getUserId(), new Date(), null);
 
                 }
 

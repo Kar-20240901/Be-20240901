@@ -10,6 +10,7 @@ public enum BaseRedisKeyEnum implements IRedisKey {
     // 【PRE_】开头 ↓
 
     // im 相关 ↓
+    PRE_IM_SESSION_REF_USER, // im好友申请锁，锁：【排序小用户主键 id + 排序大用户主键 id】
 
     PRE_IM_APPLY_GROUP, // im群组申请锁，锁：【用户主键 id + 申请目标群组主键 id】
 
