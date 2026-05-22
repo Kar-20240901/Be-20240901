@@ -87,20 +87,6 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
         Date date = new Date();
 
-        if (!addFlag) {
-
-            // 重置状态
-            lambdaUpdate().eq(BaseImSessionRefUserDO::getSessionId, sessionId)
-                .set(BaseImSessionRefUserDO::getShowFlag, true).set(BaseImSessionRefUserDO::getNotDisturbFlag, false)
-                .set(BaseImSessionRefUserDO::getLastOpenTs, date.getTime()).update();
-
-            // 增加添加成功的消息内容
-            baseImSessionContentService.addApplyFriendFinishContent(sessionId, targetUserId, date);
-
-            return;
-
-        }
-
         Map<Long, TempUserInfoDO> userInfoMap =
             tempUserInfoDOList.stream().collect(Collectors.toMap(TempUserInfoDO::getId, it -> it));
 
@@ -110,6 +96,36 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
         Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(
             CollUtil.newHashSet(tempUserInfoDo1.getAvatarFileId(), tempUserInfoDo2.getAvatarFileId()))).getMap();
+
+        if (!addFlag) {
+
+            // 重置状态
+            lambdaUpdate().eq(BaseImSessionRefUserDO::getSessionId, sessionId)
+                .set(BaseImSessionRefUserDO::getShowFlag, true).set(BaseImSessionRefUserDO::getNotDisturbFlag, false)
+                .set(BaseImSessionRefUserDO::getLastOpenTs, date.getTime())
+                .set(BaseImSessionRefUserDO::getTargetName, tempUserInfoDo2.getNickname())
+                .set(BaseImSessionRefUserDO::getAvatarUrl,
+                    MyEntityUtil.getNotNullStr(publicUrlMap.get(tempUserInfoDo2.getAvatarFileId())))
+                .eq(BaseImSessionRefUserDO::getUserId, sourceUserId)
+                .eq(BaseImSessionRefUserDO::getTargetId, targetUserId)
+                .eq(BaseImSessionRefUserDO::getTargetType, BaseImTypeEnum.FRIEND.getCode()).update();
+
+            lambdaUpdate().eq(BaseImSessionRefUserDO::getSessionId, sessionId)
+                .set(BaseImSessionRefUserDO::getShowFlag, true).set(BaseImSessionRefUserDO::getNotDisturbFlag, false)
+                .set(BaseImSessionRefUserDO::getLastOpenTs, date.getTime())
+                .set(BaseImSessionRefUserDO::getTargetName, tempUserInfoDo1.getNickname())
+                .set(BaseImSessionRefUserDO::getAvatarUrl,
+                    MyEntityUtil.getNotNullStr(publicUrlMap.get(tempUserInfoDo1.getAvatarFileId())))
+                .eq(BaseImSessionRefUserDO::getUserId, targetUserId)
+                .eq(BaseImSessionRefUserDO::getTargetId, sourceUserId)
+                .eq(BaseImSessionRefUserDO::getTargetType, BaseImTypeEnum.FRIEND.getCode()).update();
+
+            // 增加添加成功的消息内容
+            baseImSessionContentService.addApplyFriendFinishContent(sessionId, targetUserId, date);
+
+            return;
+
+        }
 
         BaseImSessionRefUserDO baseImSessionRefUserDo1 = new BaseImSessionRefUserDO();
 
@@ -167,6 +183,10 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
             R.error("操作失败：群聊信息不存在", groupId);
         }
 
+        Map<Long, String> publicUrlMap =
+            baseFileService.getPublicUrl(new NotEmptyIdSet(CollUtil.newHashSet(baseImGroupDO.getAvatarFileId())))
+                .getMap();
+
         BaseImSessionRefUserDO baseImSessionRefUserDoTemp =
             lambdaQuery().eq(BaseImSessionRefUserDO::getSessionId, sessionId)
                 .eq(BaseImSessionRefUserDO::getTargetId, groupId)
@@ -177,6 +197,11 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
             baseImSessionRefUserDoTemp.setShowFlag(true);
 
+            baseImSessionRefUserDoTemp.setAvatarUrl(
+                MyEntityUtil.getNotNullStr(publicUrlMap.get(baseImGroupDO.getAvatarFileId())));
+
+            baseImSessionRefUserDoTemp.setTargetName(baseImGroupDO.getName());
+
             updateById(baseImSessionRefUserDoTemp);
 
             return;
@@ -184,10 +209,6 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         }
 
         Date date = new Date();
-
-        Map<Long, String> publicUrlMap =
-            baseFileService.getPublicUrl(new NotEmptyIdSet(CollUtil.newHashSet(baseImGroupDO.getAvatarFileId())))
-                .getMap();
 
         BaseImSessionRefUserDO baseImSessionRefUserDO = new BaseImSessionRefUserDO();
 

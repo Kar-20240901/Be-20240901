@@ -217,7 +217,8 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
         ChainWrappers.lambdaUpdateChain(baseImSessionRefUserMapper)
             .in(BaseImSessionRefUserDO::getTargetId, dto.getIdSet())
             .eq(BaseImSessionRefUserDO::getUserId, currentUserId)
-            .eq(BaseImSessionRefUserDO::getTargetType, BaseImTypeEnum.GROUP).remove();
+            .eq(BaseImSessionRefUserDO::getTargetType, BaseImTypeEnum.GROUP)
+            .set(BaseImSessionRefUserDO::getShowFlag, false).update();
 
         return TempBizCodeEnum.OK;
 

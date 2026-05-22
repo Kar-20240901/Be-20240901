@@ -398,13 +398,9 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
         if (baseImApplyFriendDO == null) {
 
             if (dto.getIdSet().size() != 1) {
-
                 return;
-
             } else {
-
                 R.error("操作失败：好友申请不存在", item);
-
             }
 
         }
@@ -412,13 +408,9 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
         if (!BaseImApplyStatusEnum.APPLYING.equals(baseImApplyFriendDO.getStatus())) {
 
             if (dto.getIdSet().size() != 1) {
-
                 return;
-
             } else {
-
                 R.error("操作失败：该好友申请状态已发生改变，请刷新再试", item);
-
             }
 
         }
