@@ -95,7 +95,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
                 .set(BaseImSessionRefUserDO::getLastOpenTs, date.getTime()).update();
 
             // 增加添加成功的消息内容
-            baseImSessionContentService.addApplyFriendFinishContent(sessionId, sourceUserId, date);
+            baseImSessionContentService.addApplyFriendFinishContent(sessionId, targetUserId, date);
 
             return;
 

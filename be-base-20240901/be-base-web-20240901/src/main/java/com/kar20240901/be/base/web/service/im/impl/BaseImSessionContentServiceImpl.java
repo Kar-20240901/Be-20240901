@@ -124,6 +124,8 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
 
         dto.setCreateId(createId);
 
+        dto.setType(iBaseImSessionContentType.getCode());
+
         Date date = new Date();
 
         BaseImSessionContentDO baseImSessionContentDO = new BaseImSessionContentDO();
