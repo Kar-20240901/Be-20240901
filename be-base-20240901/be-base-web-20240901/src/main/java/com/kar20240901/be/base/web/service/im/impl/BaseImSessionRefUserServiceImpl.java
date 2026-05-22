@@ -102,6 +102,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
             // 重置状态
             lambdaUpdate().eq(BaseImSessionRefUserDO::getSessionId, sessionId)
                 .set(BaseImSessionRefUserDO::getShowFlag, true).set(BaseImSessionRefUserDO::getNotDisturbFlag, false)
+                .set(BaseImSessionRefUserDO::getEnableFlag, true)
                 .set(BaseImSessionRefUserDO::getLastOpenTs, date.getTime())
                 .set(BaseImSessionRefUserDO::getTargetName, tempUserInfoDo2.getNickname())
                 .set(BaseImSessionRefUserDO::getAvatarUrl,
@@ -112,6 +113,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
             lambdaUpdate().eq(BaseImSessionRefUserDO::getSessionId, sessionId)
                 .set(BaseImSessionRefUserDO::getShowFlag, true).set(BaseImSessionRefUserDO::getNotDisturbFlag, false)
+                .set(BaseImSessionRefUserDO::getEnableFlag, true)
                 .set(BaseImSessionRefUserDO::getLastOpenTs, date.getTime())
                 .set(BaseImSessionRefUserDO::getTargetName, tempUserInfoDo1.getNickname())
                 .set(BaseImSessionRefUserDO::getAvatarUrl,
@@ -141,6 +143,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDo1.setTargetName(tempUserInfoDo2.getNickname());
         baseImSessionRefUserDo1.setNotDisturbFlag(false);
         baseImSessionRefUserDo1.setOrderNo(MyEntityUtil.getNotNullOrderNo(null));
+        baseImSessionRefUserDo1.setEnableFlag(true);
 
         save(baseImSessionRefUserDo1);
 
@@ -158,6 +161,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDo2.setTargetName(tempUserInfoDo1.getNickname());
         baseImSessionRefUserDo2.setNotDisturbFlag(false);
         baseImSessionRefUserDo2.setOrderNo(MyEntityUtil.getNotNullOrderNo(null));
+        baseImSessionRefUserDo2.setEnableFlag(true);
 
         save(baseImSessionRefUserDo2);
 
@@ -197,6 +201,8 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
             baseImSessionRefUserDoTemp.setShowFlag(true);
 
+            baseImSessionRefUserDoTemp.setEnableFlag(true);
+
             baseImSessionRefUserDoTemp.setAvatarUrl(
                 MyEntityUtil.getNotNullStr(publicUrlMap.get(baseImGroupDO.getAvatarFileId())));
 
@@ -224,6 +230,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDO.setTargetName(baseImGroupDO.getName());
         baseImSessionRefUserDO.setNotDisturbFlag(false);
         baseImSessionRefUserDO.setOrderNo(MyEntityUtil.getNotNullOrderNo(null));
+        baseImSessionRefUserDO.setEnableFlag(true);
 
         save(baseImSessionRefUserDO);
 
@@ -364,8 +371,8 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
         List<BaseImSessionRefUserDO> baseImSessionRefUserDoList =
             lambdaQuery().in(BaseImSessionRefUserDO::getSessionId, sessionIdSet)
-                .eq(BaseImSessionRefUserDO::getUserId, currentUserId).select(BaseImSessionRefUserDO::getSessionId)
-                .list();
+                .eq(BaseImSessionRefUserDO::getEnableFlag, true).eq(BaseImSessionRefUserDO::getUserId, currentUserId)
+                .select(BaseImSessionRefUserDO::getSessionId).list();
 
         List<Long> sessionIdList =
             baseImSessionRefUserDoList.stream().map(BaseImSessionRefUserDO::getSessionId).collect(Collectors.toList());
@@ -438,7 +445,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
         List<BaseImSessionRefUserDO> baseImSessionRefUserDoList =
             lambdaQuery().in(BaseImSessionRefUserDO::getSessionId, sessionIdSet)
-                .eq(BaseImSessionRefUserDO::getUserId, currentUserId)
+                .eq(BaseImSessionRefUserDO::getEnableFlag, true).eq(BaseImSessionRefUserDO::getUserId, currentUserId)
                 .select(BaseImSessionRefUserDO::getId, BaseImSessionRefUserDO::getTargetId,
                     BaseImSessionRefUserDO::getTargetType, BaseImSessionRefUserDO::getSessionId,
                     BaseImSessionRefUserDO::getTargetName, BaseImSessionRefUserDO::getAvatarUrl).list();

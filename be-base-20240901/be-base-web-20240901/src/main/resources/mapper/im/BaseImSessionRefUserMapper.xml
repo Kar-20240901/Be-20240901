@@ -27,6 +27,8 @@
 
     WHERE a.show_flag = TRUE
 
+      AND a.enable_flag = TRUE
+
       AND a.user_id = #{currentUserId}
 
     <if test="dto.lastReceiveTs != null">
@@ -82,7 +84,8 @@
   <select id="queryUnReadCount"
     resultType="com.kar20240901.be.base.web.model.vo.im.BaseImSessionRefUserQueryLastContentVO">
     SELECT a.session_id            AS sessionId,
-           SUM(IF(b.create_ts > a.last_open_ts AND b.type <![CDATA[>]]> 100 AND b.type <![CDATA[<]]> 1000, 1,
+           SUM(IF(b.create_ts > a.last_open_ts AND b.type <![CDATA[>]]> 100 AND b.type <![CDATA[<]]> 1000,
+                  1,
                   0))              AS unReadCount,
            MAX(a.not_disturb_flag) AS notDisturbFlag
 
@@ -90,6 +93,9 @@
            LEFT JOIN base_im_session_content b ON b.session_id = a.session_id
 
     WHERE a.user_id = #{currentUserId}
+
+      AND a.enable_flag = TRUE
+
       AND b.enable_flag = TRUE
 
       AND a.session_id IN
@@ -107,6 +113,9 @@
            a.avatar_url                           AS avatarUrl
 
     FROM base_im_session_ref_user a
+
     WHERE a.session_id = #{sessionId}
+
+      AND a.enable_flag = TRUE
   </select>
 </mapper>

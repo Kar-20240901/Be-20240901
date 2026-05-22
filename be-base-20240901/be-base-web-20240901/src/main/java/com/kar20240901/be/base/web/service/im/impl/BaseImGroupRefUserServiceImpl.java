@@ -218,7 +218,7 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
             .in(BaseImSessionRefUserDO::getTargetId, dto.getIdSet())
             .eq(BaseImSessionRefUserDO::getUserId, currentUserId)
             .eq(BaseImSessionRefUserDO::getTargetType, BaseImTypeEnum.GROUP)
-            .set(BaseImSessionRefUserDO::getShowFlag, false).update();
+            .set(BaseImSessionRefUserDO::getShowFlag, false).set(BaseImSessionRefUserDO::getEnableFlag, false).update();
 
         return TempBizCodeEnum.OK;
 

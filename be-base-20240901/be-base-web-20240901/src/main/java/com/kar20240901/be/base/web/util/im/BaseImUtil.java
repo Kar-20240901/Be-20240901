@@ -26,8 +26,8 @@ public class BaseImUtil {
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
         ChainWrappers.lambdaUpdateChain(baseImSessionRefUserMapper).eq(BaseImSessionRefUserDO::getUserId, currentUserId)
-            .in(BaseImSessionRefUserDO::getSessionId, dto.getIdSet()).set(BaseImSessionRefUserDO::getShowFlag, false)
-            .update();
+            .in(BaseImSessionRefUserDO::getSessionId, dto.getIdSet()).eq(BaseImSessionRefUserDO::getEnableFlag, true)
+            .set(BaseImSessionRefUserDO::getShowFlag, false).update();
 
     }
 

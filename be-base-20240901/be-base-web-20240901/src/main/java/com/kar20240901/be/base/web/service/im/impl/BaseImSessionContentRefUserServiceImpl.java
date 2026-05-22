@@ -172,7 +172,7 @@ public class BaseImSessionContentRefUserServiceImpl
     public static void updateLastOpenTs(Long userId, Set<Long> sessionIdSet) {
 
         ChainWrappers.lambdaUpdateChain(baseImSessionRefUserMapper).eq(BaseImSessionRefUserDO::getUserId, userId)
-            .in(BaseImSessionRefUserDO::getSessionId, sessionIdSet)
+            .in(BaseImSessionRefUserDO::getSessionId, sessionIdSet).eq(BaseImSessionRefUserDO::getEnableFlag, true)
             .set(BaseImSessionRefUserDO::getLastOpenTs, new Date().getTime())
             .set(BaseImSessionRefUserDO::getShowFlag, true).update();
 

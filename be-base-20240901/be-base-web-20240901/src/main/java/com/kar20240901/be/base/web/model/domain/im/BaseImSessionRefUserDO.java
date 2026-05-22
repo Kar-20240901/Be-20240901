@@ -48,4 +48,7 @@ public class BaseImSessionRefUserDO {
     @Schema(description = "排序号（值越大越前面，默认为 0） 901 置顶")
     private Integer orderNo;
 
+    @Schema(description = "是否可用：在删除好友、退出群聊、被踢出群聊之后变化")
+    private Boolean enableFlag;
+
 }
