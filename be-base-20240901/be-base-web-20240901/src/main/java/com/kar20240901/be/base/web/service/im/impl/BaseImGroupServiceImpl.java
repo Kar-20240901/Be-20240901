@@ -366,6 +366,11 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
             .eq(BaseImGroupRefUserDO::getUserId, dto.getNewBelongId()).set(BaseImGroupRefUserDO::getManageFlag, false)
             .set(BaseImGroupRefUserDO::getMuteFlag, false).update();
 
+        // 移除黑名单
+        ChainWrappers.lambdaUpdateChain(baseImBlockMapper).eq(BaseImBlockDO::getSourceId, dto.getGroupId())
+            .eq(BaseImBlockDO::getUserId, dto.getNewBelongId()).eq(BaseImBlockDO::getSourceType, BaseImTypeEnum.GROUP)
+            .remove();
+
         return TempBizCodeEnum.OK;
 
     }

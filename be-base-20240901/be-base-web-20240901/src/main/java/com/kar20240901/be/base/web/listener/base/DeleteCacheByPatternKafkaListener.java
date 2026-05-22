@@ -44,7 +44,7 @@ public class DeleteCacheByPatternKafkaListener {
 
                 for (String subItem : redisKeyList) {
 
-                    rBatch.getKeys().deleteByPatternAsync(subItem);
+                    rBatch.getKeys().unlinkByPatternAsync(subItem);
 
                 }
 

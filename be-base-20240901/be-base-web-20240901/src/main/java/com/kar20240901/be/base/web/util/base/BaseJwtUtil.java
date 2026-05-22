@@ -42,8 +42,8 @@ public class BaseJwtUtil {
             RedissonUtil.batch(batch -> {
 
                 // 移除密码错误次数相关
-                batch.getBucket(BaseRedisKeyEnum.PRE_PASSWORD_ERROR_COUNT.name() + ":" + userId).deleteAsync();
-                batch.getBucket(BaseRedisKeyEnum.PRE_TOO_MANY_PASSWORD_ERROR.name() + ":" + userId).deleteAsync();
+                batch.getBucket(BaseRedisKeyEnum.PRE_PASSWORD_ERROR_COUNT.name() + ":" + userId).unlinkAsync();
+                batch.getBucket(BaseRedisKeyEnum.PRE_TOO_MANY_PASSWORD_ERROR.name() + ":" + userId).unlinkAsync();
 
             });
 

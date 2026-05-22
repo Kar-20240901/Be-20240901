@@ -1,5 +1,6 @@
 package com.kar20240901.be.base.web.service.im.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -84,8 +85,18 @@ public class BaseImGroupRefUserServiceImpl extends ServiceImpl<BaseImGroupRefUse
     @Override
     public String addMute(BaseImGroupRefUserAddMuteDTO dto) {
 
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
         // 检查：是否有权限
-        BaseImGroupUtil.checkForTargetUserId(dto.getGroupId(), dto.getUserIdSet());
+        int currentUserType = BaseImGroupUtil.checkForTargetUserId(dto.getGroupId(), dto.getUserIdSet());
+
+        if (currentUserType == 101) { // 如果自己是群主，则不能新增自己禁言
+            dto.getUserIdSet().remove(currentUserId);
+        }
+
+        if (CollUtil.isEmpty(dto.getUserIdSet())) {
+            R.error("操作失败：不能禁言自己", dto.getGroupId());
+        }
 
         lambdaUpdate().eq(BaseImGroupRefUserDO::getGroupId, dto.getGroupId())
             .in(BaseImGroupRefUserDO::getUserId, dto.getUserIdSet()).set(BaseImGroupRefUserDO::getMuteFlag, true)

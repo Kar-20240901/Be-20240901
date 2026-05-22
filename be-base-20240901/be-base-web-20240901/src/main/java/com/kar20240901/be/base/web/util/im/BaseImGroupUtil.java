@@ -1,7 +1,9 @@
 package com.kar20240901.be.base.web.util.im;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
 import com.kar20240901.be.base.web.exception.TempBizCodeEnum;
 import com.kar20240901.be.base.web.mapper.im.BaseImGroupMapper;
@@ -127,7 +129,9 @@ public class BaseImGroupUtil {
      * 检查：是否有权限，操作目标用户主键 id集合，并执行操作
      */
     public static void checkForTargetUserId(List<BaseImApplyGroupItemDTO> baseImApplyGroupItemDtoList,
-        @Nullable VoidFunc2<Long, Set<Long>> voidFunc2) {
+        @Nullable String checkUserTypeErrorMsg, @Nullable VoidFunc2<Long, Set<Long>> voidFunc2) {
+
+        boolean singleFlag = baseImApplyGroupItemDtoList.size() == 1;
 
         Map<Long, Set<Long>> map = MapUtil.newHashMap();
 
@@ -139,8 +143,10 @@ public class BaseImGroupUtil {
 
         }
 
+        Long currentUserId = MyUserUtil.getCurrentUserId();
+
         // 检测权限
-        BaseImGroupUtil.checkForTargetUserId(map);
+        BaseImGroupUtil.doCheckForTargetUserId(map, checkUserTypeErrorMsg, currentUserId, singleFlag);
 
         if (voidFunc2 == null) {
             return;
@@ -152,7 +158,11 @@ public class BaseImGroupUtil {
 
             Set<Long> userIdSet = entry.getValue();
 
-            voidFunc2.call(groupId, userIdSet);
+            if (CollUtil.isNotEmpty(userIdSet)) {
+
+                voidFunc2.call(groupId, userIdSet);
+
+            }
 
         }
 
@@ -161,7 +171,10 @@ public class BaseImGroupUtil {
     /**
      * 检查：是否有权限，操作目标用户主键 id集合
      */
-    public static void checkForTargetUserId(Map<Long, Set<Long>> map) {
+    public static void doCheckForTargetUserId(Map<Long, Set<Long>> map, @Nullable String checkUserTypeErrorMsg,
+        Long currentUserId, boolean singleFlag) {
+
+        boolean checkUserTypeFlag = StrUtil.isNotBlank(checkUserTypeErrorMsg);
 
         for (Entry<Long, Set<Long>> item : map.entrySet()) {
 
@@ -169,7 +182,23 @@ public class BaseImGroupUtil {
 
             Set<Long> userIdSet = item.getValue();
 
-            checkForTargetUserId(groupId, userIdSet);
+            int currentUserType = checkForTargetUserId(groupId, userIdSet);
+
+            if (checkUserTypeFlag) {
+
+                if (currentUserType == 101) { // 如果自己是群主，则不能操作自己
+
+                    userIdSet.remove(currentUserId);
+
+                    if (singleFlag && CollUtil.isEmpty(userIdSet)) {
+
+                        R.error(checkUserTypeErrorMsg, groupId);
+
+                    }
+
+                }
+
+            }
 
         }
 
@@ -183,8 +212,10 @@ public class BaseImGroupUtil {
      * 如果当前用户是管理员，则目标用户主键 id，不能是创建者和管理员
      * <p>
      * 如果当前用户是创建者，则一直有权限
+     *
+     * @return 当前用户的身份：101 群主 201 管理员
      */
-    public static void checkForTargetUserId(Long groupId, Set<Long> userIdSet) {
+    public static int checkForTargetUserId(Long groupId, Set<Long> userIdSet) {
 
         Long currentUserId = MyUserUtil.getCurrentUserId();
 
@@ -197,7 +228,7 @@ public class BaseImGroupUtil {
         }
 
         if (currentUserId.equals(baseImGroupDO.getBelongId())) {
-            return;
+            return 101;
         }
 
         if (userIdSet.contains(baseImGroupDO.getBelongId())) {
@@ -227,6 +258,8 @@ public class BaseImGroupUtil {
         if (exists) {
             R.error(TempBizCodeEnum.ILLEGAL_REQUEST, groupId);
         }
+
+        return 201;
 
     }
 
