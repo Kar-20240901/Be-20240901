@@ -302,19 +302,17 @@ public class BaseImGroupUtil {
 
         Boolean manageFlag = baseImGroupRefUserDO.getManageFlag();
 
-        boolean muteFlag;
-
         if (manageFlag) {
 
-            muteFlag = BooleanUtil.isTrue(manageMuteFlag);
+            if (BooleanUtil.isTrue(manageMuteFlag)) {
+                R.error("操作失败：群主已开启管理员禁言，无法发送消息", groupId);
+            }
 
         } else {
 
-            muteFlag = BooleanUtil.isTrue(normalMuteFlag);
-        }
-
-        if (muteFlag) {
-            R.error("操作失败：您已被禁言，无法发送消息", groupId);
+            if (BooleanUtil.isTrue(normalMuteFlag)) {
+                R.error("操作失败：管理员已开启普通成员禁言，无法发送消息", groupId);
+            }
         }
 
     }

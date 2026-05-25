@@ -398,7 +398,6 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
         // 隐藏会话
         ChainWrappers.lambdaUpdateChain(baseImSessionRefUserMapper)
             .in(BaseImSessionRefUserDO::getTargetId, dto.getIdSet())
-            .eq(BaseImSessionRefUserDO::getUserId, currentUserId)
             .eq(BaseImSessionRefUserDO::getTargetType, BaseImTypeEnum.GROUP)
             .set(BaseImSessionRefUserDO::getShowFlag, false).set(BaseImSessionRefUserDO::getEnableFlag, false).update();
 
