@@ -343,7 +343,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
             .select(BaseImSessionRefUserDO::getTargetType, BaseImSessionRefUserDO::getTargetId).one();
 
         if (baseImSessionRefUserDO == null) {
-            R.error("操作失败：会话信息不存在", sessionId);
+            R.error(BaseImBizCodeEnum.SESSION_INFO_NOT_EXIST, sessionId);
         }
 
         Integer targetType = baseImSessionRefUserDO.getTargetType();
@@ -351,7 +351,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
         IBaseImType iBaseImType = BaseImTypeEnum.MAP.get(targetType);
 
         if (iBaseImType == null) {
-            R.error("操作失败：会话类型不存在", targetType);
+            R.error(BaseImBizCodeEnum.SESSION_TYPE_NOT_EXIST, targetType);
         }
 
         Long targetId = baseImSessionRefUserDO.getTargetId();
