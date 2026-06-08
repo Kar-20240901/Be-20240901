@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.generate.util;
 
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.unit.DataSizeUtil;
@@ -34,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 public class DoPackageUtil {
 
-    private String host = "karopendev.top";
+    private String host = "karopendevlight.top";
 
     private String user = "root";
 
@@ -54,7 +55,7 @@ public class DoPackageUtil {
     private String springRemoteStopCmd = "docker stop be-base-web-node-1";
 
     private String springRemoteRenameTempCmd =
-        "mv /mydata/springboot/be-base-web-20240901-2024.9.1.jar /mydata/springboot/be-base-web-20240901-2024.9.1.jar.bak{}";
+        "mv /mydata/springboot/be-base-web-20240901-2024.9.1.jar /mydata/springboot/be-base-web-20240901-2024.9.1.jar.bak-{}";
 
     private String springRemoteMergeCmd =
         "cat /mydata/springboot/be-base-web-20240901-2024.9.1.jar.part.* > /mydata/springboot/be-base-web-20240901-2024.9.1.jar";
@@ -303,8 +304,8 @@ public class DoPackageUtil {
             JschUtil.exec(session, getSpringRemoteStopCmd(), CharsetUtil.CHARSET_UTF_8);
 
             // 修改旧文件名
-            JschUtil.exec(session, StrUtil.format(getSpringRemoteRenameTempCmd(), date.getTime()),
-                CharsetUtil.CHARSET_UTF_8);
+            JschUtil.exec(session, StrUtil.format(getSpringRemoteRenameTempCmd(),
+                DateUtil.format(date, DatePattern.PURE_DATETIME_FORMATTER)), CharsetUtil.CHARSET_UTF_8);
 
             // 合并文件
             JschUtil.exec(session, getSpringRemoteMergeCmd(), CharsetUtil.CHARSET_UTF_8);
