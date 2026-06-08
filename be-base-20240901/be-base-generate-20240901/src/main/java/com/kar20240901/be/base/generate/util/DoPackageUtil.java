@@ -151,11 +151,13 @@ public class DoPackageUtil {
 
         Date date = new Date();
 
+        String dateFormat = DateUtil.format(date, DatePattern.PURE_DATETIME_FORMATTER);
+
         if (number == 1 || number == 2) {
 
             new Thread(() -> {
 
-                doBePackage(getProjectPath(), sessionSupplier, countDownLatch, date);
+                doBePackage(getProjectPath(), sessionSupplier, countDownLatch, dateFormat);
 
             }).start();
 
@@ -165,7 +167,7 @@ public class DoPackageUtil {
 
             new Thread(() -> {
 
-                doFePackage(getProjectPath(), sessionSupplier, countDownLatch, date);
+                doFePackage(getProjectPath(), sessionSupplier, countDownLatch, dateFormat);
 
             }).start();
 
@@ -187,7 +189,7 @@ public class DoPackageUtil {
      * 后端打包
      */
     public void doBePackage(String projectPath, Supplier<Session> sessionSupplier, CountDownLatch countDownLatch,
-        Date date) {
+        String dateFormat) {
 
         Session session = sessionSupplier.get();
 
@@ -304,8 +306,8 @@ public class DoPackageUtil {
             JschUtil.exec(session, getSpringRemoteStopCmd(), CharsetUtil.CHARSET_UTF_8);
 
             // 修改旧文件名
-            JschUtil.exec(session, StrUtil.format(getSpringRemoteRenameTempCmd(),
-                DateUtil.format(date, DatePattern.PURE_DATETIME_FORMATTER)), CharsetUtil.CHARSET_UTF_8);
+            JschUtil.exec(session, StrUtil.format(getSpringRemoteRenameTempCmd(), dateFormat),
+                CharsetUtil.CHARSET_UTF_8);
 
             // 合并文件
             JschUtil.exec(session, getSpringRemoteMergeCmd(), CharsetUtil.CHARSET_UTF_8);
@@ -382,7 +384,7 @@ public class DoPackageUtil {
      * 前端打包
      */
     public void doFePackage(String projectPath, Supplier<Session> sessionSupplier, CountDownLatch countDownLatch,
-        Date date) {
+        String dateFormat) {
 
         Session session = null;
 
@@ -463,7 +465,7 @@ public class DoPackageUtil {
             // 压缩文件
             File zipFileTemp = ZipUtil.zip(file);
 
-            File zipFile = FileUtil.newFile(file.getPath() + "/" + file.getName() + "." + date.getTime() + ".zip");
+            File zipFile = FileUtil.newFile(file.getPath() + "/" + file.getName() + "." + dateFormat + ".zip");
 
             FileUtil.move(zipFileTemp, zipFile, true);
 
