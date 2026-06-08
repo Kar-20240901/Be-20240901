@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/server")
+@RequestMapping("/base/server")
 @Tag(name = "基础-服务器-管理")
 public class BaseServerController {
 

@@ -3,9 +3,12 @@ package com.kar20240901.be.base.web.service.server.impl;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.system.oshi.CpuInfo;
 import cn.hutool.system.oshi.OshiUtil;
+import com.kar20240901.be.base.web.model.constant.base.TempConstant;
 import com.kar20240901.be.base.web.model.vo.server.BaseServerWorkInfoVO;
 import com.kar20240901.be.base.web.service.server.BaseServerService;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import oshi.hardware.GlobalMemory;
 import oshi.software.os.OSFileStore;
@@ -14,9 +17,19 @@ import oshi.software.os.OperatingSystem;
 @Service
 public class BaseServerServiceImpl implements BaseServerService {
 
-    public static void main(String[] args) {
+    private static BaseServerWorkInfoVO baseServerWorkInfoVO;
 
-        getBaseServerWorkInfoVO();
+    @PostConstruct
+    public void postConstruct() {
+
+        baseServerWorkInfoVO = getBaseServerWorkInfoVO();
+
+    }
+
+    @Scheduled(fixedDelay = TempConstant.MINUTE_3_EXPIRE_TIME)
+    public void scheduledGetWorkInfo() {
+
+        baseServerWorkInfoVO = getBaseServerWorkInfoVO();
 
     }
 
@@ -26,7 +39,7 @@ public class BaseServerServiceImpl implements BaseServerService {
     @Override
     public BaseServerWorkInfoVO workInfo() {
 
-        return getBaseServerWorkInfoVO();
+        return baseServerWorkInfoVO;
 
     }
 
@@ -80,4 +93,5 @@ public class BaseServerServiceImpl implements BaseServerService {
         return baseServerWorkInfoVO;
 
     }
+
 }
