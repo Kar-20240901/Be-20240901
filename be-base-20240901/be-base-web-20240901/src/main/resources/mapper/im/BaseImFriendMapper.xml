@@ -21,7 +21,7 @@
            LEFT JOIN base_user_info b ON b.id = a.friend_id
 
            LEFT JOIN base_im_session_ref_user c
-                     ON c.target_id = a.friend_id AND c.user_id = a.belong_id
+                     ON c.target_id = a.friend_id AND c.user_id = a.belong_id AND c.enable_flag = TRUE
 
     WHERE a.belong_id = #{currentUserId}
 

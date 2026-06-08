@@ -109,7 +109,7 @@
            LEFT JOIN base_im_session_content b ON b.id = a.content_id
 
            LEFT JOIN base_im_session_ref_user c
-                     ON c.user_id = a.user_id AND c.session_id = a.session_id
+                     ON c.user_id = a.user_id AND c.session_id = a.session_id AND c.enable_flag = TRUE
 
     WHERE a.user_id = #{currentUserId}
 

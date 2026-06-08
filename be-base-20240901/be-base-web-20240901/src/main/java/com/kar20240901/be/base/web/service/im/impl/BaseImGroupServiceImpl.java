@@ -366,6 +366,11 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
             .eq(BaseImGroupRefUserDO::getUserId, dto.getNewBelongId()).set(BaseImGroupRefUserDO::getManageFlag, false)
             .set(BaseImGroupRefUserDO::getMuteFlag, false).update();
 
+        // 移除黑名单
+        ChainWrappers.lambdaUpdateChain(baseImBlockMapper).eq(BaseImBlockDO::getSourceId, dto.getGroupId())
+            .eq(BaseImBlockDO::getUserId, dto.getNewBelongId()).eq(BaseImBlockDO::getSourceType, BaseImTypeEnum.GROUP)
+            .remove();
+
         return TempBizCodeEnum.OK;
 
     }
@@ -390,12 +395,11 @@ public class BaseImGroupServiceImpl extends ServiceImpl<BaseImGroupMapper, BaseI
         ChainWrappers.lambdaUpdateChain(baseImBlockMapper).in(BaseImBlockDO::getSourceId, dto.getIdSet())
             .eq(BaseImBlockDO::getSourceType, BaseImTypeEnum.GROUP).remove();
 
-        // 隐藏会话，注意：这里可以删除会话，但是先保留，看情况再进行改动
+        // 隐藏会话
         ChainWrappers.lambdaUpdateChain(baseImSessionRefUserMapper)
             .in(BaseImSessionRefUserDO::getTargetId, dto.getIdSet())
-            .eq(BaseImSessionRefUserDO::getUserId, currentUserId)
             .eq(BaseImSessionRefUserDO::getTargetType, BaseImTypeEnum.GROUP)
-            .set(BaseImSessionRefUserDO::getShowFlag, false).update();
+            .set(BaseImSessionRefUserDO::getShowFlag, false).set(BaseImSessionRefUserDO::getEnableFlag, false).update();
 
         return TempBizCodeEnum.OK;
 

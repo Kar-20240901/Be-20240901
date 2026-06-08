@@ -83,6 +83,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
 
         BaseImSessionRefUserDO baseImSessionRefUserDO = ChainWrappers.lambdaQueryChain(baseImSessionRefUserMapper)
             .eq(BaseImSessionRefUserDO::getUserId, currentUserId).eq(BaseImSessionRefUserDO::getSessionId, sessionId)
+            .eq(BaseImSessionRefUserDO::getEnableFlag, true)
             .select(BaseImSessionRefUserDO::getTargetType, BaseImSessionRefUserDO::getTargetId).one();
 
         if (baseImSessionRefUserDO == null) {
@@ -124,6 +125,8 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
 
         dto.setCreateId(createId);
 
+        dto.setType(iBaseImSessionContentType.getCode());
+
         Date date = new Date();
 
         BaseImSessionContentDO baseImSessionContentDO = new BaseImSessionContentDO();
@@ -144,7 +147,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
 
         List<BaseImSessionRefUserDO> baseImSessionRefUserDoList =
             ChainWrappers.lambdaQueryChain(baseImSessionRefUserMapper)
-                .eq(BaseImSessionRefUserDO::getSessionId, sessionId)
+                .eq(BaseImSessionRefUserDO::getSessionId, sessionId).eq(BaseImSessionRefUserDO::getEnableFlag, true)
                 .select(BaseImSessionRefUserDO::getUserId, BaseImSessionRefUserDO::getNotDisturbFlag).list();
 
         Map<Long, BaseImSessionRefUserDO> sessionRefUserMap =
@@ -184,7 +187,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
 
         // 显示会话
         ChainWrappers.lambdaUpdateChain(baseImSessionRefUserMapper).eq(BaseImSessionRefUserDO::getSessionId, sessionId)
-            .set(BaseImSessionRefUserDO::getShowFlag, true).update();
+            .eq(BaseImSessionRefUserDO::getEnableFlag, true).set(BaseImSessionRefUserDO::getShowFlag, true).update();
 
         dto.setNotDisturbFlagUserIdSet(notDisturbFlagUserIdSet);
 
@@ -336,10 +339,11 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
 
         BaseImSessionRefUserDO baseImSessionRefUserDO = ChainWrappers.lambdaQueryChain(baseImSessionRefUserMapper)
             .eq(BaseImSessionRefUserDO::getUserId, currentUserId).eq(BaseImSessionRefUserDO::getSessionId, sessionId)
+            .eq(BaseImSessionRefUserDO::getEnableFlag, true)
             .select(BaseImSessionRefUserDO::getTargetType, BaseImSessionRefUserDO::getTargetId).one();
 
         if (baseImSessionRefUserDO == null) {
-            R.error("操作失败：会话信息不存在", sessionId);
+            R.error(BaseImBizCodeEnum.SESSION_INFO_NOT_EXIST, sessionId);
         }
 
         Integer targetType = baseImSessionRefUserDO.getTargetType();
@@ -347,7 +351,7 @@ public class BaseImSessionContentServiceImpl extends ServiceImpl<BaseImSessionCo
         IBaseImType iBaseImType = BaseImTypeEnum.MAP.get(targetType);
 
         if (iBaseImType == null) {
-            R.error("操作失败：会话类型不存在", targetType);
+            R.error(BaseImBizCodeEnum.SESSION_TYPE_NOT_EXIST, targetType);
         }
 
         Long targetId = baseImSessionRefUserDO.getTargetId();

@@ -338,7 +338,7 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
 
         boolean batchFlag = dto.getList().size() != 1;
 
-        BaseImGroupUtil.checkForTargetUserId(dto.getList(), (groupId, userIdSet) -> {
+        BaseImGroupUtil.checkForTargetUserId(dto.getList(), null, (groupId, userIdSet) -> {
 
             RedissonUtil.doMultiLockSuf(BaseRedisKeyEnum.PRE_IM_APPLY_GROUP + ":", userIdSet, ":" + groupId, () -> {
 
@@ -389,7 +389,7 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
 
                     // 增加入群成功的消息内容
                     baseImSessionContentService.addApplyGroupFinishContent(baseImApplyGroupDO.getSessionId(),
-                        currentUserId, baseImApplyGroupDO.getUserId(), date, null);
+                        currentUserId, baseImApplyGroupDO.getUserId(), new Date(), null);
 
                 }
 
@@ -410,7 +410,7 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
 
         boolean batchFlag = dto.getList().size() != 1;
 
-        BaseImGroupUtil.checkForTargetUserId(dto.getList(), (groupId, userIdSet) -> {
+        BaseImGroupUtil.checkForTargetUserId(dto.getList(), null, (groupId, userIdSet) -> {
 
             RedissonUtil.doMultiLockSuf(BaseRedisKeyEnum.PRE_IM_APPLY_GROUP + ":", userIdSet, ":" + groupId, () -> {
 
@@ -479,7 +479,7 @@ public class BaseImApplyGroupServiceImpl extends ServiceImpl<BaseImApplyGroupMap
     @Override
     public String hiddenGroup(BaseImApplyGroupHiddenGroupDTO dto) {
 
-        BaseImGroupUtil.checkForTargetUserId(dto.getList(), (groupId, userIdSet) -> {
+        BaseImGroupUtil.checkForTargetUserId(dto.getList(), null, (groupId, userIdSet) -> {
 
             List<BaseImApplyGroupDO> baseImApplyGroupDoList =
                 lambdaQuery().eq(BaseImApplyGroupDO::getTargetGroupId, groupId)

@@ -68,7 +68,7 @@ public class BaseWalletUserBasePayRefHandlerConfiguration implements IBasePayRef
         // 异步执行
         MyThreadUtil.execute(() -> {
 
-            RedissonUtil.doLock(BaseRedisKeyEnum.PRE_PAY.name() + ":" + basePayDO.getId(), () -> {
+            RedissonUtil.doLock(BaseRedisKeyEnum.PRE_PAY + ":" + basePayDO.getId(), () -> {
 
                 // 再查询一次：是否已经处理过该支付
                 boolean exists = ChainWrappers.lambdaQueryChain(basePayMapper).eq(BasePayDO::getId, basePayDO.getId())

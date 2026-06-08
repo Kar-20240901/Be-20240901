@@ -15,6 +15,12 @@
 
   <dependencies>
 
+    <!-- 基于JNA的操作系统和硬件信息库 -->
+    <dependency>
+      <groupId>com.github.oshi</groupId>
+      <artifactId>oshi-core</artifactId>
+    </dependency>
+
     <!-- excel操作 -->
     <dependency>
       <groupId>com.alibaba</groupId>

@@ -77,7 +77,7 @@ public class BaseImBlockServiceImpl extends ServiceImpl<BaseImBlockMapper, BaseI
 
         Date date = new Date();
 
-        BaseImGroupUtil.checkForTargetUserId(dto.getList(), (groupId, userIdSet) -> {
+        BaseImGroupUtil.checkForTargetUserId(dto.getList(), "操作失败：不能拉黑自己", (groupId, userIdSet) -> {
 
             BaseImGroupDO baseImGroupDO =
                 ChainWrappers.lambdaQueryChain(baseImGroupMapper).eq(BaseImGroupDO::getId, groupId)
@@ -120,7 +120,7 @@ public class BaseImBlockServiceImpl extends ServiceImpl<BaseImBlockMapper, BaseI
     @Override
     public String groupCancelUser(BaseImBlockGroupAddUserDTO dto) {
 
-        BaseImGroupUtil.checkForTargetUserId(dto.getList(), (groupId, userIdSet) -> {
+        BaseImGroupUtil.checkForTargetUserId(dto.getList(), null, (groupId, userIdSet) -> {
 
             lambdaUpdate().in(BaseImBlockDO::getUserId, userIdSet).eq(BaseImBlockDO::getSourceId, groupId)
                 .eq(BaseImBlockDO::getSourceType, BaseImTypeEnum.GROUP).remove();

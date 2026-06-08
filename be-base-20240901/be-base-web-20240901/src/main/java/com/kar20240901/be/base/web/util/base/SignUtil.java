@@ -867,12 +867,12 @@ public class SignUtil {
 
                     // 移除密码错误次数相关
                     batch.getBucket(BaseRedisKeyEnum.PRE_PASSWORD_ERROR_COUNT.name() + ":" + currentUserId)
-                        .deleteAsync();
+                        .unlinkAsync();
                     batch.getBucket(BaseRedisKeyEnum.PRE_TOO_MANY_PASSWORD_ERROR.name() + ":" + currentUserId)
-                        .deleteAsync();
+                        .unlinkAsync();
 
                     if (checkCodeFlag) {
-                        batch.getBucket(key).deleteAsync(); // 删除：验证码
+                        batch.getBucket(key).unlinkAsync(); // 删除：验证码
                     }
 
                 });
@@ -1270,9 +1270,9 @@ public class SignUtil {
 
             String jwtRedisPreKey = TempRedisKeyEnum.PRE_JWT + ":" + item + ":*";
 
-            rKeysAsync.deleteByPatternAsync(jwtRefreshTokenRedisPreKey);
+            rKeysAsync.unlinkByPatternAsync(jwtRefreshTokenRedisPreKey);
 
-            rKeysAsync.deleteByPatternAsync(jwtRedisPreKey);
+            rKeysAsync.unlinkByPatternAsync(jwtRedisPreKey);
 
         }
 
@@ -1519,12 +1519,12 @@ public class SignUtil {
 
                     // 移除密码错误次数相关
                     batch.getBucket(BaseRedisKeyEnum.PRE_PASSWORD_ERROR_COUNT.name() + ":" + tempUserDO.getId())
-                        .deleteAsync();
+                        .unlinkAsync();
 
                     batch.getMap(BaseRedisKeyEnum.PRE_TOO_MANY_PASSWORD_ERROR.name()).removeAsync(tempUserDO.getId());
 
                     // 删除：验证码
-                    batch.getBucket(key).deleteAsync();
+                    batch.getBucket(key).unlinkAsync();
 
                 });
 

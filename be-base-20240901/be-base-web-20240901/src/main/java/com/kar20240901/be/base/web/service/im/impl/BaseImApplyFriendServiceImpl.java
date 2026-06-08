@@ -221,11 +221,23 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
                                     .eq(BaseImFriendDO::getFriendId, item).exists();
 
                             if (existsFriend) {
+
+                                boolean targetExists =
+                                    baseImFriendService.lambdaQuery().eq(BaseImFriendDO::getBelongId, item)
+                                        .eq(BaseImFriendDO::getFriendId, currentUserId).exists();
+
                                 if (singleFlag) {
-                                    R.error("操作失败：对方已经是您的好友了", item);
+
+                                    if (targetExists) {
+                                        R.error("操作失败：对方已经是您的好友了", item);
+                                    }
+
                                 } else {
+
                                     continue;
+
                                 }
+
                             }
 
                         }
@@ -345,87 +357,117 @@ public class BaseImApplyFriendServiceImpl extends ServiceImpl<BaseImApplyFriendM
 
                 for (Long item : dto.getIdSet()) {
 
-                    BaseImApplyFriendDO baseImApplyFriendDO =
-                        lambdaQuery().eq(BaseImApplyFriendDO::getTargetUserId, currentUserId)
-                            .eq(BaseImApplyFriendDO::getUserId, item).one();
+                    boolean bigFlag = item > currentUserId;
 
-                    if (baseImApplyFriendDO == null) {
-                        if (dto.getIdSet().size() != 1) {
-                            continue;
-                        } else {
-                            R.error("操作失败：好友申请不存在", item);
-                        }
-                    }
+                    String redisKey;
 
-                    if (!BaseImApplyStatusEnum.APPLYING.equals(baseImApplyFriendDO.getStatus())) {
-                        if (dto.getIdSet().size() != 1) {
-                            continue;
-                        } else {
-                            R.error("操作失败：该好友申请状态已发生改变，请刷新再试", item);
-                        }
-                    }
+                    if (bigFlag) {
 
-                    Long sessionId = baseImApplyFriendDO.getSessionId();
+                        redisKey = currentUserId + ":" + item;
 
-                    // 防止会话记录丢失，则采用历史的会话主键 id
-                    boolean addFlag = sessionId.equals(TempConstant.NEGATIVE_ONE);
+                    } else {
 
-                    if (addFlag) {
-
-                        BaseImApplyFriendDO tempBaseImApplyFriendDO =
-                            lambdaQuery().eq(BaseImApplyFriendDO::getTargetUserId, item)
-                                .eq(BaseImApplyFriendDO::getUserId, currentUserId)
-                                .select(BaseImApplyFriendDO::getSessionId).one();
-
-                        if (tempBaseImApplyFriendDO == null || tempBaseImApplyFriendDO.getSessionId()
-                            .equals(TempConstant.NEGATIVE_ONE)) {
-
-                            sessionId = IdGeneratorUtil.nextId();
-
-                        } else {
-
-                            sessionId = tempBaseImApplyFriendDO.getSessionId();
-
-                            addFlag = false;
-
-                        }
+                        redisKey = item + ":" + currentUserId;
 
                     }
 
-                    // 更新数据：两个申请同时更新
-                    lambdaUpdate().eq(BaseImApplyFriendDO::getUserId, baseImApplyFriendDO.getUserId())
-                        .eq(BaseImApplyFriendDO::getTargetUserId, baseImApplyFriendDO.getTargetUserId())
-                        .or(i -> i.eq(BaseImApplyFriendDO::getUserId, baseImApplyFriendDO.getTargetUserId())
-                            .eq(BaseImApplyFriendDO::getTargetUserId, baseImApplyFriendDO.getUserId()))
-                        .set(BaseImApplyFriendDO::getStatus, BaseImApplyStatusEnum.PASSED)
-                        .set(BaseImApplyFriendDO::getRejectReason, "").set(BaseImApplyFriendDO::getSessionId, sessionId)
-                        .set(BaseImApplyFriendDO::getUpdateTime, new Date()).update();
+                    RedissonUtil.doLock(BaseRedisKeyEnum.PRE_IM_SESSION_REF_USER + ":" + redisKey, () -> {
 
-                    // 显示好友申请：两个申请同时显示
-                    ChainWrappers.lambdaUpdateChain(baseImApplyFriendExtraMapper)
-                        .eq(BaseImApplyFriendExtraDO::getApplyFriendId, baseImApplyFriendDO.getId())
-                        .set(BaseImApplyFriendExtraDO::getHiddenFlag, false).update();
+                        // 执行：同意
+                        doAgree(dto, item, currentUserId);
 
-                    // 创建好友
-                    baseImFriendService.addOrUpdateFriend(baseImApplyFriendDO.getUserId(),
-                        baseImApplyFriendDO.getTargetUserId(), sessionId, addFlag);
-
-                    if (addFlag) {
-
-                        // 创建会话
-                        baseImSessionService.addSession(sessionId, baseImApplyFriendDO.getId(), BaseImTypeEnum.FRIEND);
-
-                    }
-
-                    // 创建会话关联用户
-                    baseImSessionRefUserService.addOrUpdateSessionRefUserForFriend(sessionId,
-                        baseImApplyFriendDO.getUserId(), baseImApplyFriendDO.getTargetUserId(), addFlag);
+                    });
 
                 }
 
             });
 
         return TempBizCodeEnum.OK;
+
+    }
+
+    /**
+     * 执行：同意
+     */
+    @DSTransactional
+    private void doAgree(NotEmptyIdSet dto, Long item, Long currentUserId) {
+
+        BaseImApplyFriendDO baseImApplyFriendDO = lambdaQuery().eq(BaseImApplyFriendDO::getTargetUserId, currentUserId)
+            .eq(BaseImApplyFriendDO::getUserId, item).one();
+
+        if (baseImApplyFriendDO == null) {
+
+            if (dto.getIdSet().size() != 1) {
+                return;
+            } else {
+                R.error("操作失败：好友申请不存在", item);
+            }
+
+        }
+
+        if (!BaseImApplyStatusEnum.APPLYING.equals(baseImApplyFriendDO.getStatus())) {
+
+            if (dto.getIdSet().size() != 1) {
+                return;
+            } else {
+                R.error("操作失败：该好友申请状态已发生改变，请刷新再试", item);
+            }
+
+        }
+
+        Long sessionId = baseImApplyFriendDO.getSessionId();
+
+        // 防止会话记录丢失，则采用历史的会话主键 id
+        boolean addFlag = sessionId.equals(TempConstant.NEGATIVE_ONE);
+
+        if (addFlag) {
+
+            BaseImApplyFriendDO tempBaseImApplyFriendDO = lambdaQuery().eq(BaseImApplyFriendDO::getTargetUserId, item)
+                .eq(BaseImApplyFriendDO::getUserId, currentUserId).select(BaseImApplyFriendDO::getSessionId).one();
+
+            if (tempBaseImApplyFriendDO == null || tempBaseImApplyFriendDO.getSessionId()
+                .equals(TempConstant.NEGATIVE_ONE)) {
+
+                sessionId = IdGeneratorUtil.nextId();
+
+            } else {
+
+                sessionId = tempBaseImApplyFriendDO.getSessionId();
+
+                addFlag = false;
+
+            }
+
+        }
+
+        // 更新数据：两个申请同时更新
+        lambdaUpdate().eq(BaseImApplyFriendDO::getUserId, baseImApplyFriendDO.getUserId())
+            .eq(BaseImApplyFriendDO::getTargetUserId, baseImApplyFriendDO.getTargetUserId())
+            .or(i -> i.eq(BaseImApplyFriendDO::getUserId, baseImApplyFriendDO.getTargetUserId())
+                .eq(BaseImApplyFriendDO::getTargetUserId, baseImApplyFriendDO.getUserId()))
+            .set(BaseImApplyFriendDO::getStatus, BaseImApplyStatusEnum.PASSED)
+            .set(BaseImApplyFriendDO::getRejectReason, "").set(BaseImApplyFriendDO::getSessionId, sessionId)
+            .set(BaseImApplyFriendDO::getUpdateTime, new Date()).update();
+
+        // 显示好友申请：两个申请同时显示
+        ChainWrappers.lambdaUpdateChain(baseImApplyFriendExtraMapper)
+            .eq(BaseImApplyFriendExtraDO::getApplyFriendId, baseImApplyFriendDO.getId())
+            .set(BaseImApplyFriendExtraDO::getHiddenFlag, false).update();
+
+        // 创建好友
+        baseImFriendService.addOrUpdateFriend(baseImApplyFriendDO.getUserId(), baseImApplyFriendDO.getTargetUserId(),
+            sessionId, addFlag);
+
+        if (addFlag) {
+
+            // 创建会话
+            baseImSessionService.addSession(sessionId, baseImApplyFriendDO.getId(), BaseImTypeEnum.FRIEND);
+
+        }
+
+        // 创建会话关联用户
+        baseImSessionRefUserService.addOrUpdateSessionRefUserForFriend(sessionId, baseImApplyFriendDO.getUserId(),
+            baseImApplyFriendDO.getTargetUserId(), addFlag);
 
     }
 

@@ -87,7 +87,7 @@ public class ResponseUtil {
 
         response.setContentType("application/json;charset=utf-8");
 
-        ServletOutputStream servletOutputStream = response.getOutputStream();
+        ServletOutputStream outputStream = response.getOutputStream();
 
         response.setStatus(status);
 
@@ -101,9 +101,11 @@ public class ResponseUtil {
 
         }
 
-        servletOutputStream.write(writeMsg.getBytes()); // json字符串，输出给前端
-        servletOutputStream.flush();
-        servletOutputStream.close();
+        outputStream.write(writeMsg.getBytes()); // json字符串，输出给前端
+
+        outputStream.flush();
+
+        IoUtil.close(outputStream);
 
     }
 

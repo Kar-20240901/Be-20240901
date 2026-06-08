@@ -1,6 +1,7 @@
 package com.kar20240901.be.base.generate.util;
 
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.unit.DataSizeUtil;
@@ -34,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 public class DoPackageUtil {
 
-    private String host = "karopendev.top";
+    private String host = "karopendevlight.top";
 
     private String user = "root";
 
@@ -54,7 +55,7 @@ public class DoPackageUtil {
     private String springRemoteStopCmd = "docker stop be-base-web-node-1";
 
     private String springRemoteRenameTempCmd =
-        "mv /mydata/springboot/be-base-web-20240901-2024.9.1.jar /mydata/springboot/be-base-web-20240901-2024.9.1.jar.bak{}";
+        "mv /mydata/springboot/be-base-web-20240901-2024.9.1.jar /mydata/springboot/be-base-web-20240901-2024.9.1.jar.bak-{}";
 
     private String springRemoteMergeCmd =
         "cat /mydata/springboot/be-base-web-20240901-2024.9.1.jar.part.* > /mydata/springboot/be-base-web-20240901-2024.9.1.jar";
@@ -150,11 +151,13 @@ public class DoPackageUtil {
 
         Date date = new Date();
 
+        String dateFormat = DateUtil.format(date, DatePattern.PURE_DATETIME_FORMATTER);
+
         if (number == 1 || number == 2) {
 
             new Thread(() -> {
 
-                doBePackage(getProjectPath(), sessionSupplier, countDownLatch, date);
+                doBePackage(getProjectPath(), sessionSupplier, countDownLatch, dateFormat);
 
             }).start();
 
@@ -164,7 +167,7 @@ public class DoPackageUtil {
 
             new Thread(() -> {
 
-                doFePackage(getProjectPath(), sessionSupplier, countDownLatch, date);
+                doFePackage(getProjectPath(), sessionSupplier, countDownLatch, dateFormat);
 
             }).start();
 
@@ -186,7 +189,7 @@ public class DoPackageUtil {
      * 后端打包
      */
     public void doBePackage(String projectPath, Supplier<Session> sessionSupplier, CountDownLatch countDownLatch,
-        Date date) {
+        String dateFormat) {
 
         Session session = sessionSupplier.get();
 
@@ -303,7 +306,7 @@ public class DoPackageUtil {
             JschUtil.exec(session, getSpringRemoteStopCmd(), CharsetUtil.CHARSET_UTF_8);
 
             // 修改旧文件名
-            JschUtil.exec(session, StrUtil.format(getSpringRemoteRenameTempCmd(), date.getTime()),
+            JschUtil.exec(session, StrUtil.format(getSpringRemoteRenameTempCmd(), dateFormat),
                 CharsetUtil.CHARSET_UTF_8);
 
             // 合并文件
@@ -381,7 +384,7 @@ public class DoPackageUtil {
      * 前端打包
      */
     public void doFePackage(String projectPath, Supplier<Session> sessionSupplier, CountDownLatch countDownLatch,
-        Date date) {
+        String dateFormat) {
 
         Session session = null;
 
@@ -462,7 +465,7 @@ public class DoPackageUtil {
             // 压缩文件
             File zipFileTemp = ZipUtil.zip(file);
 
-            File zipFile = FileUtil.newFile(file.getPath() + "/" + file.getName() + "." + date.getTime() + ".zip");
+            File zipFile = FileUtil.newFile(file.getPath() + "/" + file.getName() + "." + dateFormat + ".zip");
 
             FileUtil.move(zipFileTemp, zipFile, true);
 

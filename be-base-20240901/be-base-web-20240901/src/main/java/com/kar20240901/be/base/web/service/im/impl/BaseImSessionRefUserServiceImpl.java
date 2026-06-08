@@ -87,20 +87,6 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
         Date date = new Date();
 
-        if (!addFlag) {
-
-            // 重置状态
-            lambdaUpdate().eq(BaseImSessionRefUserDO::getSessionId, sessionId)
-                .set(BaseImSessionRefUserDO::getShowFlag, true).set(BaseImSessionRefUserDO::getNotDisturbFlag, false)
-                .set(BaseImSessionRefUserDO::getLastOpenTs, date.getTime()).update();
-
-            // 增加添加成功的消息内容
-            baseImSessionContentService.addApplyFriendFinishContent(sessionId, sourceUserId, date);
-
-            return;
-
-        }
-
         Map<Long, TempUserInfoDO> userInfoMap =
             tempUserInfoDOList.stream().collect(Collectors.toMap(TempUserInfoDO::getId, it -> it));
 
@@ -110,6 +96,38 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
         Map<Long, String> publicUrlMap = baseFileService.getPublicUrl(new NotEmptyIdSet(
             CollUtil.newHashSet(tempUserInfoDo1.getAvatarFileId(), tempUserInfoDo2.getAvatarFileId()))).getMap();
+
+        if (!addFlag) {
+
+            // 重置状态
+            lambdaUpdate().eq(BaseImSessionRefUserDO::getSessionId, sessionId)
+                .set(BaseImSessionRefUserDO::getShowFlag, true).set(BaseImSessionRefUserDO::getNotDisturbFlag, false)
+                .set(BaseImSessionRefUserDO::getEnableFlag, true)
+                .set(BaseImSessionRefUserDO::getLastOpenTs, date.getTime())
+                .set(BaseImSessionRefUserDO::getTargetName, tempUserInfoDo2.getNickname())
+                .set(BaseImSessionRefUserDO::getAvatarUrl,
+                    MyEntityUtil.getNotNullStr(publicUrlMap.get(tempUserInfoDo2.getAvatarFileId())))
+                .eq(BaseImSessionRefUserDO::getUserId, sourceUserId)
+                .eq(BaseImSessionRefUserDO::getTargetId, targetUserId)
+                .eq(BaseImSessionRefUserDO::getTargetType, BaseImTypeEnum.FRIEND.getCode()).update();
+
+            lambdaUpdate().eq(BaseImSessionRefUserDO::getSessionId, sessionId)
+                .set(BaseImSessionRefUserDO::getShowFlag, true).set(BaseImSessionRefUserDO::getNotDisturbFlag, false)
+                .set(BaseImSessionRefUserDO::getEnableFlag, true)
+                .set(BaseImSessionRefUserDO::getLastOpenTs, date.getTime())
+                .set(BaseImSessionRefUserDO::getTargetName, tempUserInfoDo1.getNickname())
+                .set(BaseImSessionRefUserDO::getAvatarUrl,
+                    MyEntityUtil.getNotNullStr(publicUrlMap.get(tempUserInfoDo1.getAvatarFileId())))
+                .eq(BaseImSessionRefUserDO::getUserId, targetUserId)
+                .eq(BaseImSessionRefUserDO::getTargetId, sourceUserId)
+                .eq(BaseImSessionRefUserDO::getTargetType, BaseImTypeEnum.FRIEND.getCode()).update();
+
+            // 增加添加成功的消息内容
+            baseImSessionContentService.addApplyFriendFinishContent(sessionId, targetUserId, date);
+
+            return;
+
+        }
 
         BaseImSessionRefUserDO baseImSessionRefUserDo1 = new BaseImSessionRefUserDO();
 
@@ -125,6 +143,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDo1.setTargetName(tempUserInfoDo2.getNickname());
         baseImSessionRefUserDo1.setNotDisturbFlag(false);
         baseImSessionRefUserDo1.setOrderNo(MyEntityUtil.getNotNullOrderNo(null));
+        baseImSessionRefUserDo1.setEnableFlag(true);
 
         save(baseImSessionRefUserDo1);
 
@@ -142,11 +161,12 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDo2.setTargetName(tempUserInfoDo1.getNickname());
         baseImSessionRefUserDo2.setNotDisturbFlag(false);
         baseImSessionRefUserDo2.setOrderNo(MyEntityUtil.getNotNullOrderNo(null));
+        baseImSessionRefUserDo2.setEnableFlag(true);
 
         save(baseImSessionRefUserDo2);
 
         // 增加添加成功的消息内容
-        baseImSessionContentService.addApplyFriendFinishContent(sessionId, sourceUserId, date);
+        baseImSessionContentService.addApplyFriendFinishContent(sessionId, targetUserId, new Date());
 
     }
 
@@ -167,6 +187,10 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
             R.error("操作失败：群聊信息不存在", groupId);
         }
 
+        Map<Long, String> publicUrlMap =
+            baseFileService.getPublicUrl(new NotEmptyIdSet(CollUtil.newHashSet(baseImGroupDO.getAvatarFileId())))
+                .getMap();
+
         BaseImSessionRefUserDO baseImSessionRefUserDoTemp =
             lambdaQuery().eq(BaseImSessionRefUserDO::getSessionId, sessionId)
                 .eq(BaseImSessionRefUserDO::getTargetId, groupId)
@@ -177,6 +201,13 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
             baseImSessionRefUserDoTemp.setShowFlag(true);
 
+            baseImSessionRefUserDoTemp.setEnableFlag(true);
+
+            baseImSessionRefUserDoTemp.setAvatarUrl(
+                MyEntityUtil.getNotNullStr(publicUrlMap.get(baseImGroupDO.getAvatarFileId())));
+
+            baseImSessionRefUserDoTemp.setTargetName(baseImGroupDO.getName());
+
             updateById(baseImSessionRefUserDoTemp);
 
             return;
@@ -184,10 +215,6 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         }
 
         Date date = new Date();
-
-        Map<Long, String> publicUrlMap =
-            baseFileService.getPublicUrl(new NotEmptyIdSet(CollUtil.newHashSet(baseImGroupDO.getAvatarFileId())))
-                .getMap();
 
         BaseImSessionRefUserDO baseImSessionRefUserDO = new BaseImSessionRefUserDO();
 
@@ -203,6 +230,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
         baseImSessionRefUserDO.setTargetName(baseImGroupDO.getName());
         baseImSessionRefUserDO.setNotDisturbFlag(false);
         baseImSessionRefUserDO.setOrderNo(MyEntityUtil.getNotNullOrderNo(null));
+        baseImSessionRefUserDO.setEnableFlag(true);
 
         save(baseImSessionRefUserDO);
 
@@ -343,8 +371,8 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
         List<BaseImSessionRefUserDO> baseImSessionRefUserDoList =
             lambdaQuery().in(BaseImSessionRefUserDO::getSessionId, sessionIdSet)
-                .eq(BaseImSessionRefUserDO::getUserId, currentUserId).select(BaseImSessionRefUserDO::getSessionId)
-                .list();
+                .eq(BaseImSessionRefUserDO::getEnableFlag, true).eq(BaseImSessionRefUserDO::getUserId, currentUserId)
+                .select(BaseImSessionRefUserDO::getSessionId).list();
 
         List<Long> sessionIdList =
             baseImSessionRefUserDoList.stream().map(BaseImSessionRefUserDO::getSessionId).collect(Collectors.toList());
@@ -417,7 +445,7 @@ public class BaseImSessionRefUserServiceImpl extends ServiceImpl<BaseImSessionRe
 
         List<BaseImSessionRefUserDO> baseImSessionRefUserDoList =
             lambdaQuery().in(BaseImSessionRefUserDO::getSessionId, sessionIdSet)
-                .eq(BaseImSessionRefUserDO::getUserId, currentUserId)
+                .eq(BaseImSessionRefUserDO::getEnableFlag, true).eq(BaseImSessionRefUserDO::getUserId, currentUserId)
                 .select(BaseImSessionRefUserDO::getId, BaseImSessionRefUserDO::getTargetId,
                     BaseImSessionRefUserDO::getTargetType, BaseImSessionRefUserDO::getSessionId,
                     BaseImSessionRefUserDO::getTargetName, BaseImSessionRefUserDO::getAvatarUrl).list();
