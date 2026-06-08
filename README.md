@@ -1,73 +1,85 @@
 ## Be-20240901 项目说明文档
 
-## 🔧 技术栈
+## 🌿 技术环境
 
-### 基础环境
+### 基础框架
 
-- **Java**：8
+- Java 8
 
-- **Spring Boot**：2\.7\.18
+- Spring Boot 2\.7\.18
 
-### 核心中间件
+### 中间件
 
-- **MySQL**：8
+- MySQL 8
 
-- **Kafka**：3\.7\.1
+- Kafka 3\.7\.1（KRaft、SASL\_PLAINTEXT、PLAIN）
 
-    - 运行模式：KRaft
+- Redis 7
 
-    - 认证方式：SASL\_PLAINTEXT、PLAIN
+- MinIO 2025\-09\-07
 
-- **Redis**：7
+## 📦 Maven Dependencies
 
-- **MinIO**：2025\-09\-07
+### Spring Boot 生态
 
-## 📦 Maven 依赖
+- org\.springframework\.boot\.spring\-boot\-starter\-aop【aop】
 
-### 工具类依赖
+- org\.springframework\.kafka\.spring\-kafka【spring\-kafka】
 
-- **thumbnailator**：图片缩略图处理
+- org\.springframework\.boot\.spring\-boot\-starter\-security【spring\-security】
 
-- **oshi\-core**：基于JNA的操作系统、硬件信息采集
+- org\.springframework\.boot\.spring\-boot\-starter\-validation【validation】
 
-- **easyexcel**：Excel文件读写操作
+### 数据库 \& 持久化
 
-- **jave\-all\-deps**：基于FFmpeg的音视频处理
+- com\.mysql\.mysql\-connector\-j【mysql】
 
-- **jsch**：SSH、SFTP远程连接操作
+- com\.baomidou\.mybatis\-plus\-boot\-starter【mybatis\-plus】
 
-- **ip2region**：离线IP地址定位解析
+- com\.baomidou\.dynamic\-datasource\-spring\-boot\-starter【动态数据源】
 
-- **hutool\-all**：全能Java工具库
+### 缓存 \& 分布式
 
-- **jetbrains\-annotations**：JetBrains代码注解工具
+- org\.redisson\.redisson\-spring\-boot\-starter【redisson\-spring\-boot\-starter】
 
-### 支付对接依赖
+- io\.netty\.netty\-all【netty】
 
-- **wechatpay\-java**：微信支付V3接口对接
+### 文件 \& 媒体处理
 
-- **alipay\-sdk\-java**：支付宝支付接口对接
+- net\.coobird\.thumbnailator【缩略图】
 
-### 文件存储依赖
+- ws\.schild\.jave\-all\-deps【ffmpeg】
 
-- **minio**：MinIO对象文件系统操作
+- com\.alibaba\.easyexcel【excel操作】
 
-- **aliyun\-sdk\-oss**：阿里云OSS对象存储对接
+- io\.minio\.minio【minio文件系统】
 
-### 消息邮件依赖
+- com\.aliyun\.oss\.aliyun\-sdk\-oss【阿里云oss文件存储】
 
-- **javax\.mail**：邮件发送接收功能
+### 支付对接
 
-### 接口文档依赖
+- com\.github\.wechatpay\-apiv3\.wechatpay\-java【微信支付】
 
-- **springdoc\-openapi\-ui**：OpenAPI接口文档生成
+- com\.alipay\.sdk\.alipay\-sdk\-java【支付宝支付】
 
-- **knife4j\-springdoc\-ui**：Knife4j美化接口文档
+### 工具 \& 拓展
 
-### 数据操作依赖
+- com\.github\.oshi\.oshi\-core【基于JNA的操作系统和硬件信息库】
 
-- **redisson\-spring\-boot\-starter**：Redis分布式操作、锁工具
+- com\.jcraft\.jsch【ssh，sftp】
 
-- **dynamic\-datasource\-spring\-boot\-starter**：多数据源动态切换
+- com\.sun\.mail\.javax\.mail【邮件】
 
-- **mybatis\-plus\-boot\-starter**：MyBatis增强ORM框架
+- org\.lionsoul\.ip2region【离线IP地址定位库】
+
+- cn\.hutool\.hutool\-all【hutool】
+
+- org\.jetbrains\.annotations【jetbrains\-annotations】
+
+- org\.projectlombok\.lombok【lombok】
+
+### 接口文档
+
+- org\.springdoc\.springdoc\-openapi\-ui【springdoc】
+
+- com\.github\.xiaoymin\.knife4j\-springdoc\-ui【knife4j】
