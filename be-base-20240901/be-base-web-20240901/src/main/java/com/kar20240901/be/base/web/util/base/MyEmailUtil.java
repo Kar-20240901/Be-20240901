@@ -48,7 +48,7 @@ public class MyEmailUtil {
 
         BaseEmailConfigurationDO baseEmailConfigurationDO = baseEmailConfigurationService.lambdaQuery().one();
 
-        if (baseEmailConfigurationDO == null) {
+        if (baseEmailConfigurationDO == null || StrUtil.isBlank(baseEmailConfigurationDO.getFromEmail())) {
             R.errorMsg("操作失败：未配置邮箱参数，请联系管理员");
         }
 

@@ -61,9 +61,22 @@ public class BaseEmailConfigurationServiceImpl
 
         BaseEmailConfigurationDO baseEmailConfigurationDO = lambdaQuery().one();
 
-        if (baseEmailConfigurationDO != null) {
-            baseEmailConfigurationDO.setPass(null); // 不返回密码
+        if (baseEmailConfigurationDO == null) {
+
+            baseEmailConfigurationDO = new BaseEmailConfigurationDO();
+
+            baseEmailConfigurationDO.setId(1L);
+            baseEmailConfigurationDO.setContentPre("");
+            baseEmailConfigurationDO.setPort(465);
+            baseEmailConfigurationDO.setFromEmail("");
+            baseEmailConfigurationDO.setPass("");
+            baseEmailConfigurationDO.setSslFlag(true);
+
+            save(baseEmailConfigurationDO);
+
         }
+
+        baseEmailConfigurationDO.setPass(null); // 不返回密码
 
         return baseEmailConfigurationDO;
 

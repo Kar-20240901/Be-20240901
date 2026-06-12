@@ -209,6 +209,10 @@ public class BaseFileServiceImpl extends ServiceImpl<BaseFileMapper, BaseFileDO>
         // 执行：下载
         BaseFilePrivateDownloadVO baseFilePrivateDownloadVO = BaseFileUtil.privateDownload(baseFilePrivateDownloadBO);
 
+        if (baseFilePrivateDownloadVO == null) {
+            return;
+        }
+
         InputStream inputStream = baseFilePrivateDownloadVO.getInputStream();
 
         if (inputStream == null) {

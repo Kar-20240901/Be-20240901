@@ -1261,12 +1261,17 @@ public class BaseFileUtil {
      * 下载文件：私有
      */
     @SneakyThrows
+    @Nullable
     public static BaseFilePrivateDownloadVO privateDownload(BaseFilePrivateDownloadBO baseFilePrivateDownloadBO) {
 
         Long fileId = baseFilePrivateDownloadBO.getFileId();
 
         // 获取：BaseFileDO对象
         BaseFileDO baseFileDO = getPrivateDownloadBaseFile(fileId);
+
+        if (baseFileDO == null) {
+            return null;
+        }
 
         if (BaseFileTypeEnum.FOLDER.equals(baseFileDO.getType())) {
             R.errorMsg("操作失败：暂不支持下载文件夹");
@@ -1413,7 +1418,7 @@ public class BaseFileUtil {
     /**
      * 获取：BaseFileDO对象
      */
-    @NotNull
+    @Nullable
     private static BaseFileDO getPrivateDownloadBaseFile(long fileId) {
 
         // 获取：查询对象
@@ -1421,6 +1426,10 @@ public class BaseFileUtil {
 
         if (baseFileDO == null) {
             R.errorMsg("操作失败：文件不存在");
+        }
+
+        if (BooleanUtil.isTrue(baseFileDO.getUploadFlag())) {
+            return null;
         }
 
         return baseFileDO;
